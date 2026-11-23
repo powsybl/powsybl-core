@@ -1,5 +1,5 @@
 # Import post-processor
-The import post-processor is a feature that allows to do automatic modifications or simulations, just after a case is converted to an [IIDM](../grid_exchange_formats/iidm/index.md) network. These post-processors rely on the [plugin mechanism]() of PowSyBl meaning that they are discovered at runtime. To enable one or more post-processors, the `postprocessors` property of the `import` module must be defined in the configuration file. Note that if you configure several post-processors, they are executed in the declaration order, like a pipeline:  
+The import post-processor is a feature that allows to do automatic modifications or simulations, just after a case is converted to an [IIDM](../grid_exchange_formats/iidm/index.md) network. These post-processors rely on the [plugin mechanism]() of PowSyBl meaning that they are discovered at runtime. To enable one or more post-processors, the `postprocessors` property of the `import` module must be defined in the configuration file. Note that if you configure several post-processors, they are executed in the declaration order, like a pipeline:
 <span style="color: red">TODO: insert a picture
 
 PowSyBl provides 2 different implementations of post-processors:
@@ -40,7 +40,7 @@ println "Network " + network.getId() + " (" + network.getSourceFormat()+ ") is i
 
 (loadflow-post-processor)=
 ## LoadFlow post-processor
-Mathematically speaking, a [load flow](../simulation/loadflow/index) result is fully defined by the complex voltages at each node. The consequence is that most load flow algorithms converge very fast if they are initialized with voltages. As a result, it happens that load flow results include only voltages and not flows on branches. This post-processors computes the flows given the voltages. The equations (Kirchhoff law) used are the same as the one used in the [load flow validation](../user/itools/loadflow-validation.md#load-flow-results-validation) to compute $P_1^{\text{calc}}$, $Q_1^{\text{calc}}$, $P_2^{\text{calc}}$, $Q_2^{\text{calc}}$ for branches and $P_3^{\text{calc}}$, $Q_3^{\text{calc}}$ in addition for three-winding transformers.
+Mathematically speaking, a [load flow](../simulation/loadflow/index) result is fully defined by the complex voltages at each node. The consequence is that most load flow algorithms converge very fast if they are initialized with voltages. As a result, it happens that load flow results include only voltages and not flows on branches. This post-processors computes the flows given the voltages. The equations (Kirchhoff law) used are the same as the one used in the [load flow validation](loadflow_validation/index.md) to compute $P_1^{\text{calc}}$, $Q_1^{\text{calc}}$, $P_2^{\text{calc}}$, $Q_2^{\text{calc}}$ for branches and $P_3^{\text{calc}}$, $Q_3^{\text{calc}}$ in addition for three-winding transformers.
 
 To use this post-processor, add the `com.powsybl:powsybl-loadflow-results-completion` to your classpath and enable it setting the `postProcessors` property of the `import` module.
 
@@ -96,4 +96,4 @@ geo-json-importer-post-processor:
 The paths to the different files can be absolute paths or paths relative to the directory where your command is launched.
 
 ## Going further
-- [Create a post-processor](): Learn how to implement your own post-processor 
+- [Create a post-processor](): Learn how to implement your own post-processor

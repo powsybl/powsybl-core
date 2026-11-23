@@ -8,8 +8,9 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import java.time.ZonedDateTime;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -22,6 +23,46 @@ public final class ReactiveLimitsTestNetworkFactory {
 
     public static Network create() {
         return create(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithShape() {
+        Network network = create(NetworkFactory.findDefault());
+        addReactiveLimitCapabilityShapes(network);
+        return network;
+    }
+
+    private static void addReactiveLimitCapabilityShapes(Network network) {
+        VoltageLevel vl = network.getVoltageLevels().iterator().next();
+        Generator g3 = vl.newGenerator()
+                .setId("G3")
+                .setEnergySource(EnergySource.OTHER)
+                .setMaxP(20)
+                .setMinP(0)
+                .newVoltageRegulation().withRegulating(true).add()
+                .setLocalTargetV(380)
+                .setTargetP(10)
+                .setBus("B")
+                .setConnectableBus("B")
+                .add();
+        g3.newReactiveCapabilityShape()
+                .addPlane(5.0, 1.0, 1.0, true, 10.0)
+                .addPlane(10.0, -10.0, 1.0, false, 20.0)
+                .add();
+
+        Battery b1 = vl.newBattery().setId("B1")
+                .setTargetP(100.0)
+                .setLocalTargetQ(50.0)
+                .setMinP(-9999.0)
+                .setMaxP(9999.0)
+                .setBus("B")
+                .setConnectableBus("B")
+                .add();
+
+        b1.newReactiveCapabilityShape()
+                .addPlane(5.0, 1.0, 1.0, true, 10.0)
+                .addPlane(10.0, -10.0, 1.0, false, 20.0)
+                .addPlane(20.0, -20.0, 1.0, true, -20.0)
+                .add();
     }
 
     public static Network create(NetworkFactory networkFactory) {
@@ -47,8 +88,8 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(10)
                 .setMinP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(380)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(380)
                 .setTargetP(10)
                 .setBus("B")
                 .setConnectableBus("B")
@@ -70,8 +111,8 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(10)
                 .setMinP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(380)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(380)
                 .setTargetP(10)
                 .setBus("B")
                 .setConnectableBus("B")

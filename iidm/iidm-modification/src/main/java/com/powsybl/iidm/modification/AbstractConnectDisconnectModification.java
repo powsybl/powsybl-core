@@ -41,7 +41,8 @@ public abstract class AbstractConnectDisconnectModification extends AbstractNetw
 
     private boolean checkIfCannotBeAppliedOnNetwork(Identifiable<?> identifiable) {
         return !(identifiable instanceof Connectable<?> || identifiable instanceof TieLine || identifiable instanceof HvdcLine)
-            || identifiable instanceof Connectable<?> connectable && (side == ThreeSides.TWO && connectable.getTerminals().size() < 2 || side == ThreeSides.THREE && connectable.getTerminals().size() < 3)
+            || identifiable instanceof Connectable<?> connectable
+            && (side == ThreeSides.TWO && connectable.getTerminals().size() < 2 || side == ThreeSides.THREE && connectable.getTerminals().size() < 3)
             || (identifiable instanceof TieLine || identifiable instanceof HvdcLine) && side == ThreeSides.THREE;
     }
 

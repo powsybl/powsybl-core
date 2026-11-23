@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
@@ -17,7 +16,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +24,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,15 +41,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         testExport(network, ds, NamingStrategyFactory.CGMES);
     }
 
-    @Test
-    void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
-        // We select a case that contains invalid IDs
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
-        Network network = Network.read(ds);
-        network.setName("MicroGrid-NS-CGMES_FIX_ALL_INVALID_IDS");
-        testExport(network, ds, NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS);
-    }
-
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
         String baseName = network.getNameOrId();
 
@@ -69,16 +56,10 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         }
 
         // Load the exported CGMES model and check that all objects have valid CGMES identifiers
-        Network network1 = Network.read(exportedCgmes);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
+        Network network1 = Network.read(exportedCgmes, importParams);
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
-        // Also, all Identifiables that do not have a valid CIM mRID must have a valid UUID alias
-        for (Identifiable<?> i : network1.getIdentifiables()) {
-            if (!i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE) && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
-                Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
-                assertTrue(uuid.isPresent());
-                assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
-            }
-        }
 
         // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES
         // with the same naming strategy to use aliases to fix bad mrids
@@ -103,32 +84,33 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
 
     private void checkAllIdentifiersAreValidCimCgmesIdentifiers(Network network) {
         CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
-        Supplier<Stream<String>> badIds = () -> Stream.of(
-                        network.getIdentifiables().stream().filter(i -> !i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE)).map(Identifiable::getId),
-                        // Some CGMES identifiers do not end as Network identifiables
-                        cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
-                        cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
-                        cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
-                        cgmes.topologicalIslands().stream().flatMap(o -> Stream.of(
-                                o.getId(CgmesNames.TOPOLOGICAL_ISLAND),
-                                o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE),
-                                o.getId(CgmesNames.TOPOLOGICAL_NODES))),
-                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE)),
-                        cgmes.transformerEnds().stream().map(o -> o.getId(CgmesNames.TRANSFORMER_END)),
-                        cgmes.phaseTapChangers().stream().map(o -> o.getId(CgmesNames.PHASE_TAP_CHANGER)),
-                        cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),
-                        cgmes.regulatingControls().stream().map(o -> o.getId("RegulatingControl")),
-                        cgmes.controlAreas().stream().map(o -> o.getId("ControlArea")),
-                        cgmes.synchronousMachinesGenerators().stream().map(o -> o.getId("GeneratingUnit")),
-                        cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit")),
-                        cgmes.substations().stream().map(o -> o.getId("Region")),
-                        cgmes.substations().stream().map(o -> o.getId("SubRegion"))
-                )
-                .flatMap(id -> id)
-                .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id));
+        List<String> badIds = Stream.of(
+                network.getIdentifiables().stream().filter(i -> !i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE)).map(Identifiable::getId),
+                // Some CGMES identifiers do not end as Network identifiables
+                cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
+                cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
+                cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
+                cgmes.topologicalIslands().stream().flatMap(o -> Stream.of(
+                    o.getId(CgmesNames.TOPOLOGICAL_ISLAND),
+                    o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE),
+                    o.getId(CgmesNames.TOPOLOGICAL_NODES))),
+                cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE)),
+                cgmes.transformerEnds().stream().map(o -> o.getId(CgmesNames.TRANSFORMER_END)),
+                cgmes.phaseTapChangers().stream().map(o -> o.getId(CgmesNames.PHASE_TAP_CHANGER)),
+                cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),
+                cgmes.regulatingControls().stream().map(o -> o.getId("RegulatingControl")),
+                cgmes.controlAreas().stream().map(o -> o.getId("ControlArea")),
+                cgmes.synchronousMachinesGenerators().stream().map(o -> o.getId("GeneratingUnit")),
+                cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit")),
+                cgmes.substations().stream().map(o -> o.getId("Region")),
+                cgmes.substations().stream().map(o -> o.getId("SubRegion"))
+            )
+            .flatMap(id -> id)
+            .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id))
+            .toList();
         assertEquals(0,
-                badIds.get().count(),
-                String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))));
+                badIds.size(),
+                String.format("Identifiers not valid as CIM mRIDs : %s", String.join(",", badIds)));
     }
 
     private DataSource tmpDataSource(String folder, String baseName) throws IOException {

@@ -10,6 +10,7 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.AbstractLoadActionBuilder;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -22,12 +23,20 @@ public abstract class AbstractLoadActionBuilderDeserializer<T extends AbstractLo
         super(vc);
     }
 
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name, String version) throws IOException {
         switch (name) {
             case "id":
                 builder.withId(jsonParser.nextTextValue());
                 return true;
-            case "loadId", "danglingLineId":
+            case "loadId":
+                builder.withNetworkElementId(jsonParser.nextTextValue());
+                return true;
+            case "danglingLineId":
+                JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: danglingLineId", version, "1.2");
+                builder.withNetworkElementId(jsonParser.nextTextValue());
+                return true;
+            case "boundaryLineId":
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "Tag: boundaryLineId", version, "1.3");
                 builder.withNetworkElementId(jsonParser.nextTextValue());
                 return true;
             case "relativeValue":

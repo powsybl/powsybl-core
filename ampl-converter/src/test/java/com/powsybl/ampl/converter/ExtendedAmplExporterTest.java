@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,32 +102,32 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testDanglingLineExport() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    void testBoundaryLineExport() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
 
         exporter.export(network, properties, dataSource);
 
         // Check that export is the same as for basic AMPL exporter
-        assertEqualsToRef(dataSource, "_network_branches", "inputs/dangling-line-branches.txt");
-        assertEqualsToRef(dataSource, "_network_limits", "inputs/dangling-line-limits.txt");
-        assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
-        assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/boundary-line-branches.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/boundary-line-limits.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/boundary-line-loads.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/boundary-line-substations.txt");
 
         // Check that slack bus and sc have been added to buses file
         assertEqualsToRef(dataSource, "_network_buses",
-                "inputs/extended_exporter/dangling-line-buses.txt");
+                "inputs/extended_exporter/boundary-line-buses.txt");
 
-        // Check that middle bus in different sc if dangling line bus is disconnected
-        network.getDanglingLine("DL").getTerminal().disconnect();
+        // Check that middle bus in different sc if boundary line bus is disconnected
+        network.getBoundaryLine("BL").getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
-        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/dangling-line-disconnected-buses.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/boundary-line-disconnected-buses.txt");
     }
 
     @Test
     void testTieLineExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            danglingLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        for (BoundaryLine boundaryLine : network.getBoundaryLines()) {
+            boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                     .setPermanentLimit(100.0)
                     .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
                     .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
@@ -145,13 +146,13 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_buses",
                 "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl.txt");
 
-        // Check that sc num stays the same if dangling line 1 is disconnected, as middle bus stays connected to main sc
-        network.getTieLine("NHV1_NHV2_1").getDanglingLine1().getTerminal().disconnect();
+        // Check that sc num stays the same if boundary line 1 is disconnected, as middle bus stays connected to main sc
+        network.getTieLine("NHV1_NHV2_1").getBoundaryLine1().getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl.txt");
 
-        // Check that sc num of middle bus is different if dangling lines 1 and 2 are disconnected
-        network.getTieLine("NHV1_NHV2_1").getDanglingLine2().getTerminal().disconnect();
+        // Check that sc num of middle bus is different if boundary lines 1 and 2 are disconnected
+        network.getTieLine("NHV1_NHV2_1").getBoundaryLine2().getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl-disconnected.txt");
 
@@ -197,18 +198,21 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
-        network.getGenerator("GEN").setVoltageRegulatorOn(false);
+        Generator gen = network.getGenerator("GEN");
+        gen.getVoltageRegulation().setRegulating(false);
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                .setTargetV(152.5)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(152.5)
+                    .withTerminal(network.getLoad("LOAD").getTerminal())
+                    .add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
 
         exporter.export(network, properties, dataSource);
@@ -220,17 +224,19 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportSvc() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
-        network.getStaticVarCompensator("SVC2").setRegulating(false);
+        network.getStaticVarCompensator("SVC2").getVoltageRegulation().setRegulating(false);
         network.getVoltageLevel("VL1").newStaticVarCompensator()
                 .setId("SVC1")
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(true)
-                .setVoltageSetpoint(390)
-                .setRegulatingTerminal(network.getLoad("L2").getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .withTargetValue(390)
+                    .withTerminal(network.getLoad("L2").getTerminal())
+                    .add()
                 .add();
 
         exporter.export(network, properties, dataSource);

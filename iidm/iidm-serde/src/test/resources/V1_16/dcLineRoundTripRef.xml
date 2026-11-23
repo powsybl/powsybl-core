@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="dcLineTest" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="dcNode1" nominalV="500.0"/>
+    <iidm:dcNode id="dcNode2" nominalV="500.0"/>
+    <iidm:dcLine id="dcLineWithoutSolvedV" name="A DC Line without solved values" fictitious="true" dcNode1="dcNode1" dcNode2="dcNode2" r="3.0" connected1="false" connected2="false">
+        <iidm:alias>someAlias</iidm:alias>
+        <iidm:property name="prop name" value="prop value"/>
+    </iidm:dcLine>
+    <iidm:dcLine id="dcLineWithSolvedV" name="A DC Line with solved values" dcNode1="dcNode1" dcNode2="dcNode2" r="4.0" connected1="true" connected2="true" dcP1="100.0" dcI1="200.0" dcP2="-98.0" dcI2="-195.0"/>
+</iidm:network>

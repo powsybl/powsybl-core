@@ -15,7 +15,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
@@ -129,18 +129,24 @@ class FaultResultDeserializer {
                 return new FailedFaultResult(parameters.fault, FaultResult.Status.FAILURE);
             } else {
                 if (!Double.isNaN(parameters.currentMagnitude)) {
-                    return new MagnitudeFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults, parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults, parameters.timeConstant, FaultResult.Status.SUCCESS);
+                    return new MagnitudeFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
+                        parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults,
+                        parameters.timeConstant, FaultResult.Status.SUCCESS);
                 } else {
-                    return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults, parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant, FaultResult.Status.SUCCESS);
+                    return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
+                        parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant, FaultResult.Status.SUCCESS);
                 }
             }
         } else {
             if (parameters.status == FaultResult.Status.FAILURE) {
                 return new FailedFaultResult(parameters.fault, parameters.status);
             } else if (!Double.isNaN(parameters.currentMagnitude)) {
-                return new MagnitudeFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults, parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults, parameters.timeConstant, parameters.status);
+                return new MagnitudeFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
+                    parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults,
+                    parameters.timeConstant, parameters.status);
             } else {
-                return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults, parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant, parameters.status);
+                return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
+                    parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant, parameters.status);
             }
         }
     }

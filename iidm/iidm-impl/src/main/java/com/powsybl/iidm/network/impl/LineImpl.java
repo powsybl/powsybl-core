@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.commons.ref.Ref;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,8 +28,8 @@ class LineImpl extends AbstractConnectableBranch<Line> implements Line {
 
     private double b2;
 
-    LineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2) {
-        super(network, id, name, fictitious);
+    LineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent, double r, double x, double g1, double b1, double g2, double b2) {
+        super(network, id, name, fictitious, equivalent);
         this.r = r;
         this.x = x;
         this.g1 = g1;

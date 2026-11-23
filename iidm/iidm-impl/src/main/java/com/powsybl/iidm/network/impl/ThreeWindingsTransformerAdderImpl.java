@@ -18,7 +18,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
+class ThreeWindingsTransformerAdderImpl extends AbstractConnectableAdder<ThreeWindingsTransformerAdderImpl>
     implements ThreeWindingsTransformerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreeWindingsTransformerAdderImpl.class);
@@ -121,7 +121,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             VoltageLevelExt voltageLevel = checkAndGetVoltageLevel();
-            return new TerminalBuilder(voltageLevel.getNetworkRef(), this, side, null)
+            return new TerminalBuilder(voltageLevel.getNetworkRef(), voltageLevel.getTopologyKind(), this, side, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)
@@ -265,7 +265,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
+        if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true)
+            || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)
+            || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
             throw new ValidationException(this,
                     "the 3 windings of the transformer shall belong to the substation '"
                             + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
@@ -279,7 +281,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetworkRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetworkRef(), id, getName(), isFictitious(), isEquivalent(),
+                leg1, leg2, leg3,
             ratedU0);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);

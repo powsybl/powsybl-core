@@ -10,9 +10,9 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.RatioTapChangerTapPositionAction;
 import com.powsybl.action.RatioTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.RatioTapChangerTapPositionAction;
 
 import java.io.IOException;
 

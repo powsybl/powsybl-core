@@ -7,11 +7,11 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import java.io.IOException;
-
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.data.*;
+
+import java.io.IOException;
 
 /**
  *

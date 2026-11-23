@@ -8,8 +8,9 @@
 
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.PropertiesHolder;
-import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.iidm.network.BasePropertiesHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
@@ -26,29 +27,33 @@ public final class PropertiesSerDe {
     static final String NAME = "name";
     static final String VALUE = "value";
 
-    public static void write(PropertiesHolder propertiesHolder, NetworkSerializerContext context) {
+    public static void write(BasePropertiesHolder propertiesHolder, TreeDataWriter writer, String nsUri, ExportOptions exportOptions) {
         if (propertiesHolder.hasProperty()) {
-            context.getWriter().writeStartNodes();
-            for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), context.getOptions())) {
+            writer.writeStartNodes();
+            for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), exportOptions)) {
                 String value = propertiesHolder.getProperty(name);
-                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(propertiesHolder.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
-                context.getWriter().writeStringAttribute(NAME, name);
-                context.getWriter().writeStringAttribute(VALUE, value);
-                context.getWriter().writeEndNode();
+                writer.writeStartNode(nsUri, ROOT_ELEMENT_NAME);
+                writer.writeStringAttribute(NAME, name);
+                writer.writeStringAttribute(VALUE, value);
+                writer.writeEndNode();
             }
-            context.getWriter().writeEndNodes();
+            writer.writeEndNodes();
         }
     }
 
-    public static void read(PropertiesHolder propertiesHolder, NetworkDeserializerContext context) {
+    public static void write(BasePropertiesHolder propertiesHolder, NetworkSerializerContext context) {
+        write(propertiesHolder, context.getWriter(), context.getNamespaceURI(), context.getOptions());
+    }
+
+    public static void read(BasePropertiesHolder propertiesHolder, NetworkDeserializerContext context) {
         read(context).accept(propertiesHolder);
     }
 
-    public static <T extends PropertiesHolder> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+    public static <T extends BasePropertiesHolder> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         toApply.add(read(context));
     }
 
-    private static <T extends PropertiesHolder> Consumer<T> read(NetworkDeserializerContext context) {
+    private static <T extends BasePropertiesHolder> Consumer<T> read(NetworkDeserializerContext context) {
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
         context.getReader().readEndNode();
@@ -56,5 +61,22 @@ public final class PropertiesSerDe {
     }
 
     private PropertiesSerDe() {
+    }
+
+    public static void readProperties(NetworkDeserializerContext context, BasePropertiesHolder holder) {
+        if (context.getVersion().compareTo(IidmVersion.V_1_16) >= 0) {
+            context.getReader().readChildNodes(elementName -> {
+                if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
+                    String name = context.getReader().readStringAttribute(NAME);
+                    String value = context.getReader().readStringAttribute(VALUE);
+                    context.getReader().readEndNode();
+                    holder.setProperty(name, value);
+                } else {
+                    throw new PowsyblException(String.format("Unknown element name '%s' in '%s'", elementName, holder.getClass().getSimpleName()));
+                }
+            });
+        } else {
+            context.getReader().readEndNode();
+        }
     }
 }

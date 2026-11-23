@@ -29,6 +29,14 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeStringAttribute(String name, String value);
 
+    /**
+     * Write the <code>value</code> to the field corresponding to the given <code>name</code>, only if the value is different from the <code>defaultValue</code>.
+     * @param name the field to which to write the value
+     * @param value the value to put in the field corresponding tp the name
+     * @param absentValue the default value for this field, only write if the value is not the defaultValue
+     */
+    void writeStringAttribute(String name, String value, String absentValue);
+
     void writeFloatAttribute(String name, float value);
 
     void writeDoubleAttribute(String name, double value);

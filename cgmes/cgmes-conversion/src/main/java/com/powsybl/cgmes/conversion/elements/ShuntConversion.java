@@ -9,15 +9,18 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.OptionalInt;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_SECTIONS;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -69,7 +72,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
         convertedTerminalsWithOnlyEq(shunt.getTerminal());
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
-        shunt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS, String.valueOf(normalSections));
+        shunt.setProperty(PROPERTY_NORMAL_SECTIONS, String.valueOf(normalSections));
     }
 
     public static void update(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
@@ -88,7 +91,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static Integer getNormalSections(ShuntCompensator shuntCompensator) {
-        String property = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS);
+        String property = shuntCompensator.getProperty(PROPERTY_NORMAL_SECTIONS);
         return property != null ? Integer.parseInt(property) : null;
     }
 
@@ -107,15 +110,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static void updateRegulatingControl(ShuntCompensator shuntCompensator, Boolean controlEnabled, Context context) {
-        // When the equipment is participating in regulating control (controlEnabled is true),
-        // but no regulating control data is found, default regulation data will be created
-
         boolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator, context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
-        if (isDefaultRegulatingControl(shuntCompensator, updatedControlEnabled)) {
-            setDefaultRegulatingControl(shuntCompensator);
-            return;
-        }
 
         double defaultTargetV = getDefaultTargetV(shuntCompensator, context);
         double defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator, context);
@@ -124,49 +120,34 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
         double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
         boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+        boolean regulatingOn = updatedControlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband);
 
-        setRegulation(shuntCompensator, targetV, targetDeadband, updatedControlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
+        setRegulation(shuntCompensator, targetV, targetDeadband, regulatingOn);
     }
 
     // Regulation values (targetV and targetDeadband) must be valid before enabling it,
     // and regulation must be turned off before assigning potentially invalid values,
     // to ensure consistency with the applied checks
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
-        if (regulatingOn) {
-            shuntCompensator.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(true);
-        } else {
-            shuntCompensator
-                    .setVoltageRegulatorOn(false)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            return;
         }
+        setVoltageRegulation(shuntCompensator, targetV, targetDeadband, regulatingOn);
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.getTargetV(), Double.NaN, Double.NaN, context);
+        double previousTargetV = shuntCompensator.getRegulatingTargetV();
+        return getDefaultValue(null, previousTargetV, Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetDeadband(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.getTargetDeadband(), 0.0, 0.0, context);
+        double targetDeadband = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        return getDefaultValue(null, targetDeadband, 0.0, 0.0, context);
     }
 
     private static boolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(null, shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
-    private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
-        String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-        return regulatingControlId == null && controlEnabled;
-    }
-
-    private static void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
-        shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getRegulatingTerminal().getBusView().getBus())
-                        .map(Bus::getV)
-                        .filter(v -> !Double.isNaN(v))
-                        .orElse(shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()))
-                .setTargetDeadband(0.0)
-                .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
-    }
 }

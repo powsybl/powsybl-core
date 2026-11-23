@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

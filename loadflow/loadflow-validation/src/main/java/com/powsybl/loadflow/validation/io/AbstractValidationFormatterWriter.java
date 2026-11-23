@@ -245,7 +245,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         }
     }
 
-    protected abstract void writeT3wt(String twtId, ValidatedTransformer3W validatedTransformer3W1, ValidatedTransformer3W validatedTransformer3W2, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeT3wt(String twtId, ValidatedTransformer3W validatedTransformer3W1, ValidatedTransformer3W validatedTransformer3W2, boolean found,
+                                      boolean writeValues) throws IOException;
 
     @Override
     public void setValidationCompleted() {

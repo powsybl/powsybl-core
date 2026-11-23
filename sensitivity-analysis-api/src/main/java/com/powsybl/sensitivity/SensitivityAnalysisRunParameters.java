@@ -7,12 +7,14 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -26,10 +28,12 @@ public class SensitivityAnalysisRunParameters {
     private static final Supplier<SensitivityAnalysisParameters> DEFAULT_SENSITIVITY_ANALYSIS_PARAMETERS_SUPPLIER = SensitivityAnalysisParameters::load;
 
     private ComputationManager computationManager;
-    private List<Contingency> contingencies = Collections.emptyList();
+    private List<Contingency> contingencies = new ArrayList<>();
     private SensitivityAnalysisParameters parameters;
     private ReportNode reportNode = ReportNode.NO_OP;
-    private List<SensitivityVariableSet> variableSets = Collections.emptyList();
+    private List<SensitivityVariableSet> variableSets = new ArrayList<>();
+    private List<OperatorStrategy> operatorStrategies = new ArrayList<>();
+    private List<Action> actions = new ArrayList<>();
 
     /**
      * Returns a {@link SensitivityAnalysisRunParameters} instance with default value on each field.
@@ -75,6 +79,14 @@ public class SensitivityAnalysisRunParameters {
         return variableSets;
     }
 
+    public List<OperatorStrategy> getOperatorStrategies() {
+        return operatorStrategies;
+    }
+
+    public List<Action> getActions() {
+        return actions;
+    }
+
     public SensitivityAnalysisRunParameters setParameters(SensitivityAnalysisParameters parameters) {
         Objects.requireNonNull(parameters, "LoadFlowRunParameters should not be null");
         this.parameters = parameters;
@@ -105,6 +117,16 @@ public class SensitivityAnalysisRunParameters {
     public SensitivityAnalysisRunParameters setVariableSets(List<SensitivityVariableSet> variableSets) {
         Objects.requireNonNull(variableSets, "VariableSets should not be null");
         this.variableSets = variableSets;
+        return this;
+    }
+
+    public SensitivityAnalysisRunParameters setOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
+        this.operatorStrategies = Objects.requireNonNull(operatorStrategies, "operatorStrategies should not be null");
+        return this;
+    }
+
+    public SensitivityAnalysisRunParameters setActions(List<Action> actions) {
+        this.actions = Objects.requireNonNull(actions, "actions should not be null");
         return this;
     }
 }

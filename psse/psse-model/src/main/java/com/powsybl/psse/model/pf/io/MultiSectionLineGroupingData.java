@@ -7,29 +7,28 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseLineGrouping;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_SECTION_LINE_GROUPING;
+
 /**
- *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping> {
 
     MultiSectionLineGroupingData() {
-        super(MULTI_SECTION_LINE_GROUPING, "i", "j", "id", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9");
-        withQuotedFields("id", "mslid");
+        super(MULTI_SECTION_LINE_GROUPING, PsseLineGrouping.getFieldNames());
+        withQuotedFields(PsseLineGrouping.getFieldNamesString());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 
@@ -54,7 +53,7 @@ class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping>
                 // write only the non-null read points
                 String[] writeHeaders = ArrayUtils.subarray(headers, 0, validRecordFields(lineGrouping));
                 String record = this.recordGroup.buildRecord(lineGrouping, writeHeaders, quotedFields, context);
-                write(String.format("%s%n", record), outputStream);
+                write(record, outputStream);
             });
             writeEnd(outputStream);
         }

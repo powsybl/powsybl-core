@@ -11,7 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.computation.Partition;
 import com.powsybl.computation.SimpleCommand;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -131,7 +131,7 @@ class SecurityAnalysisCommandOptionsTest {
                 .parametersFile(fileSystem.getPath("params.json"))
                 .actionsFile(fileSystem.getPath("actions.json"))
                 .strategiesFile(fileSystem.getPath("strategies.json"))
-                .limitReductionsFile(fileSystem.getPath("limit-reductions.json"));
+                .limitScalingsFile(fileSystem.getPath("limit-scalings.json"));
 
         SimpleCommand cmd = options.toCommand();
         String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
@@ -144,7 +144,7 @@ class SecurityAnalysisCommandOptionsTest {
                         "--parameters-file=params.json",
                         "--actions-file=actions.json",
                         "--strategies-file=strategies.json",
-                        "--limit-reductions-file=limit-reductions.json");
+                        "--limit-scalings-file=limit-scalings.json");
 
     }
 

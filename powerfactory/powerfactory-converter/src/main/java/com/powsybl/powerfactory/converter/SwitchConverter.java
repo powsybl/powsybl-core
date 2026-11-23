@@ -7,18 +7,17 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,7 +33,7 @@ class SwitchConverter extends AbstractConverter {
     void createFromElmCoup(DataObject elmCoup) {
         List<NodeRef> nodeRefs = findNodes(elmCoup);
         if (nodeRefs.size() != 2) {
-            LOGGER.warn("ElemCoup discarded as it does not have two ends '{}'", elmCoup);
+            LOGGER.warn("ElemCoup discarded as it does not have two ends {} '{}'", elmCoup.getId(), elmCoup);
             return;
         }
         NodeRef nodeRef1 = nodeRefs.get(0);

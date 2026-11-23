@@ -58,12 +58,6 @@ public final class BranchUtil {
         throw new IllegalStateException("Unexpected side: " + side);
     }
 
-    static int getOverloadDuration(Overload o1, Overload o2) {
-        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        return Math.min(duration1, duration2);
-    }
-
     static double getValueForLimit(Terminal t, LimitType type) {
         return LimitViolationUtils.getValueForLimit(t, type);
     }

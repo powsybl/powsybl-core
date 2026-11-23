@@ -19,11 +19,11 @@ import java.util.stream.Stream;
  */
 class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
-    private final Set<ConfiguredBus> buses;
+    private final List<ConfiguredBus> buses;
 
     private boolean valid = true;
 
-    MergedBus(String id, String name, boolean fictitious, Set<ConfiguredBus> buses) {
+    MergedBus(String id, String name, boolean fictitious, List<ConfiguredBus> buses) {
         super(id, name, fictitious);
         if (buses.isEmpty()) {
             throw new IllegalArgumentException("buses is empty");
@@ -328,19 +328,19 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
         checkValidity();
-        List<Iterable<DanglingLine>> iterables = new ArrayList<>(buses.size());
+        List<Iterable<BoundaryLine>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getDanglingLines(danglingLineFilter));
+            iterables.add(bus.getBoundaryLines(boundaryLineFilter));
         }
         return Iterables.concat(iterables);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
         checkValidity();
-        return buses.stream().flatMap(configuredBus -> configuredBus.getDanglingLineStream(danglingLineFilter));
+        return buses.stream().flatMap(configuredBus -> configuredBus.getBoundaryLineStream(boundaryLineFilter));
     }
 
     @Override

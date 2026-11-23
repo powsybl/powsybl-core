@@ -198,6 +198,8 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
                     AcDcConverter<?> converter = (AcDcConverter<?>) dcConnectable;
                     visitor.visitAcDcConverter(converter, dcTerminal.getTerminalNumber());
                 }
+                // If new equipment is coded, we need to implement all new cases in
+                // all visitors.
                 default -> throw new IllegalStateException();
             }
         }

@@ -7,9 +7,8 @@
  */
 package com.powsybl.psse.model.io;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
-import com.univocity.parsers.csv.CsvWriter;
-import com.univocity.parsers.csv.CsvWriterSettings;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -65,11 +64,19 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     protected void write(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-        CsvWriterSettings settings = recordGroup.settingsForCsvWriter(headers, quotedFields, context);
-        CsvWriter writer = new CsvWriter(outputStreamWriter, settings);
-        writer.processRecords(objects);
-        writer.flush();
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+            objects.forEach(object -> {
+                try {
+                    outputStreamWriter.write(recordGroup.buildRecord(object, headers, quotedFields, context));
+                } catch (IOException e) {
+                    throw new PowsyblException("Failed to write object record", e);
+                }
+            });
+            outputStreamWriter.flush();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static void writeEmpty(RecordGroupIdentification recordGroup, OutputStream outputStream) {
@@ -108,7 +115,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     public static void write(List<String> ss, OutputStream outputStream) {
-        ss.forEach(s -> write(String.format("%s%n", s), outputStream));
+        ss.forEach(s -> write(s, outputStream));
     }
 
     public static void write(String s, OutputStream outputStream) {

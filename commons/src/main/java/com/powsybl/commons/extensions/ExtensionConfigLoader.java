@@ -8,16 +8,21 @@
 package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  * Loads an extension from platform configuration.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T> > extends ExtensionProvider<T, E> {
+public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
     /**
      * Creates an extension instance from the provided platform configuration.
      */
     E load(PlatformConfig platformConfig);
+
+    default E load(PlatformConfig platformConfig, ReportNode reportNode) {
+        return load(platformConfig);
+    }
 }

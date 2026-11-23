@@ -24,7 +24,7 @@ import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * Removes a voltage level and the feeder bays connected to that voltage level. Note that dangling lines connected to
+ * Removes a voltage level and the feeder bays connected to that voltage level. Note that boundary lines connected to
  * this voltage level (hence paired) are not removed but unpaired.
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
@@ -57,7 +57,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
-        voltageLevel.getDanglingLines().forEach(dl ->
+        voltageLevel.getBoundaryLines().forEach(dl ->
             dl.getTieLine().ifPresent(tieLine -> {
                 String tlId = tieLine.getId();
                 String pairingKey = tieLine.getPairingKey();

@@ -7,26 +7,28 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.data.TransformerData;
+import com.powsybl.loadflow.validation.data.Validated;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.validation.data.TransformerData;
-import com.powsybl.loadflow.validation.data.Validated;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
+import static com.powsybl.loadflow.validation.ValidationUtils.TerminalState;
+import static com.powsybl.loadflow.validation.ValidationUtils.getTerminalState;
 
 /**
+ * Tries to validate that transformers regulating voltage have been correctly simulated.
+ * <hr/>
  * Tries to validate that transformers regulating voltage have been correctly simulated.
  * <br>
  * We check that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
@@ -92,6 +94,15 @@ public final class TransformersValidation {
         }
     }
 
+    /**
+     * Rules related to the ratio tap changer <br/>
+     * Rule: check that the voltage deviation stays inside the deadband (acceptable range) <br/>
+     * - voltage lower than target: if voltageDeviation (error) is negative and increase is possible
+     * then the condition |deviation| <= downDeadband + threshold should be satisfied. <br/>
+     * - voltage higher than target: if voltageDeviation (error) is positive and decrease is possible
+     * then the condition deviation < upDeadband + threshold should be satisfied. <br/>
+     * - if no increase/decrease is possible, the check is not applied on the corresponding side<br/>
+     */
     public static boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
@@ -104,11 +115,11 @@ public final class TransformersValidation {
         double rho = ratioTapChanger.getCurrentStep().getRho();
         double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
         double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
-        double targetV = ratioTapChanger.getTargetV();
+        double targetV = ratioTapChanger.getRegulatingTargetV();
         TwoSides regulatedSide;
-        if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
+        if (twt.getTerminal1().equals(ratioTapChanger.getRegulatingTerminal())) {
             regulatedSide = TwoSides.ONE;
-        } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulationTerminal())) {
+        } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulatingTerminal())) {
             regulatedSide = TwoSides.TWO;
         } else {
             LOGGER.warn("{} {}: {}: Unexpected regulation terminal (side 1 or 2 of transformer is expected), skipping validation",
@@ -121,13 +132,9 @@ public final class TransformersValidation {
             }
             return true;
         }
-        Bus bus = ratioTapChanger.getRegulationTerminal().getBusView().getBus();
-        double v = bus != null ? bus.getV() : Double.NaN;
-        boolean connected = bus != null;
-        Bus connectableBus = ratioTapChanger.getRegulationTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        TransformerData transformerData = new TransformerData(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV, regulatedSide, v, connected, mainComponent);
+        TerminalState terminalState = getTerminalState(ratioTapChanger.getRegulatingTerminal());
+        TransformerData transformerData = new TransformerData(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV, regulatedSide,
+                terminalState.v(), terminalState.connected(), terminalState.mainComponent());
         return checkTransformer(transformerData, config, twtsWriter);
     }
 
@@ -178,29 +185,32 @@ public final class TransformersValidation {
             LOGGER.warn("{} {}: {} side {}: error {}", ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error);
             return false;
         }
-        // if error is negative, i.e. if voltage is lower than target, and an increase is possible,
-        // check that voltage is inside the downward deadband, taken equal to the possible increase
+        double threshold = config.getThreshold();
+        // Rule (voltage is lower than target): if voltageDeviation (error) is negative and increase is possible
+        // then the condition |deviation| <= downDeadband + threshold should be satisfied
         if (error < 0 && !Double.isNaN(maxIncrease)) {
-            double downDeadband = maxIncrease;
+            // required increase: -error
+            double downDeadband = maxIncrease; // available Increase
 
-            if (error + downDeadband < -config.getThreshold()) {
+            if (-error > downDeadband + threshold) {
                 LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error, upIncrement, downIncrement);
                 validated = false;
             }
         }
-
-        // if error is positive, i.e. if voltage is higher than target, and a voltage decrease is possible,
-        // check that voltage is inside the upward deadband, taken equal to the possible decrease
+        // Rule (voltage is higher than target): if voltageDeviation (error) is positive and decrease is possible
+        // then the condition deviation < upDeadband + threshold should be satisfied
         if (error > 0 && !Double.isNaN(maxDecrease)) {
-            double upDeadband = -maxDecrease;
+            // required decrease: error
+            double upDeadband = -maxDecrease; // available Decrease
 
-            if (error - upDeadband > config.getThreshold()) {
+            if (error > upDeadband + threshold) {
                 LOGGER.warn("{} {}: {} side {}: error {} upIncrement {} downIncrement {}",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error, upIncrement, downIncrement);
                 validated = false;
             }
         }
+        // Rule: if maxDecrease is NaN, check in the corresponding side is not applied
         return validated;
     }
 

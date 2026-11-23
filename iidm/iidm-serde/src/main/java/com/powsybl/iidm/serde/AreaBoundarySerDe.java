@@ -33,9 +33,9 @@ public class AreaBoundarySerDe {
                 writer.writeStringAttribute("type", TERMINAL_REF);
                 TerminalRefSerDe.writeTerminalRefAttribute(terminal, context, writer);
             });
-            boundary.getBoundary().ifPresent(danglingLineBoundary -> {
+            boundary.getBoundary().ifPresent(boundaryLineBoundary -> {
                 writer.writeStringAttribute("type", BoundaryRefSerDe.ROOT_ELEMENT_NAME);
-                BoundaryRefSerDe.writeBoundaryRefAttributes(danglingLineBoundary, context);
+                BoundaryRefSerDe.writeBoundaryRefAttributes(boundaryLineBoundary, context);
             });
             writer.writeEndNode();
         }

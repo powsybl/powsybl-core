@@ -11,10 +11,10 @@ First, input data is obtained by reading and parsing the input file, and as a re
 ## Options
 Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
-**psse.import.ignore-base-voltage**  
+**psse.import.ignore-base-voltage**<br>
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.
 
-**psse.import.ignore-node-breaker-topology**  
+**psse.import.ignore-node-breaker-topology**<br>
 The `psse.import.ignore-node-breaker-topology` property is an optional property that defines if the importer should ignore the node breaker information present in the PSS®E file. The default value is `false`.
 
 (psse-inconsistency-checks)=
@@ -27,7 +27,7 @@ A PSS®E file specifies a Bus/Branch network model where typically there is a bu
 
 The PowSyBl grid model establishes the substation as a required container of voltage levels and equipment. The first step in the conversion process assigns a substation for each PSS®E bus, ensuring that all buses at transformer ends are kept in the same substation.
 
-The current conversion uses explicit PSS®E substation information to group buses, considering zero-impedance branches, transformers, and substation membership as connectors. A new substation is created for each identified component. Within the substation, a new voltage level is created for each group of buses connected by zero-impedance branches or sharing the same nominal voltage. The topology of each voltage level can be defined at either the bus-branch level or the node-breaker level. It is only defined at the node-breaker level when all the buses included in the voltage level belong to the same PSS®E substation. In this case, all the detailed connectivity defined in PSS®E is imported into the PowSyBl model.
+The current conversion uses explicit PSS®E substation information to group buses, considering zero-impedance branches, transformers, and substation membership as connectors. A new substation is created for each identified component. Within the substation, a new voltage level is created for each group of buses connected by zero-impedance branches or sharing the same nominal voltage. When detailed PSS®E substation connectivity is available, buses belonging to different PSS®E substations are kept in separate voltage levels. PSS®E substations connected by transformers can still be merged into a single IIDM substation, as required by the IIDM model. The topology of each voltage level can be defined at either the bus-branch level or the node-breaker level. When the node-breaker topology is used, all the detailed connectivity defined in PSS®E is imported into the PowSyBl model.
 
 In the PowSyBl grid model, all the network components are identified through a global and unique alphanumeric identifier (**Id**). Optionally, they may receive a name (**Name**).
 
@@ -248,7 +248,7 @@ Every _Area interchange_ single line record represents one area in PowSyBl grid 
 - **VoltageLevels** - a set of voltage levels of the area. The set is created from `VoltageLevels` objects that
   correspond
   to PSS®E buses within the given area.
-- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines, 
+- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines,
   HVDC lines and transformers. The boundary lines or boundary transformers are always identified such that one of
   their terminals belongs to the area. This  terminal is marked as a boundary terminal and included to area boundaries.
   Similarly, three-winding transformers are considered boundary transformers only if some, but not all, of their

@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.VariantManager;
@@ -61,17 +60,17 @@ public abstract class AbstractManipulationsOnVariantsTest {
     public void errorCloneToExistingVariant() {
         variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello");
         PowsyblException e = assertThrows(PowsyblException.class, () -> variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello"));
-        assertTrue(e.getMessage().contains("already exists"));
+        assertTrue(e.getMessage().contains("already exist"));
     }
 
     @Test
     public void baseTests() {
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantCreated(any(), anyString());
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantOverwritten(any(), any());
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantRemoved(any());
 
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);
@@ -109,12 +108,7 @@ public abstract class AbstractManipulationsOnVariantsTest {
         variantManager.removeVariant("s4");
         assertEquals(Sets.newHashSet(INITIAL_VARIANT_ID, "s2b", "s1", "s3"), variantManager.getVariantIds());
 
-        try {
-            variantManager.getWorkingVariantId();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, variantManager::getWorkingVariantId);
 
         network.removeListener(mockedListener);
     }

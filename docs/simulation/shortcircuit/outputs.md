@@ -1,10 +1,10 @@
 # Outputs
 The results of the short-circuit analysis are stored in `com.powsybl.shortcircuit.ShortCircuitAnalysisResult`.
-This class gathers the results for every fault, they are accessible either by the ID of the fault or the ID of the 
+This class gathers the results for every fault, they are accessible either by the ID of the fault or the ID of the
 element on which the fault is simulated.
 For each fault, an object `com.powsybl.shortcircuit.FaultResult` is returned.
 
-Depending on `with-fortescue-result`, the returned result should either be an instance of 
+Depending on `with-fortescue-result`, the returned result should either be an instance of
 `com.powsybl.shortcircuit.MagnitudeFaultResult` or `com.powsybl.shortcircuit.FortescueFaultResult`.
 
 Both classes contain the following attributes:
@@ -56,8 +56,8 @@ The attributes of `MagnitudeFeederResults` are:
 | Attribute     | Type       | Unit | Required | Default value | Description                                                                                                |
 |---------------|------------|------|----------|---------------|------------------------------------------------------------------------------------------------------------|
 | connectableId | String     | -    | yes      | -             | ID of the feeder                                                                                           |
-| current       | double     | A    | yes      | -             | Three-phased current magnitude of the feeder participating to the short-circuit current at the fault point | 
-| side          | ThreeSides | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                  | 
+| current       | double     | A    | yes      | -             | Three-phased current magnitude of the feeder participating to the short-circuit current at the fault point |
+| side          | ThreeSides | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                  |
 
 
 The attributes of `FortescueFeederResuts` are:
@@ -66,9 +66,9 @@ The attributes of `FortescueFeederResuts` are:
 |---------------|------------------|------|----------|---------------|-------------------------------------------------------------------------------------------------------------------------------|
 | connectableId | String           | -    | yes      | -             | ID of the feeder                                                                                                              |
 | current       | `FortescueValue` | A    | yes      | -             | Current magnitudes and angles on the three phases of the feeder participating to the short-circuit current at the fault point |
-| side          | ThreeSides       | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                                     | 
+| side          | ThreeSides       | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                                     |
 
-Note: For results on branches, the side can be retrieved as a `TwoSides` object by using the method `getSideAsTwoSides`.  
+Note: For results on branches, the side can be retrieved as a `TwoSides` object by using the method `getSideAsTwoSides`.
 
 **LimitViolations**
 
@@ -88,7 +88,7 @@ The attributes of `MagnitudeShortCircuitBusResult` are:
 | Attribute               | Type   | Unit | Required | Default value | Description                                            |
 |-------------------------|--------|------|----------|---------------|--------------------------------------------------------|
 | voltageLevelId          | String | -    | yes      | -             | ID of the voltage level containing the bus             |
-| busId                   | String | -    | yes      | -             | ID of the bus                                          | 
+| busId                   | String | -    | yes      | -             | ID of the bus                                          |
 | initialVoltageMagnitude | double | kV   | yes      | -             | Magnitude of the three-phased voltage before the fault |
 | voltageDropProportional | double | %    | yes      | -             | Voltage drop after the fault                           |
 | voltage                 | double | kV   | yes      | -             | Magnitude of the three-phased voltage after the fault  |
@@ -98,7 +98,7 @@ The attributes of `FortescueShortCircuitBusResult` are:
 | Attribute               | Type             | Unit | Required | Default value | Description                                                              |
 |-------------------------|------------------|------|----------|---------------|--------------------------------------------------------------------------|
 | voltageLevelId          | String           | -    | yes      | -             | ID of the voltage level containing the bus                               |
-| busId                   | String           | -    | yes      | -             | ID of the bus                                                            | 
+| busId                   | String           | -    | yes      | -             | ID of the bus                                                            |
 | initialVoltageMagnitude | double           | kV   | yes      | -             | Magnitude of the three-phased voltage before the fault                   |
 | voltageDropProportional | double           | %    | yes      | -             | Voltage drop after the fault                                             |
 | voltage                 | `FortescueValue` | kV   | yes      | -             | Magnitudes and angles of the voltage on the three phases after the fault |

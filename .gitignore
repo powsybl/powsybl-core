@@ -4,6 +4,7 @@ target/
 # IntelliJ
 /.idea
 *.iml
+.sonar/
 
 # Compilation settings
 install.cfg
@@ -23,6 +24,9 @@ org.eclipse.jdt.apt.core.prefs
 org.eclipse.jdt.groovy.core.prefs
 org.eclipse.jdt.apt.core.prefs
 org.sonarlint.eclipse.core.prefs
+
+# VS Code settings
+.vscode/*
 
 # Log files
 powsybl.log

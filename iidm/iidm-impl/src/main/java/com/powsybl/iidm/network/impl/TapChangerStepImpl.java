@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ValidationException;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
+class TapChangerStepImpl<S extends TapChangerStepImpl<S>> extends AbstractPropertiesHolder {
 
     private AbstractTapChanger<?, ?, ?> stepHolder;
 

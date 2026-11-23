@@ -92,7 +92,9 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         return sc;
     }
 
-    private static void removeShuntCompensators(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    private static void removeShuntCompensators(Network network,
+                                                HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2,
+                                                Set<ShuntCompensator> shunts, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         if (shunts == null) {
             return;
         }
@@ -117,7 +119,9 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
-    private static void removeConverterStations(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    private static void removeConverterStations(Network network,
+                                                HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2,
+                                                boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         String station1Id = hvdcConverterStation1.getId();
         String station2Id = hvdcConverterStation2.getId();
         HvdcConverterStation.HvdcType station1Type = hvdcConverterStation1.getHvdcType();

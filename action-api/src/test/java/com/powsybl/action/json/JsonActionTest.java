@@ -4,11 +4,11 @@ import com.powsybl.action.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -39,7 +39,7 @@ public class JsonActionTest extends AbstractSerDeTest {
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new PercentChangeLoadActionBuilder().withId("id26").withLoadId("loadId1").withP0PercentChange(5.0).withQModificationStrategy(CONSTANT_Q).build());
-        actions.add(new DanglingLineActionBuilder().withId("id17").withDanglingLineId("dlId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new BoundaryLineActionBuilder().withId("id17").withBoundaryLineId("dlId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeSides.THREE));
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
         actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeSides.THREE));
@@ -80,10 +80,10 @@ public class JsonActionTest extends AbstractSerDeTest {
                 .build());
         actions.add(new ShuntCompensatorPositionActionBuilder().withId("id22").withShuntCompensatorId("shuntId1").withSectionCount(5).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id23")
-                .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withStaticVarCompensatorId("svc").withRegulationMode(RegulationMode.VOLTAGE)
                 .withVoltageSetpoint(56.0).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
-                .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .withStaticVarCompensatorId("svc").withRegulationMode(RegulationMode.REACTIVE_POWER)
                 .withReactivePowerSetpoint(120.0).build());
         actions.add(new TerminalsConnectionAction("id4", "transformerId25", ThreeSides.THREE, true)); // only one side.
         actions.add(new AreaInterchangeTargetAction("id99", "AreaA", 101.0));
@@ -93,7 +93,8 @@ public class JsonActionTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json"})
+    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json", "/ActionFileTestV1.2.json"})
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void actionsReadOldVersion(String path) {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -107,13 +108,14 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @Test
     void wrongActions() throws IOException {
-        try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
+            UncheckedIOException exception = assertThrows(UncheckedIOException.class, () -> ActionList.readJsonInputStream(inputStream));
             assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
-                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(inputStream)).getMessage());
+                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])",
+                exception.getMessage());
         }
 
-        try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
+        try (InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
             assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
                 .readJsonInputStream(inputStream3))
                 .getMessage()

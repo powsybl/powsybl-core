@@ -8,12 +8,12 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStore;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +43,10 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
+    public void process(Network network, CgmesModel cgmesModel) {
         Objects.requireNonNull(network);
         LOG.info("Execute {} post processor on network {}", getName(), network.getId());
-        for (PropertyBag sm : network.getExtension(CgmesModelExtension.class).getCgmesModel().synchronousMachinesGenerators()) {
+        for (PropertyBag sm : cgmesModel.synchronousMachinesGenerators()) {
             String generatingUnitId = sm.getId("GeneratingUnit");
             if (generatingUnitId != null) {
                 processGenerator(network, sm, generatingUnitId);
@@ -54,6 +54,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private static void processGenerator(Network network, PropertyBag sm, String generatingUnitId) {
         String description = sm.getId("generatingUnitDescription");
         // String contains only digits or spaces
@@ -71,12 +72,12 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
         }
         try {
             int code = Integer.parseInt(description1);
-            if (code > 0) {
+            if (code >= 0) {
                 g.newExtension(GeneratorEntsoeCategoryAdder.class)
                         .withCode(code)
                         .add();
             }
-        } catch (Exception x) {
+        } catch (Exception ignored) {
             LOG.error("Bad number for ENTSO-E category from description [{}], generating Unit: {}, generator: {}", description, generatingUnitId, generatorId);
         }
     }

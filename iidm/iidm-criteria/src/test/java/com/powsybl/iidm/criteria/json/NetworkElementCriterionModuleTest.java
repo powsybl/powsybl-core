@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
@@ -25,8 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -63,15 +63,29 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
-    void danglingLineCriterionRoundTripTest() throws IOException {
-        DanglingLineCriterion criterion = new DanglingLineCriterion("criterion6", new SingleCountryCriterion(List.of(Country.FR, Country.DE)),
+    void boundaryLineCriterionRoundTripTest() throws IOException {
+        BoundaryLineCriterion criterion = new BoundaryLineCriterion("criterion6", new SingleCountryCriterion(List.of(Country.FR, Country.DE)),
                 new SingleNominalVoltageCriterion(
                         VoltageInterval.between(80., 100., true, true)));
-        DanglingLineCriterion empty = new DanglingLineCriterion(null, null);
+        BoundaryLineCriterion empty = new BoundaryLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
-                NetworkElementCriterionModuleTest::readDanglingLineCriteria,
-                "/criterion/dangling-line-criteria.json");
+                NetworkElementCriterionModuleTest::readBoundaryLineCriteria,
+                "/criterion/boundary-line-criteria.json");
+    }
+
+    @Test
+    void danglingLineCriterionImportCompatibilityTest() throws IOException {
+        List<BoundaryLineCriterion> criterionList = MAPPER.readValue(getClass().getResourceAsStream("/criterion/dangling-line-criteria-V1.0.json"),
+                new TypeReference<List<BoundaryLineCriterion>>() { });
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectWriter writer = MAPPER.writerWithDefaultPrettyPrinter();
+            writer.writeValue(bos, criterionList);
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/criterion/boundary-line-criteria.json"), new ByteArrayInputStream(bos.toByteArray()));
+        } catch (Exception e) {
+            // Should not happen
+            fail();
+        }
     }
 
     @Test
@@ -154,8 +168,8 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         return convert(readCriteria(jsonFile, new TypeReference<List<TieLineCriterion>>() { }));
     }
 
-    private static List<NetworkElementCriterion> readDanglingLineCriteria(Path jsonFile) {
-        return convert(readCriteria(jsonFile, new TypeReference<List<DanglingLineCriterion>>() { }));
+    private static List<NetworkElementCriterion> readBoundaryLineCriteria(Path jsonFile) {
+        return convert(readCriteria(jsonFile, new TypeReference<List<BoundaryLineCriterion>>() { }));
     }
 
     private static List<NetworkElementCriterion> readTwoWindingsTransformerCriteria(Path jsonFile) {

@@ -56,7 +56,7 @@ public class AtLeastOneNominalVoltageCriterion implements Criterion {
 
     private List<Double> getNominalVoltagesToCheck(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION,
+            case BOUNDARY_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION,
                  SWITCH, HVDC_CONVERTER_STATION, BUS, LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
                 Collections.singletonList(SingleNominalVoltageCriterion.getNominalVoltage(identifiable, type));
             case LINE, HVDC_LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER -> TwoNominalVoltageCriterion.getNominalVoltages(identifiable, type);

@@ -7,21 +7,20 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Objects;
-
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.util.BranchData;
-import com.powsybl.loadflow.validation.data.*;
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
+import com.powsybl.loadflow.validation.data.*;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Objects;
 
 /**
  *
@@ -29,6 +28,8 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWriter {
 
+    private static final String REGULATION_MODE = "regulationMode";
+    private static final String REGULATING = "regulating";
     private final boolean verbose;
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -153,7 +154,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                  new Column(CONNECTED),
-                                                 new Column("voltageRegulatorOn"),
+                                                 new Column(REGULATION_MODE),
+                                                 new Column(REGULATING),
                                                  new Column("minP"),
                                                  new Column("maxP"),
                                                  new Column("minQ"),
@@ -173,7 +175,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             if (verbose) {
                 generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                      new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
-                                                     new Column("voltageRegulatorOn" + POST_COMPUTATION_SUFFIX),
+                                                     new Column(REGULATION_MODE + POST_COMPUTATION_SUFFIX),
+                                                     new Column(REGULATING + POST_COMPUTATION_SUFFIX),
                                                      new Column("minP" + POST_COMPUTATION_SUFFIX),
                                                      new Column("maxP" + POST_COMPUTATION_SUFFIX),
                                                      new Column("minQ" + POST_COMPUTATION_SUFFIX),
@@ -205,8 +208,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("vscCSQ"),
                                            new Column("lineP"),
                                            new Column("lineQ"),
-                                           new Column("danglingLineP"),
-                                           new Column("danglingLineQ"),
+                                           new Column("boundaryLineP"),
+                                           new Column("boundaryLineQ"),
                                            new Column("twtP"),
                                            new Column("twtQ"),
                                            new Column("tltP"),
@@ -232,8 +235,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                new Column("vscCSQ" + POST_COMPUTATION_SUFFIX),
                                                new Column("lineP" + POST_COMPUTATION_SUFFIX),
                                                new Column("lineQ" + POST_COMPUTATION_SUFFIX),
-                                               new Column("danglingLineP" + POST_COMPUTATION_SUFFIX),
-                                               new Column("danglingLineQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("boundaryLineP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("boundaryLineQ" + POST_COMPUTATION_SUFFIX),
                                                new Column("twtP" + POST_COMPUTATION_SUFFIX),
                                                new Column("twtQ" + POST_COMPUTATION_SUFFIX),
                                                new Column("tltP" + POST_COMPUTATION_SUFFIX),
@@ -259,8 +262,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             svcColumns = ArrayUtils.addAll(svcColumns,
                                            new Column(CONNECTED),
-                                           new Column("regulationMode"),
-                                           new Column("regulating"),
+                                           new Column(REGULATION_MODE),
+                                           new Column(REGULATING),
                                            new Column("bMin"),
                                            new Column("bMax"),
                                            new Column(MAIN_COMPONENT),
@@ -278,8 +281,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             if (verbose) {
                 svcColumns = ArrayUtils.addAll(svcColumns,
                                                new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
-                                               new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
-                                               new Column("regulating" + POST_COMPUTATION_SUFFIX),
+                                               new Column(REGULATION_MODE + POST_COMPUTATION_SUFFIX),
+                                               new Column(REGULATING + POST_COMPUTATION_SUFFIX),
                                                new Column("bMin" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMax" + POST_COMPUTATION_SUFFIX),
                                                new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
@@ -571,14 +574,15 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(d.connected())
-                                 .writeCell(d.voltageRegulatorOn())
+                                .writeCell(d.regulationMode())
+                                .writeCell(d.regulating())
                                  .writeCell(d.minP())
                                  .writeCell(d.maxP())
                                  .writeCell(d.minQ())
                                  .writeCell(d.maxQ())
                                  .writeCell(d.mainComponent())
                                  .writeCell(getValidated(v.validated())) :
-                        formatter.writeEmptyCells(8);
+                        formatter.writeEmptyCells(9);
         }
         return formatter;
     }
@@ -603,8 +607,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(d.vscCSQ())
                                  .writeCell(d.lineP())
                                  .writeCell(d.lineQ())
-                                 .writeCell(d.danglingLineP())
-                                 .writeCell(d.danglingLineQ())
+                                 .writeCell(d.boundaryLineP())
+                                 .writeCell(d.boundaryLineQ())
                                  .writeCell(d.twtP())
                                  .writeCell(d.twtQ())
                                  .writeCell(d.tltP())

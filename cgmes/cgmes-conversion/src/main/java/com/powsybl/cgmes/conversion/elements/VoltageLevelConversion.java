@@ -10,11 +10,13 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_HIGH_VOLTAGE_LIMIT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_LOW_VOLTAGE_LIMIT;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -68,15 +70,30 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     .setTopologyKind(
                             context.nodeBreaker()
                                     ? TopologyKind.NODE_BREAKER
-                                    : TopologyKind.BUS_BREAKER)
-                    .setLowVoltageLimit(lowVoltageLimit)
-                    .setHighVoltageLimit(highVoltageLimit);
+                                    : TopologyKind.BUS_BREAKER);
             identify(adder);
             VoltageLevel vl = adder.add();
             addAliases(vl);
 
-            vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
-            vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
+            // Check voltage limit consistency.
+            if (highVoltageLimit < lowVoltageLimit) {
+                // this code path is never reached if either of the values is NaN, i.e. not provided in input
+                ignored("high/low voltage limits",
+                        () -> String.format("lowVoltageLimit (%f) is greater than highVoltageLimit (%f).", lowVoltageLimit, highVoltageLimit));
+            } else {
+                // either:
+                // - no limits defined
+                // - or, only one limit is defined
+                // - or, both limits are defined and they are consistent
+                if (!Double.isNaN(highVoltageLimit)) {
+                    vl.setHighVoltageLimit(highVoltageLimit);
+                    vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
+                }
+                if (!Double.isNaN(lowVoltageLimit)) {
+                    vl.setLowVoltageLimit(lowVoltageLimit);
+                    vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
+                }
+            }
         }
     }
 

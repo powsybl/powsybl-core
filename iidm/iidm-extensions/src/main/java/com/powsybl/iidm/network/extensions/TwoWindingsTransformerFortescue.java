@@ -24,14 +24,14 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     }
 
     /**
-     * The zero sequence resistance of the two windings transformer.
+     * The zero-sequence resistance of the two-winding transformer.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the two windings transformer.
+     * The zero-sequence reactance of the two-winding transformer.
      */
     double getXz();
 
@@ -43,6 +43,13 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     boolean isFreeFluxes();
 
     void setFreeFluxes(boolean freeFluxes);
+
+    /**
+     * The magnetizing reactance of the two-winding transformer, if not considered as infinite.
+     */
+    double getXm();
+
+    void setXm(double xm);
 
     /**
      * Get the winding connection type of transformer side 1, see {@link WindingConnectionType}).

@@ -8,9 +8,9 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import java.util.Objects;
-
 import com.powsybl.dynamicsimulation.EventModel;
+
+import java.util.Objects;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}

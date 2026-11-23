@@ -9,8 +9,10 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
@@ -22,12 +24,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.lang.Double.NaN;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -108,7 +106,7 @@ class StoredDoubleTimeSeriesTest {
         Mockito.when(index.getPointCount()).thenReturn(totalsize);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(chunkposition,
-                new double[] {0d, 0d, 0d, 0d, 0d });
+            new double[] {0d, 0d, 0d, 0d, 0d });
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk);
         List<DoubleTimeSeries> split = timeSeries.split(2);
 
@@ -135,6 +133,51 @@ class StoredDoubleTimeSeriesTest {
         assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0));
         assertEquals(chunkposition + 3, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
+    }
+
+    private void doSplitTestByRanges(Range<@NonNull Integer> firstRange, Range<@NonNull Integer> secondRange, int chunkLength) {
+        List<Range<@NonNull Integer>> ranges = List.of(firstRange, secondRange);
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(chunkLength);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        double valueInChunk = 28d;
+        CompressedDoubleDataChunk chunk = new CompressedDoubleDataChunk(0, chunkLength, new double[]{valueInChunk}, new int[]{chunkLength});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk);
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there is 2 new chunks
+        assertEquals(2, split.size());
+
+        // check first chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        assertEquals(1, ((StoredDoubleTimeSeries) split.getFirst()).getChunks().size());
+        assertInstanceOf(CompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.getFirst()).getChunks().getFirst());
+        assertEquals(firstRange.lowerEndpoint(), ((StoredDoubleTimeSeries) split.getFirst()).getChunks().getFirst().getOffset());
+        assertEquals(firstRange.upperEndpoint() - firstRange.lowerEndpoint() + 1, ((StoredDoubleTimeSeries) split.getFirst()).getChunks().getFirst().getLength());
+        split.getFirst().toArray();
+
+        // check second chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
+        assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
+        assertInstanceOf(CompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(1)).getChunks().getFirst());
+        assertEquals(secondRange.lowerEndpoint(), ((StoredDoubleTimeSeries) split.get(1)).getChunks().getFirst().getOffset());
+        assertEquals(secondRange.upperEndpoint() - secondRange.lowerEndpoint() + 1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void rangesSplitTestBigChunk() {
+        Range<@NonNull Integer> firstRange = Range.closed(100, 123);
+        Range<@NonNull Integer> secondRange = Range.closed(150, 872);
+        int chunkLength = 100000;
+        doSplitTestByRanges(firstRange, secondRange, chunkLength);
+    }
+
+    @Test
+    void rangesSplitTest() {
+        Range<@NonNull Integer> firstRange = Range.closed(0, 499);
+        Range<@NonNull Integer> secondRange = Range.closed(700, 899);
+        int chunkLength = 900;
+        doSplitTestByRanges(firstRange, secondRange, chunkLength);
     }
 
     @Test
@@ -194,4 +237,230 @@ class StoredDoubleTimeSeriesTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createDouble("ts1", index, 0d, 1d));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
+
+    @Test
+    void splitTimeSeriesWithMultipleChunksByRangeTest() {
+        // Prepare the TimeSeries
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(20);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0,
+            new double[]{0d, 1d, 2d, 3d, 4d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(5,
+            new double[]{5d, 6d, 7d, 8d, 9d});
+        UncompressedDoubleDataChunk chunk3 = new UncompressedDoubleDataChunk(10,
+            new double[]{10d, 11d, 12d, 13d, 14d});
+        UncompressedDoubleDataChunk chunk4 = new UncompressedDoubleDataChunk(15,
+            new double[]{15d, 16d, 17d, 18d, 19d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2, chunk3, chunk4);
+        // Prepare the Ranges
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(3, 7), Range.closed(9, 17));
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 2 new time series
+        assertEquals(2, split.size());
+
+        // check first chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(3, ts.getChunks().getFirst().getOffset());
+        assertEquals(5, ts.getChunks().getFirst().getLength());
+
+        // check second chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
+        ts = (StoredDoubleTimeSeries) split.get(1);
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(9, ts.getChunks().getFirst().getOffset());
+        assertEquals(9, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void splitTimeSeriesWithMultipleChunksAndIgnoredChunkByRangeTest() {
+        // Prepare the TimeSeries
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(20);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0,
+            new double[]{0d, 1d, 2d, 3d, 4d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(5,
+            new double[]{5d, 6d, 7d, 8d, 9d});
+        UncompressedDoubleDataChunk chunk3 = new UncompressedDoubleDataChunk(10,
+            new double[]{10d, 11d, 12d, 13d, 14d});
+        UncompressedDoubleDataChunk chunk4 = new UncompressedDoubleDataChunk(15,
+            new double[]{15d, 16d, 17d, 18d, 19d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2, chunk3, chunk4);
+        // Prepare the Ranges
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(6, 10), Range.closed(13, 14));
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 2 new time series
+        assertEquals(2, split.size());
+
+        // check first chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(6, ts.getChunks().getFirst().getOffset());
+        assertEquals(5, ts.getChunks().getFirst().getLength());
+
+        // check second chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
+        ts = (StoredDoubleTimeSeries) split.get(1);
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(13, ts.getChunks().getFirst().getOffset());
+        assertEquals(2, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void splitTimeSeriesWithNoChunkException() {
+        // Prepare the TimeSeries
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(20);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0,
+            new double[]{0d, 1d, 2d, 3d, 4d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1);
+        // Prepare the Ranges
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(9, 17));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> timeSeries.splitByRanges(ranges));
+        assertEquals("No chunk found for ranges [[9..17]]", exception.getMessage());
+    }
+
+    @Test
+    void splitTimeSeriesWithPartialChunkOnFirstIndex() {
+        // Prepare the TimeSeries
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(20);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(2,
+            new double[]{2d, 3d, 4d, 5d, 6d, 7d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1);
+        // Prepare the Ranges
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(1, 4));
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 1 new time series
+        assertEquals(1, split.size());
+
+        // check the chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(2, ts.getChunks().getFirst().getOffset());
+        assertEquals(3, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void splitTimeSeriesWithPartialChunkOnLastIndex() {
+        // Prepare the TimeSeries
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(20);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(2,
+            new double[]{2d, 3d, 4d, 5d, 6d, 7d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1);
+        // Prepare the Ranges
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(3, 200));
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 1 new time series
+        assertEquals(1, split.size());
+
+        // check the chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(3, ts.getChunks().getFirst().getOffset());
+        assertEquals(5, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void toArrayWhenNoTimeSeriesData() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata);
+        // When
+        double[] timeSeriesArray = timeSeries.toArray();
+        // Then
+        assertArrayEquals(new double[]{NaN, NaN, NaN}, timeSeriesArray, 0d);
+    }
+
+    @Test
+    void toCompactArrayWhenNoTimeSeriesDataShouldReturnEmpty() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata);
+        // When
+        double[] timeSeriesCompactArray = timeSeries.toCompactArray();
+        // Then
+        assertArrayEquals(new double[]{}, timeSeriesCompactArray, 0d);
+    }
+
+    @Test
+    void testToArray() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        // When
+        List<DoubleTimeSeries> chunks = timeSeries.split(4);
+        double[] timeSeriesArray = timeSeries.toArray();
+        double[] tsArray1 = chunks.get(0).toArray();
+        double[] tsArray2 = chunks.get(1).toArray();
+
+        // Then
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesArray, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, tsArray1, 0d);
+        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, tsArray2, 0d);
+    }
+
+    @Test
+    void testToCompactArray() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        // When
+        List<DoubleTimeSeries> chunks = timeSeries.split(4);
+        double[] timeSeriesCompactArray = timeSeries.toCompactArray();
+        double[] tsCompactArray1 = chunks.get(0).toCompactArray();
+        double[] tsCompactArray2 = chunks.get(1).toCompactArray();
+
+        // Then
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesCompactArray, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, tsCompactArray1, 0d);
+        assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, tsCompactArray2, 0d);
+    }
+
+    @Test
+    void testToCompactArrayWhenNaNExistsAtTheMiddle() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(9);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        DoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        DoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
+        assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
+    }
+
 }

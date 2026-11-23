@@ -187,39 +187,41 @@ public class TapChangerConversion {
         Step stepFixed = getTapChangerFixedStep(fixTc);
         double ratioFixed = stepFixed.getRatio();
         double angleFixed = stepFixed.getAngle();
+        Complex aFixed = new Complex(ratioFixed * Math.cos(Math.toRadians(angleFixed)),
+            ratioFixed * Math.sin(Math.toRadians(angleFixed)));
+        tc.getSteps().forEach(step -> addStep(tapChanger, step, stepFixed, aFixed));
+        tapChanger.setLowTapPosition(tc.getLowTapPosition());
+        tapChanger.setTapPosition(tc.getTapPosition());
+    }
+
+    private static void addStep(TapChanger tapChanger, Step step, Step stepFixed, Complex aFixed) {
         double rFixed = stepFixed.getR();
         double xFixed = stepFixed.getX();
         double g1Fixed = stepFixed.getG1();
         double b1Fixed = stepFixed.getB1();
         double g2Fixed = stepFixed.getG2();
         double b2Fixed = stepFixed.getB2();
-        Complex aFixed = new Complex(ratioFixed * Math.cos(Math.toRadians(angleFixed)),
-            ratioFixed * Math.sin(Math.toRadians(angleFixed)));
-        tc.getSteps().forEach(step -> {
-            double ratio = step.getRatio();
-            double angle = step.getAngle();
-            double r = step.getR();
-            double x = step.getX();
-            double g1 = step.getG1();
-            double b1 = step.getB1();
-            double g2 = step.getG2();
-            double b2 = step.getB2();
-            Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
-                ratio * Math.sin(Math.toRadians(angle)));
-            Complex na = a.multiply(aFixed);
-            tapChanger.beginStep()
-                .setRatio(na.abs())
-                .setAngle(Math.toDegrees(na.getArgument()))
-                .setR(combineTapChangerCorrection(rFixed, r))
-                .setX(combineTapChangerCorrection(xFixed, x))
-                .setG1(combineTapChangerCorrection(g1Fixed, g1))
-                .setB1(combineTapChangerCorrection(b1Fixed, b1))
-                .setG2(combineTapChangerCorrection(g2Fixed, g2))
-                .setB2(combineTapChangerCorrection(b2Fixed, b2))
-                .endStep();
-        });
-        tapChanger.setLowTapPosition(tc.getLowTapPosition());
-        tapChanger.setTapPosition(tc.getTapPosition());
+        double ratio = step.getRatio();
+        double angle = step.getAngle();
+        double r = step.getR();
+        double x = step.getX();
+        double g1 = step.getG1();
+        double b1 = step.getB1();
+        double g2 = step.getG2();
+        double b2 = step.getB2();
+        Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
+            ratio * Math.sin(Math.toRadians(angle)));
+        Complex na = a.multiply(aFixed);
+        tapChanger.beginStep()
+            .setRatio(na.abs())
+            .setAngle(Math.toDegrees(na.getArgument()))
+            .setR(combineTapChangerCorrection(rFixed, r))
+            .setX(combineTapChangerCorrection(xFixed, x))
+            .setG1(combineTapChangerCorrection(g1Fixed, g1))
+            .setB1(combineTapChangerCorrection(b1Fixed, b1))
+            .setG2(combineTapChangerCorrection(g2Fixed, g2))
+            .setB2(combineTapChangerCorrection(b2Fixed, b2))
+            .endStep();
     }
 
     /**
@@ -274,32 +276,30 @@ public class TapChangerConversion {
      */
     private static TapChanger moveTapChanger(TapChanger tc) {
         TapChanger tapChanger = baseCloneTapChanger(tc);
-        moveTapChangerSteps(tapChanger, tc);
+        tc.getSteps().forEach(step -> moveTapChangerStep(tapChanger, step));
         return tapChanger;
     }
 
-    private static void moveTapChangerSteps(TapChanger tapChanger, TapChanger tc) {
-        tc.getSteps().forEach(step -> {
-            double ratio = step.getRatio();
-            double angle = step.getAngle();
-            double r = step.getR();
-            double x = step.getX();
-            double g1 = step.getG1();
-            double b1 = step.getB1();
-            double g2 = step.getG2();
-            double b2 = step.getB2();
-            TapChangerStepConversion convertedStep = calculateConversionStep(ratio, angle, r, x, g1, b1, g2, b2);
-            tapChanger.beginStep()
-                .setRatio(convertedStep.ratio)
-                .setAngle(convertedStep.angle)
-                .setR(convertedStep.r)
-                .setX(convertedStep.x)
-                .setG1(convertedStep.g1)
-                .setB1(convertedStep.b1)
-                .setG2(convertedStep.g2)
-                .setB2(convertedStep.b2)
-                .endStep();
-        });
+    private static void moveTapChangerStep(TapChanger tapChanger, Step step) {
+        double ratio = step.getRatio();
+        double angle = step.getAngle();
+        double r = step.getR();
+        double x = step.getX();
+        double g1 = step.getG1();
+        double b1 = step.getB1();
+        double g2 = step.getG2();
+        double b2 = step.getB2();
+        TapChangerStepConversion convertedStep = calculateConversionStep(ratio, angle, r, x, g1, b1, g2, b2);
+        tapChanger.beginStep()
+            .setRatio(convertedStep.ratio)
+            .setAngle(convertedStep.angle)
+            .setR(convertedStep.r)
+            .setX(convertedStep.x)
+            .setG1(convertedStep.g1)
+            .setB1(convertedStep.b1)
+            .setG2(convertedStep.g2)
+            .setB2(convertedStep.b2)
+            .endStep();
     }
 
     private static TapChangerStepConversion calculateConversionStep(double a, double angle, double r,

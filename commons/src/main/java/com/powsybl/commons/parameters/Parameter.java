@@ -149,8 +149,8 @@ public class Parameter {
         }
     }
 
-    public static Object read(String prefix, Properties paramaters, Parameter configuredParameter) {
-        return read(prefix, paramaters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static Object read(String prefix, Properties parameters, Parameter configuredParameter) {
+        return read(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
     public static boolean readBoolean(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {

@@ -1,5 +1,6 @@
 package com.powsybl.loadflow.validation.data;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.loadflow.validation.BalanceTypeGuesser;
 
 import java.util.Objects;
@@ -7,7 +8,7 @@ import java.util.Objects;
 public record GeneratorData(String generatorId,
                             double p, double q, double v,
                             double targetP, double targetQ, double targetV,
-                            boolean voltageRegulatorOn,
+                            String regulationMode, boolean regulating,
                             double minP, double maxP, double minQ, double maxQ,
                             boolean connected, boolean mainComponent,
                             BalanceTypeGuesser guesser) {
@@ -36,7 +37,7 @@ public record GeneratorData(String generatorId,
         return new GeneratorData(generatorId,
                 Double.NaN, Double.NaN, Double.NaN,
                 Double.NaN, Double.NaN, Double.NaN,
-                 false,
+                RegulationMode.VOLTAGE.name(), false,
                 Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                 false, false,
                 BalanceTypeGuesser.NO_BALANCING_GUESSER

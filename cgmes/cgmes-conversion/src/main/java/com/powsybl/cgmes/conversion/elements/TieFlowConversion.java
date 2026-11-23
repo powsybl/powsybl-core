@@ -60,4 +60,14 @@ public class TieFlowConversion extends AbstractIdentifiedObjectConversion {
         boolean isDc = context.boundary().isHvdc(node);
         return !isDc;
     }
+
+    @Override
+    public void missing(String what) {
+        if ("name".equals(what)) {
+            // cim:TieFlow-s in practice do not have a name, and anyway we won't do anything with the name.
+            // -> do not log an issue.
+            return;
+        }
+        super.missing(what);
+    }
 }

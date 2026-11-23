@@ -54,7 +54,7 @@ public class Context {
         cgmesBoundary = new CgmesBoundary(cgmes);
         nodeContainerMapping = new NodeContainerMapping(this);
         terminalMapping = new TerminalMapping();
-        loadingLimitsMapping = new LoadingLimitsMapping(this);
+        limitsMapping = new LimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
         dcMapping = new DCMapping(this);
@@ -140,8 +140,8 @@ public class Context {
         return cgmesBoundary;
     }
 
-    public LoadingLimitsMapping loadingLimitsMapping() {
-        return loadingLimitsMapping;
+    public LimitsMapping limitsMapping() {
+        return limitsMapping;
     }
 
     public RegulatingControlMapping regulatingControlMapping() {
@@ -353,7 +353,12 @@ public class Context {
 
     private static void logIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
         if (LOG.isWarnEnabled()) {
-            LOG.warn("{}: {}. Reason: {}", category, what, reason.get());
+            String r = reason.get();
+            if (r.isEmpty()) {
+                LOG.warn("{}: {}", category, what);
+            } else {
+                LOG.warn("{}: {}. Reason: {}", category, what, r);
+            }
         }
     }
 
@@ -367,7 +372,7 @@ public class Context {
     private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
-    private final LoadingLimitsMapping loadingLimitsMapping;
+    private final LimitsMapping limitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
     private final DCMapping dcMapping;
 

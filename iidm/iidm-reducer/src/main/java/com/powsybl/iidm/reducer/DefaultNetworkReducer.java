@@ -9,6 +9,8 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,8 +155,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void reduce(Line line, VoltageLevel vl, Terminal terminal) {
-        if (options.isWithDanglingLines()) {
-            replaceLineByDanglingLine(line, vl, terminal);
+        if (options.isWithBoundaryLines()) {
+            replaceLineByBoundaryLine(line, vl, terminal);
         } else {
             replaceLineByLoad(line, vl, terminal);
         }
@@ -165,10 +167,10 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
-    private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
+    private void replaceLineByBoundaryLine(Line line, VoltageLevel vl, Terminal terminal) {
         TwoSides side = line.getSide(terminal);
 
-        DanglingLineAdder dlAdder = vl.newDanglingLine()
+        BoundaryLineAdder dlAdder = vl.newBoundaryLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
@@ -183,7 +185,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         double q = terminal.getQ();
         line.remove();
 
-        DanglingLine dl = dlAdder.add();
+        BoundaryLine dl = dlAdder.add();
         dl.getTerminal()
                 .setP(p)
                 .setQ(q);
@@ -225,7 +227,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
-            if (vscStation.isVoltageRegulatorOn()) {
+            if (vscStation.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
                 replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
             } else {
                 replaceHvdcLineByLoad(hvdcLine, vl, terminal);
@@ -265,11 +267,12 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
-                .setVoltageRegulatorOn(true)
                 .setMaxP(maxP)
                 .setMinP(-maxP)
                 .setTargetP(-checkP(terminal))
-                .setTargetV(station.getVoltageSetpoint());
+                .setLocalTargetV(station.getLocalTargetV())
+                .setLocalTargetQ(station.getLocalTargetQ());
+        addVoltageRegulation(genAdder, station);
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();
@@ -311,6 +314,16 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         generator.newExtension(ActivePowerControlAdder.class).withParticipate(false).add();
 
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
+    }
+
+    private void addVoltageRegulation(GeneratorAdder genAdder, VscConverterStation station) {
+        VoltageRegulationAdder<GeneratorAdder> adder = genAdder.newVoltageRegulation();
+        adder.withMode(RegulationMode.VOLTAGE);
+        if (station.hasRegulatingTerminal()) {
+            adder.withTargetValue(station.getVoltageRegulation().getTargetValue())
+                .withTerminal(station.getVoltageRegulation().getTerminal());
+        }
+        adder.add();
     }
 
     private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {

@@ -26,7 +26,7 @@ class DcTopologyTraverseTest {
         private final boolean onlyConnectedDcNode;
         private String firstTraversedConverterId;
 
-        public ConverterTraverser(boolean onlyConnectedDcNode) {
+        ConverterTraverser(boolean onlyConnectedDcNode) {
             this.onlyConnectedDcNode = onlyConnectedDcNode;
         }
 
@@ -62,7 +62,7 @@ class DcTopologyTraverseTest {
         private final boolean onlyConnectedDcNode;
         private String firstTraversedDcLineId;
 
-        public DcLineTraverser(boolean onlyConnectedDcNode) {
+        DcLineTraverser(boolean onlyConnectedDcNode) {
             this.onlyConnectedDcNode = onlyConnectedDcNode;
         }
 

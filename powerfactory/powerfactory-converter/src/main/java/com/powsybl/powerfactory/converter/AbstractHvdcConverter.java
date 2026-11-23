@@ -1,0 +1,50 @@
+/**
+ * Copyright (c) 2026, SuperGrid Institute (https://www.supergrid-institute.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+package com.powsybl.powerfactory.converter;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
+import com.powsybl.powerfactory.model.DataObject;
+
+/**
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
+ *
+ *         Base importer from the DGS data model for DC subgrids.
+ *         This enables derivation to differentiate reduced and detailed HVDC
+ *         subgrids.
+ */
+abstract class AbstractHvdcConverter extends AbstractConverter {
+
+    AbstractHvdcConverter(ImportContext importContext, Network network) {
+        super(importContext, network);
+    }
+
+    /**
+     * Check if a DGS DataObject belongs to the DC part of the network.
+     *
+     * @param obj DataObject from the DGS data model.
+     * @return true iff the object is part of the DC network, and can therefore be omitted by the
+     *         AC importer.
+     */
+    abstract boolean isDcObject(DataObject obj);
+
+    /**
+     * Check if a given DGS terminal is in a DC subgrid.
+     *
+     * @param elmTerm Terminal to check.
+     * @return true iff the terminal is in a DC subgrid.
+     */
+    abstract boolean isDcNode(DataObject elmTerm);
+
+    /**
+     * Create the DC subgrids in the network.
+     */
+    abstract void create();
+
+}

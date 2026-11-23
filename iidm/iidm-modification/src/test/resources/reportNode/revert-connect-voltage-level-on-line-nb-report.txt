@@ -1,5 +1,9 @@
 + Testing reportNode to revert connecting a voltage level on a line in node/breaker network
+   Switch CJ_1_BREAKER removed
+   Switch CJ_1_DISCONNECTOR_2_0 removed
    Line CJ_1 removed
+   Switch CJ_2_BREAKER removed
+   Switch CJ_2_DISCONNECTOR_3_0 removed
    Line CJ_2 removed
    Temporary limits on both sides for line CJ_2 : They are ignored
    Line CJ created

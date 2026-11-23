@@ -27,8 +27,9 @@ import java.util.stream.Collectors;
  */
 public interface ContingencyList {
 
-    // VERSION = 1.0 : first version
-    String VERSION = "1.0";
+    // VERSION = 1.0: first version
+    // VERSION = 1.1: rename dangling line to boundary line action
+    String VERSION = "1.1";
 
     static String getVersion() {
         return VERSION;

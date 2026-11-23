@@ -9,14 +9,18 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Objects;
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -37,10 +41,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // If we find an Equivalent Injection at a boundary
             // we will decide later what to do with it
             //
-            // If finally a dangling line is created at the boundary node
+            // If finally a boundary line is created at the boundary node
             // and the equivalent injection is regulating voltage
             // we will have to transfer regulating voltage data
-            // from the equivalent injection to the dangling line
+            // from the equivalent injection to the boundary line
             context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
         }
     }
@@ -52,14 +56,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         convertToGenerator();
     }
 
-    // A dangling line has been created at the boundary node of the equivalent injection
-    public DanglingLine convertOverDanglingLine(DanglingLineAdder adder) {
+    // A boundary line has been created at the boundary node of the equivalent injection
+    public BoundaryLine convertOverBoundaryLine(BoundaryLineAdder adder) {
         boolean regulationCapability = p.asBoolean(CgmesNames.REGULATION_CAPABILITY, false);
-        DanglingLine dl;
+        BoundaryLine bl;
         if (regulationCapability) {
             // If this equivalent injection is regulating voltage,
-            // map it over the dangling line 'virtual generator'
-            dl = adder
+            // map it over the boundary line 'virtual generator'
+            bl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .newGeneration()
@@ -73,25 +77,25 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .add();
         } else {
             // Map all the observed flows to the 'virtual load'
-            // of the dangling line
-            dl = adder
+            // of the boundary line
+            bl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .add();
         }
-        // We do not call addAliasesAndProperties(dl) !
+        // We do not call addAliasesAndProperties(bl) !
         // Because we do not want to add this equivalent injection
-        // terminal id as a generic "Terminal" alias of the dangling line,
+        // terminal id as a generic "Terminal" alias of the boundary line,
         // Terminal1 and Terminal2 aliases should be used for
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, this.id);
+        bl.setProperty(PROPERTY_EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
+            bl.setProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL, cgmesTerminal.id());
         }
-        return dl;
+        return bl;
     }
 
     private void convertToGenerator() {
@@ -107,31 +111,54 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         addAliasesAndProperties(g);
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
+        setVoltageRegulation(g);
 
-        addSpecificProperties(g, p);
+        addSpecificProperties(g);
     }
 
-    private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
-        generator.setProperty(Conversion.PROPERTY_CGMES_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
+    private void setVoltageRegulation(Generator g) {
+        // If EquivalentInjection.regulationCapability is true, then it has the capability to regulate the local voltage.
+        if ("true".equals(p.getLocal(CgmesNames.REGULATION_CAPABILITY))) {
+            g.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        }
+    }
+
+    private static void addSpecificProperties(Generator generator) {
+        generator.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
     }
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
-
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
+        generator.setTargetP(getTargetP(updatedPowerFlow, generator, context));
+        generator.setLocalTargetQ(getTargetQ(updatedPowerFlow, generator, context));
+
+        // If the VoltageRegulation is null, the EquivalentInjection has no regulation capability.
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            return;
+        }
 
         double defaultTargetV = getDefaultTargetV(generator, context);
         double targetV = findTargetV(cgmesData, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED);
+
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
         boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
-        generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setTargetQ(getTargetQ(updatedPowerFlow, generator, context))
-                .setTargetV(targetV)
-                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
+        // TargetV must be valid before the regulation is turned on,
+        // and the regulation must be turned off before assigning potentially invalid regulation values,
+        // to ensure consistency with the applied checks
+        if (regulatingOn && isValidTargetV(targetV)) {
+            generator.setLocalTargetV(targetV);
+            voltageRegulation.setRegulating(true);
+        } else {
+            voltageRegulation.setRegulating(false);
+            generator.setLocalTargetV(targetV);
+        }
     }
 
     private static double getTargetP(PowerFlow updatedPowerFlow, Generator generator, Context context) {
@@ -147,110 +174,112 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static double getDefaultTargetQ(Generator generator, Context context) {
-        return getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        return getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
     }
 
     private static double getDefaultTargetV(Generator generator, Context context) {
-        return getDefaultValue(null, generator.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, generator.getLocalTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
-        return getDefaultValue(false, generator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(false, generator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
-    public static void update(DanglingLine danglingLine, boolean isConnectedOnBoundarySide, Context context) {
-        if (!isConnectedOnBoundarySide && danglingLine.getTerminal().isConnected()) {
-            updateWhenIsConnectedAndBoundarySideIsOpen(danglingLine, context);
+    public static void update(BoundaryLine boundaryLine, boolean isConnectedOnBoundarySide, Context context) {
+        if (!isConnectedOnBoundarySide && boundaryLine.getTerminal().isConnected()) {
+            updateWhenIsConnectedAndBoundarySideIsOpen(boundaryLine, context);
         } else {
-            update(danglingLine, context);
+            update(boundaryLine, context);
         }
     }
 
-    private static void updateWhenIsConnectedAndBoundarySideIsOpen(DanglingLine danglingLine, Context context) {
-        if (danglingLine.getGeneration() != null) {
-            Optional<PropertyBag> cgmesEquivalentInjection = getCgmesEquivalentInjection(danglingLine, context);
-            double defaultTargetV = getDefaultTargetV(danglingLine.getGeneration(), context);
+    private static void updateWhenIsConnectedAndBoundarySideIsOpen(BoundaryLine boundaryLine, Context context) {
+        if (boundaryLine.getGeneration() != null) {
+            Optional<PropertyBag> cgmesEquivalentInjection = getCgmesEquivalentInjection(boundaryLine, context);
+            double defaultTargetV = getDefaultTargetV(boundaryLine.getGeneration(), context);
             double targetV = cgmesEquivalentInjection.map(propertyBag -> findTargetV(propertyBag, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
 
-            danglingLine.getGeneration().setTargetP(0.0);
-            danglingLine.getGeneration().setTargetQ(0.0);
-            setRegulation(danglingLine, targetV, false);
+            boundaryLine.getGeneration().setTargetP(0.0);
+            boundaryLine.getGeneration().setTargetQ(0.0);
+            setRegulation(boundaryLine.getGeneration(), targetV, false);
         }
-        danglingLine.setP0(0.0);
-        danglingLine.setQ0(0.0);
+        boundaryLine.setP0(0.0);
+        boundaryLine.setQ0(0.0);
     }
 
-    private static void update(DanglingLine danglingLine, Context context) {
-        Optional<PropertyBag> cgmesEquivalentInjection = getCgmesEquivalentInjection(danglingLine, context);
+    private static void update(BoundaryLine boundaryLine, Context context) {
+        Optional<PropertyBag> cgmesEquivalentInjection = getCgmesEquivalentInjection(boundaryLine, context);
         PowerFlow updatedPowerFlow = cgmesEquivalentInjection.map(AbstractConductingEquipmentConversion::updatedPowerFlow).orElse(PowerFlow.UNDEFINED);
 
-        if (danglingLine.getGeneration() != null) {
-            double defaultTargetV = getDefaultTargetV(danglingLine.getGeneration(), context);
+        if (boundaryLine.getGeneration() != null) {
+            double defaultTargetV = getDefaultTargetV(boundaryLine.getGeneration(), context);
             double targetV = cgmesEquivalentInjection.map(propertyBag -> findTargetV(propertyBag, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
-            boolean defaultRegulatingOn = getDefaultRegulatingOn(danglingLine.getGeneration(), context);
-            boolean regulatingOn = cgmesEquivalentInjection.map(propertyBag -> findRegulatingOn(propertyBag, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+            boolean defaultRegulatingOn = getDefaultRegulatingOn(boundaryLine.getGeneration(), context);
+            boolean regulatingOn = cgmesEquivalentInjection.map(propertyBag -> findRegulatingOn(propertyBag, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED))
+                .orElse(defaultRegulatingOn);
 
-            danglingLine.setP0(0.0);
-            danglingLine.setQ0(0.0);
-            danglingLine.getGeneration().setTargetP(getTargetP(updatedPowerFlow, danglingLine.getGeneration(), context));
-            danglingLine.getGeneration().setTargetQ(getTargetQ(updatedPowerFlow, danglingLine.getGeneration(), context));
-            setRegulation(danglingLine, targetV, regulatingOn && isValidTargetV(targetV));
+            boundaryLine.setP0(0.0);
+            boundaryLine.setQ0(0.0);
+            boundaryLine.getGeneration().setTargetP(getTargetP(updatedPowerFlow, boundaryLine.getGeneration(), context));
+            boundaryLine.getGeneration().setTargetQ(getTargetQ(updatedPowerFlow, boundaryLine.getGeneration(), context));
+            setRegulation(boundaryLine.getGeneration(), targetV, regulatingOn && isValidTargetV(targetV));
         } else {
-            danglingLine.setP0(getTargetP(updatedPowerFlow, danglingLine, context));
-            danglingLine.setQ0(getTargetQ(updatedPowerFlow, danglingLine, context));
+            boundaryLine.setP0(getTargetP(updatedPowerFlow, boundaryLine, context));
+            boundaryLine.setQ0(getTargetQ(updatedPowerFlow, boundaryLine, context));
         }
     }
 
-    private static void setRegulation(DanglingLine danglingLine, double targetV, boolean regulatingOn) {
+    private static void setRegulation(BoundaryLine.Generation generation, double targetV, boolean regulatingOn) {
+        Objects.requireNonNull(generation);
         if (regulatingOn) {
-            danglingLine.getGeneration().setTargetV(targetV).setVoltageRegulationOn(true);
+            generation.setTargetV(targetV).setVoltageRegulationOn(true);
         } else {
-            danglingLine.getGeneration().setVoltageRegulationOn(false).setTargetV(targetV);
+            generation.setVoltageRegulationOn(false).setTargetV(targetV);
         }
     }
 
-    private static Optional<PropertyBag> getCgmesEquivalentInjection(DanglingLine danglingLine, Context context) {
-        String equivalentInjectionId = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
+    private static Optional<PropertyBag> getCgmesEquivalentInjection(BoundaryLine boundaryLine, Context context) {
+        String equivalentInjectionId = boundaryLine.getProperty(PROPERTY_EQUIVALENT_INJECTION);
         return equivalentInjectionId != null ? Optional.ofNullable(context.equivalentInjection(equivalentInjectionId)) : Optional.empty();
     }
 
-    private static double getTargetP(PowerFlow updatedPowerFlow, DanglingLine danglingLine, Context context) {
-        return updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultTargetP(danglingLine, context);
+    private static double getTargetP(PowerFlow updatedPowerFlow, BoundaryLine boundaryLine, Context context) {
+        return updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultTargetP(boundaryLine, context);
     }
 
-    private static double getDefaultTargetP(DanglingLine danglingLine, Context context) {
-        return getDefaultValue(null, danglingLine.getP0(), 0.0, 0.0, context);
+    private static double getDefaultTargetP(BoundaryLine boundaryLine, Context context) {
+        return getDefaultValue(null, boundaryLine.getP0(), 0.0, 0.0, context);
     }
 
-    private static double getTargetP(PowerFlow updatedPowerFlow, DanglingLine.Generation generation, Context context) {
+    private static double getTargetP(PowerFlow updatedPowerFlow, BoundaryLine.Generation generation, Context context) {
         return updatedPowerFlow.defined() ? -updatedPowerFlow.p() : getDefaultTargetP(generation, context);
     }
 
-    private static double getDefaultTargetP(DanglingLine.Generation generation, Context context) {
+    private static double getDefaultTargetP(BoundaryLine.Generation generation, Context context) {
         return getDefaultValue(null, generation.getTargetP(), 0.0, 0.0, context);
     }
 
-    private static double getTargetQ(PowerFlow updatedPowerFlow, DanglingLine danglingLine, Context context) {
-        return updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultTargetQ(danglingLine, context);
+    private static double getTargetQ(PowerFlow updatedPowerFlow, BoundaryLine boundaryLine, Context context) {
+        return updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultTargetQ(boundaryLine, context);
     }
 
-    private static double getDefaultTargetQ(DanglingLine danglingLine, Context context) {
-        return getDefaultValue(null, danglingLine.getQ0(), 0.0, 0.0, context);
+    private static double getDefaultTargetQ(BoundaryLine boundaryLine, Context context) {
+        return getDefaultValue(null, boundaryLine.getQ0(), 0.0, 0.0, context);
     }
 
-    private static double getTargetQ(PowerFlow updatedPowerFlow, DanglingLine.Generation generation, Context context) {
+    private static double getTargetQ(PowerFlow updatedPowerFlow, BoundaryLine.Generation generation, Context context) {
         return updatedPowerFlow.defined() ? -updatedPowerFlow.q() : getDefaultTargetQ(generation, context);
     }
 
-    private static double getDefaultTargetQ(DanglingLine.Generation generation, Context context) {
+    private static double getDefaultTargetQ(BoundaryLine.Generation generation, Context context) {
         return getDefaultValue(null, generation.getTargetQ(), 0.0, 0.0, context);
     }
 
-    private static double getDefaultTargetV(DanglingLine.Generation generation, Context context) {
+    private static double getDefaultTargetV(BoundaryLine.Generation generation, Context context) {
         return getDefaultValue(null, generation.getTargetV(), Double.NaN, Double.NaN, context);
     }
 
-    private static boolean getDefaultRegulatingOn(DanglingLine.Generation generation, Context context) {
+    private static boolean getDefaultRegulatingOn(BoundaryLine.Generation generation, Context context) {
         return getDefaultValue(false, generation.isVoltageRegulationOn(), false, false, context);
     }
 }

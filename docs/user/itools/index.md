@@ -5,18 +5,8 @@
 maxdepth: 1
 hidden: true
 ---
-action-simulator.md
-cim_anonymizer.md
-compare-security-analysis-results.md
-convert_network.md
-dynamic-security-analysis.md
-dynamic-simulation.md
-list-dynamic-simulation-models.md
-loadflow.md
-loadflow-validation.md
-run-script.md
-security-analysis.md
-sensitivity-computation.md
+commands.md
+itools-packager.md
 ```
 
 The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (macOS is not supported yet).
@@ -26,6 +16,64 @@ An `iTools` package is constituted of:
 - an `etc` directory containing the configuration and the `XIIDM` schemas
 - a `lib` directory containing C++ libraries
 - a `share/java` directory containing Java libraries
+
+## Installation
+
+It is possible to install a basic PowSyBl distribution and to start running iTools commands from the binaries or from the sources
+
+### Install from the binaries
+
+To use the executable tool provided with the `powsybl-distribution` repository, follow these steps:
+- Download the zip folder from the latest released version of [powsybl-distribution](https://github.com/powsybl/powsybl-distribution/releases)
+- Unzip the downloaded package
+- Add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
+
+### Install from the sources
+
+To generate the executable tool from the sources, follow these steps:
+- Download the [powsybl-distribution](https://github.com/powsybl/powsybl-distribution) sources
+- Checkout the latest stable version by referencing the tag
+- Generate the executable with the maven command
+
+```
+$ git clone https://github.com/powsybl/powsybl-distribution.git
+$ cd powsybl-distribution
+$ git checkout tags/<LATEST_RELEASE_TAG> -b latest-release
+$ mvn clean package
+```
+
+The distribution is generated in the `target` folder.  
+- Add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
+
+### Test your installation
+
+Launch the `itools --help` command in your terminal to check that everything went smoothly.
+
+```
+$> itools --help
+usage: itools [OPTIONS] COMMAND [ARGS]
+
+Available options are:
+    --config-name <CONFIG_NAME>   Override configuration file name
+
+Available commands are:
+
+Computation:
+    compare-security-analysis-results        Compare security analysis results
+    loadflow                                 Run loadflow
+    loadflow-validation                      Validate load-flow results of a network
+    security-analysis                        Run security analysis
+
+Data conversion:
+    convert-network                          convert a network from one format to another
+
+Misc:
+    plugins-info                             List the available plugins
+
+Script:
+    run-script                               run script (only groovy is supported)
+
+```
 
 ## Usage
 The `iTools` script is available in the `bin` directory.
@@ -37,14 +85,14 @@ Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
 
 Available commands are:
-...
 ```
 
-`--config-name`  
-Use this option to overload the default base name for the configuration file. It overrides the [powsybl_config_name](#powsybl_config_name) property defined in the `itools.conf` file.
+`--config-name`<br>
+Use this option to overload the default base name for the configuration file. It overrides the `powsybl_config_name` property defined in the `itools.conf` file.
+
 
 (itools-configuration)=
-### Configuration
+## Configuration
 The `iTools` script reads its configuration from the `<ITOOLS_PREFIX>/etc/itools.conf` [property file](https://en.wikipedia.org/wiki/.properties). The properties defined in this file are used to configure the Java Virtual Machine.
 
 **Example of itools.conf file:**
@@ -59,15 +107,43 @@ powsybl_config_name=config
 java_xmx=8G
 ```
 
-**powsybl_config_dirs:** This is an optional property that defines the list of the folders where the configuration files are located. If this property is not set, the configuration files are read from `<USER_HOME>/.itools` and `<ITOOLS_PREFIX>/etc` folders. Note that the order of the folder is really import as the PowSyBl configuration is [stackable]().
+You can set a default configuration `config.yml` by copying the provided configuration file in your `<HOME>/.itools` repository (note that you will need to create this repository if it does not exist):
 
-<a class="heading" id="powsybl_config_name"/>**powsybl_config_name:** This is an optional property that defines the base name of the configuration files. The default value for this property is `config`.
+```
+$ mkdir <HOME>/.itools
+$ cp <INSTALL_DIR>/resources/config/config.yml <HOME>/.itools/config.yml
+```
 
-**java_xmx:** This is an optional property that defines the maximum size of the memory allocation pool of the JVM. The default value for this property is 8 gigabytes.
+This step is not mandatory **if you already have a custom configuration file and the necessary configuration modules are filled**.
 
-The list of the deprecated properties is available [here]()
+**powsybl_config_dirs**<br>
+This is an optional property that defines the list of the folders where the configuration files are located. If this property is not set, the configuration files are read from `<USER_HOME>/.itools` and `<ITOOLS_PREFIX>/etc` folders. Note that the order of the folder is really import as the PowSyBl configuration is stackable.
 
-### Logging
+**powsybl_config_name**<br>
+This is an optional property that defines the base name of the configuration files. The default value for this property is `config`.
+
+**java_xmx**<br>
+This is an optional property that defines the maximum size of the memory allocation pool of the JVM. The default value for this property is 8 gigabytes.
+
+At startup, Powsybl looks in the configuration directories defined in the `powsybl_config_dirs` for a YAML configuration file first, for a XML configuration file then and finally for properties files.
+
+All the configuration files are stacked to allow a user to partially or totally overload the system configuration of a module.
+
+### Deprecated properties
+
+**itools_cache_dir**<br>
+The `itools_cache_dir` property is deprecated since V2.2.0. The `itools_cache_dir` property was an optional property that
+defined the path to the cache folder used by modules that required cache functionalities. The default value was
+`$HOME/.cache/itools`.
+
+**itools_config_dir**<br>
+The `itools_config_dir` property is deprecated since V2.2.0. Use the `powsybl_config_dirs` property instead.
+
+**itools_config_name**<br>
+The `itools_config_name` property is deprecated since V2.2.0. Use the `powsybl_config_name` property instead.
+
+
+## Logging
 The `iTools` script uses [logback](https://logback.qos.ch/) as a logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
 
 Sometimes, it could be useful for a user to have its own logging configuration to filter unexpected logs or to have more details for some features. The simplest way to proceed is to copy the global configuration file in the `<USER_HOME>/.itools` folder and then customize it.
@@ -87,23 +163,52 @@ Sometimes, it could be useful for a user to have its own logging configuration t
 </configuration>
 ```
 
-(itools-available-commands)=
-## Available commands
-The `iTools` script relies on a [plugin mechanism](): the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
 
-| Command                                                                     | Theme           | Description                                   |
-|-----------------------------------------------------------------------------|-----------------|-----------------------------------------------|
-| [action-simulator](./action-simulator.md)                                   | Computation     | Run a security analysis with remedial actions |
-| [cim-anonymizer](cim_anonymizer.md)                                         | Data conversion | Anonymize CIM files                           |
-| [compare-security-analysis-results](./compare-security-analysis-results.md) | Computation     | Compare security analysis results             |
-| [convert-network](convert_network.md)                                       | Data conversion | Convert a grid file from a format to another  |
-| [dynamic-simulation](dynamic-simulation.md)                                 | Computation     | Run a dynamic simulation                      |
-| [loadflow](loadflow.md)                                                     | Computation     | Run a power flow simulation                   |
-| [loadflow-validation](loadflow-validation.md)                               | Computation     | Validate load flow results on a network       |
-| [run-script](run-script.md)                                                 | Script          | Run a script on top of PowSyBl                | 
-| [security-analysis](./security-analysis.md)                                 | Computation     | Run a security analysis                       |
-| [dynamic-security-analysis](./dynamic-security-analysis.md)                 | Computation     | Run a dynamic security analysis               |
-| [sensitivity-computation](sensitivity-computation.md)                       | Computation     | Run a sensitivity analysis                    |
+## Examples
+
+### Converting a UCTE network file to XIIDM
+
+In this example, you will convert a UCTE file describing the Belgian network to XIIDM format.
+The `beTestGridForMerging.uct` file available in `<POWSYBL-CORE_DIR>/ucte/ucte-util/src/test/resources` repository will be used.
+
+Run the following command:
+```
+$ itools convert-network --input-file <POWSYBL-CORE_DIR>/ucte/ucte-util/src/test/resources/beTestGridForMerging.uct --output-file <HOME>/beTestGridForMerging --output-format XIIDM
+Generating file <POWSYBL-CORE_DIR>/beTestGridForMerging.xiidm...
+```
+
+Once the command is completed, the XIIDM file describing the Belgian network will be present as `beTestGridForMerging.xiidm` in your `HOME` repository.
+
+### Update an XIIDM network file after running a load-flow
+
+In this example, you will update an XIIDM file describing the example Eurostag network after running a load-flow using `powsybl-open-loadflow`.
+The `eurostag-tutorial-example1.xml` file available in `<POWSYBL-CORE_DIR>/iidm/iidm-serde/src/test/resources/V1_0` repository. Please note that this will permanently
+change the file. In order to keep it, you can start by copying it:
+```
+$ cp <POWSYBL-CORE_DIR>/iidm/iidm-serde/src/test/resources/V1_0/eurostag-tutorial-example1.xml <HOME>/eurostag-tutorial-example1.xiidm
+```
+
+Run the following command:
+```
+$ itools loadflow --case-file <HOME>/eurostag-tutorial-example1.xiidm --output-case-file <HOME>/eurostag-tutorial-example1.xiidm --output-case-format XIIDM
+Loading network '/home/caronali/Téléchargements/eurostag-tutorial-example1.xiidm'
+ERROR c.p.o.a.o.DistributedSlackOuterLoop - Failed to distribute slack bus active power mismatch, -1.44 MW remains
+Loadflow results:
++-------+--------+---------+
+| Ok    | Status | Metrics |
++-------+--------+---------+
+| false | FAILED | {}      |
++-------+--------+---------+
+Components results:
++---------------------+-----------------------+--------+-------------------------------------------------------------------------------------------+---------+-----------------+--------------+-------------------------+-------------------------------+
+| Connected component | Synchronous component | Status | Status text                                                                               | Metrics | Iteration count | Slack bus ID | Slack bus mismatch (MW) | Distributed Active Power (MW) |
++---------------------+-----------------------+--------+-------------------------------------------------------------------------------------------+---------+-----------------+--------------+-------------------------+-------------------------------+
+| 0                   | 0                     | FAILED | Outer loop failed: Failed to distribute slack bus active power mismatch, -1.44 MW remains | {}      | 3               | VLHV1_0      | -1,44                   | 0,00000                       |
++---------------------+-----------------------+--------+-------------------------------------------------------------------------------------------+---------+-----------------+--------------+-------------------------+-------------------------------+
+
+```
+
+Once the command is completed, the `eurostag-tutorial-example1.xiidm` file will be updated to contain post load-flow results, including calculated bus voltage, calculated bus angles and calculated flows.
 
 ## Going further
 The following links could also be useful:

@@ -30,7 +30,7 @@ public class TerminalsConnectionAction extends AbstractAction {
      * @param elementId the id of the element which terminals are operated.
      *                  The element can be a connectable, a tie line or an HVDC line.
      *                  For a tie line (respectively an HVDC line), it will operate the terminals of the underlying
-     *                  dangling lines (respectively converter stations).
+     *                  boundary lines (respectively converter stations).
      * @param side the side of the element to operate in the action.
      * @param open the status for the terminal to operate. {@code true} means terminal opening.
      */
@@ -46,7 +46,7 @@ public class TerminalsConnectionAction extends AbstractAction {
      * @param elementId the id of the element which terminals are operated.
      *                  The element can be a connectable, a tie line or an HVDC line.
      *                  For a tie line (respectively an HVDC line), it will operate the terminals of the underlying
-     *                  dangling lines (respectively converter stations).
+     *                  boundary lines (respectively converter stations).
      * @param open the status for all the terminals of the element to operate. {@code true} means all terminals opening.
      */
     public TerminalsConnectionAction(String id, String elementId, boolean open) {

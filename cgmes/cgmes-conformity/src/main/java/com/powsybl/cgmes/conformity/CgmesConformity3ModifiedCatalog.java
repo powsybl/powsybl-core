@@ -19,7 +19,7 @@ public final class CgmesConformity3ModifiedCatalog {
     private CgmesConformity3ModifiedCatalog() {
     }
 
-    public static GridModelReference microGridBE3DanglingLinesSameBoundary1Disconnected() {
+    public static GridModelReference microGridBE3BoundaryLinesSameBoundary1Disconnected() {
         String base = ENTSOE_CONFORMITY_3_MODIFIED
                 + "/MicroGrid/BE-3dls-same-boundary-node-1disconnected/";
         return new GridModelReferenceResources(

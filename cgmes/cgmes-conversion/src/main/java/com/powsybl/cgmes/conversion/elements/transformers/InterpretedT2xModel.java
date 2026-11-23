@@ -44,7 +44,7 @@ public class InterpretedT2xModel {
         this.end2 = new TapChangerConversion.InterpretedEnd(interpretedShunt.g2, interpretedShunt.b2,
             interpretedTapChanger.ratioTapChanger2, interpretedTapChanger.phaseTapChanger2,
             cgmesT2xModel.end2.ratedU, cgmesT2xModel.end2.terminal);
-        this.structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
+        this.structuralRatioAtEnd2 = cgmesT2xModel.structuralRatioAtEnd2;
         this.ratedS = cgmesT2xModel.ratedS;
     }
 
@@ -58,7 +58,7 @@ public class InterpretedT2xModel {
      * X. Tap changers are mapped at end1 or end2 depending on the xIsZero attribute.
      */
     private TapChangerConversion.AllTapChanger ratioPhaseAlternative(CgmesT2xModel cgmesT2xModel,
-        Conversion.Config alternative, TapChangerConversion tcc) {
+                                                                     Conversion.Config alternative, TapChangerConversion tcc) {
         TapChanger ratioTapChanger1 = null;
         TapChanger phaseTapChanger1 = null;
         TapChanger ratioTapChanger2 = null;
@@ -150,8 +150,8 @@ public class InterpretedT2xModel {
     /**
      * return true if the structural ratio is at end2
      */
-    private static boolean structuralRatioAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
-        if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
+    static boolean structuralRatioAlternative(double ratedU1, double ratedU2, boolean x1IsZero, Conversion.Config alternative) {
+        if (ratedU1 == ratedU2) {
             return false;
         }
         switch (alternative.getXfmr2StructuralRatio()) {
@@ -160,7 +160,7 @@ public class InterpretedT2xModel {
             case END2:
                 return true;
             case X:
-                return !cgmesT2xModel.x1IsZero;
+                return !x1IsZero;
         }
         return false;
     }

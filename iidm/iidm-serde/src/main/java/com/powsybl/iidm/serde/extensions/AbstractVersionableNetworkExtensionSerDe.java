@@ -184,6 +184,13 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     }
 
     @Override
+    public InputStream getXsdAsStream(String extensionVersion) {
+        V version = versionOf(extensionVersion, true);
+        InputStream is = getClass().getResourceAsStream(version.getXsdResourcePath());
+        return Objects.requireNonNull(is, "xsd resource not found");
+    }
+
+    @Override
     public List<InputStream> getXsdAsStreamList() {
         return versions.stream()
                 .map(SerDeVersion::getXsdResourcePath)

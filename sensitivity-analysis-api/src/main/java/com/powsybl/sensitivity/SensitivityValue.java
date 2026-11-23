@@ -30,6 +30,8 @@ public class SensitivityValue {
 
     private final int contingencyIndex;
 
+    private final int operatorStrategyIndex;
+
     private final double value;
 
     private final double functionReference;
@@ -39,15 +41,17 @@ public class SensitivityValue {
      *
      * @param factorIndex the sensitivity factor index
      * @param contingencyIndex the contingency index, -1 for pre-contingency state.
+     * @param operatorStrategyIndex the operator strategy index, -1 for post-contingency state without operator strategy.
      * @param value the sensitivity value, as a result of the computation.
      * @param functionReference the value of the sensitivity function in the pre-contingency state.
      */
-    public SensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public SensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
         this.factorIndex = factorIndex;
         if (contingencyIndex < -1) {
             throw new IllegalArgumentException("Invalid contingency index: " + contingencyIndex);
         }
         this.contingencyIndex = contingencyIndex;
+        this.operatorStrategyIndex = operatorStrategyIndex;
         this.value = value;
         this.functionReference = functionReference;
     }
@@ -58,6 +62,10 @@ public class SensitivityValue {
 
     public int getContingencyIndex() {
         return contingencyIndex;
+    }
+
+    public int getOperatorStrategyIndex() {
+        return operatorStrategyIndex;
     }
 
     public double getValue() {
@@ -73,6 +81,7 @@ public class SensitivityValue {
         return "SensitivityValue(" +
                 "factorIndex=" + factorIndex +
                 ", contingencyIndex='" + contingencyIndex + '\'' +
+                ", operatorStrategyIndex='" + operatorStrategyIndex + '\'' +
                 ", value=" + value +
                 ", functionReference=" + functionReference +
                 ')';
@@ -81,6 +90,7 @@ public class SensitivityValue {
     static final class ParsingContext {
         private int factorIndex;
         private int contingencyIndex = -1;
+        private int operatorStrategyIndex = -1;
         private double value;
         private double functionReference;
     }
@@ -95,7 +105,8 @@ public class SensitivityValue {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference);
+                    return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.operatorStrategyIndex,
+                                                context.value, context.functionReference);
                 }
             }
         } catch (IOException e) {
@@ -115,6 +126,10 @@ public class SensitivityValue {
                 parser.nextToken();
                 context.contingencyIndex = parser.getIntValue();
                 break;
+            case "operatorStrategyIndex":
+                parser.nextToken();
+                context.operatorStrategyIndex = parser.getIntValue();
+                break;
             case "value":
                 parser.nextToken();
                 context.value = parser.getDoubleValue();
@@ -129,12 +144,13 @@ public class SensitivityValue {
     }
 
     public static void writeJson(JsonGenerator generator, SensitivityValue value) {
-        writeJson(generator, value.factorIndex, value.contingencyIndex, value.value, value.functionReference);
+        writeJson(generator, value.factorIndex, value.contingencyIndex, value.operatorStrategyIndex, value.value, value.functionReference);
     }
 
     static void writeJson(JsonGenerator jsonGenerator,
                           int factorIndex,
                           int contingencyIndex,
+                          int operatorStrategyIndex,
                           double value,
                           double functionReference) {
         try {
@@ -142,6 +158,9 @@ public class SensitivityValue {
             jsonGenerator.writeNumberField("factorIndex", factorIndex);
             if (contingencyIndex != -1) {
                 jsonGenerator.writeNumberField("contingencyIndex", contingencyIndex);
+            }
+            if (operatorStrategyIndex != -1) {
+                jsonGenerator.writeNumberField("operatorStrategyIndex", operatorStrategyIndex);
             }
             jsonGenerator.writeNumberField("value", value);
             jsonGenerator.writeNumberField("functionReference", functionReference);

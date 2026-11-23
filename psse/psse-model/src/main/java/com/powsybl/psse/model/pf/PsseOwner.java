@@ -7,7 +7,18 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -15,11 +26,43 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseOwner {
 
-    @Parsed(field = {"i", "iowner"})
-    private int i;
+    private static final Map<String, PsseFieldDefinition<PsseOwner, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_I, STR_OWNAME};
+    private static final String[] FIELD_NAMES_35X = {STR_IOWNER, STR_OWNAME};
 
-    @Parsed(field = {"owname", "owner"}, defaultNullRead = "            ")
-    private String owname;
+    private int i;
+    private String owname = defaultStringFor(STR_OWNAME, FIELDS);
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseOwner fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseOwner::new);
+    }
+
+    public static String[] toRecord(PsseOwner psseOwner, String[] headers) {
+        return Util.toRecord(psseOwner, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseOwner, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseOwner, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseOwner::getI, PsseOwner::setI));
+        addField(fields, createNewField(STR_IOWNER, Integer.class, PsseOwner::getI, PsseOwner::setI));
+        addField(fields, createNewField(STR_OWNAME, String.class, PsseOwner::getOwname, PsseOwner::setOwname, "            "));
+        addField(fields, createNewField(STR_OWNER, String.class, PsseOwner::getOwname, PsseOwner::setOwname, "            "));
+
+        return fields;
+    }
 
     public int getI() {
         return i;

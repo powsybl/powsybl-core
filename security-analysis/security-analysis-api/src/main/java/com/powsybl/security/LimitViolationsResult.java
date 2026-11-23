@@ -7,6 +7,8 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.contingency.violations.LimitViolation;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -27,8 +29,10 @@ public class LimitViolationsResult {
 
     private final List<String> actionsTaken;
 
+    private static final LimitViolationsResult EMPTY = new LimitViolationsResult(Collections.emptyList());
+
     public static LimitViolationsResult empty() {
-        return new LimitViolationsResult(Collections.emptyList());
+        return EMPTY;
     }
 
     public LimitViolationsResult(List<LimitViolation> limitViolations) {

@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TapChangerStep<S extends TapChangerStep> {
+public interface TapChangerStep<S extends TapChangerStep> extends PropertiesHolder {
 
     /**
      * Get the voltage ratio in per unit.

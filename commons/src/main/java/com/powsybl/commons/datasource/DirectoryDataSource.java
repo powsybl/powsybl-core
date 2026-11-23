@@ -12,6 +12,7 @@ import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -80,10 +81,15 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         return os;
     }
 
-    private Path getPath(String fileName) {
+    private Path getPath(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         FileInformation fileInformation = new FileInformation(fileName, false);
-        return directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName);
+        Path normalizedPath = directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName)
+                .normalize();
+        if (!normalizedPath.startsWith(directory)) { // directory is already normalized
+            throw new IOException("File name '" + fileName + "' is not located inside the data source directory '" + directory.getFileName() + "'");
+        }
+        return normalizedPath;
     }
 
     @Override
@@ -126,7 +132,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
         int maxDepth = 1;
-        try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
+        try (Stream<Path> paths = Files.walk(directory, maxDepth, FileVisitOption.FOLLOW_LINKS)) {
             var filenames = paths
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)

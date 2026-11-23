@@ -9,7 +9,6 @@ package com.powsybl.iidm.criteria.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.LineCriterion;
 import com.powsybl.iidm.criteria.TwoCountriesCriterion;
@@ -28,10 +27,8 @@ public class LineCriterionDeserializer extends AbstractNetworkElementCriterionDe
 
     @Override
     public LineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));
-
+        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = fillParsingContext(parser, deserializationContext,
+                LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE);
         return new LineCriterion(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,
                 (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);

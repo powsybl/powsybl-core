@@ -28,22 +28,6 @@ public final class CgmesConformity1ModifiedCatalog {
     private CgmesConformity1ModifiedCatalog() {
     }
 
-    public static GridModelReferenceResources microGridBaseCaseDuplicateRegion() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_duplicate_region/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-duplicate-region",
-                null,
-                new ResourceSet(base, MICRO_GRID_BD_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_SV),
-                new ResourceSet(MICRO_GRID_BD_BASE,
-                        MICRO_GRID_BD_TP));
-    }
-
     public static GridModelReferenceResources microGridBaseCaseBEUnmergedXnode() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_unmerged_xnode/";
@@ -980,22 +964,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(MICRO_GRID_ASSEMBLED_BASE,
                         MICRO_GRID_BE_TP,
                         MICRO_GRID_NL_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReference microGridBaseCaseAssembledBadIds() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_Assembled_v2_bad_ids/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-Assembled-bad-ids",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_NL_EQ,
-                        MICRO_GRID_NL_SSH,
-                        MICRO_GRID_NL_TP
-                ),
                 microGridBaseCaseBoundaries());
     }
 

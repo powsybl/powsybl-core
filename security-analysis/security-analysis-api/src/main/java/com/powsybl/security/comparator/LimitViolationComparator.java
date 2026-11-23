@@ -7,8 +7,8 @@
  */
 package com.powsybl.security.comparator;
 
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -19,22 +19,26 @@ import java.util.Objects;
  */
 public class LimitViolationComparator implements Comparator<LimitViolation> {
 
+    private static final Comparator<LimitViolation> BASE_COMPARATOR = Comparator.comparing(LimitViolation::getSubjectId)
+        .thenComparing(LimitViolation::getOperationalLimitsGroupId)
+        .thenComparing(LimitViolation::getLimitType);
+
     @Override
     public int compare(LimitViolation violation1, LimitViolation violation2) {
         Objects.requireNonNull(violation1);
         Objects.requireNonNull(violation2);
-        if (violation1.getSubjectId().compareTo(violation2.getSubjectId()) == 0) {
-            if (violation1.getLimitType().compareTo(violation2.getLimitType()) == 0) {
-                if (LimitViolationType.CURRENT == violation1.getLimitType()
-                    || LimitViolationType.ACTIVE_POWER == violation1.getLimitType()
-                    || LimitViolationType.APPARENT_POWER == violation1.getLimitType()) {
-                    return violation1.getSide().compareTo(violation2.getSide());
-                }
-                return 0;
-            }
-            return violation1.getLimitType().compareTo(violation2.getLimitType());
+        int baseComparison = BASE_COMPARATOR.compare(violation1, violation2);
+        if (baseComparison != 0) {
+            return baseComparison;
         }
-        return violation1.getSubjectId().compareTo(violation2.getSubjectId());
+
+        if (LimitViolationType.CURRENT == violation1.getLimitType()
+            || LimitViolationType.ACTIVE_POWER == violation1.getLimitType()
+            || LimitViolationType.APPARENT_POWER == violation1.getLimitType()) {
+            return violation1.getSide().compareTo(violation2.getSide());
+        }
+        return 0;
+
     }
 
 }

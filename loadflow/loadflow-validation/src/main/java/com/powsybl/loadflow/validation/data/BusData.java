@@ -10,7 +10,7 @@ public record BusData(String busId,
                       double svcP, double svcQ,
                       double vscCSP, double vscCSQ,
                       double lineP, double lineQ,
-                      double danglingLineP, double danglingLineQ,
+                      double boundaryLineP, double boundaryLineQ,
                       double twtP, double twtQ,
                       double tltP, double tltQ,
                       boolean mainComponent) {
@@ -19,11 +19,11 @@ public record BusData(String busId,
     }
 
     public double incomingP() {
-        return genP + batP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
+        return genP + batP + shuntP + svcP + vscCSP + lineP + boundaryLineP + twtP + tltP;
     }
 
     public double incomingQ() {
-        return genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
+        return genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + boundaryLineQ + twtQ + tltQ;
     }
 
     public static BusData createEmpty(String busId) {

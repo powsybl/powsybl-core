@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -206,7 +207,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *     </tbody>
      * </table>
      */
-    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
+    interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
 
         /**
          * Get the terminal the leg is connected to.
@@ -293,6 +294,23 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         Optional<? extends LoadingLimits> getLimits(LimitType type);
 
         /**
+         * Get all the limits of the given <code>type</code> on this leg,
+         * for all the {@link OperationalLimitsGroup} that are selected
+         * @param type the type of the limit, refers to {@link LimitType}
+         * @return a collection of all the <code>type</code> limits on this leg,
+         * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
+         */
+        default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type) {
+            return switch (type) {
+                case CURRENT -> getAllSelectedCurrentLimits();
+                case ACTIVE_POWER -> getAllSelectedActivePowerLimits();
+                case APPARENT_POWER -> getAllSelectedApparentPowerLimits();
+                default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+            };
+        }
+
+        /**
          * Get the associated three-winding transformer.
          */
         ThreeWindingsTransformer getTransformer();
@@ -375,41 +393,69 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     /**
      * Only checks overloading for LimitType.Current and permanent limits
      */
-    boolean isOverloaded(double limitReductionValue);
+    boolean isOverloaded(double limitScalingValue);
 
-    int getOverloadDuration();
+    default int getOverloadDuration() {
+        return Stream.of(
+                checkAllTemporaryLimits(ThreeSides.ONE, LimitType.CURRENT),
+                checkAllTemporaryLimits(ThreeSides.TWO, LimitType.CURRENT),
+                checkAllTemporaryLimits(ThreeSides.THREE, LimitType.CURRENT)
+            ).flatMap(Collection::stream).map(o -> o != null ? o.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE)
+            .min(Integer::compareTo)
+            .orElse(Integer.MAX_VALUE);
+    }
 
-    boolean checkPermanentLimit(ThreeSides side, double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit(ThreeSides side, double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit(ThreeSides side, LimitType type);
 
-    boolean checkPermanentLimit1(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit1(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit1(LimitType type);
 
-    boolean checkPermanentLimit2(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit2(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit2(LimitType type);
 
-    boolean checkPermanentLimit3(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit3(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit3(LimitType type);
 
-    Overload checkTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits(ThreeSides side, LimitType type);
 
-    Overload checkTemporaryLimits1(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits1(double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits1(LimitType type);
 
-    Overload checkTemporaryLimits2(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits2(double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits2(LimitType type);
 
-    Overload checkTemporaryLimits3(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits3(double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits3(LimitType type);
+
+    /**
+     * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
+     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param side the side of the transformer to look at
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
+     * @param type the type of the limit
+     */
+    Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type);
+
+    /**
+     * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
+     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>. This does not scale the limits.
+     * @param side the side of the transformer to look at
+     * @param type the type of the limit
+     */
+    default Collection<Overload> checkAllTemporaryLimits(ThreeSides side, LimitType type) {
+        return checkAllTemporaryLimits(side, 1, type);
+    }
 
     default void applySolvedValues() {
         setRatioTapPositionToSolvedTapPosition();
@@ -422,5 +468,14 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
     default void setPhaseTapPositionToSolvedTapPosition() {
         this.getLegStream().forEach(leg -> leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
+
+    @Override
+    default void unsetSolvedValues() {
+        Connectable.super.unsetSolvedValues();
+        this.getLegStream().forEach(leg -> {
+            leg.getOptionalRatioTapChanger().ifPresent(TapChanger::unsetSolvedTapPosition);
+            leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::unsetSolvedTapPosition);
+        });
     }
 }

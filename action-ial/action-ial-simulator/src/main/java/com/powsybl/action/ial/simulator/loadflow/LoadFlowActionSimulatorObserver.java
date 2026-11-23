@@ -8,7 +8,7 @@
 package com.powsybl.action.ial.simulator.loadflow;
 
 import com.powsybl.action.ial.dsl.Rule;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import java.util.List;
 import java.util.Map;
 

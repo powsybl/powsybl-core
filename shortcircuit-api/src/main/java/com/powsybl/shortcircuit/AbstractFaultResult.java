@@ -8,7 +8,7 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
                 if (feederResult instanceof FortescueFeederResult fortescueFeederResult) {
                     return fortescueFeederResult.getCurrent().getPositiveMagnitude();
                 } else {
-                    return ((MagnitudeFaultResult) feederResult).getCurrent();
+                    return ((MagnitudeFeederResult) feederResult).getCurrent();
                 }
             }
         }

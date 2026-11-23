@@ -8,11 +8,12 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -34,7 +35,7 @@ public class EquivalentShuntConversion extends AbstractConductingEquipmentConver
         identify(adder);
         connectWithOnlyEq(adder);
         ShuntCompensator sc = adder.add();
-        sc.setProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT, "true");
+        sc.setProperty(PROPERTY_IS_EQUIVALENT_SHUNT, "true");
         addAliasesAndProperties(sc);
         convertedTerminalsWithOnlyEq(sc.getTerminal());
     }

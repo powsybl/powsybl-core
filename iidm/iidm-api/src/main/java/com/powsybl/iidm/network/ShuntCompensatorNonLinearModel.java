@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
 
-    interface Section {
+    interface Section extends PropertiesHolder {
 
         /**
          * Get the accumulated susceptance in S if this section and all the previous ones are activated.

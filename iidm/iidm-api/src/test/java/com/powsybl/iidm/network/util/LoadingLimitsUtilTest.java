@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import org.junit.jupiter.api.Test;
@@ -14,12 +16,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
-
 import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -99,7 +97,7 @@ class LoadingLimitsUtilTest {
         assertEquals(1000., adder.getPermanentLimit(), 0.001);
         assertEquals(1, adder.getTemporaryLimitToCreateList().size());
         List<TemporaryLimitToCreate> temps = adder.getTemporaryLimitToCreateList().stream().toList();
-        assertEquals(1200., temps.get(0).value());
+        assertEquals(1200., temps.getFirst().value());
 
         LoggedData loggedData = customLogger.getLoggedData();
         assertEquals("Operational Limits of ownerId", loggedData.what());
@@ -112,12 +110,14 @@ class LoadingLimitsUtilTest {
     private record TemporaryLimitToCreate(String name, int acceptableDuration, double value) {
     }
 
-    private static class LimitsAdder<L extends LoadingLimits, A extends LimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
+    private static class LimitsAdder<L extends LoadingLimits, A extends LimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
         private final String ownerId;
         private final List<TemporaryLimitToCreate> temporaryLimitToCreateList;
+        private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
         private double permanentLimit;
+        private DetectionKind detectionKind;
 
-        public LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
+        LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
             this.ownerId = ownerId;
             this.permanentLimit = permanentLimit;
             this.temporaryLimitToCreateList = new ArrayList<>(temporaryLimitToCreateList);
@@ -128,8 +128,21 @@ class LoadingLimitsUtilTest {
         }
 
         @Override
+        public A setPermanentLimitName(String limitName) {
+            this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
+            return (A) this;
+        }
+
+        @Override
         public A setPermanentLimit(double limit) {
             this.permanentLimit = limit;
+            this.detectionKind = DetectionKind.HIGH;
+            return (A) this;
+        }
+
+        @Override
+        public A setDetectionKind(DetectionKind detectionKind) {
+            this.detectionKind = detectionKind;
             return (A) this;
         }
 
@@ -141,6 +154,11 @@ class LoadingLimitsUtilTest {
         @Override
         public double getPermanentLimit() {
             return this.permanentLimit;
+        }
+
+        @Override
+        public DetectionKind getDetectionKind() {
+            return detectionKind;
         }
 
         @Override

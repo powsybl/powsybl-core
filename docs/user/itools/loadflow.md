@@ -9,7 +9,8 @@ usage: itools [OPTIONS] loadflow --case-file <FILE> [-E <property=value>]
               [--export-parameters <EXPORT_PARAMETERS>] [--help] [-I <property=value>]
               [--import-parameters <IMPORT_PARAMETERS>] [--output-case-file <FILE>]
               [--output-case-format <CASEFORMAT>] [--output-file <FILE>]
-              [--output-format <FORMAT>] [--parameters-file <FILE>]
+              [--output-format <FORMAT>] [--output-log-file <FILE>]
+              [--parameters-file <FILE>]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
@@ -29,35 +30,40 @@ Available arguments are:
      --output-file <FILE>                         loadflow results output path
      --output-format <FORMAT>                     loadflow results output format
                                                   [CSV, JSON]
+     --output-log-file <FILE>                     loadflow logs output path
      --parameters-file <FILE>                     loadflow parameters as JSON file
 ```
 
 ### Required options
 
-`--case-file`: This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path. 
+`--case-file`<br>
+This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 ### Optional options
 
-`--export-parameters`  
+`--export-parameters`<br>
 This option defines the path of the exporter's configuration file. It's possible to overload one or many parameters using the `-E property=value` syntax. The list of supported properties depends on the [output format](../../grid_exchange_formats/index.md).
 
-`--import-parameters`  
+`--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
-`--output-case-file`  
+`--output-case-file`<br>
 This option defines the path where to export the modified network.
 
-`--output-case-format`  
+`--output-case-format`<br>
 This option defines the format of the output case file. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help. This option is required if `--output-case-file` is used.
 
-`--output-file`  
+`--output-file`<br>
 This option defines the path where to export the [results](../../simulation/loadflow/index.md#outputs) of the load flow.
 
-`--output-format`  
+`--output-format`<br>
 This option defines the format of the output file. The supported format are `CSV` and `JSON`. This option is required if the `--output-file` is used.
 
-`--parameters-file`  
-This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters. 
+`--output-log-file`<br>
+This option defines the path where to export the logs of the load flow.
+
+`--parameters-file`<br>
+This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters.
 
 ## Simulators
 
@@ -106,4 +112,4 @@ Components results:
 ```
 
 ## See also
-<span style="color: red">TODO</span> 
+<span style="color: red">TODO</span>

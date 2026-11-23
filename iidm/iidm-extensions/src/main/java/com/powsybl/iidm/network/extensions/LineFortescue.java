@@ -24,18 +24,46 @@ public interface LineFortescue extends Extension<Line> {
     }
 
     /**
-     * The zero sequence resistance of the line.
+     * The zero-sequence resistance of the line.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the line.
+     * The zero-sequence reactance of the line.
      */
     double getXz();
 
     void setXz(double xz);
+
+    /**
+     * The zero-sequence shunt conductance of side 1 of the line.
+     */
+    double getG1z();
+
+    void setG1z(double g1z);
+
+    /**
+     * The zero-sequence shunt susceptance of side 1 of the line.
+     */
+    double getB1z();
+
+    void setB1z(double b1z);
+
+    /**
+     * The zero-sequence shunt conductance of side 2 of the line.
+     */
+    double getG2z();
+
+    void setG2z(double g2z);
+
+    /**
+     * The zero-sequence shunt susceptance of side 2 of the line.
+     */
+    double getB2z();
+
+    void setB2z(double b2z);
 
     boolean isOpenPhaseA();
 

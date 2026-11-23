@@ -12,10 +12,7 @@ import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -24,7 +21,7 @@ abstract class AbstractTapChangerAdderImpl<
         A extends AbstractTapChangerAdderImpl<A, H, T, S>,
         H extends TapChangerParent,
         T extends TapChanger<T, ?, ?, ?>,
-        S extends TapChangerStepImpl<S>> {
+        S extends TapChangerStepImpl<S>> extends AbstractBasePropertiesHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTapChangerAdderImpl.class);
 
@@ -32,10 +29,6 @@ abstract class AbstractTapChangerAdderImpl<
     private int lowTapPosition = 0;
     private Integer tapPosition;
     protected final List<S> steps;
-    private double regulationValue = Double.NaN;
-    private boolean regulating = false;
-    private double targetDeadband = Double.NaN;
-    private TerminalExt regulationTerminal;
     private boolean loadTapChangingCapabilities;
     private Integer solvedTapPosition;
 
@@ -57,26 +50,6 @@ abstract class AbstractTapChangerAdderImpl<
 
     public A setSolvedTapPosition(Integer solvedTapPosition) {
         this.solvedTapPosition = solvedTapPosition;
-        return self();
-    }
-
-    public A setRegulationValue(double regulationValue) {
-        this.regulationValue = regulationValue;
-        return self();
-    }
-
-    public A setRegulating(boolean regulating) {
-        this.regulating = regulating;
-        return self();
-    }
-
-    public A setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
-        return self();
-    }
-
-    public A setRegulationTerminal(Terminal regulationTerminal) {
-        this.regulationTerminal = (TerminalExt) regulationTerminal;
         return self();
     }
 
@@ -112,15 +85,11 @@ abstract class AbstractTapChangerAdderImpl<
                 + "]");
         }
 
-        network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
-                targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-
-        T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, loadTapChangingCapabilities, regulationValue, targetDeadband);
-
+        T tapChanger = createTapChanger(parent, lowTapPosition, steps, tapPosition, solvedTapPosition, loadTapChangingCapabilities);
+        this.copyPropertiesTo(tapChanger);
         Set<TapChanger<?, ?, ?, ?>> otherTapChangers = new HashSet<>(parent.getAllTapChangers());
         otherTapChangers.remove(tapChanger);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, otherTapChangers, regulating,
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, otherTapChangers, tapChanger.isRegulating(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         if (parent.hasPhaseTapChanger() && parent.hasRatioTapChanger()) {
@@ -131,11 +100,9 @@ abstract class AbstractTapChangerAdderImpl<
         return tapChanger;
     }
 
-    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband);
+    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities);
 
     protected abstract A self();
-
-    protected abstract ValidationLevel checkTapChangerRegulation(H parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal);
 
     protected abstract String getValidableType();
 

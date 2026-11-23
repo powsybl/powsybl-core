@@ -9,6 +9,8 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +26,8 @@ import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBeh
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ExportOptions extends AbstractOptions<ExportOptions> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
 
     public enum IidmVersionIncompatibilityBehavior {
         THROW_EXCEPTION,
@@ -49,6 +53,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private BusBranchVoltageLevelIncompatibilityBehavior busBranchVoltageLevelIncompatibilityBehavior = BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION;
 
+    private boolean flatten = false;
+
     private String version;
 
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
@@ -58,6 +64,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private final Map<String, TopologyLevel> voltageLevelTopologyLevel = new HashMap<>();
 
     private Charset charset = StandardCharsets.UTF_8;
+
+    private boolean forceExportNetworkWithBetaFeatures = false;
 
     /**
      * Sort IIDM objects so that generated XML does not depend on data model object order. Depending on object types the
@@ -69,6 +77,13 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      * - the name for properties of an identifiable
      */
     private boolean sorted = false;
+
+    /**
+     * Sort IIDM objects so that generated XML does depend on data model object order.
+     * Require object exported to define a creation order.
+     * Remark: Export option 'sorted' takes priority over 'useConnectableCreationOrder'.
+     */
+    private boolean useConnectableCreationOrder = false;
 
     private boolean withAutomationSystems = true;
 
@@ -93,6 +108,12 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, false);
+
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -101,6 +122,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.sorted = sorted;
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
+        this.flatten = flatten;
     }
 
     public boolean isWithBranchSV() {
@@ -250,12 +272,42 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
+    public boolean isConnectableCreationOrder() {
+        return useConnectableCreationOrder;
+    }
+
+    public ExportOptions setConnectableCreationOrder(boolean useConnectableCreationOrder) {
+        this.useConnectableCreationOrder = useConnectableCreationOrder;
+        return this;
+    }
+
     public boolean isWithAutomationSystems() {
         return withAutomationSystems;
     }
 
     public ExportOptions setWithAutomationSystems(boolean withAutomationSystems) {
         this.withAutomationSystems = withAutomationSystems;
+        return this;
+    }
+
+    public boolean isFlatten() {
+        return flatten;
+    }
+
+    public ExportOptions setFlatten(boolean flatten) {
+        this.flatten = flatten;
+        return this;
+    }
+
+    public boolean isForceExportNetworkWithBetaFeatures() {
+        return forceExportNetworkWithBetaFeatures;
+    }
+
+    public ExportOptions setForceExportNetworkWithBetaFeatures(boolean forceExportNetworkWithBetaFeatures) {
+        this.forceExportNetworkWithBetaFeatures = forceExportNetworkWithBetaFeatures;
+        if (forceExportNetworkWithBetaFeatures) {
+            LOGGER.warn("Forcing export of network with BETA features might result in an unreadable file.");
+        }
         return this;
     }
 }

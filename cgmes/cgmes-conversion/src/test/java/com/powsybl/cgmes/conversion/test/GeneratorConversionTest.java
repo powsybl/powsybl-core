@@ -7,16 +7,16 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_WIND_GEN_UNIT_TYPE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,9 +34,9 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         assertEquals(EnergySource.HYDRO, network.getGenerator("hgu_sm").getEnergySource());
         assertEquals(EnergySource.NUCLEAR, network.getGenerator("ngu_sm").getEnergySource());
         assertEquals(EnergySource.WIND, network.getGenerator("offshore_wgu_sm").getEnergySource());
-        assertEquals("offshore", network.getGenerator("offshore_wgu_sm").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
+        assertEquals("offshore", network.getGenerator("offshore_wgu_sm").getProperty(PROPERTY_WIND_GEN_UNIT_TYPE));
         assertEquals(EnergySource.WIND, network.getGenerator("onshore_wgu_sm").getEnergySource());
-        assertEquals("onshore", network.getGenerator("onshore_wgu_sm").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
+        assertEquals("onshore", network.getGenerator("onshore_wgu_sm").getProperty(PROPERTY_WIND_GEN_UNIT_TYPE));
         assertEquals(EnergySource.SOLAR, network.getGenerator("sgu_sm").getEnergySource());
     }
 
@@ -116,6 +116,13 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         String battery2Ssh = getElement(sshXml, "SynchronousMachine", "BAT2");
         assertNotNull(battery2Ssh);
         assertEquals(operatingMode + "condenser", getResource(battery2Ssh, "SynchronousMachine.operatingMode"));
+
+        String generator4Eq = getElement(eqXml, "SynchronousMachine", "GEN4");
+        assertNotNull(generator4Eq);
+        assertEquals(type + "generator", getResource(generator4Eq, "SynchronousMachine.type"));
+        String generator4Ssh = getElement(sshXml, "SynchronousMachine", "GEN4");
+        assertNotNull(generator4Ssh);
+        assertEquals(operatingMode + "generator", getResource(generator4Ssh, "SynchronousMachine.operatingMode"));
     }
 
     private Network createNetwork() {
@@ -141,8 +148,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(25.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .setLocalTargetQ(10.0)
             .setCondenser(true)
             .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -155,8 +161,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(0.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .setLocalTargetQ(10.0)
             .setCondenser(true)
             .add();
         generator2.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -169,8 +174,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(-100.0)
             .setMaxP(0.0)
             .setTargetP(-10.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .setLocalTargetQ(10.0)
             .add();
         ReactiveCapabilityCurveAdder rcca = generator3.newReactiveCapabilityCurve();
         rcca.beginPoint()
@@ -193,25 +197,38 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(-10.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         battery.getTerminal().disconnect();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
 
         // Will be exported as generatorOrCondenser (isCondenser is true by default on batteries) and operating as a condenser
-        Battery battery2 = voltageLevel1.newBattery()
+        voltageLevel1.newBattery()
             .setId("BAT2")
             .setNode(5)
             .setMinP(0.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
+            .setLocalTargetV(400.0)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
             .add();
-        battery2.newExtension(VoltageRegulationAdder.class)
-                .withTargetV(400.0)
-                .withVoltageRegulatorOn(true)
-                .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
+
+        // Will be exported as a generator and operating as a generator because isCondenser is false
+        Generator generator4 = voltageLevel1.newGenerator()
+            .setId("GEN4")
+            .setNode(6)
+            .setMinP(0.0)
+            .setMaxP(100.0)
+            .setTargetP(0.0)
+            .setLocalTargetQ(10.0)
+            .setCondenser(false)
+            .add();
+        generator4.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(6).add();
 
         return network;
     }

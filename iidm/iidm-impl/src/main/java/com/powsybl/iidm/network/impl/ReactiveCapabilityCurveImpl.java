@@ -11,16 +11,13 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.ToDoubleFunction;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
+class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implements ReactiveCapabilityCurve {
 
     /**
      * <p>Comparator to handle the -0.0 == 0.0 case:</p>
@@ -37,7 +34,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     private final String ownerDescription;
 
-    static class PointImpl implements Point {
+    static class PointImpl extends AbstractPropertiesHolder implements Point {
 
         private double p;
 

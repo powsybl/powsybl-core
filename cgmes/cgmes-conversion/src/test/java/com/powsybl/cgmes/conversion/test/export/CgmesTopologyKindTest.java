@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -25,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.function.Predicate;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElementCount;
 import static org.junit.jupiter.api.Assertions.*;
@@ -138,8 +138,8 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
             assertEquals(1, getElementCount(eqFile, "GroundDisconnector"));
             assertEquals(1, getElementCount(eqFile, "LoadArea"));
             assertEquals(1, getElementCount(eqFile, "SubLoadArea"));
-            assertTrue(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
-            assertTrue(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
+            assertTrue(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
+            assertTrue(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
             assertTrue(getElement(eqFile, "ControlArea", "Interchange").contains("cim:ControlArea.EnergyArea"));
             assertEquals(1, getElementCount(sshFile, "StationSupply"));
             assertEquals(1, getElementCount(sshFile, "GroundDisconnector"));
@@ -152,8 +152,8 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
             assertEquals(0, getElementCount(eqFile, "GroundDisconnector"));
             assertEquals(0, getElementCount(eqFile, "LoadArea"));
             assertEquals(0, getElementCount(eqFile, "SubLoadArea"));
-            assertFalse(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
-            assertFalse(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
+            assertFalse(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
+            assertFalse(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
             assertFalse(getElement(eqFile, "ControlArea", "Interchange").contains("cim:ControlArea.EnergyArea"));
             assertEquals(0, getElementCount(sshFile, "StationSupply"));
             assertEquals(0, getElementCount(sshFile, "GroundDisconnector"));
@@ -233,10 +233,9 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setId("GEN")
                 .setBus("GEN-BUS")
                 .setTargetP(1.0)
-                .setTargetQ(1.0)
                 .setMinP(0.0)
                 .setMaxP(2.0)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(1.0)
                 .add();
         voltageLevel1.newLoad()
                 .setId("AUX")
@@ -245,7 +244,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setQ0(0.0)
                 .setLoadType(LoadType.AUXILIARY)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.STATION_SUPPLY);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.STATION_SUPPLY);
 
         // Create Substation 2 with a BusbarSection, a Load and a GroundDisconnector
         Substation substation2 = network.newSubstation()
@@ -278,8 +277,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setNode2(3)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(false)
-                .setRetained(true) // will be considered non-retained by the export
-                                   // because it has the same topological nodes on each side
+                .setRetained(true) // will be considered non-retained by the export because it has the same topological nodes on each side
                 .add();
         voltageLevel2.newLoad()
                 .setId("LD_C")
@@ -287,14 +285,14 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setP0(1.0)
                 .setQ0(0.0)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.CONFORM_LOAD);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.CONFORM_LOAD);
         voltageLevel2.newLoad()
                 .setId("LD_NC")
                 .setNode(4)
                 .setP0(0.0)
                 .setQ0(1.0)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.NONCONFORM_LOAD);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.NONCONFORM_LOAD);
         voltageLevel2.getNodeBreakerView().newSwitch()
                 .setId("GRDIS")
                 .setNode1(3)
@@ -303,7 +301,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setOpen(false)
                 .setRetained(true)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "GroundDisconnector");
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "GroundDisconnector");
 
         // Create a Line between substations 1 and 2
         Line line = network.newLine()
@@ -374,7 +372,9 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setOpen(true).setRetained(true).setKind(SwitchKind.BREAKER).add();
         voltageLevel1.newGenerator().setId("GEN")
                 .setNode(10)
-                .setTargetP(1.0).setTargetQ(1.0).setMinP(0.0).setMaxP(2.0).setVoltageRegulatorOn(false).add();
+                .setTargetP(1.0).setMinP(0.0).setMaxP(2.0)
+                .setLocalTargetQ(1.0)
+                .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection()
                 .setNode1(0)
                 .setNode2(10).add();

@@ -18,6 +18,8 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Collection;
@@ -73,21 +75,22 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
         writer.writeEnumAttribute("subset", model.getSubset());
-        writer.writeStringAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
-        writer.writeStringAttribute("id", model.getId());
+        writer.writeStringAttribute("modelingAuthoritySet", networkContext.anonymizeFromMinimumVersion(model.getModelingAuthoritySet(), IidmVersion.V_1_16));
+        writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(model.getId(), IidmVersion.V_1_16));
         writer.writeIntAttribute("version", model.getVersion());
         writer.writeStringAttribute("description", model.getDescription());
-        writeReferences(sorted(model.getProfiles(), context), PROFILE, writer);
-        writeReferences(sorted(model.getDependentOn(), context), DEPENDENT_ON_MODEL, writer);
-        writeReferences(sorted(model.getSupersedes(), context), SUPERSEDES_MODEL, writer);
+        writeReferences(sorted(model.getProfiles(), context), PROFILE, writer, networkContext, false);
+        writeReferences(sorted(model.getDependentOn(), context), DEPENDENT_ON_MODEL, writer, networkContext, true);
+        writeReferences(sorted(model.getSupersedes(), context), SUPERSEDES_MODEL, writer, networkContext, true);
         writer.writeEndNode();
     }
 
-    private void writeReferences(Collection<String> refs, String refElementName, TreeDataWriter writer) {
+    private void writeReferences(Collection<String> refs, String refElementName, TreeDataWriter writer, NetworkSerializerContext context, boolean anonymize) {
         writer.writeStartNodes();
         for (String ref : refs) {
             writer.writeStartNode(getNamespaceUri(), refElementName);
-            writer.writeNodeContent(ref);
+            String value = anonymize ? context.anonymizeFromMinimumVersion(ref, IidmVersion.V_1_16) : ref;
+            writer.writeNodeContent(value);
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -110,17 +113,18 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
     }
 
     private static void read(CgmesMetadataModelsAdder.ModelAdder adder, DeserializerContext context) {
-        TreeDataReader reader = context.getReader();
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
+        TreeDataReader reader = networkContext.getReader();
         adder.setSubset(reader.readEnumAttribute("subset", CgmesSubset.class))
-                .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"))
-                .setId(reader.readStringAttribute("id"))
+                .setModelingAuthoritySet(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("modelingAuthoritySet"), IidmVersion.V_1_16))
+                .setId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16))
                 .setVersion(reader.readIntAttribute("version"))
                 .setDescription(reader.readStringAttribute("description"));
         reader.readChildNodes(elementName -> {
             switch (elementName) {
                 case PROFILE -> adder.addProfile(reader.readContent());
-                case DEPENDENT_ON_MODEL -> adder.addDependentOn(reader.readContent());
-                case SUPERSEDES_MODEL -> adder.addSupersedes(reader.readContent());
+                case DEPENDENT_ON_MODEL -> adder.addDependentOn(networkContext.deanonymizeFromMinimumVersion(reader.readContent(), IidmVersion.V_1_16));
+                case SUPERSEDES_MODEL -> adder.addSupersedes(networkContext.deanonymizeFromMinimumVersion(reader.readContent(), IidmVersion.V_1_16));
                 default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + CgmesMetadataModels.NAME + "'");
             }
         });

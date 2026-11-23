@@ -13,5 +13,5 @@ import com.powsybl.iidm.network.Line;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface Z0LineChecker {
-    public boolean isZ0(Line line);
+    boolean isZ0(Line line);
 }

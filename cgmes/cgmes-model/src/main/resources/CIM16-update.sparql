@@ -12,9 +12,6 @@ SELECT *
 { GRAPH ?graph {
     ?FullModel
         a md:FullModel ;
-        md:Model.scenarioTime ?scenarioTime ;
-        md:Model.created ?created ;
-        md:Model.version ?version ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet .
     {
     SELECT ?FullModel (group_concat(?profile; separator=" ") as ?profileList)
@@ -22,7 +19,6 @@ SELECT *
                 ?FullModel md:Model.profile ?profile .
         } GROUP BY ?FullModel
     }
-    OPTIONAL { ?FullModel md:Model.description ?description }
     OPTIONAL {
         SELECT ?FullModel (group_concat(?dependentOn; separator=" ") as ?dependentOnList)
             WHERE {
@@ -35,6 +31,26 @@ SELECT *
                     ?FullModel md:Model.Supersedes ?supersedes .
             } GROUP BY ?FullModel
     }
+    OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL { ?FullModel md:Model.scenarioTime ?scenarioTime }
+    OPTIONAL { ?FullModel md:Model.created ?created }
+    OPTIONAL { ?FullModel md:Model.version ?version }
+}}
+
+# query: modelDates
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # There are multiple FullModel instances.
+    # We return all dates from all Model instances that are not a boundary model
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.created ?created ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    FILTER (!regex(?profile, "Equipment", "i")
+        && !regex(?profile, "TopologyBoundary", "i"))
 }}
 
 # query: numObjectsByType
@@ -170,8 +186,8 @@ SELECT *
         SELECT DISTINCT ?PhaseTapChanger
         WHERE {
             {
-                ?PhaseTapChanger a ?phaseTapChangerType ;
-                VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
+                ?PhaseTapChanger a ?phaseTapChangerType .
+                VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerSymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
             }
             UNION
             {
@@ -272,7 +288,8 @@ SELECT *
     ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
         cim:ExternalNetworkInjection.p ?p ;
         cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled ;
+        cim:ExternalNetworkInjection.referencePriority ?referencePriority
 }
 
 # query: asynchronousMachines

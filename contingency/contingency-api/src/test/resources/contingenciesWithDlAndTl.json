@@ -1,12 +1,12 @@
 {
   "type" : "default",
-  "version" : "1.0",
+  "version" : "1.1",
   "name" : "list",
   "contingencies" : [ {
     "id" : "contingency",
     "elements" : [ {
       "id" : "NHV1_XNODE1",
-      "type" : "DANGLING_LINE"
+      "type" : "BOUNDARY_LINE"
     } ]
   }, {
     "id" : "contingency2",
