@@ -26,12 +26,16 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
 import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 class CgmesNamingStrategyTest extends AbstractSerDeTest {
+
+    private static final String DIR = "/issues/naming-strategy/";
 
     @Test
     void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
@@ -39,6 +43,32 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         Network network = Network.read(ds);
         network.setName("MicroGrid-NS-CGMES");
         testExport(network, ds, NamingStrategyFactory.CGMES);
+    }
+
+    @Test
+    void testEntsoePatternException() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_RDFID);
+        Network network = readCgmesResources(importParams, DIR,
+            "boundary_entsoe_pattern_exception_EQBD.xml",
+            "boundary_entsoe_pattern_exception_TPBD.xml",
+            "entsoe_pattern_exception_BE_EQ.xml",
+            "entsoe_pattern_exception_BE_TP.xml",
+            "entsoe_pattern_exception_NL_EQ.xml",
+            "entsoe_pattern_exception_NL_TP.xml"
+        );
+        assertNotNull(network);
+
+        // Check the BoundaryLine has the boundary topological X-node id in a property
+        BoundaryLine boundaryLine = network.getBoundaryLine("_ACL_BE");
+        String topologicalXnodeId = "_11111111aaaa2222bbbb333333333333";
+        assertEquals(topologicalXnodeId, boundaryLine.getProperty(Conversion.PROPERTY_TOPOLOGICAL_NODE_BOUNDARY));
+
+        // Export the SV profile and check we retrieve the boundary topological X-node id
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        String svFile = writeCgmesProfile(network, "SV", tmpDir, exportParams);
+        assertTrue(svFile.contains(topologicalXnodeId));
     }
 
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
