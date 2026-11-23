@@ -10,12 +10,30 @@ package com.powsybl.iidm.network.regulation;
 import java.util.Arrays;
 
 /**
+ * Mode of regulation for equipment with voltage regulation capabilities.
+ *
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public enum RegulationMode {
+
+    /**
+     * Direct voltage regulation to a target voltage value.
+     */
     VOLTAGE(1),
+
+    /**
+     * Reactive power regulation to a target reactive power value.
+     */
     REACTIVE_POWER(2),
+
+    /**
+     * Voltage regulation with reactive power droop slope ({@code U0 = U + lambda * Q}).
+     */
     VOLTAGE_PER_REACTIVE_POWER(3),
+
+    /**
+     * Reactive power regulation based on active power with a power factor slope ({@code Q = tan(phi) * P}).
+     */
     REACTIVE_POWER_PER_ACTIVE_POWER(4);
 
     private final int index;
@@ -24,6 +42,13 @@ public enum RegulationMode {
         this.index = index;
     }
 
+    /**
+     * Returns the {@link RegulationMode} corresponding to the specified index.
+     *
+     * @param index the index of the regulation mode
+     * @return the corresponding {@code RegulationMode}
+     * @throws IllegalArgumentException if the index does not match any regulation mode
+     */
     public static RegulationMode fromIndex(int index) {
         for (RegulationMode mode : RegulationMode.values()) {
             if (mode.index == index) {
@@ -37,10 +62,21 @@ public enum RegulationMode {
             + ". Allowed values are: " + allowedRegulationModeIndices);
     }
 
+    /**
+     * Returns the numeric index of this regulation mode.
+     *
+     * @return the integer index
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * Returns the numeric index of the given regulation mode, or {@code null} if {@code mode} is {@code null}.
+     *
+     * @param mode the regulation mode (may be {@code null})
+     * @return the integer index, or {@code null} if {@code mode} is {@code null}
+     */
     public static Integer getIndexFromMode(RegulationMode mode) {
         return mode == null ? null : mode.index;
     }

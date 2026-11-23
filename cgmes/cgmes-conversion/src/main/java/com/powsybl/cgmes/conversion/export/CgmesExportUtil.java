@@ -527,6 +527,14 @@ public final class CgmesExportUtil {
         return "generatorOrMotor";
     }
 
+    /**
+     * Determines the CGMES regulating control mode kind corresponding to the given voltage regulation.
+     *
+     * @param voltageRegulation the IIDM voltage regulation containing the regulation mode to convert
+     * @return the CGMES {@code RegulatingControlModeKind} string representation (e.g. {@code "RegulatingControlModeKind.voltage"}
+     *         or {@code "RegulatingControlModeKind.reactivePower"})
+     * @throws IllegalStateException if the regulation mode is {@code null} or unsupported
+     */
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {

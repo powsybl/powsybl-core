@@ -48,6 +48,12 @@ public final class VoltageRegulationSerDe {
     private VoltageRegulationSerDe() {
     }
 
+    /**
+     * Writes the voltage regulation.
+     *
+     * @param voltageRegulation the voltage regulation
+     * @param context the serialization context
+     */
     public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             if (voltageRegulation != null && voltageRegulation.getMode() != null) {
