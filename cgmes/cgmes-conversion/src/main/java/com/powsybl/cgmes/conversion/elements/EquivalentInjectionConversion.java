@@ -230,22 +230,17 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
     private static void setGenerationRegulation(BoundaryLine.Generation generation, double targetV, boolean regulatingOn) {
         Objects.requireNonNull(generation);
+        generation.setLocalTargetV(targetV);
         VoltageRegulation voltageRegulation = generation.getVoltageRegulation();
-        if (regulatingOn) {
-            generation.setLocalTargetV(targetV);
-            if (voltageRegulation == null) {
+        if (voltageRegulation == null) {
+            if (regulatingOn) {
                 generation.newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(true)
-                    .build();
-            } else {
-                voltageRegulation.setRegulating(true);
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withRegulating(true)
+                        .build();
             }
         } else {
-            if (voltageRegulation != null) {
-                voltageRegulation.setRegulating(false);
-            }
-            generation.setLocalTargetV(targetV);
+            voltageRegulation.setRegulating(regulatingOn);
         }
     }
 
