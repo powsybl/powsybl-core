@@ -10,9 +10,12 @@ package com.powsybl.commons.compress;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -91,5 +94,51 @@ class SafeZipInputStreamTest {
             safeZipInputStream.read(buffer, 0, 10);
         });
         assertEquals("Max bytes to read exceeded", exception.getMessage());
+    }
+
+    @Test
+    void testReadWholeByteArrayExceedsMaxBytes() throws IOException {
+        byte[] buffer = new byte[10];
+
+        safeZipInputStream = new SafeZipInputStream(zipInputStreamWithEntryOfSize(10), 1, 5);
+        safeZipInputStream.getNextEntry();
+
+        IOException exception = assertThrows(IOException.class, () -> {
+            safeZipInputStream.read(buffer);
+        });
+        assertEquals("Max bytes to read exceeded", exception.getMessage());
+    }
+
+    @Test
+    void testSkipExceedsMaxBytes() throws IOException {
+        safeZipInputStream = new SafeZipInputStream(zipInputStreamWithEntryOfSize(10), 1, 5);
+        safeZipInputStream.getNextEntry();
+
+        IOException exception = assertThrows(IOException.class, () -> {
+            safeZipInputStream.skip(10);
+        });
+        assertEquals("Max bytes to read exceeded", exception.getMessage());
+    }
+
+    @Test
+    void testReadAndSkipWithinMaxBytes() throws IOException {
+        byte[] buffer = new byte[4];
+
+        safeZipInputStream = new SafeZipInputStream(zipInputStreamWithEntryOfSize(10), 1, 10);
+        safeZipInputStream.getNextEntry();
+
+        assertEquals(4, safeZipInputStream.read(buffer));
+        assertEquals(6, safeZipInputStream.skip(6));
+        assertEquals(-1, safeZipInputStream.read(buffer));
+    }
+
+    private static ZipInputStream zipInputStreamWithEntryOfSize(int size) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(bytes)) {
+            zos.putNextEntry(new ZipEntry("entry"));
+            zos.write(new byte[size]);
+            zos.closeEntry();
+        }
+        return new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()));
     }
 }
