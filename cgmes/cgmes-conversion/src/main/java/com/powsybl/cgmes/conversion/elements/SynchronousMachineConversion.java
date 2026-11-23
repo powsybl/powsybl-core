@@ -30,19 +30,22 @@ import static com.powsybl.cgmes.conversion.Conversion.*;
 public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
     private final boolean hasCondenserCapability;
+    private final boolean isPureCondenser;
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(CgmesNames.SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
         hasCondenserCapability = type != null && type.toLowerCase().contains("condenser");
+        isPureCondenser = type != null && type.contains("condenser");
+
     }
 
     @Override
     public void convert() {
         // If it is a generator, default values for minP and maxP give unlimited range
-        // If it is a condenser, default values for minP and maxP are 0
-        double minP = p.asDouble("minP", hasCondenserCapability ? 0 : -Double.MAX_VALUE);
-        double maxP = p.asDouble("maxP", hasCondenserCapability ? 0 : Double.MAX_VALUE);
+        // If it is a pure condenser, default values for minP and maxP are 0
+        double minP = p.asDouble("minP", isPureCondenser ? 0 : -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", isPureCondenser ? 0 : Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
 
