@@ -207,8 +207,13 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    protected Collection<Scalable> getScalables() {
+    @Override
+    public List<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
+    }
+
+    public List<Double> getPercentages() {
+        return scalablePercentageList.stream().map(ScalablePercentage::getPercentage).toList();
     }
 
     private static void checkPercentages(List<Double> percentages, List<Scalable> scalables) {
@@ -352,4 +357,3 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
 }
-

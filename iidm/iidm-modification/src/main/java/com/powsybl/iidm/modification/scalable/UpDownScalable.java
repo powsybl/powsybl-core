@@ -33,6 +33,20 @@ public class UpDownScalable extends AbstractScalable {
         this.maxValue = maxValue;
     }
 
+    /**
+     * Scalable used when the asked variation is positive.
+     */
+    public Scalable getUpScalable() {
+        return upScalable;
+    }
+
+    /**
+     * Scalable used when the asked variation is negative.
+     */
+    public Scalable getDownScalable() {
+        return downScalable;
+    }
+
     @Override
     public double initialValue(Network n) {
         return upScalable.initialValue(n) + downScalable.initialValue(n);
