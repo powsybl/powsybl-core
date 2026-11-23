@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.ReferencePrioritiesAdder;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, ReferencePriorities<C>> implements ReferencePrioritiesAdder<C> {
+    class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractIidmExtensionAdder<C, ReferencePriorities<C>> implements ReferencePrioritiesAdder<C> {
 
     ReferencePrioritiesAdderImpl(C extendable) {
         super(extendable);

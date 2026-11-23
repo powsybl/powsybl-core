@@ -7,12 +7,15 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkEventRecorder;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.events.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -100,5 +103,33 @@ public abstract class AbstractNetworkEventTest {
         network.getVariantManager().removeVariant("new_variant");
         assertEquals(List.of(new VariantNetworkEvent("new_variant", null, VariantNetworkEvent.VariantEventType.REMOVED)),
                 eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(gen, 1);
+        assertEquals(List.of(new ExtensionCreationNetworkEvent("GEN", "referencePriorities"),
+                        new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 0, 1)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(gen, 2);
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 1, 2)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(gen, 2);
+        assertEquals(List.of(), eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriorities<Generator> referencePriorities = gen.getExtension(ReferencePriorities.class);
+        referencePriorities.deleteReferencePriorities();
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 2, 0)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        gen.removeExtension(ReferencePriorities.class);
+        assertEquals(List.of(new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", false),
+                        new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", true)),
+                eventRecorder.getEvents());
+
     }
 }
