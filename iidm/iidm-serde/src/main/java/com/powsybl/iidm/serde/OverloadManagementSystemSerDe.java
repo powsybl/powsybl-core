@@ -14,6 +14,9 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -44,6 +47,16 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
     @Override
     protected void writeSubElements(OverloadManagementSystem oms, Substation substation, NetworkSerializerContext context) {
         oms.getTrippings().forEach(t -> writeTripping(t, context));
+    }
+
+    @Override
+    public void writeVariantState(OverloadManagementSystem oms, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
+         */
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.of(
+                NetworkSerDe.TrackedAttribute.ofBoolean("v", oms::isEnabled)
+        ));
     }
 
     private void writeTripping(OverloadManagementSystem.Tripping tripping, NetworkSerializerContext context) {

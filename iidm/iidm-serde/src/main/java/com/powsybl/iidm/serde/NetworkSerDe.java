@@ -531,6 +531,26 @@ public final class NetworkSerDe {
     }
 
     private static void writeVariantAttributes(Network network, NetworkSerializerContext context, String variantId) {
+        writeEquipmentVariantAttributes(network.getDcNodeStream(), DcNodeSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getDcSwitchStream(), DcSwitchSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getDcGroundStream(), DcGroundSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getDcLineStream(), DcLineSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getVoltageLevelStream(), VoltageLevelSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getGeneratorStream(), GeneratorSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getBatteryStream(), BatterySerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getLoadStream(), LoadSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getShuntCompensatorStream(), ShuntCompensatorSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getBoundaryLineStream(), BoundaryLineSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getStaticVarCompensatorStream(), StaticVarCompensatorSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getVscConverterStationStream(), VscConverterStationSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getVoltageSourceConverterStream(), VoltageSourceConverterSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getTwoWindingsTransformerStream(), TwoWindingsTransformerSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getThreeWindingsTransformerStream(), ThreeWindingsTransformerSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getOverloadManagementSystemStream(), OverloadManagementSystemSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getHvdcLineStream(), HvdcLineSerDe.INSTANCE::writeVariantState, network, context, variantId);
+        writeEquipmentVariantAttributes(network.getAreaStream(), AreaSerDe.INSTANCE::writeVariantState, network, context, variantId);
+    }
+
     @FunctionalInterface
     interface VariantStateWriter<T> {
         void write(T element, Network network, NetworkSerializerContext context, String variantId);
@@ -580,6 +600,18 @@ public final class NetworkSerDe {
 
         public static TrackedAttribute<Double> ofDouble(String name, Supplier<Double> getter) {
             return new TrackedAttribute<>(name, getter, TreeDataWriter::writeDoubleAttribute);
+        }
+
+        public static TrackedAttribute<Enum> ofEnum(String name, Supplier<Enum> getter) {
+            return new TrackedAttribute<>(name, getter, TreeDataWriter::writeEnumAttribute);
+        }
+
+        public static TrackedAttribute<Integer> ofInt(String name, Supplier<Integer> getter) {
+            return new TrackedAttribute<>(name, getter, TreeDataWriter::writeIntAttribute);
+        }
+
+        public static TrackedAttribute<String> ofString(String name, Supplier<String> getter) {
+            return new TrackedAttribute<>(name, getter, TreeDataWriter::writeStringAttribute);
         }
 
         Snapshot<T> snapshot() {

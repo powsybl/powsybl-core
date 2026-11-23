@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 /**
@@ -52,6 +53,9 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends Id
         context.getWriter().writeEndNode();
 
         context.addExportedEquipment(identifiable);
+    }
+
+    public void writeVariantState(T identifiable, Network network, NetworkSerializerContext context, String variantId) {
     }
 
     protected abstract A createAdder(P parent);

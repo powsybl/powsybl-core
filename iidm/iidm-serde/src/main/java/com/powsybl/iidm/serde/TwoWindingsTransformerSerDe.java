@@ -10,7 +10,11 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
 import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
@@ -72,6 +76,11 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
             context.getOptions().isOnlySelectedOperationalLimitsGroups() ? twt.getAllSelectedOperationalLimitsGroups(TwoSides.ONE) : twt.getOperationalLimitsGroups1());
         writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup2().orElse(null),
             context.getOptions().isOnlySelectedOperationalLimitsGroups() ? twt.getAllSelectedOperationalLimitsGroups(TwoSides.TWO) : twt.getOperationalLimitsGroups2());
+    }
+
+    @Override
+    public void writeVariantState(TwoWindingsTransformer identifiable, Network network, NetworkSerializerContext context, String variantId) {
+        /** FIXME use the method from ThreeWindingsTransformerSerDe when the function is completed */
     }
 
     @Override

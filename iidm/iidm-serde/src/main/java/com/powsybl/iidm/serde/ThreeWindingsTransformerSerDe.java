@@ -10,8 +10,14 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
 import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
@@ -118,6 +124,33 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
                 onlySelectedOperationalLimitsGroups ? leg.getAllSelectedOperationalLimitsGroups() : leg.getOperationalLimitsGroups());
             i[0]++;
         }
+    }
+
+    @Override
+    public void writeVariantState(ThreeWindingsTransformer twt, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+         <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+         <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+         <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+         <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
+         <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
+         <xs:attribute name="p1" use="optional" type="xs:double"/>
+         <xs:attribute name="q1" use="optional" type="xs:double"/>
+         <xs:attribute name="p2" use="optional" type="xs:double"/>
+         <xs:attribute name="q2" use="optional" type="xs:double"/>
+         <xs:attribute name="p3" use="optional" type="xs:double"/>
+         <xs:attribute name="q3" use="optional" type="xs:double"/>
+         */
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        ///FIXME add bus and connectableBus
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("p1", twt.getLeg1().getTerminal()::getP));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("q1", twt.getLeg1().getTerminal()::getQ));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("p2", twt.getLeg2().getTerminal()::getP));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("q2", twt.getLeg2().getTerminal()::getQ));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("p3", twt.getLeg3().getTerminal()::getP));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("q3", twt.getLeg3().getTerminal()::getQ));
+        writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }
 
     private static void writeRatioTapChanger(RatioTapChanger rtc, int index, NetworkSerializerContext context) {

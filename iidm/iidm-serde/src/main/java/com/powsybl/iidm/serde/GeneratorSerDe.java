@@ -14,12 +14,14 @@ import com.powsybl.iidm.serde.extensions.RemoteReactivePowerControlSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.jspecify.annotations.NonNull;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createGeneratorVoltageRegulationBackwardCompatibility;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -112,6 +114,20 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         });
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(g.getVoltageRegulation(), context));
+    }
+
+    @Override
+    public void writeVariantState(Generator generator, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="targetP" use="required" type="xs:double"/>
+         <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
+         <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+         */
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("targetP", generator::getTargetP));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetQ", generator::getLocalTargetQ));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetV", generator::getLocalTargetV));
+        writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }
 
     @Override

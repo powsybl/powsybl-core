@@ -11,12 +11,15 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.BoundaryLine.Generation;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -108,6 +111,27 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         }
         writeLimits(context, null, getRootElementName(), dl.getSelectedOperationalLimitsGroup().orElse(null),
             context.getOptions().isOnlySelectedOperationalLimitsGroups() ? dl.getAllSelectedOperationalLimitsGroups() : dl.getOperationalLimitsGroups());
+    }
+
+    @Override
+    public void writeVariantState(BoundaryLine boundaryLine, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="p0" use="required" type="xs:double"/>
+         <xs:attribute name="q0" use="required" type="xs:double"/>
+         <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>
+         <xs:attribute name="generationTargetP" use="optional" type="xs:double"/>
+         <xs:attribute name="generationTargetV" use="optional" type="xs:double"/>
+         <xs:attribute name="generationTargetQ" use="optional" type="xs:double"/>
+         */
+        Generation generation = boundaryLine.getGeneration();
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("p0", boundaryLine::getP0));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("q0", boundaryLine::getQ0));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofBoolean("generationVoltageRegulationOn", generation::isVoltageRegulationOn));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble(GENERATION_TARGET_P, generation::getTargetP));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble(GENERATION_TARGET_V, generation::getTargetV));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble(GENERATION_TARGET_Q, generation::getTargetQ));
+        writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }
 
     @Override

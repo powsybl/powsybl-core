@@ -11,6 +11,11 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
 
+import java.util.stream.Stream;
+
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.getTrackedAttributePI;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -36,6 +41,17 @@ class HvdcLineSerDe extends AbstractSimpleIdentifiableSerDe<HvdcLine, HvdcLineAd
         context.getWriter().writeDoubleAttribute("maxP", l.getMaxP());
         context.getWriter().writeStringAttribute("converterStation1", context.getAnonymizer().anonymizeString(l.getConverterStation1().getId()));
         context.getWriter().writeStringAttribute("converterStation2", context.getAnonymizer().anonymizeString(l.getConverterStation2().getId()));
+    }
+
+    @Override
+    public void writeVariantState(HvdcLine l, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="activePowerSetpoint" use="required" type="xs:double"/>
+         <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
+         */
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.concat(
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble("activePowerSetpoint", l::getActivePowerSetpoint)),
+                Stream.of(NetworkSerDe.TrackedAttribute.ofEnum("convertersMode", l::getConvertersMode))));
     }
 
     @Override
