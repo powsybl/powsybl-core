@@ -42,6 +42,18 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
         this.maxValue = maxValue;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public double getMinValue() {
+        return minValue;
+    }
+
+    public double getMaxValue() {
+        return maxValue;
+    }
+
     private Injection getInjectionOrNull(Network n) {
         Identifiable identifiable = n.getIdentifiable(id);
         if (identifiable instanceof Injection<?> injection) {

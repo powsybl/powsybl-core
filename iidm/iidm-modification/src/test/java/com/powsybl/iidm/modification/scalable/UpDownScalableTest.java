@@ -165,4 +165,14 @@ class UpDownScalableTest {
         double asked = 100;
         assertEquals(35, upDownScalable.scale(testNetwork, asked, parameters));
     }
+
+    @Test
+    void checkUpAndDownScalablesAreAccessible() {
+        Scalable upScalable = Scalable.onGenerator("g2");
+        Scalable downScalable = Scalable.onLoad("l1");
+        UpDownScalable upDownScalable = Scalable.upDown(upScalable, downScalable);
+
+        assertSame(upScalable, upDownScalable.getUpScalable());
+        assertSame(downScalable, upDownScalable.getDownScalable());
+    }
 }
