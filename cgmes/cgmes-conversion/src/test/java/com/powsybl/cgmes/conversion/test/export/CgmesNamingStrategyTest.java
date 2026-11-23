@@ -26,9 +26,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -64,11 +63,12 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         String topologicalXnodeId = "_11111111aaaa2222bbbb333333333333";
         assertEquals(topologicalXnodeId, boundaryLine.getProperty(Conversion.PROPERTY_TOPOLOGICAL_NODE_BOUNDARY));
 
-        // Export the SV profile and check we retrieve the boundary topological X-node id
+        // Export the SV profile and check we retrieve once and only once the boundary topological X-node id
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
         String svFile = writeCgmesProfile(network, "SV", tmpDir, exportParams);
         assertTrue(svFile.contains(topologicalXnodeId));
+        assertEquals(3, getElementCount(svFile, "SvVoltage"));
     }
 
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
