@@ -68,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -515,6 +516,86 @@ public final class NetworkSerDe {
         context.getWriter().writeEndNodes();
     }
 
+    private static void writeVariants(Network network, NetworkSerializerContext context, List<String> exportedVariantIds) {
+        if (exportedVariantIds.isEmpty()) {
+            return;
+        }
+        context.getWriter().writeStartNodes();
+        for (String variantId : exportedVariantIds) {
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "variant");
+            context.getWriter().writeStringAttribute("id", variantId);
+            writeVariantAttributes(network, context, variantId);
+            context.getWriter().writeEndNode();
+        }
+        context.getWriter().writeEndNodes();
+    }
+
+    private static void writeVariantAttributes(Network network, NetworkSerializerContext context, String variantId) {
+    @FunctionalInterface
+    interface VariantStateWriter<T> {
+        void write(T element, Network network, NetworkSerializerContext context, String variantId);
+    }
+
+    private static <T extends Identifiable<T>> void writeEquipmentVariantAttributes(
+            Stream<T> equipments, VariantStateWriter<T> variantStateWriter, Network network, NetworkSerializerContext context, String variantId) {
+        IidmSerDeUtil.sorted(network, equipments, context.getOptions())
+                .filter(context::isExportedEquipment)
+                .forEach(equipment -> variantStateWriter.write(equipment, network, context, variantId));
+    }
+
+    protected static void writeVariantDiff(Network network, String variantId,
+                                        NetworkSerializerContext context, String rootElementName,
+                                        Stream<TrackedAttribute<?>> attributes) {
+        VariantManager variantManager = network.getVariantManager();
+        String workingVariant = variantManager.getWorkingVariantId();
+
+        // Snapshot the working variant
+        Stream<TrackedAttribute.Snapshot<?>> snapshots = attributes.<TrackedAttribute.Snapshot<?>>map(TrackedAttribute::snapshot);
+
+        // Compute changes with the variant
+        List<Consumer<TreeDataWriter>> changes;
+        variantManager.setWorkingVariant(variantId);
+        changes = snapshots.map(TrackedAttribute.Snapshot::diff)
+                .flatMap(Optional::stream)
+                .toList();
+        variantManager.setWorkingVariant(workingVariant);
+
+        if (!changes.isEmpty()) {
+            TreeDataWriter writer = context.getWriter();
+            writer.writeStartNode(context.getNamespaceURI(), rootElementName);
+            changes.forEach(change -> change.accept(writer));
+            writer.writeEndNode();
+        }
+    }
+
+    public record TrackedAttribute<T>(String name, Supplier<T> getter, AttributeWriter<T> writer) {
+        @FunctionalInterface
+        public interface AttributeWriter<T> {
+            void write(TreeDataWriter writer, String name, T value);
+        }
+
+        public static TrackedAttribute<Boolean> ofBoolean(String name, Supplier<Boolean> getter) {
+            return new TrackedAttribute<>(name, getter, TreeDataWriter::writeBooleanAttribute);
+        }
+
+        public static TrackedAttribute<Double> ofDouble(String name, Supplier<Double> getter) {
+            return new TrackedAttribute<>(name, getter, TreeDataWriter::writeDoubleAttribute);
+        }
+
+        Snapshot<T> snapshot() {
+            return new Snapshot<>(this, getter.get());
+        }
+
+        record Snapshot<T>(TrackedAttribute<T> trackedAttribute, T attribueValue) {
+            Optional<Consumer<TreeDataWriter>> diff() {
+                T attribueValueAfter = trackedAttribute.getter().get();
+                return attribueValue.equals(attribueValueAfter)
+                        ? Optional.of(writer -> trackedAttribute.writer().write(writer, trackedAttribute.name(), attribueValueAfter))
+                        : Optional.empty();
+            }
+        }
+    }
+
     private static boolean ignoreEquipmentAtExport(Identifiable<?> identifiable, NetworkSerializerContext context) {
         return !context.isExportedEquipment(identifiable)
                 || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
@@ -604,11 +685,40 @@ public final class NetworkSerDe {
         return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
     }
 
+    private static List<String> resolveExportedVariants(Network network, NetworkSerializerContext context) {
+        var result = new LinkedList<String>() { };
+        var exportedVariants = context.getOptions().getExportedVariants();
+        if (exportedVariants.isEmpty()) {
+            return result;
+        }
+        if (context.getOptions().isSorted()) {
+            exportedVariants = exportedVariants.stream()
+                    .sorted()
+                    .toList();
+        }
+        var existingVariants = network.getVariantManager().getVariantIds();
+        for (String variantId : exportedVariants) {
+            if (!existingVariants.contains(variantId)) {
+                throw new PowsyblException("Can't export unknown variant" + variantId);
+            }
+            IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, "variant", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
+            result.add(variantId);
+        }
+        return result;
+    }
+
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context.getVersion());
         context.getWriter().writeStartNode(context.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME);
         writeMainAttributes(n, context);
+    }
+
+    private static void writeWorkingVariantId(Network network, NetworkSerializerContext context, List<String> exportedVariantIds) {
+        String workingId = network.getVariantManager().getWorkingVariantId();
+        if (!exportedVariantIds.isEmpty() || !VariantManagerConstants.INITIAL_VARIANT_ID.equals(workingId)) {
+            context.getWriter().writeStringAttribute("workingVariantId", workingId);
+        }
     }
 
     private static Map<String, String> getExtensionVersions(ExportOptions options, Set<ExtensionSerDe<?, ?>> usedExtensionSerDes) {
@@ -825,10 +935,13 @@ public final class NetworkSerDe {
         // consider the network has been exported so its extensions will be written
         // (should be done before extensions are written)
         context.addExportedEquipment(network);
+        List<String> exportedVariantIds = resolveExportedVariants(network, context);
         writeRootElement(network, context);
+        writeWorkingVariantId(network, context, exportedVariantIds);
         writeBaseNetwork(network, context, extensionsSupplier);
         writeVoltageAngleLimits(network, context);
         writeExtensions(network, context, extensionsSupplier);
+        writeVariants(network, context, exportedVariantIds);
         context.getWriter().writeEndNode();
     }
 
