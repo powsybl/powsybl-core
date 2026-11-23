@@ -563,7 +563,7 @@ public final class NetworkSerDe {
                 .forEach(equipment -> variantStateWriter.write(equipment, network, context, variantId));
     }
 
-    protected static void writeVariantDiff(Network network, String variantId,
+    public static void writeVariantDiff(Network network, String variantId,
                                         NetworkSerializerContext context, String rootElementName,
                                         Stream<TrackedAttribute<?>> attributes) {
         VariantManager variantManager = network.getVariantManager();
