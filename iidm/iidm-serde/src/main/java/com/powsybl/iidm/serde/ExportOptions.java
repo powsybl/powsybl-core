@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
@@ -87,6 +84,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean withAutomationSystems = true;
 
+    /**
+     * List of variant id to export, no variant are exported by default
+     */
+    private Collection<String> exportedVariants = Collections.emptyList();
     public ExportOptions() {
     }
 
@@ -114,6 +115,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, flatten, Collections.emptyList());
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten, Collection<String> exportedVariants) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -123,6 +129,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
         this.flatten = flatten;
+        this.exportedVariants = exportedVariants;
     }
 
     public boolean isWithBranchSV() {
@@ -265,6 +272,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public boolean isSorted() {
         return sorted;
+    }
+
+    public Collection<String> getExportedVariants() {
+        return exportedVariants;
     }
 
     public ExportOptions setSorted(boolean sorted) {

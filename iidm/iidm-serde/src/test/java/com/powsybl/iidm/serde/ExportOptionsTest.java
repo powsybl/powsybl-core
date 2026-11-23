@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -108,6 +109,7 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION, Boolean.FALSE));
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION, Boolean.FALSE, Collections.emptyList()));
     }
 
     private void testDefaultExportOptions(ExportOptions options) {
@@ -124,6 +126,8 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
         assertEquals(Boolean.FALSE, options.isFlatten());
+        assertEquals(Boolean.TRUE, options.getExportedVariants().isEmpty());
     }
 
+    //TODO add tests for parameter exported variants
 }
