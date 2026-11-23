@@ -13,13 +13,18 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParameters> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParametersSerializer.class);
 
     LoadFlowParametersSerializer() {
         super(LoadFlowParameters.class);
@@ -53,7 +58,10 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeNumberField("dcPowerFactor", parameters.getDcPowerFactor());
         JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers()::get);
+        Set<String> notSerialized = JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers()::get);
+        if (!notSerialized.isEmpty()) {
+            LOGGER.warn("No JSON serializer found for load flow parameters extensions {}, they are not written", notSerialized);
+        }
 
         jsonGenerator.writeEndObject();
     }
