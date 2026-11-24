@@ -317,7 +317,8 @@ The header of a partial SSH file is the header of a full SSH file. The export co
 To set the other values of the header, for example the model id, the dependencies or the superseded models, give the model to the export:
 
 ```java
-CgmesMetadataModel model = CgmesExport.initializeModelForExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, false);
+context.setModelVersion(String.valueOf(previousSshModelVersion + 1));
+CgmesMetadataModel model = CgmesExport.initializeModelForExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, true);
 model.clearSupersedes();
 model.addSupersedes(previousSshModelId);
 SteadyStateHypothesisExport.write(network, writer, context, model);
@@ -325,7 +326,7 @@ SteadyStateHypothesisExport.write(network, writer, context, model);
 
 `SteadyStateHypothesisExport.export` sends the CGMES objects of the export to a `CgmesObjectSink`, without XML.
 The sink receives the objects that `write` writes, in the same order. In a partial SSH export, it receives each object only once.
-Each object is a subject, its type and its properties.
+Each object has a subject, a type and properties.
 `CgmesObject.statements` gives the same data as RDF statements (subject, predicate, object), with one `rdf:type` statement for each object.
 Use the objects or the statements to give the changes to a tool that does not read XML:
 

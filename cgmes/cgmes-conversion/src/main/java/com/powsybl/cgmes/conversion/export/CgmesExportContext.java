@@ -427,7 +427,8 @@ public class CgmesExportContext {
     }
 
     /**
-     * The creation time written in the header of the exported models, or null to write the time of the export.
+     * Get the creation time written in the header of the exported models.
+     * If it is null, the header contains the time of the export.
      */
     public ZonedDateTime getModelCreated() {
         return modelCreated;
