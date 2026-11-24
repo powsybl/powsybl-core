@@ -34,7 +34,7 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         Generator g = network.getGenerators().iterator().next();
         assertEquals(0, g.getMinP());
         assertEquals(0, g.getMaxP());
-        assertTrue(g.isCondenser());
+        assertTrue(g.hasCondenserCapability());
     }
 
     @Test
@@ -54,7 +54,7 @@ class CondenserImportExportTest extends AbstractSerDeTest {
         Generator g = network.getGenerators().iterator().next();
         assertEquals(0, g.getMinP());
         assertEquals(0, g.getMaxP());
-        assertTrue(g.isCondenser());
+        assertTrue(g.hasCondenserCapability());
     }
 
     @Test
