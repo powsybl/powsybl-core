@@ -207,12 +207,14 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
         LimitViolation violation = faultResult.getLimitViolations().getFirst();
         assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
-        assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
 
         ViolationLocation location = violation.getViolationLocation().orElseThrow();
         assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
         BusBreakerViolationLocation locationBusBreaker = (BusBreakerViolationLocation) location;
         assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
+
+        assertTrue(Double.isNaN(faultResult.getEquivalentR()));
+        assertTrue(Double.isNaN(faultResult.getEquivalentX()));
     }
 
     @Test
@@ -221,11 +223,9 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version17.json"));
         assertEquals(1, result.getFaultResults().size());
 
-        FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id");
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
         assertEquals(2.0, faultResult.getEquivalentR(), 0);
         assertEquals(4.0, faultResult.getEquivalentX(), 0);
-        assertEquals(3.0, faultResult.getEquivalentRZero(), 0);
-        assertEquals(5.0, faultResult.getEquivalentXZero(), 0);
     }
 
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
@@ -277,6 +277,18 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     void roundtripTestWithTwoFaultTypes() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithTwoFaultResults(Fault.FaultType.LINE_TO_LINE, Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION);
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-fault-types.json");
+    }
+
+    @Test
+    void roundTripJsonMagnitudeResultsWithEquivalentImpedance() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createMagnitudeResultWithEquivalentImpedance();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-magnitude-results-with-equivalent-impedance.json");
+    }
+
+    @Test
+    void roundTripJsonFortescueResultsWithEquivalentImpedance() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createFortescueResultWithEquivalentImpedance();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-fortescue-results-with-equivalent-impedance.json");
     }
 
 }
