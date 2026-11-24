@@ -27,13 +27,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.computation.api</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
                 <executions>
                     <execution>
                         <id>test-jar</id>
@@ -41,6 +34,11 @@
                             <goal>test-jar</goal>
                         </goals>
                         <configuration>
+                            <archive>
+                                <manifestEntries>
+                                    <Automatic-Module-Name>com.powsybl.computation.api.test</Automatic-Module-Name>
+                                </manifestEntries>
+                            </archive>
                             <includes>
                                 <include>**/*AbstractTaskInterruptionTest.class</include>
                             </includes>
@@ -66,7 +64,7 @@
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.google.jimfs</groupId>
@@ -94,6 +92,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-</project>
 
+</project>

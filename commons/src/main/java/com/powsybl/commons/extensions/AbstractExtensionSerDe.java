@@ -68,7 +68,9 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/" + xsdFileName);
+        InputStream xsd = getClass().getResourceAsStream("/xsd/" + xsdFileName);
+        // Modules cannot share the "xsd" root package: fall back on a file located next to the serializer class
+        return xsd != null ? xsd : getClass().getResourceAsStream(xsdFileName);
     }
 
     @Override
