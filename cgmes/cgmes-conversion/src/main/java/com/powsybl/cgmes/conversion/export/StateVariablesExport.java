@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.iidm.network.util.SwitchesFlow;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -327,45 +328,30 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Map<String, BoundaryLine> topologicalNodeToBoundaryLine = network.getBoundaryLineStream(BoundaryLineFilter.ALL)
+        // Retrieve the voltage (magnitude and angle) for each boundary topological node
+        // Note that in case of paired dangling lines, they are connected to the same topological node
+        // In that case, pick the non-null voltage of the two boundary lines
+        Map<String, Pair<Double, Double>> boundaryNodeToVoltage = network.getBoundaryLineStream(BoundaryLineFilter.ALL)
+            .sorted(Comparator.comparing(BoundaryLine::getId))
             .collect(Collectors.toMap(
                 bl -> context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY),
-                Function.identity(),
-                StateVariablesExport::boundaryLineToExport
+                StateVariablesExport::getVoltageForBoundaryNode,
+                (Pair<Double, Double> vl1, Pair<Double, Double> vl2) -> vl1.getLeft() == 0.0 ? vl2 : vl1
             ));
 
-        for (Map.Entry<String, BoundaryLine> entry : topologicalNodeToBoundaryLine.entrySet()) {
-            writeVoltageForBoundaryNode(entry.getKey(), entry.getValue(), cimNamespace, writer, context);
+        // Write the voltages for each boundary topological node
+        for (Map.Entry<String, Pair<Double, Double>> entry : boundaryNodeToVoltage.entrySet()) {
+            writeVoltage(entry.getKey(), entry.getValue().getLeft(), entry.getValue().getRight(), cimNamespace, writer, context);
         }
     }
 
-    private static BoundaryLine boundaryLineToExport(BoundaryLine blOne, BoundaryLine blTwo) {
-        // bl1 is the boundary line with the lowest id
-        BoundaryLine bl1 = blOne.getId().compareTo(blTwo.getId()) < 0 ? blOne : blTwo;
-        BoundaryLine bl2 = blOne.getId().compareTo(blTwo.getId()) < 0 ? blTwo : blOne;
-
-        // Export the boundary line with v and angle property, or that has a non-null bus.
-        // If both meet the same requirement for export, pick the one with the lowest id.
-        if (bl1.hasProperty(CgmesNames.VOLTAGE) && bl1.hasProperty(CgmesNames.ANGLE)) {
-            return bl1;
-        } else if (bl2.hasProperty(CgmesNames.VOLTAGE) && bl2.hasProperty(CgmesNames.ANGLE)) {
-            return bl2;
-        } else if (bl1.getTerminal().getBusView().getBus() != null) {
-            return bl1;
-        } else if (bl2.getTerminal().getBusView().getBus() != null) {
-            return bl2;
-        }
-        return bl1;
-    }
-
-    private static void writeVoltageForBoundaryNode(String topologicalNode, BoundaryLine bl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static Pair<Double, Double> getVoltageForBoundaryNode(BoundaryLine bl) {
         if (bl.hasProperty(CgmesNames.VOLTAGE) && bl.hasProperty(CgmesNames.ANGLE)) {
-            writeVoltage(topologicalNode, Double.parseDouble(bl.getProperty(CgmesNames.VOLTAGE, "NaN")), Double.parseDouble(bl.getProperty(CgmesNames.ANGLE, "NaN")), cimNamespace, writer, context);
+            return Pair.of(Double.parseDouble(bl.getProperty(CgmesNames.VOLTAGE, "NaN")), Double.parseDouble(bl.getProperty(CgmesNames.ANGLE, "NaN")));
         } else if (bl.getTerminal().getBusView().getBus() != null) {
-            writeVoltage(topologicalNode, bl.getBoundary().getV(), bl.getBoundary().getAngle(), cimNamespace, writer, context);
-        } else {
-            writeVoltage(topologicalNode, 0.0, 0.0, cimNamespace, writer, context);
+            return Pair.of(bl.getBoundary().getV(), bl.getBoundary().getAngle());
         }
+        return Pair.of(0.0, 0.0);
     }
 
     private static void writeVoltage(String topologicalNode, double v, double angle, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
