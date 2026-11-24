@@ -183,8 +183,7 @@ class HvdcUpdateTest extends AbstractSerDeTest {
 
     @Test
     void exportGroundDcTerminalsToSshTest() throws IOException {
-        Properties importParameters = new Properties();
-        Network network = readCgmesResources(importParameters, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
 
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
