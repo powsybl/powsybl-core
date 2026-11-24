@@ -52,6 +52,24 @@ public class PhaseToPhaseLoadsSerDe extends AbstractVersionableNetworkExtensionS
         super(PhaseToPhaseLoads.NAME, PhaseToPhaseLoads.class, Version.values());
     }
 
+    private static void readPhaseToPhaseLoad(String elementName, TreeDataReader reader, PhaseToPhaseLoads extension) {
+        if (elementName.equals(PHASE_TO_PHASE_LOAD_ROOT_ELEMENT_NAME)) {
+            Phase phase1 = reader.readEnumAttribute("phase1", Phase.class);
+            Phase phase2 = reader.readEnumAttribute("phase2", Phase.class);
+            double p = reader.readDoubleAttribute("p");
+            double q = reader.readDoubleAttribute("q");
+            extension.newPhaseToPhaseLoad()
+                    .withPhase1(phase1)
+                    .withPhase2(phase2)
+                    .withP(p)
+                    .withQ(q)
+                    .add();
+            reader.readEndNode();
+        } else {
+            throw new PowsyblException("Unknown element name '" + elementName + "' in '" + PhaseToPhaseLoads.NAME + "'");
+        }
+    }
+
     @Override
     public Map<String, String> getArrayNameToSingleNameMap() {
         return Map.of(PhaseToPhaseLoads.NAME, PHASE_TO_PHASE_LOAD_ROOT_ELEMENT_NAME);
@@ -78,24 +96,6 @@ public class PhaseToPhaseLoadsSerDe extends AbstractVersionableNetworkExtensionS
         PhaseToPhaseLoads extension = load.newExtension(PhaseToPhaseLoadsAdder.class).add();
         reader.readChildNodes(elementName -> readPhaseToPhaseLoad(elementName, reader, extension));
         return extension;
-    }
-
-    private static void readPhaseToPhaseLoad(String elementName, TreeDataReader reader, PhaseToPhaseLoads extension) {
-        if (elementName.equals(PHASE_TO_PHASE_LOAD_ROOT_ELEMENT_NAME)) {
-            Phase phase1 = reader.readEnumAttribute("phase1", Phase.class);
-            Phase phase2 = reader.readEnumAttribute("phase2", Phase.class);
-            double p = reader.readDoubleAttribute("p");
-            double q = reader.readDoubleAttribute("q");
-            extension.newPhaseToPhaseLoad()
-                    .withPhase1(phase1)
-                    .withPhase2(phase2)
-                    .withP(p)
-                    .withQ(q)
-                    .add();
-            reader.readEndNode();
-        } else {
-            throw new PowsyblException("Unknown element name '" + elementName + "' in '" + PhaseToPhaseLoads.NAME + "'");
-        }
     }
 
     @Override

@@ -17,33 +17,33 @@ package com.powsybl.iidm.network.extensions;
 public interface PhaseToPhaseLoad {
 
     /**
-     * Gets the first phase.
+     * Get the first phase.
      */
     Phase getPhase1();
 
     /**
-     * Gets the second phase.
+     * Get the second phase.
      */
     Phase getPhase2();
 
     /**
-     * Gets the active power consumed between the two phases, in MW (for the current variant).
+     * Get the active power consumed between the two phases, in MW (for the current variant).
      */
     double getP();
 
     /**
-     * Sets the active power consumed between the two phases, in MW (for the current variant).
+     * Set the active power consumed between the two phases, in MW (for the current variant).
      * @param p the active power in MW, must not be NaN
      */
     PhaseToPhaseLoad setP(double p);
 
     /**
-     * Gets the reactive power consumed between the two phases, in MVar (for the current variant).
+     * Get the reactive power consumed between the two phases, in MVar (for the current variant).
      */
     double getQ();
 
     /**
-     * Sets the reactive power consumed between the two phases, in MVar (for the current variant).
+     * Set the reactive power consumed between the two phases, in MVar (for the current variant).
      * @param q the reactive power in MVar, must not be NaN
      */
     PhaseToPhaseLoad setQ(double q);

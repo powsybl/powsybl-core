@@ -40,13 +40,6 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
         }
     }
 
-    private void checkValue(double value, String name) {
-        if (Double.isNaN(value)) {
-            throw new PowsyblException("Invalid " + name + " (NaN) for phase to phase load between phases "
-                    + phase1 + " and " + phase2 + " of load '" + parent.getExtendable().getId() + "'");
-        }
-    }
-
     @Override
     public Phase getPhase1() {
         return phase1;
@@ -99,6 +92,13 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
         for (int index : indexes) {
             p.set(index, p.get(sourceIndex));
             q.set(index, q.get(sourceIndex));
+        }
+    }
+
+    private void checkValue(double value, String name) {
+        if (Double.isNaN(value)) {
+            throw new PowsyblException("Invalid " + name + " (NaN) for phase to phase load between phases "
+                    + phase1 + " and " + phase2 + " of load '" + parent.getExtendable().getId() + "'");
         }
     }
 }

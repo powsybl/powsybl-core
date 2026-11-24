@@ -32,6 +32,11 @@ public class PhaseToPhaseLoadsImpl extends AbstractMultiVariantIdentifiableExten
         super(load);
     }
 
+    private static boolean matches(PhaseToPhaseLoad l, Phase phase1, Phase phase2) {
+        return l.getPhase1() == phase1 && l.getPhase2() == phase2
+                || l.getPhase1() == phase2 && l.getPhase2() == phase1;
+    }
+
     @Override
     public List<PhaseToPhaseLoad> getPhaseToPhaseLoads() {
         return Collections.unmodifiableList(phaseToPhaseLoads);
@@ -54,7 +59,7 @@ public class PhaseToPhaseLoadsImpl extends AbstractMultiVariantIdentifiableExten
 
     @Override
     public boolean removePhaseToPhaseLoad(PhaseToPhaseLoad phaseToPhaseLoad) {
-        return phaseToPhaseLoads.remove(phaseToPhaseLoad);
+        return phaseToPhaseLoad instanceof PhaseToPhaseLoadImpl phaseToPhaseLoadImpl && phaseToPhaseLoads.remove(phaseToPhaseLoadImpl);
     }
 
     @Override
@@ -62,31 +67,6 @@ public class PhaseToPhaseLoadsImpl extends AbstractMultiVariantIdentifiableExten
         Objects.requireNonNull(phase1);
         Objects.requireNonNull(phase2);
         return phaseToPhaseLoads.removeIf(l -> matches(l, phase1, phase2));
-    }
-
-    private static boolean matches(PhaseToPhaseLoad l, Phase phase1, Phase phase2) {
-        return l.getPhase1() == phase1 && l.getPhase2() == phase2
-                || l.getPhase1() == phase2 && l.getPhase2() == phase1;
-    }
-
-    int getCurrentVariantIndex() {
-        return getVariantIndex();
-    }
-
-    int getVariantArraySize() {
-        return getVariantManagerHolder().getVariantManager().getVariantArraySize();
-    }
-
-    /**
-     * Adds a phase to phase load, checking that no load already exists between the same two phases (in any order).
-     */
-    void add(PhaseToPhaseLoadImpl phaseToPhaseLoad) {
-        Objects.requireNonNull(phaseToPhaseLoad);
-        if (findPhaseToPhaseLoad(phaseToPhaseLoad.getPhase1(), phaseToPhaseLoad.getPhase2()).isPresent()) {
-            throw new PowsyblException("A phase to phase load between phases " + phaseToPhaseLoad.getPhase1()
-                    + " and " + phaseToPhaseLoad.getPhase2() + " already exists for load '" + getExtendable().getId() + "'");
-        }
-        phaseToPhaseLoads.add(phaseToPhaseLoad);
     }
 
     @Override
@@ -107,5 +87,25 @@ public class PhaseToPhaseLoadsImpl extends AbstractMultiVariantIdentifiableExten
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         phaseToPhaseLoads.forEach(l -> l.allocateVariantArrayElement(indexes, sourceIndex));
+    }
+
+    int getCurrentVariantIndex() {
+        return getVariantIndex();
+    }
+
+    int getVariantArraySize() {
+        return getVariantManagerHolder().getVariantManager().getVariantArraySize();
+    }
+
+    /**
+     * Add a phase to phase load, checking that no load already exists between the same two phases (in any order).
+     */
+    void add(PhaseToPhaseLoadImpl phaseToPhaseLoad) {
+        Objects.requireNonNull(phaseToPhaseLoad);
+        if (findPhaseToPhaseLoad(phaseToPhaseLoad.getPhase1(), phaseToPhaseLoad.getPhase2()).isPresent()) {
+            throw new PowsyblException("A phase to phase load between phases " + phaseToPhaseLoad.getPhase1()
+                    + " and " + phaseToPhaseLoad.getPhase2() + " already exists for load '" + getExtendable().getId() + "'");
+        }
+        phaseToPhaseLoads.add(phaseToPhaseLoad);
     }
 }

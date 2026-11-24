@@ -697,7 +697,7 @@ phaseToPhaseLoads.newPhaseToPhaseLoad()
         .add();
 ```
 
-A component can then be retrieved whatever the order of its phases, updated or removed:
+A component can then be retrieved by its phases (regardless of their order), updated or removed:
 ```java
 PhaseToPhaseLoad ab = phaseToPhaseLoads.findPhaseToPhaseLoad(Phase.B, Phase.A).orElseThrow();
 ab.setP(12).setQ(6);

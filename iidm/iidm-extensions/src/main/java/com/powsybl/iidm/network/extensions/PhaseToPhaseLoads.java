@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * This extension stores the loads connected between two phases of a {@link Load}.
  * A load can carry several phase to phase components (e.g. AB, BC, CA). There can be at most one
- * component for a given pair of phases: the pair is unordered, so (A, B) and (B, A) designate the same component.
+ * component for a given pair of phases: as the pair is unordered, (A, B) and (B, A) designate the same component.
  *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
@@ -30,18 +30,18 @@ public interface PhaseToPhaseLoads extends Extension<Load> {
     }
 
     /**
-     * Gets all the phase to phase loads in the extension.
+     * Get all the phase to phase loads in the extension.
      * @return an unmodifiable list of phase to phase loads
      */
     List<PhaseToPhaseLoad> getPhaseToPhaseLoads();
 
     /**
-     * Creates a new phase to phase load adder.
+     * Create a new phase to phase load adder.
      */
     PhaseToPhaseLoadAdder newPhaseToPhaseLoad();
 
     /**
-     * Finds the phase to phase load between two phases. The order of the phases does not matter.
+     * Find the phase to phase load between two phases. The order of the phases does not matter.
      * @param phase1 the first phase
      * @param phase2 the second phase
      * @return the phase to phase load if found, or empty if not
@@ -49,17 +49,17 @@ public interface PhaseToPhaseLoads extends Extension<Load> {
     Optional<PhaseToPhaseLoad> findPhaseToPhaseLoad(Phase phase1, Phase phase2);
 
     /**
-     * Removes a phase to phase load.
+     * Remove a phase to phase load.
      * @param phaseToPhaseLoad the phase to phase load to remove
-     * @return true if the phase to phase load was removed, false otherwise
+     * @return true if the phase to phase load has been removed, false otherwise
      */
     boolean removePhaseToPhaseLoad(PhaseToPhaseLoad phaseToPhaseLoad);
 
     /**
-     * Removes the phase to phase load between two phases. The order of the phases does not matter.
+     * Remove the phase to phase load between two phases. The order of the phases does not matter.
      * @param phase1 the first phase
      * @param phase2 the second phase
-     * @return true if the phase to phase load was removed, false otherwise
+     * @return true if the phase to phase load has been removed, false otherwise
      */
     boolean removePhaseToPhaseLoad(Phase phase1, Phase phase2);
 }

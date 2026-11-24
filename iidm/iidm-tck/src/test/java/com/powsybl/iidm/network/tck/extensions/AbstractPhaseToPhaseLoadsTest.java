@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,14 +45,15 @@ public abstract class AbstractPhaseToPhaseLoadsTest {
         PhaseToPhaseLoad ab = ext.newPhaseToPhaseLoad().withPhase1(Phase.A).withPhase2(Phase.B).withP(10).withQ(5).add();
         PhaseToPhaseLoad bc = ext.newPhaseToPhaseLoad().withPhase1(Phase.B).withPhase2(Phase.C).withP(3).withQ(1).add();
 
-        assertEquals(2, ext.getPhaseToPhaseLoads().size());
+        List<PhaseToPhaseLoad> phaseToPhaseLoads = ext.getPhaseToPhaseLoads();
+        assertEquals(2, phaseToPhaseLoads.size());
         assertEquals(Phase.A, ab.getPhase1());
         assertEquals(Phase.B, ab.getPhase2());
         assertEquals(10, ab.getP(), 0);
         assertEquals(5, ab.getQ(), 0);
         assertEquals(3, bc.getP(), 0);
         assertEquals(1, bc.getQ(), 0);
-        assertThrows(UnsupportedOperationException.class, () -> ext.getPhaseToPhaseLoads().clear());
+        assertThrows(UnsupportedOperationException.class, phaseToPhaseLoads::clear);
     }
 
     @Test

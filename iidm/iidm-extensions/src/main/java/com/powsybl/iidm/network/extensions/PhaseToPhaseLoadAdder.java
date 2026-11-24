@@ -17,27 +17,27 @@ import com.powsybl.commons.PowsyblException;
 public interface PhaseToPhaseLoadAdder {
 
     /**
-     * Sets the first phase.
+     * Set the first phase.
      */
     PhaseToPhaseLoadAdder withPhase1(Phase phase1);
 
     /**
-     * Sets the second phase.
+     * Set the second phase.
      */
     PhaseToPhaseLoadAdder withPhase2(Phase phase2);
 
     /**
-     * Sets the active power in MW.
+     * Set the active power in MW.
      */
     PhaseToPhaseLoadAdder withP(double p);
 
     /**
-     * Sets the reactive power in MVar.
+     * Set the reactive power in MVar.
      */
     PhaseToPhaseLoadAdder withQ(double q);
 
     /**
-     * Creates the phase to phase load and adds it to the extension.
+     * Create the phase to phase load and add it to the extension.
      * @return the created phase to phase load
      * @throws PowsyblException if a phase is missing, if both phases are identical, if p or q is NaN
      * or if a load already exists between the same two phases (whatever their order)
