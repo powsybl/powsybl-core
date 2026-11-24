@@ -42,7 +42,6 @@ public class TwoPassSecurityAnalysis {
     private final String workingVariantId;
     private final ContingenciesProvider contingenciesProvider;
     private final SecurityAnalysisRunParameters runParameters;
-    private final TwoPassSecurityAnalysisParameters parameters;
     private final SecurityAnalysisProvider firstProvider;
     private final SecurityAnalysisProvider secondProvider;
     private ReportNode reportNode;
@@ -50,21 +49,24 @@ public class TwoPassSecurityAnalysis {
 
     public TwoPassSecurityAnalysis(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
                                                 SecurityAnalysisRunParameters runParameters, TwoPassSecurityAnalysisParameters parameters) {
-        this(network, workingVariantId, contingenciesProvider, runParameters, parameters,
+        this(network, workingVariantId, contingenciesProvider, runParameters,
                 findProvider(parameters.getFirstProviderName()),
                 findProvider(parameters.getSecondProviderName()));
     }
 
     public TwoPassSecurityAnalysis(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
-                                                SecurityAnalysisRunParameters runParameters, TwoPassSecurityAnalysisParameters parameters,
-                                                SecurityAnalysisProvider firstProvider, SecurityAnalysisProvider secondProvider) {
+                                   SecurityAnalysisRunParameters runParameters,
+                                   SecurityAnalysisProvider firstProvider, SecurityAnalysisProvider secondProvider) {
         this.network = network;
         this.workingVariantId = workingVariantId;
         this.contingenciesProvider = contingenciesProvider;
         this.runParameters = runParameters;
-        this.parameters = parameters;
         this.firstProvider = Objects.requireNonNull(firstProvider, "First provider is required");
         this.secondProvider = Objects.requireNonNull(secondProvider, "Second provider is required");
+        if (TwoPassSecurityAnalysisProvider.PROVIDER_NAME.equals(firstProvider.getName())
+                || TwoPassSecurityAnalysisProvider.PROVIDER_NAME.equals(secondProvider.getName())) {
+            throw new IllegalArgumentException("'TwoPassSecurityAnalysis' provider cannot be used as first or second provider for the 2-pass security analysis.");
+        }
     }
 
     private static SecurityAnalysisProvider findProvider(String providerName) {
@@ -80,7 +82,7 @@ public class TwoPassSecurityAnalysis {
     public CompletableFuture<SecurityAnalysisReport> run() {
         reportNode = TwoPassSecurityAnalysisReports.createTwoPassSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
         LOGGER.info("Starting two-pass security analysis");
-        LOGGER.debug("First provider: {}, Second provider: {}", parameters.getFirstProviderName(), parameters.getSecondProviderName());
+        LOGGER.debug("First provider: {}, Second provider: {}", firstProvider.getName(), secondProvider.getName());
 
         // Step 1: Get all contingencies
         allContingencies = contingenciesProvider.getContingencies(network);
@@ -89,7 +91,7 @@ public class TwoPassSecurityAnalysis {
         // Step 2: Run first pass analysis
         CompletableFuture<SecurityAnalysisReport> firstAnalysisFuture = firstProvider.run(
             network, workingVariantId, contingenciesProvider, runParameters);
-        TwoPassSecurityAnalysisReports.reportFirstPassStarted(reportNode, parameters.getFirstProviderName());
+        TwoPassSecurityAnalysisReports.reportFirstPassStarted(reportNode, firstProvider.getName());
 
         // Step 3: Chain second pass analysis based on first pass results
         return firstAnalysisFuture.thenCompose(this::processFirstPassResults)
@@ -113,7 +115,7 @@ public class TwoPassSecurityAnalysis {
         }
 
         // Run second pass analysis on filtered contingencies
-        TwoPassSecurityAnalysisReports.reportSecondPassStarted(reportNode, parameters.getSecondProviderName());
+        TwoPassSecurityAnalysisReports.reportSecondPassStarted(reportNode, secondProvider.getName());
         return runSecondPassAnalysis(contingenciesForSecondPass)
                 .thenApply(secondReport -> mergeResults(firstReport, secondReport));
     }

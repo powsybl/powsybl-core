@@ -15,6 +15,8 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -837,6 +839,63 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     protected static boolean getDefaultIsOpen(Switch sw, Context context) {
         String normalOpen = sw.getProperty(PROPERTY_NORMAL_OPEN);
         return getDefaultValue(normalOpen != null ? Boolean.parseBoolean(normalOpen) : null, sw.isOpen(), false, false, context);
+    }
+
+    private static <T extends VoltageRegulationHolder<T>> void setLocalTargetVOrTargetValue(VoltageRegulationHolder<T> holder, double targetV) {
+        if (holder.hasRegulatingTerminal()) {
+            holder.getVoltageRegulation().setTargetValue(targetV);
+        } else {
+            holder.setLocalTargetV(targetV);
+        }
+    }
+
+    /**
+     * Sets the voltage regulation target consistently with the regulation point.
+     * <p>
+     * When a regulating terminal is explicitly configured, the target is stored as the
+     * voltage regulation target value. Otherwise, the regulation is local and the target
+     * is stored as the holder local target voltage.
+     * </p>
+     *
+     * @param holder the voltage regulation holder to update
+     * @param targetV the target voltage value
+     * @param regulatingOn {@code true} to enable regulation, {@code false} to disable it
+     */
+    protected static <T extends VoltageRegulationHolder<T>> void setVoltageRegulation(VoltageRegulationHolder<T> holder, double targetV, boolean regulatingOn) {
+        VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        if (regulatingOn) {
+            setLocalTargetVOrTargetValue(holder, targetV);
+            voltageRegulation.setRegulating(true);
+        } else {
+            voltageRegulation.setRegulating(false);
+            setLocalTargetVOrTargetValue(holder, targetV);
+        }
+    }
+
+    /**
+     * Sets the voltage regulation target consistently with the regulation point.
+     * <p>
+     * When a regulating terminal is explicitly configured, the target is stored as the
+     * voltage regulation target value. Otherwise, the regulation is local and the target
+     * is stored as the holder local target voltage.
+     * </p>
+     *
+     * @param holder         the voltage regulation holder to update
+     * @param targetV        the target voltage value
+     * @param targetDeadband the target deadband value
+     * @param regulatingOn   {@code true} to enable regulation, {@code false} to disable it
+     */
+    protected static <T extends VoltageRegulationHolder<T>> void setVoltageRegulation(VoltageRegulationHolder<T> holder, double targetV, double targetDeadband, boolean regulatingOn) {
+        VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        if (regulatingOn) {
+            setLocalTargetVOrTargetValue(holder, targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(true);
+        } else {
+            voltageRegulation.setRegulating(false);
+            setLocalTargetVOrTargetValue(holder, targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+        }
     }
 
     private final TerminalData[] terminals;

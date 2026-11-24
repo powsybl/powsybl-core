@@ -927,6 +927,23 @@ public abstract class AbstractTapChangerTest {
         assertNotNull(voltageRegulation);
     }
 
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        double remoteTargetQLoadSignConvention = 10.0;
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
+        RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(terminal)
+            .withTargetValue(remoteTargetQLoadSignConvention)
+            .withTargetDeadband(1.0)
+            .build();
+
+        assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetQ()));
+        assertEquals(remoteTargetQLoadSignConvention, ratioTapChanger.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQLoadSignConvention, ratioTapChanger.getRegulatingTargetQ());
+    }
+
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
                                                  double targetV, double deadband, Terminal terminal) {
         createRatioTapChangerWith3Steps(low, tap, load, regulating, RegulationMode.VOLTAGE, targetV, deadband, terminal);

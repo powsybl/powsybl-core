@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibilityForGenerator;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createGeneratorVoltageRegulationBackwardCompatibility;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
@@ -48,8 +48,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         writeTargetV(g, context);
         writeTargetQ(g, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
-            context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_13, IidmVersion.V_1_18, context, () ->
+            context.getWriter().writeBooleanAttribute("isCondenser", g.hasCondenserCapability(), false));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
+                context.getWriter().writeBooleanAttribute("hasCondenserCapability", g.hasCondenserCapability(), false));
         writeEquivalentLocalTargetV(g, context);
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
@@ -132,8 +134,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute(getTargetVName(context));
         double targetQ = context.getReader().readDoubleAttribute(getTargetQName(context));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
-            adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_13, IidmVersion.V_1_18, context, () ->
+                adder.setCondenserCapability(context.getReader().readBooleanAttribute("isCondenser", false)));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
+            adder.setCondenserCapability(context.getReader().readBooleanAttribute("hasCondenserCapability", false)));
         adder.setTargetP(targetP);
         AtomicReference<Double> equivalentLocalTargetV = new AtomicReference<>(Double.NaN);
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15,
@@ -185,7 +189,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         // - if there's no terminal, VoltageRegulation.targetValue must be set to NaN
         // - If there is a terminal, the target value will be set after the terminal is added (see the extra-properties usage)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
-            createVoltageRegulationBackwardCompatibilityForGenerator(adder, Double.NaN, Double.NaN, Double.NaN, voltageRegulatorOn, null));
+            createGeneratorVoltageRegulationBackwardCompatibility(adder, Double.NaN, Double.NaN, Double.NaN, voltageRegulatorOn, null));
         // version >= V_1_18 -> voltageRegulation is read with VoltageRegulationSerDe
         // Nothing to do
     }

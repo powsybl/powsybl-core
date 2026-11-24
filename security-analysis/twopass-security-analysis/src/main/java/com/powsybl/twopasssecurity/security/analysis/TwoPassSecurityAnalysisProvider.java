@@ -36,7 +36,7 @@ public class TwoPassSecurityAnalysisProvider implements SecurityAnalysisProvider
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwoPassSecurityAnalysisProvider.class);
 
-    private static final String PROVIDER_NAME = "TwoPassSecurityAnalysis";
+    protected static final String PROVIDER_NAME = "TwoPassSecurityAnalysis";
 
     /** @return {@code "TwoPassSecurityAnalysis"} */
     @Override

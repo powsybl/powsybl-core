@@ -131,7 +131,7 @@ public class ReactiveLimitsSerDe {
         PropertiesBufferHolder pointPropertiesBuffer = new PropertiesBufferHolder();
         PropertiesSerDe.readProperties(context, pointPropertiesBuffer);
 
-        if (context.getOptions().isRepairInvalidReactiveCurveLimits() && minQ > maxQ) {
+        if (minQ > maxQ && (context.getVersion().compareTo(IidmVersion.V_1_18) < 0 || context.getOptions().isRepairInvalidReactiveCurveLimits())) {
             LOGGER.warn("Reactive capability curve point at P={} has inverted limits (minQ={} > maxQ={}); values have been reordered", p, minQ, maxQ);
             double tmp = minQ;
             minQ = maxQ;

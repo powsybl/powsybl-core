@@ -258,4 +258,16 @@
     <cim:GeneratingUnit.minOperatingP>10</cim:GeneratingUnit.minOperatingP>
 </cim:ThermalGeneratingUnit>
 
+
+<cim:EquivalentInjection rdf:ID="_EI">
+    <cim:IdentifiedObject.name>Equivalent injection</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_2"/>
+    <cim:EquivalentInjection.regulationCapability>true</cim:EquivalentInjection.regulationCapability>
+</cim:EquivalentInjection>
+<cim:Terminal rdf:ID="_T_EI">
+    <cim:IdentifiedObject.name>Terminal EI</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_EI"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
+
 </rdf:RDF>

@@ -282,6 +282,20 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     Generator setTargetQ(double targetQ);
 
     /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    double getLocalTargetQ();
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    Generator setLocalTargetQ(double targetQ);
+
+    /**
      * Get the rated nominal power (apparent power rating) in MVA.
      * @return the rated nominal power in MVA or NaN if not defined
      */
@@ -292,7 +306,14 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     /**
      * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
-    boolean isCondenser();
+    boolean hasCondenserCapability();
+
+    /**
+     * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     * @param hasCondenserCapability true if the generator has condenser capability, false otherwise
+     * @return this generator
+     */
+    Generator setCondenserCapability(boolean hasCondenserCapability);
 
     @Override
     default IdentifiableType getType() {
