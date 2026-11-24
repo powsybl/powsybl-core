@@ -8,6 +8,10 @@ PowSyBl provides 2 different implementations of post-processors:
 
 (groovy-post-processor)=
 ## Groovy post-processor
+```{warning}
+The script is executed without any sandbox, each time a case is imported. Only use scripts from trusted sources and protect the script file against modification. See [Groovy scripts security](../user/groovy-security.md).
+```
+
 This post-processor executes a groovy script, loaded from a file. The script can access to the network and the [computation manager]() using the variables `network` and `computationManager`. To use this post-processor, add the `com.powsybl:powsybl-iidm-scripting` dependency to your classpath, and configure both `import` and `groovy-post-processor` modules:
 
 **YAML configuration:**

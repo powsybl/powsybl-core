@@ -113,6 +113,10 @@ Here is the list of supported vector operations:
 
 In the Groovy DSL syntax, both `timeSeries['a']` and `ts['a']` are supported and are equivalent.
 
+```{warning}
+Groovy scripts are executed without any sandbox. Only use scripts from trusted sources. See [Groovy scripts security](../user/groovy-security.md).
+```
+
 To compare a time index vector to a literal date, the `time('2018-01-01T00:00:01Z')` function is available. For instance, the
 following code creates a time series of 0 and 1 values:
 ```groovy
