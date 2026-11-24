@@ -748,7 +748,7 @@ public final class NetworkSerDe {
 
     private static void writeWorkingVariantId(Network network, NetworkSerializerContext context, List<String> exportedVariantIds) {
         String workingId = network.getVariantManager().getWorkingVariantId();
-        if (!exportedVariantIds.isEmpty() || !VariantManagerConstants.INITIAL_VARIANT_ID.equals(workingId)) {
+        if (!exportedVariantIds.isEmpty() && !VariantManagerConstants.INITIAL_VARIANT_ID.equals(workingId)) {
             context.getWriter().writeStringAttribute("workingVariantId", workingId);
         }
     }
