@@ -125,7 +125,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0.0003, lcc.getSwitchingLoss());
         assertEquals(0.6, lcc.getResistiveLoss());
         assertEquals(AcDcConverter.ControlMode.P_PCC, lcc.getControlMode());
-        assertEquals(0.0, lcc.getTargetP());
+        assertEquals(Double.NaN, lcc.getTargetP());
         assertEquals(Double.NaN, lcc.getTargetVdc());
         assertEquals("ACL_1", lcc.getPccTerminal().getConnectable().getId());
         assertEquals(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, lcc.getReactiveModel());
@@ -145,7 +145,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0.0006, vsc.getSwitchingLoss());
         assertEquals(1.2, vsc.getResistiveLoss());
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
-        assertEquals(0.0, vsc.getTargetP());
+        assertEquals(Double.NaN, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
         assertEquals("PT_1_2", vsc.getPccTerminal().getConnectable().getId());
         assertNull(vsc.getVoltageRegulation());

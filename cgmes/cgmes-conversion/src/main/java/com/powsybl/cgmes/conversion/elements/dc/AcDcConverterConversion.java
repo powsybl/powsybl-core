@@ -105,9 +105,8 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private void setActivePowerControl(AcDcConverterAdder<?, ?> adder) {
-        // The default is 0 MW active power at pcc terminal.
+        // The default is P_PCC mode, without any setpoint. It should be overridden by SSH profile.
         adder.setControlMode(AcDcConverter.ControlMode.P_PCC);
-        adder.setTargetP(0.0);
 
         // If invalid, don't set the pcc terminal: IIDM will consider the default one (AcDcConverter first AC terminal).
         getValidPccTerminal().ifPresent(adder::setPccTerminal);
@@ -250,7 +249,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
      * @return The "targetPpcc" in the SSH data if it exists and is valid, otherwise the targetP already stored in the IIDM converter and else 0.
      */
     private static double getValidTargetPpcc(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
-        double defaultTargetPpcc = getDefaultValue(null, converter.getTargetP(), 0.0, Double.NaN, context);
+        double defaultTargetPpcc = getDefaultValue(null, converter.getTargetP(), Double.NaN, Double.NaN, context);
         double targetPpcc = cgmesData.asDouble("targetPpcc");
         return isValidTargetValue(targetPpcc) ? targetPpcc : defaultTargetPpcc;
     }
@@ -264,7 +263,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
      * @return The "targetUdc" in the SSH data if it exists and is valid, otherwise the targetVdc already stored in the IIDM converter and else the DC nominal voltage.
      */
     private static double getValidTargetVdc(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
-        double defaultTargetVdc = getDefaultValue(null, converter.getTargetVdc(), converter.getDcTerminal1().getDcNode().getNominalV(), Double.NaN, context);
+        double defaultTargetVdc = getDefaultValue(null, converter.getTargetVdc(), Double.NaN, Double.NaN, context);
         double targetVdc = cgmesData.asDouble("targetUdc");
         return isValidTargetV(targetVdc) ? targetVdc : defaultTargetVdc;
     }
@@ -343,8 +342,8 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
                         .endSegment()
                         .add();
             } else {
-                LOG.warn("The droop curve of VoltageSourceConverter " + vsc.getId() + " could not be created from the SSH profile droop " +
-                         "coefficient because either 'ratedUdc' or 'baseS' was not provided in the EQ profile");
+                LOG.warn("The droop curve of VoltageSourceConverter {} could not be created from the SSH profile droop " +
+                        "coefficient because either 'ratedUdc' or 'baseS' was not provided in the EQ profile", vsc.getId());
             }
         }
     }
