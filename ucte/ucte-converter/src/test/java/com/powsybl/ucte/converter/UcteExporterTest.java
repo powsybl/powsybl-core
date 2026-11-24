@@ -663,11 +663,11 @@ class UcteExporterTest extends AbstractSerDeTest {
                 FSDEVI11 FSDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FSLINE11 FSLINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 ##R
-                FADEVI11 FADEVI12 1                    25.00 0.000  2   0       ASYM
-                FALINE11 FALINE12 1                    25.00 0.000  1   0       ASYM
-                FAROUN11 FAROUN12 1                    1.234 0.000 10   0       ASYM
+                FADEVI11 FADEVI12 1                    25.00 60.00  2   0       ASYM
+                FALINE11 FALINE12 1                    25.00 60.00  1   0       ASYM
+                FAROUN11 FAROUN12 1                    1.234 60.00 10   0       ASYM
                 FPCLOS11 FPCLOS12 1                    -0.87 90.00  3  -1       SYMM
-                FPTIEB11 FPTIEB12 1                    5.050 -0.00  2   0       ASYM
+                FPTIEB11 FPTIEB12 1                    10.08 -119.  2   0       ASYM
                 FRDEVI11 FRDEVI12 1 2.000  2   0
                 FRLINE11 FRLINE12 1 2.000  2   0
                 FRLOWX11 FRLOWX12 1 2.000  3   0

@@ -215,7 +215,7 @@ public final class UcteConverterHelper {
 
     /**
      * Computes the UCTE {@code (n, np)} pair relative to the given neutral tap position, extending the declared range
-     * to the longer side when the real range isn't symmetric around the neutral tap. Callers that care about this
+     * to the longer side when the real range isn't centered on the neutral tap. Callers that care about this
      * extension are responsible for warning about it.
      *
      * @param lowTapPosition the tap changer's low tap position
@@ -367,9 +367,9 @@ public final class UcteConverterHelper {
     }
 
     private static void logDeviationWarning(String equipmentId, String tapChangerType, ReportNode reportNode) {
-        LOGGER.warn("Two windings transformer {}: differences found between actual tap steps and the UCTE linear model",
+        LOGGER.warn("Two windings transformer {}: differences found between actual tap steps and the UCTE constant-step model",
                 equipmentId);
-        UcteExporterReports.tapChangerModelDeviation(reportNode, tapChangerType, equipmentId);
+        UcteExporterReports.tapChangerModelDeviation(reportNode, equipmentId, tapChangerType);
     }
 
     /**

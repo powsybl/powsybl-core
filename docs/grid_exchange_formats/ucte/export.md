@@ -15,13 +15,13 @@ import a UCTE-DEF file in PowSyBl, you can update some elements and then export 
 exporting to UCTE-DEF format a file imported from another format most often leads at best to incorrect file content, at
 worst to an exporter failure. Some examples are listed here after.
 
-**Transformers Tap Changers**: UCTE-DEF describes a tap changer with a linear model: taps are numbered symmetrically
-around a neutral tap at position `0`, and the voltage (or angle) step between two consecutive taps is constant. IIDM tap
-changers have no such constraints: low and high positions can be any integer and each one is associated to a free value.
-On export, the taps are renumbered around the neutral tap (see
-[Tap numbering](#tap-numbering)), but tap steps that don't follow a linear model can't be represented exactly. In that
-case, the export does not fail, but the tap changer is approximated and a warning is [reported](#reporting) (see
-[Deviation from the linear model](#deviation-from-the-linear-model)).
+**Transformers Tap Changers**: UCTE-DEF describes a tap changer with a constant-step model: the taps are numbered from
+`-n` to `+n` around a neutral tap at position `0`, and the voltage (or angle) step between two consecutive taps is
+constant. IIDM tap changers have no such constraints: low and high positions can be any integer and each one is
+associated to a free value. On export, the taps are renumbered around the neutral tap (see
+[Tap numbering](#tap-numbering)), but tap steps that don't follow a constant-step model can't be represented exactly.
+In that case, the export does not fail, but the tap changer is approximated and a warning is [reported](#reporting)
+(see [Deviation from the constant-step model](#deviation-from-the-constant-step-model)).
 
 ## Options
 
@@ -415,14 +415,14 @@ export:
 > - A neutral tap at position `8` and a current tap at position `14` would be exported with n = `13` (the distance
     between positions `8` and `21`) and n' = `6`.
 
-When the tap range is not symmetric around the neutral tap, as in the second case, the UCTE-DEF range is larger than the
+When the tap range is not centered on the neutral tap, as in the second case, the UCTE-DEF range is larger than the
 IIDM one on the shorter side, and a warning is [reported](#reporting). This does not change the exported δu, nor the
 current tap position.
 
-#### Deviation from the linear model
+#### Deviation from the constant-step model
 
-A UCTE-DEF regulation is a linear model: δu (and the angle θ, for an angle regulation) is computed from the two extreme
-taps only, determining the ρ and α of every tap. Since the IIDM tap changers don't have this linearity constraint (any
+A UCTE-DEF regulation is a constant-step model: δu (and the angle θ, for an angle regulation) is computed from the two
+extreme taps only, determining the ρ and α of every tap. Since the IIDM tap changers don't have this constraint (any
 value is possible at each tap position), the taps values can differ between the original tap changer and the exported
 UCTE-DEF tap changer.
 
@@ -450,5 +450,5 @@ following situations are reported:
 | A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
-| The tap range of a tap changer is not symmetric around its neutral tap                                       | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
-| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `WARN`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
+| The tap range of a tap changer is not centered on its neutral tap                                            | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| The tap steps of a ratio or phase tap changer differ from the exported constant-step model                   | `WARN`   | [Deviation from the constant-step model](#deviation-from-the-constant-step-model)           |

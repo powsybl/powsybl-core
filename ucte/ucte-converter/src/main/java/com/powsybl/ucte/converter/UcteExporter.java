@@ -971,8 +971,8 @@ public class UcteExporter implements Exporter {
         int offsetHigh = highTapPosition - neutralPosition;
         if (offsetLow != -offsetHigh) {
             LOGGER.warn(
-                    "Two windings transformer {}: tap position range extended on the shorter side to stay symmetric " +
-                            "(low side spans {} positions, high side spans {})",
+                    "Two windings transformer {}: tap position range extended on the shorter side to be centered on " +
+                            "the neutral tap (low side spans {} positions, high side spans {})",
                     equipmentId,
                     Math.abs(offsetLow),
                     Math.abs(offsetHigh)

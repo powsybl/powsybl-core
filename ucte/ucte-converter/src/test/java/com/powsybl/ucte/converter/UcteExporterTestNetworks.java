@@ -385,37 +385,10 @@ public final class UcteExporterTestNetworks {
 
     /**
      * One French substation with two 380 kV voltage levels, and one transformer {@code F<case>11 F<case>12 1} per
-     * case, each with a single tap changer. The neutral tap is the one found by the exporter.
-     * <table>
-     *     <caption>Tap changer cases</caption>
-     *     <tr><th>Case</th><th>Tap changer</th><th>Positions, tap</th><th>Steps</th><th>Neutral tap, effect</th></tr>
-     *     <tr><td>{@code RLINE}</td><td>ratio</td><td>[-2, 2], 0</td><td>linear model</td><td>0</td></tr>
-     *     <tr><td>{@code RSHAP}</td><td>ratio</td><td>[1, 5], 3</td><td>rho 0.90, 0.95, 1.05, 0.98, 1.10</td>
-     *     <td>4 (closest rho to 1, not exact), range extended on the high side, deviation</td></tr>
-     *     <tr><td>{@code RTIEB}</td><td>ratio</td><td>[1, 2], 1</td><td>rho 0.95, 1.05</td>
-     *     <td>1 (tie on the distance to 1, broken by the distance to the middle), range extended on the low side,
-     *     deviation</td></tr>
-     *     <tr><td>{@code RLOWX}</td><td>ratio</td><td>[-1, 3], 0</td><td>linear model</td>
-     *     <td>0, range extended on the low side</td></tr>
-     *     <tr><td>{@code RDEVI}</td><td>ratio</td><td>[-2, 2], 0</td><td>linear model, except rho 1.5 at 1</td>
-     *     <td>0, deviation</td></tr>
-     *     <tr><td>{@code PCLOS}</td><td>phase (SYMM)</td><td>[1, 5], 3</td><td>alpha -10, -5, 5, 2, -8</td>
-     *     <td>4 (closest alpha to 0, not exact), range extended on the high side, deviation</td></tr>
-     *     <tr><td>{@code PTIEB}</td><td>phase (ASYM)</td><td>[1, 5], 3</td>
-     *     <td>alpha 0, rho 0.90, 0.95, 1.05, 0.98, 1.10</td>
-     *     <td>3 (tie on the distance to 0, broken by the distance to the middle), deviation</td></tr>
-     *     <tr><td>{@code SLINE}</td><td>phase (SYMM)</td><td>[-1, 1], 0</td><td>alpha 90, 0, -90</td><td>0</td></tr>
-     *     <tr><td>{@code SDEVI}</td><td>phase (SYMM)</td><td>[-1, 1], 0</td><td>alpha 90, 0, -50</td>
-     *     <td>0, deviation</td></tr>
-     *     <tr><td>{@code ALINE}</td><td>phase (ASYM)</td><td>[-1, 1], 0</td><td>alpha 0, rho 4/3, 1, 0.8</td>
-     *     <td>0</td></tr>
-     *     <tr><td>{@code ADEVI}</td><td>phase (ASYM)</td><td>[-2, 2], 0</td><td>alpha 0, rho 2, 4/3, 1, 0.7, 2/3</td>
-     *     <td>0, deviation (rho 0.8 expected at 1)</td></tr>
-     *     <tr><td>{@code RROUN}</td><td>ratio</td><td>[-10, 10], 0</td>
-     *     <td>linear model, δu = 1.23456 % (more than 4 decimals)</td><td>0</td></tr>
-     *     <tr><td>{@code AROUN}</td><td>phase (ASYM)</td><td>[-10, 10], 0</td>
-     *     <td>alpha 0, linear model, δu = 1.23456 % (more than 4 decimals)</td><td>0</td></tr>
-     * </table>
+     * case, each with a single tap changer. Each case is described by a comment: the kind of tap changer, its steps,
+     * the neutral tap found by the exporter, and the expected effects of the export.
+     *
+     * @return the network
      */
     public static Network createWithTapChangers() {
         Network network = Network.create("tapChangers", "test");
@@ -432,21 +405,76 @@ public final class UcteExporterTestNetworks {
                       .add();
         }
 
+        // Ratio, constant-step model on [-2, 2]: neutral at 0
         addRatioTapChanger(addTransformer(substation, "RLINE"), -2, 0, 1 / 0.96, 1 / 0.98, 1, 1 / 1.02, 1 / 1.04);
+        // Ratio on [1, 5], closest rho to 1 not exact: neutral at 4, range extended on the high side, deviation
         addRatioTapChanger(addTransformer(substation, "RSHAP"), 1, 3, 0.90, 0.95, 1.05, 0.98, 1.10);
+        // Ratio on [1, 2], tie on the distance to 1 broken by the distance to the middle: neutral at 1, range extended
+        // on the low side, deviation
         addRatioTapChanger(addTransformer(substation, "RTIEB"), 1, 1, 0.95, 1.05);
+        // Ratio, constant-step model on [-1, 3]: neutral at 0, range extended on the low side
         addRatioTapChanger(addTransformer(substation, "RLOWX"), -1, 0, 1 / 0.98, 1, 1 / 1.02, 1 / 1.04, 1 / 1.06);
+        // Ratio, constant-step model on [-2, 2] except rho 1.5 at tap 1: neutral at 0, deviation
         addRatioTapChanger(addTransformer(substation, "RDEVI"), -2, 0, 1 / 0.96, 1 / 0.98, 1, 1.5, 1 / 1.04);
-        addPhaseTapChanger(addTransformer(substation, "PCLOS"), 1, 3, new double[] {-10, -5, 5, 2, -8}, new double[] {1, 1, 1, 1, 1});
-        addPhaseTapChanger(addTransformer(substation, "PTIEB"), 1, 3, new double[] {0, 0, 0, 0, 0}, new double[] {0.90, 0.95, 1.05, 0.98, 1.10});
-        addPhaseTapChanger(addTransformer(substation, "SLINE"), -1, 0, new double[] {90, 0, -90}, new double[] {1, 1, 1});
-        addPhaseTapChanger(addTransformer(substation, "SDEVI"), -1, 0, new double[] {90, 0, -50}, new double[] {1, 1, 1});
-        addPhaseTapChanger(addTransformer(substation, "ALINE"), -1, 0, new double[] {0, 0, 0}, new double[] {4 / 3.0, 1, 0.8});
-        addPhaseTapChanger(addTransformer(substation, "ADEVI"), -2, 0, new double[] {0, 0, 0, 0, 0}, new double[] {2, 4 / 3.0, 1, 0.7, 2 / 3.0});
+        // SYMM on [1, 5], closest alpha to 0 not exact: neutral at 4, range extended on the high side, deviation
+        addPhaseTapChanger(addTransformer(substation, "PCLOS"),
+                1,
+                3,
+                new double[]{-10, -5, 5, 2, -8},
+                new double[]{1, 1, 1, 1, 1});
+        // ASYM on [1, 5], tie on the distance of alpha to 0 (taps 2 to 4) broken by the distance to the middle: neutral
+        // at 3, deviation
+        addPhaseTapChanger(addTransformer(substation, "PTIEB"),
+                1,
+                3,
+                new double[]{-10, 5, -5, 5, 10},
+                new double[]{0.90, 0.95, 1.05, 0.98, 1.10});
+        // SYMM, constant-step model on [-1, 1]: neutral at 0
+        addPhaseTapChanger(addTransformer(substation, "SLINE"), -1, 0, new double[]{90, 0, -90}, new double[]{1, 1, 1});
+        // SYMM, constant-step model on [-1, 1] except alpha -50 at tap 1: neutral at 0, deviation
+        addPhaseTapChanger(addTransformer(substation, "SDEVI"), -1, 0, new double[]{90, 0, -50}, new double[]{1, 1, 1});
+        // ASYM, constant-step model on [-1, 1], δu = 25 %, θ = 60°: neutral at 0
+        addAsymPhaseTapChanger(addTransformer(substation, "ALINE"), -1, 1, 25, 60);
+        // ASYM, constant-step model on [-2, 2], δu = 25 %, θ = 60°, except rho reduced by 10 % at tap 1: neutral at 0,
+        // deviation
+        TwoWindingsTransformer adevi = addTransformer(substation, "ADEVI");
+        addAsymPhaseTapChanger(adevi, -2, 2, 25, 60);
+        PhaseTapChangerStep adeviStep = adevi.getPhaseTapChanger().getStep(1);
+        adeviStep.setRho(adeviStep.getRho() * 0.9);
+        // Ratio, constant-step model on [-10, 10], δu = 1.23456 % (more than 4 decimals): neutral at 0, no deviation
         double[] roundingRhos = IntStream.rangeClosed(-10, 10).mapToDouble(k -> 1 / (1 + 1.23456 * k / 100)).toArray();
         addRatioTapChanger(addTransformer(substation, "RROUN"), -10, 0, roundingRhos);
-        addPhaseTapChanger(addTransformer(substation, "AROUN"), -10, 0, new double[roundingRhos.length], roundingRhos);
+        // ASYM, constant-step model on [-10, 10], δu = 1.23456 % (more than 4 decimals), θ = 60°: neutral at 0, no
+        // deviation
+        addAsymPhaseTapChanger(addTransformer(substation, "AROUN"), -10, 10, 1.23456, 60);
         return network;
+    }
+
+    /**
+     * Add a non-regulating asymmetrical phase tap changer following the UCTE-DEF constant-step model, with its neutral
+     * and current tap at position 0: in the complex plane, the point {@code (1 / rho).e^(-i.alpha)} of tap {@code k}
+     * is {@code 1 + k.(du / 100).e^(i.theta)}.
+     *
+     * @param transformer the transformer to add the phase tap changer to
+     * @param lowTapPosition the low tap position, negative or zero
+     * @param highTapPosition the high tap position, positive or zero
+     * @param du the δu (%) between two consecutive taps
+     * @param thetaDegrees the angle θ of the regulation, in degrees
+     */
+    private static void addAsymPhaseTapChanger(TwoWindingsTransformer transformer, int lowTapPosition, int highTapPosition,
+                                               double du, double thetaDegrees) {
+        int stepCount = highTapPosition - lowTapPosition + 1;
+        double[] alphas = new double[stepCount];
+        double[] rhos = new double[stepCount];
+        double theta = Math.toRadians(thetaDegrees);
+        for (int i = 0; i < stepCount; i++) {
+            double distance = (lowTapPosition + i) * du / 100;
+            double x = 1 + distance * Math.cos(theta);
+            double y = distance * Math.sin(theta);
+            alphas[i] = -Math.toDegrees(Math.atan2(y, x));
+            rhos[i] = 1 / Math.hypot(x, y);
+        }
+        addPhaseTapChanger(transformer, lowTapPosition, 0, alphas, rhos);
     }
 
     /**

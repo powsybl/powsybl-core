@@ -82,7 +82,7 @@ public final class UcteExporterReports {
                 .add();
     }
 
-    public static void tapChangerModelDeviation(ReportNode reportNode, String tapChangerType, String equipmentId) {
+    public static void tapChangerModelDeviation(ReportNode reportNode, String equipmentId, String tapChangerType) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.tapChangerModelDeviation")
                 .withUntypedValue("equipmentId", equipmentId)
