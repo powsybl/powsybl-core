@@ -514,10 +514,9 @@ In CGMES, a `StaticVarCompensator` can be associated with a `RegulatingControl` 
     - If mapped to the static var compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
     - If mapped to another terminal, it is configured as a remote regulating terminal.
     - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported) a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
-    - 
   - In the SSH profile:
     - If the regulating control was correctly mapped, the target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`, and whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled` and `StaticVarCompensator.controlEnabled`.
-- If no `RegulatingControl` is defined and if the option iidm.import.cgmes.use-svc-regulation-data-as-alternative is set to true,
+- If no `RegulatingControl` is defined or if its terminal couldn't be mapped, and if the option iidm.import.cgmes.use-svc-regulation-data-as-alternative is set to true,
   the static var compensator is configured with a default local regulation using `StaticVarCompensator.voltageSetPoint` (if defined in EQ) and default mode `VOLTAGE`.
 
 (cgmes-switch-import)=

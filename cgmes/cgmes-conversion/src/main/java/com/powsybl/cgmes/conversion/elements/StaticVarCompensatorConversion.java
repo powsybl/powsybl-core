@@ -111,8 +111,17 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, Boolean controlEnabled, Context context) {
-        if (staticVarCompensator.getVoltageRegulation() == null
-            || context.config().getUseSvcRegulationDataAsAlternative() && !regulatingTerminalMapped(staticVarCompensator)) {
+        if (context.config().getUseSvcRegulationDataAsAlternative() && !regulatingTerminalMapped(staticVarCompensator)) {
+            // In case the regulation terminal couldn't be mapped and the SVC default regulation data should be used,
+            // The RegulatingControl data is ignored. Then:
+            // - If the SVC is in sVCControlMode = Voltage, the target comes from the EQ SVC voltageSetPoint
+            // (all has been done during import, nothing to do in the update)
+            // - If the SVC is in sVCControlMode = reactivePower, the target comes from the SSH SVC q,
+            // set the regulating status to true if the q is valid
+            VoltageRegulation regulation = staticVarCompensator.getVoltageRegulation();
+            if (regulation.getMode() == RegulationMode.REACTIVE_POWER && isValidTargetQ(staticVarCompensator.getLocalTargetQ())) {
+                regulation.setRegulating(true);
+            }
             return;
         }
 

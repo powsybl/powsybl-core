@@ -108,15 +108,28 @@ public class RegulatingControlMapping {
         // Retrieve the ConductingEquipment's RegulatingControl id
         Connectable<?> connectable = (Connectable<?>) holder;
         String regulatingControlId = connectable.getProperty(PROPERTY_REGULATING_CONTROL);
+
+        // Set the voltage regulation for this connectable
+        setRegulatingControl(connectable, holder, regulatingControlId, "");
+
+        // StaticVarCompensator may use its own regulation data as alternative
+        if (connectable instanceof StaticVarCompensator svc
+            && context.config().getUseSvcRegulationDataAsAlternative()
+            && (regulatingControlId == null || !regulatingTerminalMapped(svc))) {
+            double targetV = Double.parseDouble(svc.getProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT));
+            if (targetV > 0.0) {
+                svc.setLocalTargetV(targetV);
+                svc.getVoltageRegulation().setRegulating(true);
+            }
+        }
+    }
+
+    private void setRegulatingControl(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String regulatingControlId, String end) {
+        // Check if a regulating control has been defined
         if (regulatingControlId == null) {
             return;
         }
 
-        // Set the voltage regulation for this connectable
-        setRegulatingControl(connectable, holder, regulatingControlId, "");
-    }
-
-    private void setRegulatingControl(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String regulatingControlId, String end) {
         // Retrieve the stored EQ RegulatingControl
         RegulatingControl regulatingControl = cachedRegulatingControls.get(regulatingControlId);
         if (regulatingControl == null) {
@@ -155,14 +168,6 @@ public class RegulatingControlMapping {
             .withTerminal(mappedRegulatingTerminal)
             .withRegulating(false)
             .build();
-
-        if (connectable instanceof StaticVarCompensator svc && context.config().getUseSvcRegulationDataAsAlternative()) {
-            double targetV = Double.parseDouble(svc.getProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT));
-            if (targetV > 0.0) {
-                holder.setLocalTargetV(targetV);
-                holder.getVoltageRegulation().setRegulating(true);
-            }
-        }
     }
 
     private void setRegulatingControlReactivePower(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId, String end) {
