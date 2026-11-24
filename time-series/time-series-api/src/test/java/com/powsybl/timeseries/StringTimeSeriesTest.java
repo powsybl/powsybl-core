@@ -299,7 +299,7 @@ class StringTimeSeriesTest {
             {
               "offset" : 0,
               "values" : [ "a", "b", null, "d" ]
-            }""";
+            }""".replace("\n", System.lineSeparator());
         StringDataChunk chunk = getSingleChunk(split.getFirst());
         assertEquals(expectedJson, chunk.toJson());
         List<StringDataChunk> chunksRead = JsonUtil.parseJson(expectedJson, jsonParser -> {
