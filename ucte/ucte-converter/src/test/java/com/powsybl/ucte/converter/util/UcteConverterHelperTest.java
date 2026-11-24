@@ -10,6 +10,7 @@ package com.powsybl.ucte.converter.util;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.converter.UcteExporterTestNetworks;
 import com.powsybl.ucte.converter.UcteImporter;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+
+import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -89,6 +92,31 @@ class UcteConverterHelperTest {
         Complex duRef6 = calculateAsymmAngleDuAndAngle(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
         assertEquals(0.990, duRef6.abs(), 0.00001);
         assertEquals(90.00, Math.toDegrees(duRef6.getArgument()), 0.00001); // loss of one decimal with sign
+    }
+
+    /**
+     * n is the distance from the neutral tap to the furthest end of the range, n' the current tap counted from the
+     * neutral tap.
+     */
+    @Test
+    void computeTapPositionRangeTest() {
+        assertEquals(new TapPositionRange(2, 0), computeTapPositionRange(-2, 2, 0, 0));
+        assertEquals(new TapPositionRange(3, -1), computeTapPositionRange(1, 5, 3, 4));
+        assertEquals(new TapPositionRange(3, 0), computeTapPositionRange(-1, 3, 0, 0));
+    }
+
+    @Test
+    void predictStepTest() {
+        assertEquals(1.0, predictRatioStep(100.0, 0), 1e-9);
+        assertEquals(0.5, predictRatioStep(100.0, 1), 1e-9);
+
+        assertEquals(0.0, predictSymmAngleStep(200.0, 0), 1e-9);
+        assertEquals(-90.0, predictSymmAngleStep(200.0, 1), 1e-9);
+        assertEquals(90.0, predictSymmAngleStep(200.0, -1), 1e-9);
+
+        Complex predicted = predictAsymmAngleStep(new Complex(1.0, 0.0), 100.0, Math.PI / 2, 1);
+        assertEquals(1.0, predicted.getReal(), 1e-9);
+        assertEquals(1.0, predicted.getImaginary(), 1e-9);
     }
 
     /**
