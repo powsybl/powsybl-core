@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.gl;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
@@ -39,6 +40,8 @@ public class CgmesGLExporter {
     private Network network;
     private TripleStore tripleStore;
     private Cim cimModel;
+    private CgmesExportContext cgmesExportContext;
+    private String equipmentModelId;
 
     private static final String MODEL_SCENARIO_TIME = "Model.scenarioTime";
     private static final String MODEL_CREATED = "Model.created";
@@ -49,9 +52,25 @@ public class CgmesGLExporter {
     private static final String IDENTIFIED_OBJECT_NAME = "IdentifiedObject.name";
 
     public CgmesGLExporter(Network network, Cim cimModel, TripleStore tripleStore) {
+        this(network, cimModel, tripleStore, new CgmesExportContext(network), null);
+    }
+
+    /**
+     * Creates a GL exporter sharing the identifier conventions and EQ dependency of a CGMES export.
+     *
+     * @param network network to export
+     * @param cimModel CIM namespace and profile version
+     * @param tripleStore destination triple store
+     * @param cgmesExportContext context used for the corresponding EQ export
+     * @param equipmentModelId EQ FullModel URI, or null when no dependency is known
+     */
+    public CgmesGLExporter(Network network, Cim cimModel, TripleStore tripleStore,
+                           CgmesExportContext cgmesExportContext, String equipmentModelId) {
         this.network = Objects.requireNonNull(network);
         this.tripleStore = Objects.requireNonNull(tripleStore);
         this.cimModel = Objects.requireNonNull(cimModel);
+        this.cgmesExportContext = Objects.requireNonNull(cgmesExportContext);
+        this.equipmentModelId = equipmentModelId;
     }
 
     public CgmesGLExporter(Network network, Cim cimModel) {
@@ -75,6 +94,7 @@ public class CgmesGLExporter {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(baseName);
         ExportContext context = new ExportContext();
+        context.setCgmesExportContext(cgmesExportContext);
         context.setBasename(baseName);
         context.setGlContext(CgmesGLUtils.contextNameFor(CgmesSubset.GEOGRAPHICAL_LOCATION, tripleStore, baseName));
         addNamespaces(context);
@@ -102,7 +122,9 @@ public class CgmesGLExporter {
     }
 
     private void addModel(ExportContext context) {
-        PropertyBag modelProperties = new PropertyBag(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON), true);
+        PropertyBag modelProperties = new PropertyBag(equipmentModelId == null
+                ? Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE)
+                : Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON), true);
         modelProperties.setResourceNames(Collections.singletonList(MODEL_DEPENDENT_ON));
         modelProperties.setClassPropertyNames(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON));
         modelProperties.put(MODEL_SCENARIO_TIME, network.getCaseDate().toString());
@@ -110,7 +132,9 @@ public class CgmesGLExporter {
         modelProperties.put(MODEL_DESCRIPTION, network.getNameOrId());
         modelProperties.put(MODEL_VERSION, "1");
         modelProperties.put(MODEL_PROFILE, cimModel.getProfileUri("GL"));
-        modelProperties.put(MODEL_DEPENDENT_ON, network.getId());
+        if (equipmentModelId != null) {
+            modelProperties.put(MODEL_DEPENDENT_ON, equipmentModelId);
+        }
         tripleStore.add(context.getGlContext(), MD_NAMESPACE, "FullModel", modelProperties);
     }
 

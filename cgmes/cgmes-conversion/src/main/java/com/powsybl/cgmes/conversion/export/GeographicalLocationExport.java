@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.gl.CgmesGLExporter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  *
@@ -19,7 +20,20 @@ import com.powsybl.iidm.network.Network;
 public final class GeographicalLocationExport {
 
     public static void write(Network network, CgmesExportContext context, DataSource dataSource, String baseName) {
-        CgmesGLExporter exporter = new CgmesGLExporter(network, context.getCim());
+        write(network, context, dataSource, baseName, null);
+    }
+
+    /**
+     * Writes GL using the same identifiers as EQ and optionally records its model dependency.
+     *
+     * @param network network to export
+     * @param context context shared with the EQ export
+     * @param dataSource destination data source
+     * @param baseName base name of the GL file
+     * @param equipmentModelId EQ FullModel URI, or null if unknown
+     */
+    public static void write(Network network, CgmesExportContext context, DataSource dataSource, String baseName, String equipmentModelId) {
+        CgmesGLExporter exporter = new CgmesGLExporter(network, context.getCim(), TripleStoreFactory.create(), context, equipmentModelId);
         exporter.exportData(dataSource, baseName);
     }
 

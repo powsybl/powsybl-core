@@ -23,7 +23,9 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
+import com.powsybl.iidm.network.impl.extensions.LinePositionImpl;
 import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
@@ -540,25 +542,133 @@ class CgmesExportTest {
     }
 
     @Test
-    void testExportGLProfileToZipArchive() throws IOException {
+    void testExportGLProfileToZipArchiveAndReImportGLData() throws IOException {
         Network network = NetworkTest1Factory.create("minimal-network");
         Substation substation1 = network.getSubstation("nminimal-network_substation1");
         substation1.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation1, SUBSTATION_1));
+
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
             Properties exportParams = new Properties();
-            exportParams.put(CgmesExport.PROFILES, "EQ,GL");
-            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
+            exportParams.put(CgmesExport.PROFILES, "EQ,TP,SSH,SV,GL");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir, "output");
             new CgmesExport().export(network, exportParams, zip);
 
             assertTrue(zip.exists("output_EQ.xml"));
             assertTrue(zip.exists("output_GL.xml"));
+            assertTrue(zip.exists("output_TP.xml"));
+            assertTrue(zip.exists("output_SSH.xml"));
+            assertTrue(zip.exists("output_SV.xml"));
+
             String gl;
             try (InputStream is = zip.newInputStream("output_GL.xml")) {
                 gl = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
             assertTrue(gl.contains("md:Model.profile>" + CgmesNamespace.CIM_16_GL_PROFILE));
             assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
+            assertTrue(gl.contains("cim:Location.PowerSystemResources rdf:resource=\"#_nminimal-network_substation1\""));
+
+            // re import the exported CGMES data and check that the substation position is still there
+            importParams.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
+            SubstationPosition position = networkFromCgmes.getSubstation("nminimal-network_substation1").getExtension(SubstationPosition.class);
+            assertNotNull(position);
+            assertEquals(SUBSTATION_1.getLatitude(), position.getCoordinate().getLatitude(), 0);
+            assertEquals(SUBSTATION_1.getLongitude(), position.getCoordinate().getLongitude(), 0);
+
+            String eqModelId = networkFromCgmes.getExtension(CgmesMetadataModels.class)
+                    .getModelForSubset(CgmesSubset.EQUIPMENT).orElseThrow().getId();
+            assertTrue(gl.contains("rdf:resource=\"" + eqModelId + "\""));
+        }
+    }
+
+    @Test
+    void testGLProfileRoundTripWithEncodedIdentifiers() throws IOException {
+        Network network = Network.create("network", "test");
+        Substation substation1 = network.newSubstation().setId("station + 1").setCountry(Country.FR).add();
+        Substation substation2 = network.newSubstation().setId("_station2").setCountry(Country.FR).add();
+        VoltageLevel vl1 = substation1.newVoltageLevel().setId("vl1").setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        VoltageLevel vl2 = substation2.newVoltageLevel().setId("vl2").setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("bus1").add();
+        vl2.getBusBreakerView().newBus().setId("bus2").add();
+        Line line = network.newLine().setId("line + 1").setVoltageLevel1("vl1").setVoltageLevel2("vl2")
+                .setBus1("bus1").setBus2("bus2").setConnectableBus1("bus1").setConnectableBus2("bus2")
+                .setR(1).setX(10).setG1(0).setG2(0).setB1(0).setB2(0).add();
+        substation1.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation1, SUBSTATION_1));
+        substation2.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation2, SUBSTATION_1));
+        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, List.of(SUBSTATION_1, SUBSTATION_1)));
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ,TP,GL");
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, "output"));
+
+            String eq = Files.readString(tmpDir.resolve("output_EQ.xml"));
+            String gl = Files.readString(tmpDir.resolve("output_GL.xml"));
+            assertTrue(eq.contains("rdf:ID=\"_station+%2B+1\""));
+            assertTrue(gl.contains("rdf:resource=\"#_station+%2B+1\""));
+            assertTrue(gl.contains("rdf:resource=\"#_station2\""));
+            assertTrue(gl.contains("rdf:resource=\"#_line+%2B+1\""));
+
+            importParams.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
+            Network imported = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
+            assertNotNull(imported.getSubstation("station + 1").getExtension(SubstationPosition.class));
+            assertNotNull(imported.getSubstation("station2").getExtension(SubstationPosition.class));
+            LinePosition<Line> position = imported.getLine("line + 1").getExtension(LinePosition.class);
+            assertNotNull(position);
+            assertEquals(2, position.getCoordinates().size());
+            assertEquals(SUBSTATION_1.getLatitude(), position.getCoordinates().getFirst().getLatitude(), 0);
+            assertEquals(SUBSTATION_1.getLongitude(), position.getCoordinates().getFirst().getLongitude(), 0);
+        }
+    }
+
+    @Test
+    void testGLProfileRoundTripWithCgmesNamingStrategy() throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation = network.getSubstation("nminimal-network_substation1");
+        substation.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation, SUBSTATION_1));
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ,GL");
+            exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, "output"));
+
+            importParams.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
+            Network imported = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
+            Substation importedSubstation = imported.getSubstationStream()
+                    .filter(s -> s.getNameOrId().equals(substation.getNameOrId())).findFirst().orElseThrow();
+            assertNotEquals(substation.getId(), importedSubstation.getId());
+            SubstationPosition position = importedSubstation.getExtension(SubstationPosition.class);
+            assertNotNull(position);
+            assertEquals(SUBSTATION_1.getLatitude(), position.getCoordinate().getLatitude(), 0);
+            assertEquals(SUBSTATION_1.getLongitude(), position.getCoordinate().getLongitude(), 0);
+        }
+    }
+
+    @Test
+    void testGLProfileWithoutIdentifierEncoding() throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation = network.getSubstation("nminimal-network_substation1");
+        substation.setId("station+1");
+        substation.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation, SUBSTATION_1));
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ,GL");
+            exportParams.put("iidm.export.cgmes.encode-ids", "false");
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, "output"));
+
+            String eq = Files.readString(tmpDir.resolve("output_EQ.xml"));
+            String gl = Files.readString(tmpDir.resolve("output_GL.xml"));
+            assertTrue(eq.contains("rdf:ID=\"_station+1\""));
+            assertTrue(gl.contains("rdf:resource=\"#_station+1\""));
+
+            importParams.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
+            importParams.put(CgmesImport.DECODE_ESCAPED_IDENTIFIERS, "false");
+            Network imported = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
+            assertNotNull(imported.getSubstation("station+1").getExtension(SubstationPosition.class));
         }
     }
 

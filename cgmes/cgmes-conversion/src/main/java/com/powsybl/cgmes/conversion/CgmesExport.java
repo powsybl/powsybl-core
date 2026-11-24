@@ -308,7 +308,8 @@ public class CgmesExport implements Exporter {
         String baseName = getBaseName(context, dataSource, network);
         for (CgmesSubset subset : requestedSubsets) {
             String fileName = baseName + "_" + subset.getIdentifier() + ".xml";
-            subsetExport(network, subset, fileName, dataSource, context, subsetModels.get(subset));
+            subsetExport(network, subset, fileName, dataSource, context,
+                    subset == CgmesSubset.GEOGRAPHICAL_LOCATION ? subsetModels.get(CgmesSubset.EQUIPMENT) : subsetModels.get(subset));
         }
     }
 
@@ -511,7 +512,7 @@ public class CgmesExport implements Exporter {
      * @param fileName The name of the exported file. Ignored for the GL subset, which names its own file.
      * @param dataSource The data source used by the export.
      * @param context The context used by the export.
-     * @param model The model (= metadata information) to use. Ignored for the GL subset, which builds its own metadata.
+     * @param model The model (= metadata information) to use. For GL, the EQ model used as a dependency.
      */
     private void subsetExport(Network network, CgmesSubset subset, String fileName, DataSource dataSource, CgmesExportContext context, CgmesMetadataModel model) {
         if (subset == CgmesSubset.GEOGRAPHICAL_LOCATION) {
@@ -520,7 +521,7 @@ public class CgmesExport implements Exporter {
             // Opening an output stream here would leave an unused, empty one on the same file:
             // harmless for a directory data source, but it corrupts an archive data source,
             // where both streams would write the same archive entry.
-            GeographicalLocationExport.write(network, context, dataSource, getBaseName(context, dataSource, network));
+            GeographicalLocationExport.write(network, context, dataSource, getBaseName(context, dataSource, network), model != null ? model.getId() : null);
             return;
         }
         try (OutputStream out = new BufferedOutputStream(dataSource.newOutputStream(fileName, false))) {

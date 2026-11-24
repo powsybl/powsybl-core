@@ -32,13 +32,13 @@ public class LinePositionExporter extends AbstractPositionExporter {
     public void exportPosition(Line line) {
         Objects.requireNonNull(line);
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
-        exportPosition(line.getId(), line.getNameOrId(), linePosition);
+        exportPosition(context.getRdfId(line), line.getNameOrId(), linePosition);
     }
 
     public void exportPosition(BoundaryLine boundaryLine) {
         Objects.requireNonNull(boundaryLine);
         LinePosition<BoundaryLine> linePosition = boundaryLine.getExtension(LinePosition.class);
-        exportPosition(boundaryLine.getId(), boundaryLine.getNameOrId(), linePosition);
+        exportPosition(context.getRdfId(boundaryLine), boundaryLine.getNameOrId(), linePosition);
     }
 
     private void exportPosition(String id, String name, LinePosition<?> linePosition) {

@@ -132,15 +132,15 @@ class CgmesGLExporterTest {
         checkCoordinateSystem(contextCaptor.getAllValues().get(1), nsCaptor.getAllValues().get(1), typeCaptor.getAllValues().get(1),
                               propertiesCaptor.getAllValues().get(1), network.getId().toLowerCase());
         checkLocation(contextCaptor.getAllValues().get(2), nsCaptor.getAllValues().get(2), typeCaptor.getAllValues().get(2),
-                      propertiesCaptor.getAllValues().get(2), network.getId().toLowerCase(), "Substation1", "Substation1");
+                      propertiesCaptor.getAllValues().get(2), network.getId().toLowerCase(), "Substation1", "_Substation1");
         checkPositionPoint(contextCaptor.getAllValues().get(3), nsCaptor.getAllValues().get(3), typeCaptor.getAllValues().get(3),
                            propertiesCaptor.getAllValues().get(3), network.getId().toLowerCase(), SUBSTATION_1, -1);
         checkLocation(contextCaptor.getAllValues().get(4), nsCaptor.getAllValues().get(4), typeCaptor.getAllValues().get(4),
-                      propertiesCaptor.getAllValues().get(4), network.getId().toLowerCase(), "Substation2", "Substation2");
+                      propertiesCaptor.getAllValues().get(4), network.getId().toLowerCase(), "Substation2", "_Substation2");
         checkPositionPoint(contextCaptor.getAllValues().get(5), nsCaptor.getAllValues().get(5), typeCaptor.getAllValues().get(5),
                            propertiesCaptor.getAllValues().get(5), network.getId().toLowerCase(), SUBSTATION_2, -1);
         checkLocation(contextCaptor.getAllValues().get(6), nsCaptor.getAllValues().get(6), typeCaptor.getAllValues().get(6),
-                      propertiesCaptor.getAllValues().get(6), network.getId().toLowerCase(), "Line", "Line");
+                      propertiesCaptor.getAllValues().get(6), network.getId().toLowerCase(), "Line", "_Line");
         checkPositionPoint(contextCaptor.getAllValues().get(7), nsCaptor.getAllValues().get(7), typeCaptor.getAllValues().get(7),
                            propertiesCaptor.getAllValues().get(7), network.getId().toLowerCase(), SUBSTATION_1, 1);
         checkPositionPoint(contextCaptor.getAllValues().get(8), nsCaptor.getAllValues().get(8), typeCaptor.getAllValues().get(8),
