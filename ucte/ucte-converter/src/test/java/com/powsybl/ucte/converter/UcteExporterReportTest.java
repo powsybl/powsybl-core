@@ -200,6 +200,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         assertTrue(checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       + Buses and Switches
                          Bus FCASE671: aggregated maxP (12000.0) reaches or exceeds 9999 in absolute value ("no limit" value) and is left undefined
                          Bus FCASE771: generators have different power plant types, type F (further) is used
@@ -245,6 +246,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         assertTrue(checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       + Buses and Switches
                          Bus FCASE171: generators have different voltage targets, 23.0 kV from generator CASE1_GB is used
                          Bus FCASE271: generators have different voltage targets, 22.0 kV from generator CASE2_GA is used

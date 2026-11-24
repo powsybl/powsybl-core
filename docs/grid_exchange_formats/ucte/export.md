@@ -404,7 +404,7 @@ The `Counter` naming strategy needs their country, and computes it without modif
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
 conversion step (voltage levels, buses and switches, boundary lines, lines, tie lines, transformers) and per exported
-file. The following situations are reported :
+file. The following situations are reported:
 
 | Situation                                                                                                    | Severity | See                                                                                         |
 |--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
@@ -416,5 +416,5 @@ file. The following situations are reported :
 | The kept voltage target is rescaled from a remote bus with a different nominal voltage                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
-| With the `Counter` naming strategy, a voltage level has no substation  and no equipment                      | `WARN`   | [Voltage levels without substation](#voltage-levels-without-substation)                     |
+| With the `Counter` naming strategy, a voltage level has no substation and no equipment                       | `WARN`   | [Voltage levels without substation](#voltage-levels-without-substation)                     |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |

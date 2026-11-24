@@ -7,20 +7,9 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SubstationAdder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.network.UcteCountryCode;
 
 import java.time.ZonedDateTime;
 
