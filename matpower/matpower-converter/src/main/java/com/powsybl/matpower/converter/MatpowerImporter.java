@@ -308,7 +308,7 @@ public class MatpowerImporter implements Importer {
     }
 
     private static void createShuntCompensator(MBus mBus, VoltageLevel voltageLevel, Context context) {
-        if (mBus.getShuntSusceptance() != 0) {
+        if (mBus.getShuntConductance() != 0 || mBus.getShuntSusceptance() != 0) {
             String busId = getId(BUS_PREFIX, mBus.getNumber());
             String shuntId = getId(SHUNT_PREFIX, mBus.getNumber());
             double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / context.getBaseMva();
