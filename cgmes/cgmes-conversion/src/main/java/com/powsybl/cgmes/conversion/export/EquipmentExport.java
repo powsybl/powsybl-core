@@ -175,7 +175,7 @@ public final class EquipmentExport {
                 // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
                 // we only export as retained a switch if it will be exported with different TNs at both ends
                 // We keep exporting switches as ACLineSegment, EquivalentBranch, and SeriesCompensator to ensure
-                // that xiidm files generated with version V7.4.0, in which zero-impedance branches were imported as switches,
+                // that xiidm files generated with version up to V7.4.0, in which zero-impedance branches were imported as switches,
                 // continue to be exported to CGMES as before. This code can be removed in the future.
                 switch (switchType) {
                     case CgmesNames.AC_LINE_SEGMENT -> {

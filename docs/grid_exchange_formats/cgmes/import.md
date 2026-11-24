@@ -454,7 +454,7 @@ A `SeriesCompensator` is always mapped to a PowSyBl [`Line`](../../grid_model/ne
 - `X` is copied from CGMES `x`
 - `G1`, `G2`, `B1` and `B2` are set to `0`
 
-Series compensators with zero impedance are supported, as the IIDM line model allows zero impedance.
+Series compensators with zero impedance are supported, as the IIDM line model allows zero impedance even when both its ends are inside the same voltage level.
 
 (cgmes-static-var-compensator-import)=
 ### StaticVarCompensator

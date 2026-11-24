@@ -99,7 +99,7 @@ public final class SteadyStateHypothesisExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
-                // We keep this check to ensure that xiidm files generated with version V7.4.0,
+                // We keep this check to ensure that xiidm files generated with version up to V7.4.0,
                 // in which zero-impedance branches were imported as switches,
                 // continue to be exported to CGMES as before. This code can be removed in the future.
                 if (!isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
