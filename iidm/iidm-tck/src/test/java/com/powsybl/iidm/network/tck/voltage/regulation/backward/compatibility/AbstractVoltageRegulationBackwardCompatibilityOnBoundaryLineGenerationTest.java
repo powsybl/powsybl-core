@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -167,10 +169,12 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBoundaryLi
                 .setTargetV(220.0) // deprecated method
                 .setTargetQ(10.0) // deprecated method
                 .setVoltageRegulationOn(true) // deprecated method
-                .setVoltageRegulationOn(false) // deprecated method
             .add();
         // WHEN
         BoundaryLine boundaryLine = adder.add();
+        assertTrue(boundaryLine.getGeneration().isRegulating());
+        // WHEN
+        boundaryLine.getGeneration().setVoltageRegulationOn(false); // deprecated method
         // THEN
         assertFalse(boundaryLine.getGeneration().isRegulating());
     }
@@ -226,13 +230,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBoundaryLi
         // WHEN
         generation.setTargetV(newTargetV); // deprecated method
         // THEN
-        assertEquals(1, listener.getEvents().size());
-        NetworkEvent firstEvent = listener.getEvents().getFirst();
-        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
-        assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
-        assertEquals(newTargetV, ((UpdateNetworkEvent) firstEvent).newValue());
-        assertEquals(oldTargetV, ((UpdateNetworkEvent) firstEvent).oldValue());
-        assertEquals(boundaryLine.getId(), ((UpdateNetworkEvent) firstEvent).id());
+        assertThat(listener.getEvents())
+                .containsExactly(new UpdateNetworkEvent(boundaryLine.getId(), "localTargetV", INITIAL_VARIANT_ID, oldTargetV, newTargetV));
     }
 
     @Test
@@ -254,12 +253,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBoundaryLi
         // WHEN
         generation.setVoltageRegulationOn(false); // deprecated method
         // THEN
-        assertEquals(1, listener.getEvents().size());
-        NetworkEvent firstEvent = listener.getEvents().getFirst();
-        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
-        assertEquals("VoltageRegulation.isRegulating", ((UpdateNetworkEvent) firstEvent).attribute());
-        assertEquals(false, ((UpdateNetworkEvent) firstEvent).newValue());
-        assertEquals(true, ((UpdateNetworkEvent) firstEvent).oldValue());
-        assertEquals(boundaryLine.getId(), ((UpdateNetworkEvent) firstEvent).id());
+        assertThat(listener.getEvents())
+                .containsExactly(new UpdateNetworkEvent(boundaryLine.getId(), "VoltageRegulation.isRegulating", INITIAL_VARIANT_ID, true, false));
     }
 }
