@@ -95,12 +95,12 @@ class SwitchUpdateTest extends AbstractSerDeTest {
         Network network = createFictitiousSwitchNetwork();
         Switch sw = network.getSwitch("fictitiousSwitch");
         assertNotNull(sw);
-        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.AC_LINE_SEGMENT);
 
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.PROFILES, List.of("EQ", "SSH"));
-
         String baseName = "fictitious-switch";
+
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.AC_LINE_SEGMENT);
         network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
         assertEqSsh(baseName, sw.getId(), CgmesNames.AC_LINE_SEGMENT);
 
