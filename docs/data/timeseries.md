@@ -55,7 +55,7 @@ data in every window, otherwise a `TimeSeriesException` is thrown). A `k` lower 
 - the index is cut into windows aligned on the absolute grid `[j * k, (j + 1) * k[`;
 - one time series, holding a single data chunk, is created for each window containing data. Windows without data are skipped;
 - inside a window, the chunk starts at the first index and ends at the last index covered by data: there is no filling
-  at the edges of the window. If the window contains several pieces of chunks separated by indexes without data, they are
+  at the edges of the window. If the window contains several parts of chunks separated by indexes without data, they are
   merged into one uncompressed chunk where the missing values are `NaN` (double) or `null` (String), as in `toArray()`;
 - the kind of the chunks is preserved: a compressed chunk gives compressed chunks, successive compressed chunks falling
   in the same window are merged into a compressed chunk. Chunks of different kinds falling in the same window are merged

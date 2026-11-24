@@ -37,24 +37,24 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     }
 
     @Override
-    protected DoubleDataChunk mergeToUncompressed(int offset, int length, List<DoubleDataChunk> pieces) {
+    protected DoubleDataChunk mergeToUncompressed(int offset, int length, List<DoubleDataChunk> chunks) {
         double[] values = new double[length];
         Arrays.fill(values, Double.NaN);
         DoubleBuffer buffer = DoubleBuffer.wrap(values);
-        pieces.forEach(piece -> piece.fillBuffer(buffer, -offset));
+        chunks.forEach(piece -> piece.fillBuffer(buffer, -offset));
         return new UncompressedDoubleDataChunk(offset, values);
     }
 
     @Override
-    protected DoubleDataChunk mergeCompressed(List<DoubleDataChunk> pieces) {
-        if (!pieces.stream().allMatch(CompressedDoubleDataChunk.class::isInstance)) {
-            return super.mergeCompressed(pieces);
+    protected DoubleDataChunk mergeCompressed(List<DoubleDataChunk> chunks) {
+        if (!chunks.stream().allMatch(CompressedDoubleDataChunk.class::isInstance)) {
+            return super.mergeCompressed(chunks);
         }
-        int stepCount = pieces.stream().mapToInt(piece -> ((CompressedDoubleDataChunk) piece).getStepLengths().length).sum();
+        int stepCount = chunks.stream().mapToInt(piece -> ((CompressedDoubleDataChunk) piece).getStepLengths().length).sum();
         double[] stepValues = new double[stepCount];
         int[] stepLengths = new int[stepCount];
         int n = 0;
-        for (DoubleDataChunk piece : pieces) {
+        for (DoubleDataChunk piece : chunks) {
             CompressedDoubleDataChunk chunk = (CompressedDoubleDataChunk) piece;
             double[] values = chunk.getStepValues();
             int[] lengths = chunk.getStepLengths();
@@ -68,8 +68,8 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
             System.arraycopy(lengths, firstStep, stepLengths, n, lengths.length - firstStep);
             n += values.length - firstStep;
         }
-        int offset = pieces.getFirst().getOffset();
-        DoubleDataChunk last = pieces.getLast();
+        int offset = chunks.getFirst().getOffset();
+        DoubleDataChunk last = chunks.getLast();
         return new CompressedDoubleDataChunk(offset, last.getOffset() + last.getLength() - offset,
                 Arrays.copyOf(stepValues, n), Arrays.copyOf(stepLengths, n));
     }

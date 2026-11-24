@@ -228,8 +228,10 @@ class StringDataChunkTest {
         assertThrows(IllegalArgumentException.class, () -> chunk.slice(0, 3));
         assertThrows(IllegalArgumentException.class, () -> chunk.slice(2, 7));
         assertThrows(IllegalArgumentException.class, () -> chunk.slice(3, 3));
+    }
 
-        // zero-length steps are skipped
+    @Test
+    void zeroLengthStepSliceTest() {
         CompressedStringDataChunk chunkWithEmptyStep = new CompressedStringDataChunk(0, 4, new String[] {"a", "z", "b"}, new int[] {2, 0, 2});
         assertEquals(new CompressedStringDataChunk(2, 1, new String[] {"b"}, new int[] {1}), chunkWithEmptyStep.slice(2, 3));
     }

@@ -38,22 +38,22 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
     }
 
     @Override
-    protected StringDataChunk mergeToUncompressed(int offset, int length, List<StringDataChunk> pieces) {
+    protected StringDataChunk mergeToUncompressed(int offset, int length, List<StringDataChunk> chunks) {
         CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, length);
-        pieces.forEach(piece -> piece.fillBuffer(buffer, -offset));
+        chunks.forEach(piece -> piece.fillBuffer(buffer, -offset));
         return new UncompressedStringDataChunk(offset, buffer.toArray());
     }
 
     @Override
-    protected StringDataChunk mergeCompressed(List<StringDataChunk> pieces) {
-        if (!pieces.stream().allMatch(CompressedStringDataChunk.class::isInstance)) {
-            return super.mergeCompressed(pieces);
+    protected StringDataChunk mergeCompressed(List<StringDataChunk> chunks) {
+        if (!chunks.stream().allMatch(CompressedStringDataChunk.class::isInstance)) {
+            return super.mergeCompressed(chunks);
         }
-        int stepCount = pieces.stream().mapToInt(piece -> ((CompressedStringDataChunk) piece).getStepLengths().length).sum();
+        int stepCount = chunks.stream().mapToInt(piece -> ((CompressedStringDataChunk) piece).getStepLengths().length).sum();
         String[] stepValues = new String[stepCount];
         int[] stepLengths = new int[stepCount];
         int n = 0;
-        for (StringDataChunk piece : pieces) {
+        for (StringDataChunk piece : chunks) {
             CompressedStringDataChunk chunk = (CompressedStringDataChunk) piece;
             String[] values = chunk.getStepValues();
             int[] lengths = chunk.getStepLengths();
@@ -67,8 +67,8 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
             System.arraycopy(lengths, firstStep, stepLengths, n, lengths.length - firstStep);
             n += values.length - firstStep;
         }
-        int offset = pieces.getFirst().getOffset();
-        StringDataChunk last = pieces.getLast();
+        int offset = chunks.getFirst().getOffset();
+        StringDataChunk last = chunks.getLast();
         return new CompressedStringDataChunk(offset, last.getOffset() + last.getLength() - offset,
                 Arrays.copyOf(stepValues, n), Arrays.copyOf(stepLengths, n));
     }

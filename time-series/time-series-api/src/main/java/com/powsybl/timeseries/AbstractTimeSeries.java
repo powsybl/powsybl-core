@@ -130,28 +130,28 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     /**
      * Create an uncompressed chunk covering {@code [offset, offset + length[} and filled with the values of the given
-     * pieces. Indexes not covered by any piece are filled with {@code NaN} (double) or {@code null} (string), as when
+     * chunks. Indexes not covered by any piece are filled with {@code NaN} (double) or {@code null} (string), as when
      * converting the time series to an array.
      *
      * @param offset the offset of the chunk to create
      * @param length the length of the chunk to create
-     * @param pieces sorted and non-overlapping chunks, all included in {@code [offset, offset + length[}
+     * @param chunks sorted and non-overlapping chunks, all included in {@code [offset, offset + length[}
      * @return the merged uncompressed chunk
      */
-    protected abstract C mergeToUncompressed(int offset, int length, List<C> pieces);
+    protected abstract C mergeToUncompressed(int offset, int length, List<C> chunks);
 
     /**
      * Merge successive compressed chunks into a single compressed chunk. The default implementation appends the
      * chunks one by one, which is quadratic in the number of chunks: implementations should override it to merge in a
      * single pass.
      *
-     * @param pieces at least two successive compressed chunks, sorted by offset
+     * @param chunks at least two successive compressed chunks, sorted by offset
      * @return the merged compressed chunk
      */
-    protected C mergeCompressed(List<C> pieces) {
-        C merged = pieces.getFirst();
-        for (int i = 1; i < pieces.size(); i++) {
-            merged = merged.append(pieces.get(i));
+    protected C mergeCompressed(List<C> chunks) {
+        C merged = chunks.getFirst();
+        for (int i = 1; i < chunks.size(); i++) {
+            merged = merged.append(chunks.get(i));
         }
         return merged;
     }
@@ -182,8 +182,8 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
         List<T> splitTimeSeries = new ArrayList<>();
-        // pieces of the input chunks lying in the current window [currentWindow * newChunkSize, (currentWindow + 1) * newChunkSize[
-        List<C> windowPieces = new ArrayList<>();
+        // Parts of the input chunks lying in the current window [currentWindow * newChunkSize, (currentWindow + 1) * newChunkSize[
+        List<C> partsOfTheChunksInTheWindow = new ArrayList<>();
         int currentWindow = -1;
         for (C chunk : getCheckedChunks(false)) {
             int end = chunk.getOffset() + chunk.getLength();
@@ -191,44 +191,44 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             while (from < end) {
                 int window = from / newChunkSize;
                 int to = (int) Math.min(end, (window + 1L) * newChunkSize);
-                if (window != currentWindow && !windowPieces.isEmpty()) {
-                    // merge the pieces of the previous window and create a time series, then start a new window
-                    splitTimeSeries.add(createTimeSeries(mergePieces(windowPieces)));
-                    windowPieces.clear();
+                if (window != currentWindow && !partsOfTheChunksInTheWindow.isEmpty()) {
+                    // merge the parts of the previous window and create a time series, then start a new window
+                    splitTimeSeries.add(createTimeSeries(mergeWindowChunkParts(partsOfTheChunksInTheWindow)));
+                    partsOfTheChunksInTheWindow.clear();
                 }
                 currentWindow = window;
-                windowPieces.add(chunk.slice(from, to));
+                partsOfTheChunksInTheWindow.add(chunk.slice(from, to));
                 from = to;
             }
         }
-        if (!windowPieces.isEmpty()) {
-            splitTimeSeries.add(createTimeSeries(mergePieces(windowPieces)));
+        if (!partsOfTheChunksInTheWindow.isEmpty()) {
+            splitTimeSeries.add(createTimeSeries(mergeWindowChunkParts(partsOfTheChunksInTheWindow)));
         }
         return splitTimeSeries;
     }
 
-    private C mergePieces(List<C> pieces) {
-        if (pieces.size() == 1) {
-            return pieces.getFirst();
+    private C mergeWindowChunkParts(List<C> chunks) {
+        if (chunks.size() == 1) {
+            return chunks.getFirst();
         }
-        if (areCompressedAndSuccessive(pieces)) {
-            return mergeCompressed(pieces);
+        if (areCompressedAndSuccessive(chunks)) {
+            return mergeCompressed(chunks);
         }
-        C first = pieces.getFirst();
-        C last = pieces.getLast();
-        return mergeToUncompressed(first.getOffset(), last.getOffset() + last.getLength() - first.getOffset(), pieces);
+        C first = chunks.getFirst();
+        C last = chunks.getLast();
+        return mergeToUncompressed(first.getOffset(), last.getOffset() + last.getLength() - first.getOffset(), chunks);
     }
 
-    private static boolean areCompressedAndSuccessive(List<? extends DataChunk<?, ?>> pieces) {
+    private static boolean areCompressedAndSuccessive(List<? extends DataChunk<?, ?>> chunks) {
         DataChunk<?, ?> previous = null;
-        for (DataChunk<?, ?> piece : pieces) {
-            if (!piece.isCompressed()) {
+        for (DataChunk<?, ?> chunk : chunks) {
+            if (!chunk.isCompressed()) {
                 return false;
             }
-            if (previous != null && previous.getOffset() + previous.getLength() != piece.getOffset()) {
+            if (previous != null && previous.getOffset() + previous.getLength() != chunk.getOffset()) {
                 return false;
             }
-            previous = piece;
+            previous = chunk;
         }
         return true;
     }

@@ -18,11 +18,13 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -279,7 +281,7 @@ class StringTimeSeriesTest {
     }
 
     @Test
-    void splitWithInnerGapTest() throws IOException {
+    void splitWithInnerGapTest() {
         // issue #3941: used to throw "Chunks are not successive"
         StringTimeSeries timeSeries = createTimeSeries(8,
             new UncompressedStringDataChunk(0, new String[] {"a", "b"}),
@@ -293,13 +295,25 @@ class StringTimeSeriesTest {
         assertEquals(5, split.getFirst().uncompressedStream().filter(p -> p.getValue() == null).count());
 
         // null values are supported by the JSON serialization
+        String expectedJson = """
+            {
+              "offset" : 0,
+              "values" : [ "a", "b", null, "d" ]
+            }""";
         StringDataChunk chunk = getSingleChunk(split.getFirst());
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new TimeSeriesJsonModule());
-        assertEquals(chunk, objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class));
+        assertEquals(expectedJson, chunk.toJson());
+        List<StringDataChunk> chunksRead = JsonUtil.parseJson(expectedJson, jsonParser -> {
+            List<StringDataChunk> stringDataChunks = new ArrayList<>();
+            List<DoubleDataChunk> doubleDataChunks = new ArrayList<>();
+            DataChunk.parseJson(jsonParser, doubleDataChunks, stringDataChunks);
+            return stringDataChunks;
+        });
+        assertThat(chunksRead).hasSize(1)
+            .containsAll(List.of(chunk));
     }
 
     @Test
-    void splitCompressedChunksTest() {
+    void splitSuccessiveCompressedChunksTest() {
         // index  0  1  2  3  4  5
         // value  a  a  a  b  b  b
         StringTimeSeries timeSeries = createTimeSeries(6,
@@ -315,6 +329,8 @@ class StringTimeSeriesTest {
 
     @Test
     void splitSuccessiveCompressedChunksWithNullTest() {
+        // index  0  1  2  3  4  5
+        // value  a              b
         StringTimeSeries timeSeries = createTimeSeries(6,
             new CompressedStringDataChunk(0, 3, new String[] {"a", null}, new int[] {1, 2}),
             new CompressedStringDataChunk(3, 3, new String[] {null, "b"}, new int[] {2, 1}));
@@ -327,6 +343,8 @@ class StringTimeSeriesTest {
 
     @Test
     void splitMixedKindChunksTest() {
+        // index  0  1  2  3
+        // value  a  a  c  d
         StringTimeSeries timeSeries = createTimeSeries(4,
             new CompressedStringDataChunk(0, 2, new String[] {"a"}, new int[] {2}),
             new UncompressedStringDataChunk(2, new String[] {"c", "d"}));
