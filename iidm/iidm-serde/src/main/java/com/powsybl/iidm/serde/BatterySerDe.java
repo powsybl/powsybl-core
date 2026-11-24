@@ -75,7 +75,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
          <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
          <xs:attribute name="localTargetQ" use="required" type="xs:double"/>
          **/
-        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("targetP", battery::getTargetP));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetQ", battery::getLocalTargetQ));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetV", battery::getLocalTargetV));

@@ -10,11 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
-import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
 import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 

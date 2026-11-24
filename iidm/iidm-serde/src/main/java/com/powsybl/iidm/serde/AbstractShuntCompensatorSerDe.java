@@ -125,7 +125,6 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         writePowerAttributes(sc, context);
     }
 
-
     @Override
     public void writeVariantState(ShuntCompensator shuntCompensator, Network network, NetworkSerializerContext context, String variantId) {
         /**
@@ -133,7 +132,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
          <xs:attribute name="solvedSectionCount" type="xs:int"/>
          <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
          */
-        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt(SECTION_COUNT, shuntCompensator::getSectionCount));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt(SECTION_COUNT, shuntCompensator::getSolvedSectionCount)); //FIXME what would be the correct name?
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_V, shuntCompensator::getLocalTargetV));

@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;

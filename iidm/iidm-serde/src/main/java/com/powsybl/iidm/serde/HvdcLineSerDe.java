@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.getTrackedAttributePI;
 import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**

@@ -109,7 +109,8 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION, Boolean.FALSE));
-        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION, Boolean.FALSE, Collections.emptyList()));
+        testDefaultExportOptions(new ExportOptions(
+                Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION, Boolean.FALSE, Collections.emptyList()));
     }
 
     private void testDefaultExportOptions(ExportOptions options) {

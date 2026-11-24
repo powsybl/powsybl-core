@@ -124,7 +124,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
          <xs:attribute name="generationTargetQ" use="optional" type="xs:double"/>
          */
         Generation generation = boundaryLine.getGeneration();
-        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("p0", boundaryLine::getP0));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("q0", boundaryLine::getQ0));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofBoolean("generationVoltageRegulationOn", generation::isVoltageRegulationOn));

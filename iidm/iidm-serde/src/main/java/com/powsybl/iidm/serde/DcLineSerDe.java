@@ -14,9 +14,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
@@ -61,7 +58,7 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
 
         DcTerminal dcTerminal1 = dcLine.getDcTerminal1();
         DcTerminal dcTerminal2 = dcLine.getDcTerminal2();
-        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofBoolean("connected1", dcTerminal1::isConnected));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofBoolean("connected2", dcTerminal1::isConnected));
         trackedAttributes.addAll(getTrackedAttributePI(dcTerminal1).toList());

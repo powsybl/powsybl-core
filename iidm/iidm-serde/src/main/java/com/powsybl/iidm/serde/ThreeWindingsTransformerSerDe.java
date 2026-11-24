@@ -10,11 +10,9 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
-import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
@@ -142,7 +140,7 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
          <xs:attribute name="p3" use="optional" type="xs:double"/>
          <xs:attribute name="q3" use="optional" type="xs:double"/>
          */
-        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         ///FIXME add bus and connectableBus
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("p1", twt.getLeg1().getTerminal()::getP));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("q1", twt.getLeg1().getTerminal()::getQ));

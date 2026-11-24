@@ -123,7 +123,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
          <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
          <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
          */
-        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() {};
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("targetP", generator::getTargetP));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetQ", generator::getLocalTargetQ));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetV", generator::getLocalTargetV));
