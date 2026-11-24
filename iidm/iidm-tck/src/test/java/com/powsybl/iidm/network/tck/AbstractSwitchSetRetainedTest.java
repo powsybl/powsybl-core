@@ -158,6 +158,30 @@ public abstract class AbstractSwitchSetRetainedTest {
         return network;
     }
 
+    /**
+     *             BBS1
+     *   --------- (0) ------------------------------
+     *              |                               |
+     *             [ ] B1, retained, closed         [ ] B2, retained, closed
+     *              |                               |
+     *             (1)                              (2)
+     *                                              |
+     *                                              L1  Load
+     */
+    private Network createNetworkWithRetainedSwitchesAndLoad() {
+        Network network = createNetworkWithRetainedSwitches();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        vl.newLoad()
+            .setId("L1")
+            .setNode(2)
+            .setP0(10.0)
+            .setQ0(0.0)
+            .setNode(2)
+            .add();
+        vl.getNodeBreakerView().getSwitch("B2").setOpen(false);
+        return network;
+    }
+
     @Test
     public void test() {
         Network network = createNetwork();
@@ -249,6 +273,42 @@ public abstract class AbstractSwitchSetRetainedTest {
         assertEquals(789.0, bus0.getV(), 0.0);
         assertEquals(Double.NaN, bus1.getV(), 0.0);
         assertEquals(789.0, bus2.getV(), 0.0);
+    }
+
+    @Test
+    void testRetainedSwitchModificationWithLoad() {
+        Network network = createNetworkWithRetainedSwitchesAndLoad();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        Bus bus0 = vl.getBusBreakerView().getBus("VL_0");
+        Bus bus1 = vl.getBusBreakerView().getBus("VL_1");
+        Bus bus2 = vl.getBusBreakerView().getBus("VL_2");
+
+        bus0.setV(123.0);
+        assertEquals(123.0, bus0.getV(), 0.0);
+        assertEquals(123.0, bus1.getV(), 0.0);
+        assertEquals(123.0, bus2.getV(), 0.0);
+
+        vl.getNodeBreakerView().getSwitch("B1").setOpen(true);
+
+        bus0.setV(456.0);
+        assertEquals(456.0, bus0.getV(), 0.0);
+        assertEquals(123.0, bus1.getV(), 0.0);
+        assertEquals(456.0, bus2.getV(), 0.0);
+
+        vl.getNodeBreakerView().getSwitch("B2").setOpen(true);
+
+        // The issue here is that no feeder is connected to bus0, so it is not considered a valid bus in busview and is not added to the cache
+        bus0.setV(789.0);
+        assertEquals(789.0, bus0.getV(), 0.0);
+        assertEquals(123.0, bus1.getV(), 0.0);
+        assertEquals(456.0, bus2.getV(), 0.0);
+
+        vl.getNodeBreakerView().getSwitch("B1").setOpen(false);
+
+        bus0.setV(234.0);
+        assertEquals(234.0, bus0.getV(), 0.0);
+        assertEquals(234.0, bus1.getV(), 0.0);
+        assertEquals(456.0, bus2.getV(), 0.0);
     }
 
     @Test

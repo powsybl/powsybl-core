@@ -387,6 +387,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return busCache.getBus(node);
         }
 
+        int[] getBusNodes(int node) {
+            updateCache();
+            return ((CalculatedBusImpl) busCache.getBus(node)).getNodes();
+        }
+
         CalculatedBus getBus(String id, boolean throwException) {
             updateCache();
             CalculatedBus bus = busCache.getBus(id);
@@ -706,15 +711,20 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     double setV(int node, double v) {
         VariantImpl variant = variants.get();
         // TODO: somehow set the values on all connected nodes?
-        variant.ensureNodeCapacity(node);
-        TDoubleArrayList values = variant.v;
-        return values.set(node, v);
+        CalculatedBusTopology calculatedBusTopology = variant.calculatedBusTopology;
+        variant.ensureNodeCapacity(graph.getVertexCount());
+        double oldValue = Double.NaN;
+        for (int nodeInBus : calculatedBusTopology.getBusNodes(node)) {
+            TDoubleArrayList values = variant.v;
+            oldValue = values.set(nodeInBus, v);
+        }
+        return oldValue;
     }
 
     double setAngle(int node, double angle) {
         VariantImpl variant = variants.get();
         // TODO: somehow set the values on all connected nodes?
-        variant.ensureNodeCapacity(node);
+        variant.ensureNodeCapacity(graph.getVertexCount());
         TDoubleArrayList values = variant.angle;
         return values.set(node, angle);
     }
@@ -722,7 +732,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     int setConnectedComponentNumber(int node, int connectedComponentNumber) {
         VariantImpl variant = variants.get();
         // TODO: somehow set the values on all connected nodes?
-        variant.ensureNodeCapacity(node);
+        variant.ensureNodeCapacity(graph.getVertexCount());
         TIntArrayList values = variant.connectedComponentNumber;
         return values.set(node, connectedComponentNumber);
     }
@@ -730,7 +740,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     int setSynchronousComponentNumber(int node, int synchronousComponentNumber) {
         VariantImpl variant = variants.get();
         // TODO: somehow set the values on all connected nodes?
-        variant.ensureNodeCapacity(node);
+        variant.ensureNodeCapacity(graph.getVertexCount());
         TIntArrayList values = variant.synchronousComponentNumber;
         return values.set(node, synchronousComponentNumber);
     }
