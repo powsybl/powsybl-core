@@ -8,20 +8,14 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Properties;
-import java.util.function.Predicate;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,33 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Arthur Michaut {@literal <arthur.michaut at artelys.com>}
  */
 class DeenergizedBranchesPostProcessorTest {
-
-    /**
-     * Load the test grid. The main area (substation ids starting with "NA") holds the generator. The "ND" area is only
-     * connected to it through a tie line, and the "NI" area is a separate island.
-     *
-     * @return the imported test grid, with a fixed case date
-     */
-    private static Network loadTestGrid() {
-        Network network = Network.read(new ResourceDataSource("deenergizedBranchesTestGrid",
-                new ResourceSet("/", "deenergizedBranchesTestGrid.uct")));
-        network.setCaseDate(ZonedDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.ofHours(1)));
-        return network;
-    }
-
-    /**
-     * Simulate load flow results: energized buses of the bus view get their nominal voltage, the other ones no voltage.
-     *
-     * @param network   the network to update
-     * @param energized tells whether a bus of the bus view is energized
-     */
-    private static void setVoltages(Network network, Predicate<Bus> energized) {
-        network.getBusView().getBuses().forEach(bus -> {
-            boolean isEnergized = energized.test(bus);
-            bus.setV(isEnergized ? bus.getVoltageLevel().getNominalV() : Double.NaN);
-            bus.setAngle(isEnergized ? 0 : Double.NaN);
-        });
-    }
 
     /**
      * Export the network to UCTE-DEF with the given post-processors.
@@ -95,19 +62,6 @@ class DeenergizedBranchesPostProcessorTest {
     }
 
     /**
-     * Load the test grid and simulate load flow results where only the main area is energized. The configured bus
-     * "NA____13" has no voltage, but it is merged through a closed coupler with "NA____11", which has one.
-     *
-     * @return the test grid with simulated load flow results
-     */
-    private static Network loadPartlyEnergizedTestGrid() {
-        Network network = loadTestGrid();
-        setVoltages(network, bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getId().startsWith("NA"));
-        network.getBusBreakerView().getBus("NA____13").setV(Double.NaN);
-        return network;
-    }
-
-    /**
      * Get the report node of the post-processor among the children of the export report node.
      *
      * @param reportNode the report node of the export
@@ -121,27 +75,16 @@ class DeenergizedBranchesPostProcessorTest {
 
     /**
      * Without voltage in the main connected component, there are no usable load flow results: the export is the same as
-     * without the post-processor.
+     * without the post-processor, and a warning is reported.
      */
     @Test
-    void testNoLoadFlowResultsExport() throws IOException {
-        Network network = loadTestGrid();
-        setVoltages(network, bus -> false);
-
-        assertEquals(export(network, "", ReportNode.NO_OP),
-                export(network, DeenergizedBranchesPostProcessor.NAME, ReportNode.NO_OP));
-    }
-
-    /**
-     * Without voltage in the main connected component, a warning is reported by the post-processor.
-     */
-    @Test
-    void testNoLoadFlowResultsReport() throws IOException {
-        Network network = loadTestGrid();
-        setVoltages(network, bus -> false);
+    void testNoLoadFlowResults() throws IOException {
+        Network network = UcteExporterTestNetworks.createWithDeenergizedBranches();
+        network.getBusBreakerView().getBuses().forEach(bus -> bus.setV(Double.NaN));
 
         ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
-        export(network, DeenergizedBranchesPostProcessor.NAME, reportNode);
+        assertEquals(export(network, "", ReportNode.NO_OP),
+                export(network, DeenergizedBranchesPostProcessor.NAME, reportNode));
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Post-processor deenergized-branches-out-of-operation
                    No load flow results in the main connected component: no element exported out of operation
@@ -149,28 +92,18 @@ class DeenergizedBranchesPostProcessorTest {
     }
 
     /**
-     * With voltages only in the separate island ("NI" area), the main connected component has no voltage, so there are
-     * no usable load flow results: the export is the same as without the post-processor.
+     * With voltages only in the separate island, the main connected component has no voltage, so there are no usable
+     * load flow results: the export is the same as without the post-processor, and a warning is reported.
      */
     @Test
-    void testLoadFlowResultsOutsideMainComponentExport() throws IOException {
-        Network network = loadTestGrid();
-        setVoltages(network, bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getId().startsWith("NI"));
-
-        assertEquals(export(network, "", ReportNode.NO_OP),
-                export(network, DeenergizedBranchesPostProcessor.NAME, ReportNode.NO_OP));
-    }
-
-    /**
-     * With voltages only in the separate island ("NI" area), a warning is reported by the post-processor.
-     */
-    @Test
-    void testLoadFlowResultsOutsideMainComponentReport() throws IOException {
-        Network network = loadTestGrid();
-        setVoltages(network, bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getId().startsWith("NI"));
+    void testLoadFlowResultsOutsideMainComponent() throws IOException {
+        Network network = UcteExporterTestNetworks.createWithDeenergizedBranches();
+        network.getBusBreakerView().getBuses().forEach(bus -> bus.setV(Double.NaN));
+        network.getVoltageLevel("NI1").getBusBreakerView().getBuses().forEach(bus -> bus.setV(380));
 
         ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
-        export(network, DeenergizedBranchesPostProcessor.NAME, reportNode);
+        assertEquals(export(network, "", ReportNode.NO_OP),
+                export(network, DeenergizedBranchesPostProcessor.NAME, reportNode));
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Post-processor deenergized-branches-out-of-operation
                    No load flow results in the main connected component: no element exported out of operation
@@ -178,69 +111,81 @@ class DeenergizedBranchesPostProcessorTest {
     }
 
     /**
-     * The elements in operation with a terminal on a bus without voltage are exported out of operation.
-     * <p>
-     * Only the buses of the main area ("NA" nodes) have a voltage, except the configured bus "NA____13", which is merged
-     * with "NA____11" through the closed coupler "NA____11 NA____13 1". The "ND" area is in the main connected component,
-     * through the tie line, but has no voltage. The "NI" area is a separate island without voltage. So:
+     * The elements in operation with a terminal on a bus without voltage are exported out of operation, and reported.
+     * See {@link UcteExporterTestNetworks#createWithDeenergizedBranches()} for the network: only the Dutch main area
+     * ("NA" nodes) is energized. So:
      * <ul>
-     *     <li>"NA____11 NA____12 1" (line), "NA____11 NA____21 1" (transformer): both ends in the main area, unchanged (0).</li>
-     *     <li>"NA____11 NA____13 1" (coupler): "NA____13" has no voltage, but its bus view bus has the voltage of "NA____11",
-     *     unchanged (2).</li>
-     *     <li>"NA____11 XT____11 1" (tie line half): its node is in the main area, unchanged (0).</li>
-     *     <li>"ND____11 XT____11 1" (other half of the same tie line): its node is in the "ND" area, out of operation (8).</li>
-     *     <li>"NA____12 ND____12 1" (disconnected line): already out of operation, unchanged (8).</li>
-     *     <li>"ND____12 ND____13 1" (open coupler): already out of operation, unchanged (7).</li>
-     *     <li>"ND____11 ND____12 1" (line), "ND____11 ND____21 1" (transformer), "ND____12 XD____11 1" (boundary line):
-     *     in the "ND" area, out of operation (8).</li>
-     *     <li>"ND____11 ND____12 2" (equivalent line): in the "ND" area, equivalent element out of operation (9).</li>
-     *     <li>"ND____11 ND____13 1" (closed coupler), "ND____13 XC____11 1" (boundary line exported as a coupler): in the
-     *     "ND" area, coupler out of operation (7).</li>
+     *     <li>"NA____11 NA____12 1" (line), "NA____11 NA____21 1" (transformer): in the main area, unchanged (0).</li>
+     *     <li>"NA____11 NA____13 1" (coupler): "NA____13" has no voltage, but it is merged with "NA____11", which has
+     *     one, unchanged (2).</li>
+     *     <li>"NA____11 XT____11 1" (Dutch half of the tie line): in the main area, unchanged (0).</li>
+     *     <li>"BD____11 XT____11 1" (Belgian half of the same tie line): in the Belgian area, out of operation (8).</li>
+     *     <li>"BD____11 BD____12 3" (disconnected line), "BD____12 BD____13 1" (open coupler): already out of operation,
+     *     unchanged (8 and 7).</li>
+     *     <li>"BD____11 BD____12 1" (line), "BD____11 BD____21 1" (transformer), "BD____12 XD____11 1" (boundary line):
+     *     in the Belgian area, out of operation (8).</li>
+     *     <li>"BD____11 BD____12 2" (equivalent line): in the Belgian area, equivalent element out of operation (9).</li>
+     *     <li>"BD____11 BD____13 1" (closed coupler), "BD____13 XC____11 1" (boundary line exported as a coupler): in the
+     *     Belgian area, coupler out of operation (7).</li>
      *     <li>"NI____11 NI____12 1" (line): in the separate island, out of operation (8).</li>
      * </ul>
      */
     @Test
-    void testDeenergizedElementsExport() throws IOException {
-        Network network = loadPartlyEnergizedTestGrid();
+    void testDeenergizedElements() throws IOException {
+        Network network = UcteExporterTestNetworks.createWithDeenergizedBranches();
 
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
         assertTxtEquals("""
                 ##C 2007.05.01
                 Generated by powsybl, <date>
                 Case date: 2026-01-01T00:00+01:00
                 ##N
+                ##ZBE
+                BD____11              0 0        0.00000 0.00000 0.00000 0.00000
+                BD____12              0 0        0.00000 0.00000 0.00000 0.00000
+                BD____13              0 0        0.00000 0.00000 0.00000 0.00000
+                BD____21              0 0        0.00000 0.00000 0.00000 0.00000
                 ##ZNL
-                NA____11 Main A1      0 2 400.00 10.0000 0.00000 -100.00 0.00000 0.00000 -200.00 100.000 -100.00                               H
-                NA____12 Main A2      0 0        10.0000 0.00000 0.00000 0.00000
-                NA____13 Main A3      0 0        10.0000 0.00000 0.00000 0.00000
-                NA____21 Main A4      0 0        10.0000 0.00000 0.00000 0.00000
-                ND____11 Dead D1      0 0        10.0000 0.00000 0.00000 0.00000
-                ND____12 Dead D2      0 0        10.0000 0.00000 0.00000 0.00000
-                ND____13 Dead D3      0 0        10.0000 0.00000 0.00000 0.00000
-                ND____21 Dead D4      0 0        10.0000 0.00000 0.00000 0.00000
-                NI____11 Island I1    0 0        10.0000 0.00000 0.00000 0.00000
-                NI____12 Island I2    0 0        10.0000 0.00000 0.00000 0.00000
+                NA____11              0 0        0.00000 0.00000 0.00000 0.00000
+                NA____12              0 0        0.00000 0.00000 0.00000 0.00000
+                NA____13              0 0        0.00000 0.00000 0.00000 0.00000
+                NA____21              0 0        0.00000 0.00000 0.00000 0.00000
+                NI____11              0 0        0.00000 0.00000 0.00000 0.00000
+                NI____12              0 0        0.00000 0.00000 0.00000 0.00000
                 ##ZXX
-                XC____11 Coupler      0 0        0.00000 0.00000 0.00000 0.00000
-                XD____11 Boundary     0 0        0.00000 0.00000 0.00000 0.00000
-                XT____11 Tie          0 0        0.00000 0.00000 0.00000 0.00000
+                XC____11              0 0        0.00000 0.00000 0.00000 0.00000
+                XD____11              0 0        0.00000 0.00000 0.00000 0.00000
+                XT____11              0 0        0.00000 0.00000 0.00000 0.00000
                 ##L
-                NA____11 NA____12 1 0 0.5500 1.6800 13.25000   5000 Main line
-                NA____11 NA____13 1 2 0.0000 0.0000 0.000000   5000 Main coupler
-                NA____11 XT____11 1 0 0.5500 1.6800 13.25000   5000 Tie main
-                NA____12 ND____12 1 8 0.5500 1.6800 13.25000   5000 Disconnected
-                ND____11 ND____12 1 8 0.5500 1.6800 13.25000   5000 Dead line
-                ND____11 ND____12 2 9 0.5500 1.6800 13.25000   5000 Dead equiv
-                ND____11 ND____13 1 7 0.0000 0.0000 0.000000   5000 Dead coupler
-                ND____11 XT____11 1 8 0.5500 1.6800 13.25000   5000 Tie dead
-                ND____12 ND____13 1 7 0.0000 0.0000 0.000000   5000 Open coupler
-                ND____12 XD____11 1 8 0.5500 1.6800 13.25000   5000 Dead bound
-                ND____13 XC____11 1 7 0.0000 0.0000 0.000000   5000 Dead coupl X
-                NI____11 NI____12 1 8 0.5500 1.6800 13.25000   5000 Island line
+                BD____11 BD____12 1 8 1.0000 10.000 0.000000
+                BD____11 BD____12 2 9 1.0000 10.000 0.000000
+                BD____11 BD____12 3 8 1.0000 10.000 0.000000
+                BD____11 BD____13 1 7 0.0000 0.0000 0.000000
+                BD____11 XT____11 1 8 1.0000 10.000 0.000000
+                BD____12 BD____13 1 7 0.0000 0.0000 0.000000
+                BD____12 XD____11 1 8 1.0000 10.000 0.000000
+                BD____13 XC____11 1 7 1.0000 10.000 0.000000
+                NA____11 NA____12 1 0 1.0000 10.000 0.000000
+                NA____11 NA____13 1 2 0.0000 0.0000 0.000000
+                NA____11 XT____11 1 0 1.0000 10.000 0.000000
+                NI____11 NI____12 1 8 1.0000 10.000 0.000000
                 ##T
-                NA____11 NA____21 1 0 400.0 225.0 5000. 0.5500 1.6800 13.25000 0.0000   5000 Main transfo
-                ND____11 ND____21 1 8 400.0 225.0 5000. 0.5500 1.6800 13.25000 0.0000   5000 Dead transfo
+                BD____11 BD____21 1 8 220.0 380.0 99999 1.0000 10.000 0.000000 0.0000
+                NA____11 NA____21 1 0 220.0 380.0 99999 1.0000 10.000 0.000000 0.0000
                 ##R
-                """, export(network, DeenergizedBranchesPostProcessor.NAME, ReportNode.NO_OP));
+                """, export(network, DeenergizedBranchesPostProcessor.NAME, reportNode));
+        assertTrue(UcteExporterReportTest.checkReportNode("""
+                + Post-processor deenergized-branches-out-of-operation
+                   + 8 de-energized elements exported out of operation
+                      Switch: BD____11 BD____13 1
+                      Boundary line: BD____12 XD____11 1
+                      Boundary line: BD____13 XC____11 1
+                      Line: BD____11 BD____12 1
+                      Line: BD____11 BD____12 2
+                      Line: NI____11 NI____12 1
+                      Tie line: BD____11 XT____11 1
+                      Two-winding transformer: BD____11 BD____21 1
+                """, getPostProcessorReportNode(reportNode)));
     }
 
     /**
@@ -248,16 +193,17 @@ class DeenergizedBranchesPostProcessorTest {
      * bus-breaker voltage level. See {@link UcteExporterTestNetworks#createNodeBreakerWithCouplers()} for the network.
      * Only "VL_A" has a voltage, so "COUPLER_A" ("N0000010 N0000011 0") stays in operation (2), while "LINE"
      * ("N0000011 N0000111 0", de-energized on its "VL_B" side) and "COUPLER_B" ("N0000110 N0000111 0") are exported out
-     * of operation (8 and 7). The {@code Counter} naming strategy is used, since the ids of the node-breaker buses are
-     * not UCTE node codes.
+     * of operation (8 and 7), and reported. The {@code Counter} naming strategy is used, since the ids of the
+     * node-breaker buses are not UCTE node codes.
      */
     @Test
-    void testDeenergizedElementsNodeBreakerExport() throws IOException {
+    void testDeenergizedElementsNodeBreaker() throws IOException {
         Network network = UcteExporterTestNetworks.createNodeBreakerWithCouplers();
-        setVoltages(network, bus -> "VL_A".equals(bus.getVoltageLevel().getId()));
+        network.getVoltageLevel("VL_A").getBusView().getBuses().forEach(bus -> bus.setV(380));
 
         Properties parameters = new Properties();
         parameters.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
         assertTxtEquals("""
                 ##C 2007.05.01
                 Generated by powsybl, <date>
@@ -274,29 +220,12 @@ class DeenergizedBranchesPostProcessorTest {
                 N0000110 N0000111 0 7 0.0000 0.0000 0.000000
                 ##T
                 ##R
-                """, export(network, DeenergizedBranchesPostProcessor.NAME, parameters, ReportNode.NO_OP));
-    }
-
-    /**
-     * The elements exported out of operation by the post-processor are reported.
-     */
-    @Test
-    void testDeenergizedElementsReport() throws IOException {
-        Network network = loadPartlyEnergizedTestGrid();
-
-        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
-        export(network, DeenergizedBranchesPostProcessor.NAME, reportNode);
+                """, export(network, DeenergizedBranchesPostProcessor.NAME, parameters, reportNode));
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Post-processor deenergized-branches-out-of-operation
-                   + 8 de-energized elements exported out of operation
-                      Switch: ND____11 ND____13 1
-                      Boundary line: ND____12 XD____11 1
-                      Boundary line: ND____13 XC____11 1
-                      Line: ND____11 ND____12 1
-                      Line: ND____11 ND____12 2
-                      Line: NI____11 NI____12 1
-                      Tie line: ND____11 XT____11 1
-                      Two-winding transformer: ND____11 ND____21 1
+                   + 2 de-energized elements exported out of operation
+                      Switch: N0000110 N0000111 0
+                      Line: N0000011 N0000111 0
                 """, getPostProcessorReportNode(reportNode)));
     }
 }
