@@ -377,7 +377,7 @@ class SecurityTest {
     // line.
     // ----------------------------------------------------------------------------------------------------------------
 
-    private static List<LimitViolation> createDetailedDcViolations() {
+    private static List<LimitViolation> createDetailedDcEquipmentViolations() {
         return List.of(
             new LimitViolation(DcDetailedNetworkFactory.DC_NODE_FR_NEG, "FR negative pole", null, LimitViolationType.HIGH_VOLTAGE,
                 null, Integer.MAX_VALUE, 525., 1.0, -530., null, null),
@@ -392,8 +392,8 @@ class SecurityTest {
     private static final String DETAILED_DC_NODE_ROW = "dcNodeFrNeg,,,,HIGH_VOLTAGE,,-530.0000,525.0000,5.0000,100.95";
 
     @Test
-    void printPreContingencyDetailedDcViolations() {
-        SecurityAnalysisResult dcResult = new SecurityAnalysisResult(new LimitViolationsResult(createDetailedDcViolations()),
+    void printPreContingencyDetailedDcEquipmentViolations() {
+        SecurityAnalysisResult dcResult = new SecurityAnalysisResult(new LimitViolationsResult(createDetailedDcEquipmentViolations()),
             LoadFlowResult.ComponentResult.Status.CONVERGED, List.of());
 
         StringWriter writer = new StringWriter();
@@ -408,9 +408,9 @@ class SecurityTest {
     }
 
     @Test
-    void printPostContingencyDetailedDcViolations() {
+    void printPostContingencyDetailedDcEquipmentViolations() {
         PostContingencyResult postContingencyResult = new PostContingencyResult(new Contingency("contingency", List.of()),
-            PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(createDetailedDcViolations()),
+            PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(createDetailedDcEquipmentViolations()),
             NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, List.of());
         SecurityAnalysisResult dcResult = new SecurityAnalysisResult(LimitViolationsResult.empty(),
             LoadFlowResult.ComponentResult.Status.CONVERGED, List.of(postContingencyResult));
@@ -428,9 +428,9 @@ class SecurityTest {
     }
 
     @Test
-    void printLimitsViolationsWithDetailedDcViolations() {
+    void printLimitsViolationsWithDetailedDcEquipmentViolations() {
         Network dcNetwork = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
-        List<LimitViolation> violations = createDetailedDcViolations();
+        List<LimitViolation> violations = createDetailedDcEquipmentViolations();
 
         assertEquals("""
             +---------------+-----+---------+--------------+----------------+----------------+------------+-----------+------------------+----------------+
@@ -448,7 +448,7 @@ class SecurityTest {
     }
 
     @Test
-    void checkLimitsWithDetailedDcViolations() {
+    void checkLimitsWithDetailedDcEquipmentViolations() {
         Network dcNetwork = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
         setUpAcAndDetailedDcEquipmentViolations(dcNetwork);
 

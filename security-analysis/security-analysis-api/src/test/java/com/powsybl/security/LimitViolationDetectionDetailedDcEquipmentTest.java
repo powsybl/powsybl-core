@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
-class LimitViolationDetectionDetailedDcTest {
+class LimitViolationDetectionDetailedDcEquipmentTest {
 
     private static final Set<LoadingLimitType> ALL_LIMIT_TYPES = EnumSet.allOf(LoadingLimitType.class);
     private static final LimitsComputer<Identifiable<?>, LoadingLimits> NO_SCALING = new LimitsComputer.NoModificationsImpl();
@@ -59,7 +59,7 @@ class LimitViolationDetectionDetailedDcTest {
     /**
      * Checks the content that every detailed DC violation must have, plus the fields given as arguments.
      */
-    private static void assertDetailedDcViolation(LimitViolation violation, String subjectId, LimitViolationType type,
+    private static void assertDetailedDcEquipmentViolation(LimitViolation violation, String subjectId, LimitViolationType type,
                                                   double limit, double value) {
         assertEquals(subjectId, violation.getSubjectId());
         assertEquals(type, violation.getLimitType());
@@ -83,7 +83,7 @@ class LimitViolationDetectionDetailedDcTest {
     }
 
     // ================================================================================================================
-    // Level 1: detection scenarios, on checkAllDetailedDc
+    // Level 1: detection scenarios, on checkAllDetailedDcEquipment
     // ================================================================================================================
 
     @Test
@@ -136,7 +136,7 @@ class LimitViolationDetectionDetailedDcTest {
         Optional.ofNullable(low).ifPresent(node::setLowVoltageLimit);
         Optional.ofNullable(high).ifPresent(node::setHighVoltageLimit);
 
-        assertDetailedDcViolation(single(detect(network)), nodeId, expectedType, expectedLimit, v);
+        assertDetailedDcEquipmentViolation(single(detect(network)), nodeId, expectedType, expectedLimit, v);
     }
 
     @ParameterizedTest(name = "limits [{0}, {1}], V = {2}")
@@ -174,7 +174,7 @@ class LimitViolationDetectionDetailedDcTest {
         List<LimitViolation> result = detect(network);
 
         assertEquals(List.of(DC_NODE_FR_NEG + "/HIGH_VOLTAGE", DC_NODE_FR_NEG + "/LOW_VOLTAGE"), subjects(result));
-        result.forEach(v -> assertDetailedDcViolation(v, DC_NODE_FR_NEG, v.getLimitType(), 500., -500.));
+        result.forEach(v -> assertDetailedDcEquipmentViolation(v, DC_NODE_FR_NEG, v.getLimitType(), 500., -500.));
     }
 
     @Test
@@ -187,7 +187,7 @@ class LimitViolationDetectionDetailedDcTest {
         List<LimitViolation> result = detect(switchNetwork);
 
         assertEquals(List.of("dcNode1/HIGH_VOLTAGE", "dcNode2/HIGH_VOLTAGE"), subjects(result));
-        result.forEach(v -> assertDetailedDcViolation(v, v.getSubjectId(), LimitViolationType.HIGH_VOLTAGE, 550., 600.));
+        result.forEach(v -> assertDetailedDcEquipmentViolation(v, v.getSubjectId(), LimitViolationType.HIGH_VOLTAGE, 550., 600.));
     }
 
     @Test
@@ -218,7 +218,7 @@ class LimitViolationDetectionDetailedDcTest {
         line.getDcTerminal1().setI(i1);
         line.getDcTerminal2().setI(i2);
 
-        assertDetailedDcViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 1000., i1);
+        assertDetailedDcEquipmentViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 1000., i1);
     }
 
     @ParameterizedTest(name = "limit {0}, I1 = {1}, I2 = {2}")
@@ -248,7 +248,7 @@ class LimitViolationDetectionDetailedDcTest {
         line.getDcTerminal1().setI(0.);
         line.getDcTerminal2().setI(0.);
 
-        assertDetailedDcViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 0., 0.);
+        assertDetailedDcEquipmentViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 0., 0.);
     }
 
     @Test

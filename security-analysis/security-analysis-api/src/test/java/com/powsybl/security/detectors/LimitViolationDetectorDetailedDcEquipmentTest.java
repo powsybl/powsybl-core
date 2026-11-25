@@ -27,12 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Detailed DC limit violation detection through {@link LimitViolationDetector}.
  *
  * The detection scenarios and the content of the violations are tested in
- * {@code LimitViolationDetectionDetailedDcTest}. This class only checks that the detector entry points report the
+ * {@code LimitViolationDetectionDetailedDcEquipmentTest}. This class only checks that the detector entry points report the
  * detailed DC violations, and the behaviors specific to the detectors.
  *
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
-class LimitViolationDetectorDetailedDcTest {
+class LimitViolationDetectorDetailedDcEquipmentTest {
 
     private static final double DC_POWER_FACTOR = 0.95;
     private static final Contingency CONTINGENCY = new Contingency("contingency", List.of());
@@ -116,7 +116,7 @@ class LimitViolationDetectorDetailedDcTest {
     }
 
     @Test
-    void checkAllDetailedDcReportsOnlyDetailedDcViolations() {
+    void checkAllDetailedDcReportsOnlyDetailedDcEquipmentViolations() {
         setUpAcAndDetailedDcEquipmentViolations(network);
 
         new DefaultLimitViolationDetector().checkAllDetailedDcEquipment(network, violations::add);
@@ -125,7 +125,7 @@ class LimitViolationDetectorDetailedDcTest {
     }
 
     @Test
-    void checkAllDetailedDcWithContingencyReportsOnlyDetailedDcViolations() {
+    void checkAllDetailedDcWithContingencyReportsOnlyDetailedDcEquipmentViolations() {
         // The variant taking a contingency delegates to the variant without contingency.
         // This should be changed when DC contingencies are implemented.
         setUpAcAndDetailedDcEquipmentViolations(network);
@@ -136,7 +136,7 @@ class LimitViolationDetectorDetailedDcTest {
     }
 
     @Test
-    void contingencyBasedDetectorReportsDetailedDcViolationsOnContingency() {
+    void contingencyBasedDetectorReportsDetailedDcEquipmentViolationsOnContingency() {
         // Tests the implementation of checkAll(Contingency, Network, Consumer) in AbstractLimitViolationDetector.
         // Unlike the default interface method, this override does not delegate to checkAll(Network, Consumer),
         // so it must call the detailed DC checks itself. The AC checks of the subclass are silent, so every reported
@@ -168,7 +168,7 @@ class LimitViolationDetectorDetailedDcTest {
     }
 
     @Test
-    void limitScalingOfDetailedDcViolationsIsOneWhateverTheDetectorScaling() {
+    void limitScalingOfDetailedDcEquipmentViolationsIsOneWhateverTheDetectorScaling() {
         // Detailed DC violations have a limitScaling of 1, while the AC violations
         // of the same detector carry the detector scaling
         setUpAcAndDetailedDcEquipmentViolations(network);
