@@ -298,13 +298,14 @@ public class CgmesImport implements Importer {
 
     @Override
     public void update(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
-        TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
+        // Identifiers must be read as during the import, otherwise the CGMES data does not match the network elements
+        TripleStoreOptions tripleStoreOptions = tripleStoreOptions(p);
         tripleStoreOptions.setQueryCatalog(Conversion.QUERY_CATALOG_NAME_UPDATE);
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
         CgmesModel cgmes = CgmesModelFactory.create(
                 ds,
                 alternativeDataSourceForBoundary,
-                TripleStoreFactory.DEFAULT_IMPLEMENTATION,
+                tripleStore(p),
                 reportNode,
                 tripleStoreOptions);
         Conversion conversion = new Conversion(cgmes, config(p));
@@ -573,6 +574,10 @@ public class CgmesImport implements Importer {
     }
 
     private CgmesModel createCgmesModel(ReadOnlyDataSource ds, Properties p, ReportNode tripleStoreReportNode) {
+        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, tripleStoreOptions(p));
+    }
+
+    private TripleStoreOptions tripleStoreOptions(Properties p) {
         TripleStoreOptions options = new TripleStoreOptions();
         String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
         if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
@@ -581,7 +586,7 @@ public class CgmesImport implements Importer {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
-        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, options);
+        return options;
     }
 
     @Override
