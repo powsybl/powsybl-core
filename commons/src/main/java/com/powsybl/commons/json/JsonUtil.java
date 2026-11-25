@@ -765,6 +765,9 @@ public final class JsonUtil {
      */
     public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
         try {
+            if (parser.currentToken() == JsonToken.VALUE_NULL) {
+                return valueDeserializer != null ? (T) valueDeserializer.getNullValue(context) : null;
+            }
             return valueDeserializer != null ?
                 (T) valueDeserializer.deserialize(parser, context) :
                 readValue(context, parser, typeClass);
