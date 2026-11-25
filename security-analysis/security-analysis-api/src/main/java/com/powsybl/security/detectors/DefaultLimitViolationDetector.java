@@ -155,8 +155,8 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
      * The limit scaling of this detector is not applied to detailed DC limits.</p>
      */
     @Override
-    public void checkAllDetailedDc(Network network, Consumer<LimitViolation> consumer) {
-        LimitViolationDetection.checkAllDetailedDc(network, currentLimitTypes, consumer);
+    public void checkAllDetailedDcEquipment(Network network, Consumer<LimitViolation> consumer) {
+        LimitViolationDetection.checkAllDetailedDcEquipment(network, currentLimitTypes, consumer);
     }
 
     public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {

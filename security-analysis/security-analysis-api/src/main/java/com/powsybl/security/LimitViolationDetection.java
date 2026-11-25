@@ -48,7 +48,7 @@ public final class LimitViolationDetection {
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
-        checkAllDetailedDc(network, currentLimitTypes, consumer);
+        checkAllDetailedDcEquipment(network, currentLimitTypes, consumer);
     }
 
     /**
@@ -68,8 +68,8 @@ public final class LimitViolationDetection {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitsComputer, consumer));
         network.getThreeWindingsTransformerStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitsComputer, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
-        // The DC power factor is not used for detailed DC equipment
-        checkAllDetailedDc(network, currentLimitTypes, consumer);
+        // The DC power factor is not used for detailed DC equipment, so the detection is the same after an AC LF and a DC (linearized) LF.
+        checkAllDetailedDcEquipment(network, currentLimitTypes, consumer);
     }
 
     /**
@@ -81,7 +81,7 @@ public final class LimitViolationDetection {
      * @param currentLimitTypes The current limit type to consider.
      * @param consumer          Will be fed with possibly created limit violations.
      */
-    public static void checkAllDetailedDc(Network network, Set<LoadingLimitType> currentLimitTypes, Consumer<LimitViolation> consumer) {
+    public static void checkAllDetailedDcEquipment(Network network, Set<LoadingLimitType> currentLimitTypes, Consumer<LimitViolation> consumer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
         Objects.requireNonNull(consumer);
@@ -105,11 +105,11 @@ public final class LimitViolationDetection {
         double magnitude = Math.abs(v);
         double lowLimit = dcNode.getLowVoltageLimit();
         if (!Double.isNaN(lowLimit) && magnitude <= lowLimit) {
-            consumer.accept(createDetailedDcViolation(dcNode, LimitViolationType.LOW_VOLTAGE, lowLimit, v, null));
+            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.LOW_VOLTAGE, lowLimit, v, null));
         }
         double highLimit = dcNode.getHighVoltageLimit();
         if (!Double.isNaN(highLimit) && magnitude >= highLimit) {
-            consumer.accept(createDetailedDcViolation(dcNode, LimitViolationType.HIGH_VOLTAGE, highLimit, v, null));
+            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.HIGH_VOLTAGE, highLimit, v, null));
         }
     }
 
@@ -122,7 +122,7 @@ public final class LimitViolationDetection {
         double i = dcLine.getDcTerminal1().getI();
         double limit = dcLine.getPermanentCurrentLimit();
         if (!Double.isNaN(i) && !Double.isNaN(limit) && Math.abs(i) >= limit) {
-            consumer.accept(createDetailedDcViolation(dcLine, LimitViolationType.CURRENT, limit, i, ThreeSides.ONE));
+            consumer.accept(createDetailedDcEquipmentViolation(dcLine, LimitViolationType.CURRENT, limit, i, ThreeSides.ONE));
         }
     }
 
@@ -137,11 +137,11 @@ public final class LimitViolationDetection {
         }
         double maxP = converter.getMaxP();
         if (maxP != Double.MAX_VALUE && p >= maxP) {
-            consumer.accept(createDetailedDcViolation(converter, LimitViolationType.ACTIVE_POWER, maxP, p, ThreeSides.ONE));
+            consumer.accept(createDetailedDcEquipmentViolation(converter, LimitViolationType.ACTIVE_POWER, maxP, p, ThreeSides.ONE));
         }
         double minP = converter.getMinP();
         if (minP != -Double.MAX_VALUE && p <= minP) {
-            consumer.accept(createDetailedDcViolation(converter, LimitViolationType.ACTIVE_POWER, minP, p, ThreeSides.ONE));
+            consumer.accept(createDetailedDcEquipmentViolation(converter, LimitViolationType.ACTIVE_POWER, minP, p, ThreeSides.ONE));
         }
     }
 
@@ -157,7 +157,7 @@ public final class LimitViolationDetection {
         return converter.getTerminal1().getP() + converter.getTerminal2().map(Terminal::getP).orElse(0.);
     }
 
-    private static LimitViolation createDetailedDcViolation(Identifiable<?> subject, LimitViolationType type, double limit,
+    private static LimitViolation createDetailedDcEquipmentViolation(Identifiable<?> subject, LimitViolationType type, double limit,
                                                             double value, ThreeSides side) {
         return new LimitViolation(subject.getId(), subject.getOptionalName().orElse(null), null, type, null,
                 Integer.MAX_VALUE, limit, 1.0, value, side, null);

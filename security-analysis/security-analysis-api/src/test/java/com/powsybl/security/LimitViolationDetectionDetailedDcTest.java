@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.*;
 
-import static com.powsybl.security.DetailedDcLimitViolationTestUtils.*;
+import static com.powsybl.security.DetailedDcEquipmentLimitViolationTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -58,7 +58,7 @@ class LimitViolationDetectionDetailedDcTest {
     }
 
     private List<LimitViolation> detect(Network n) {
-        LimitViolationDetection.checkAllDetailedDc(n, ALL_LIMIT_TYPES, violations::add);
+        LimitViolationDetection.checkAllDetailedDcEquipment(n, ALL_LIMIT_TYPES, violations::add);
         return violations;
     }
 
@@ -107,7 +107,7 @@ class LimitViolationDetectionDetailedDcTest {
 
     @Test
     void violationCarriesTheOptionalNameOfTheSubject() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
         network.getDcNode(DC_NODE_FR_POS).setName("FR positive pole");
         network.getDcLine(DC_LINE_POS).setName("Positive pole cable");
 
@@ -424,13 +424,13 @@ class LimitViolationDetectionDetailedDcTest {
     // ================================================================================================================
 
     @Test
-    void entryPointsAreConsistentOnDetailedDcViolations() {
-        setUpAcAndDetailedDcViolations(network);
+    void entryPointsAreConsistentOnDetailedDcEquipmentViolations() {
+        setUpAcAndDetailedDcEquipmentViolations(network);
         List<LimitViolation> detailedDc = new ArrayList<>();
         List<LimitViolation> all = new ArrayList<>();
         List<LimitViolation> allDc = new ArrayList<>();
 
-        LimitViolationDetection.checkAllDetailedDc(network, ALL_LIMIT_TYPES, detailedDc::add);
+        LimitViolationDetection.checkAllDetailedDcEquipment(network, ALL_LIMIT_TYPES, detailedDc::add);
         LimitViolationDetection.checkAll(network, ALL_LIMIT_TYPES, NO_SCALING, all::add);
         LimitViolationDetection.checkAllDc(network, DC_POWER_FACTOR, ALL_LIMIT_TYPES, NO_SCALING, allDc::add);
 
@@ -459,7 +459,7 @@ class LimitViolationDetectionDetailedDcTest {
 
     @Test
     void checkAllDcDoesNotDependOnTheDcPowerFactorForDetailedDcEquipment() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
         List<LimitViolation> withPowerFactor1 = new ArrayList<>();
         LimitViolationDetection.checkAllDc(network, 1.0, ALL_LIMIT_TYPES, NO_SCALING, withPowerFactor1::add);
 
@@ -472,11 +472,11 @@ class LimitViolationDetectionDetailedDcTest {
     @Test
     void dcLineIsNotCheckedWithoutPermanentLimitType() {
         // only TATL is checked: no DC line violation, the other detailed DC checks are not affected
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
         List<LimitViolation> detailedDc = new ArrayList<>();
         List<LimitViolation> all = new ArrayList<>();
 
-        LimitViolationDetection.checkAllDetailedDc(network, EnumSet.of(LoadingLimitType.TATL), detailedDc::add);
+        LimitViolationDetection.checkAllDetailedDcEquipment(network, EnumSet.of(LoadingLimitType.TATL), detailedDc::add);
         LimitViolationDetection.checkAll(network, EnumSet.of(LoadingLimitType.TATL), NO_SCALING, all::add);
 
         assertAll(
@@ -487,7 +487,7 @@ class LimitViolationDetectionDetailedDcTest {
 
     @Test
     void limitsComputerIsIgnoredForDetailedDcEquipment() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
         network.getBusBreakerView().getBus("BUS-FR").setV(400.);
         // with a 0.5 scaling, these values would all be violations if limits were scaled
         network.getDcNode(DcDetailedNetworkFactory.DC_NODE_GB_POS).setHighVoltageLimit(525.).setV(300.);
@@ -510,13 +510,13 @@ class LimitViolationDetectionDetailedDcTest {
     @Test
     void detailedDcEquipmentOfSubnetworksIsChecked() {
         // the DC equipment of the fixture belongs to the "VscSymmetricalMonopole" subnetwork
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
         Network dcSubnetwork = network.getSubnetwork("VscSymmetricalMonopole");
         assertNotNull(dcSubnetwork.getDcNode(DC_NODE_FR_POS));
 
         LimitViolationDetection.checkAll(network, ALL_LIMIT_TYPES, NO_SCALING, violations::add);
         List<LimitViolation> fromSubnetwork = new ArrayList<>();
-        LimitViolationDetection.checkAllDetailedDc(dcSubnetwork, ALL_LIMIT_TYPES, fromSubnetwork::add);
+        LimitViolationDetection.checkAllDetailedDcEquipment(dcSubnetwork, ALL_LIMIT_TYPES, fromSubnetwork::add);
 
         assertTrue(subjects(violations).containsAll(DETAILED_DC_SUBJECTS), () -> subjects(violations).toString());
         assertEquals(DETAILED_DC_SUBJECTS, subjects(fromSubnetwork));

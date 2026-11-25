@@ -67,10 +67,12 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
                     + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
         });
 
-        // a DC line declaring no limit is unaffected
+        // a DC line declaring no limit is unaffected (whatever the version)
         network.getDcLine("dcLineWithSolvedV").setPermanentCurrentLimit(Double.NaN);
-        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_18.toString("."));
-        assertDoesNotThrow(() -> NetworkSerDe.write(network, options, tmpDir.resolve("noLimit.xml")));
+        testForAllVersionsSince(IidmVersion.V_1_15, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            assertDoesNotThrow(() -> NetworkSerDe.write(network, options, tmpDir.resolve("noLimit.xml")));
+        });
     }
 
     private static Network createBaseNetwork() {

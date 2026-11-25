@@ -21,7 +21,7 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
     private static final String NOMINAL_V = "nominalV";
     private static final String LOW_VOLTAGE_LIMIT = "lowVoltageLimit";
     private static final String HIGH_VOLTAGE_LIMIT = "highVoltageLimit";
-    private static final String V = "v";
+    private static final String VOLTAGE = "v";
 
     @Override
     protected String getRootElementName() {
@@ -35,7 +35,7 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(getRootElementName(), HIGH_VOLTAGE_LIMIT, dcNode.getHighVoltageLimit(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context);
-        context.getWriter().writeDoubleAttribute(V, dcNode.getV());
+        context.getWriter().writeDoubleAttribute(VOLTAGE, dcNode.getV());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
             lowVoltageLimit = context.getReader().readDoubleAttribute(LOW_VOLTAGE_LIMIT);
             highVoltageLimit = context.getReader().readDoubleAttribute(HIGH_VOLTAGE_LIMIT);
         }
-        double v = context.getReader().readDoubleAttribute(V);
+        double v = context.getReader().readDoubleAttribute(VOLTAGE);
         DcNode dcNode = adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)

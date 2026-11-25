@@ -35,7 +35,7 @@ import org.mockito.Mockito;
 import java.io.StringWriter;
 import java.util.*;
 
-import static com.powsybl.security.DetailedDcLimitViolationTestUtils.*;
+import static com.powsybl.security.DetailedDcEquipmentLimitViolationTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -490,7 +490,7 @@ class SecurityTest {
     @Test
     void checkLimitsWithDetailedDcViolations() {
         Network dcNetwork = createDetailedDcNetwork();
-        setUpAcAndDetailedDcViolations(dcNetwork);
+        setUpAcAndDetailedDcEquipmentViolations(dcNetwork);
 
         assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
             subjects(Security.checkLimits(dcNetwork)));

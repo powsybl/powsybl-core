@@ -441,8 +441,8 @@ public interface LimitViolationDetector {
      * @param network       The network on which physical values must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    default void checkAllDetailedDc(Network network, Consumer<LimitViolation> consumer) {
-        LimitViolationDetection.checkAllDetailedDc(network, EnumSet.allOf(LoadingLimitType.class), consumer);
+    default void checkAllDetailedDcEquipment(Network network, Consumer<LimitViolation> consumer) {
+        LimitViolationDetection.checkAllDetailedDcEquipment(network, EnumSet.allOf(LoadingLimitType.class), consumer);
     }
 
     /**
@@ -454,8 +454,8 @@ public interface LimitViolationDetector {
      * @param network       The network on which physical values must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
-    default void checkAllDetailedDc(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
-        checkAllDetailedDc(network, consumer);
+    default void checkAllDetailedDcEquipment(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
+        checkAllDetailedDcEquipment(network, consumer);
     }
 
     /**

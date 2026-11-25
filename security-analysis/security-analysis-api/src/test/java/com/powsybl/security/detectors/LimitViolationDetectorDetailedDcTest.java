@@ -20,7 +20,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.powsybl.security.DetailedDcLimitViolationTestUtils.*;
+import static com.powsybl.security.DetailedDcEquipmentLimitViolationTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -89,7 +89,7 @@ class LimitViolationDetectorDetailedDcTest {
 
     @Test
     void checkAllReportsAcAndDetailedDcViolations() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
         new DefaultLimitViolationDetector().checkAll(network, violations::add);
 
@@ -100,7 +100,7 @@ class LimitViolationDetectorDetailedDcTest {
     @Test
     void checkAllDcReportsDetailedDcViolations() {
         // AC voltages are not checked in DC (linearized) load flow mode
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
         new DefaultLimitViolationDetector().checkAllDc(network, DC_POWER_FACTOR, violations::add);
 
@@ -109,9 +109,9 @@ class LimitViolationDetectorDetailedDcTest {
 
     @Test
     void checkAllDetailedDcReportsOnlyDetailedDcViolations() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
-        new DefaultLimitViolationDetector().checkAllDetailedDc(network, violations::add);
+        new DefaultLimitViolationDetector().checkAllDetailedDcEquipment(network, violations::add);
 
         assertEquals(DETAILED_DC_SUBJECTS, subjects(violations));
     }
@@ -120,9 +120,9 @@ class LimitViolationDetectorDetailedDcTest {
     void checkAllDetailedDcWithContingencyReportsOnlyDetailedDcViolations() {
         // The variant taking a contingency delegates to the variant without contingency.
         // This should be changed when DC contingencies are implemented.
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
-        new DefaultLimitViolationDetector().checkAllDetailedDc(CONTINGENCY, network, violations::add);
+        new DefaultLimitViolationDetector().checkAllDetailedDcEquipment(CONTINGENCY, network, violations::add);
 
         assertEquals(DETAILED_DC_SUBJECTS, subjects(violations));
     }
@@ -133,7 +133,7 @@ class LimitViolationDetectorDetailedDcTest {
         // Unlike the default interface method, this override does not delegate to checkAll(Network, Consumer),
         // so it must call the detailed DC checks itself. The AC checks of the subclass are silent, so every reported
         // violation comes from the inherited implementation.
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
         new SilentContingencyBasedDetector().checkAll(CONTINGENCY, network, violations::add);
 
@@ -156,7 +156,7 @@ class LimitViolationDetectorDetailedDcTest {
 
         detector.checkAll(network, violations::add);
         detector.checkAllDc(network, DC_POWER_FACTOR, violations::add);
-        detector.checkAllDetailedDc(network, violations::add);
+        detector.checkAllDetailedDcEquipment(network, violations::add);
 
         assertTrue(violations.isEmpty(), () -> subjects(violations).toString());
     }
@@ -165,7 +165,7 @@ class LimitViolationDetectorDetailedDcTest {
     void limitScalingOfDetailedDcViolationsIsOneWhateverTheDetectorScaling() {
         // Detailed DC violations have a limitScaling of 1, while the AC violations
         // of the same detector carry the detector scaling
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
         new DefaultLimitViolationDetector(0.5, EnumSet.allOf(LoadingLimitType.class)).checkAll(network, violations::add);
 
@@ -176,18 +176,18 @@ class LimitViolationDetectorDetailedDcTest {
 
     @Test
     void dcLineIsNotCheckedWhenDetectorExcludesPermanentLimitType() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
-        new DefaultLimitViolationDetector(EnumSet.of(LoadingLimitType.TATL)).checkAllDetailedDc(network, violations::add);
+        new DefaultLimitViolationDetector(EnumSet.of(LoadingLimitType.TATL)).checkAllDetailedDcEquipment(network, violations::add);
 
         assertEquals(List.of("VscFr/ACTIVE_POWER", "dcNodeFrPos/HIGH_VOLTAGE"), subjects(violations));
     }
 
     @Test
     void dcLineIsCheckedWhenDetectorHasPermanentLimitTypeOnly() {
-        setUpAcAndDetailedDcViolations(network);
+        setUpAcAndDetailedDcEquipmentViolations(network);
 
-        new DefaultLimitViolationDetector(EnumSet.of(LoadingLimitType.PATL)).checkAllDetailedDc(network, violations::add);
+        new DefaultLimitViolationDetector(EnumSet.of(LoadingLimitType.PATL)).checkAllDetailedDcEquipment(network, violations::add);
 
         assertEquals(DETAILED_DC_SUBJECTS, subjects(violations));
     }

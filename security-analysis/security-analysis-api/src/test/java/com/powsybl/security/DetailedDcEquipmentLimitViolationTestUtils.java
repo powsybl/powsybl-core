@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
-public final class DetailedDcLimitViolationTestUtils {
+public final class DetailedDcEquipmentLimitViolationTestUtils {
 
     /**
      * AC voltage level of the fixture, subject of the AC violation written by {@link #setUpAcAndDetailedDcViolations}.
@@ -32,14 +32,14 @@ public final class DetailedDcLimitViolationTestUtils {
      */
     public static final List<String> DETAILED_DC_SUBJECTS = List.of("VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE");
 
-    private DetailedDcLimitViolationTestUtils() {
+    private DetailedDcEquipmentLimitViolationTestUtils() {
     }
 
     /**
      * Writes, on a network created by {@link DcDetailedNetworkFactory#createVscSymmetricalMonopole()}, one violation
      * on each kind of detailed DC equipment and one AC bus voltage violation.
      */
-    public static void setUpAcAndDetailedDcViolations(Network network) {
+    public static void setUpAcAndDetailedDcEquipmentViolations(Network network) {
         // AC: VL-FR has limits [380 kV, 420 kV]
         network.getBusBreakerView().getBus("BUS-FR").setV(430.);
         // DC node

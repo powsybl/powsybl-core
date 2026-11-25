@@ -106,6 +106,6 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(contingency, b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(contingency, valOk, consumer));
-        checkAllDetailedDc(contingency, network, consumer);
+        checkAllDetailedDcEquipment(contingency, network, consumer);
     }
 }

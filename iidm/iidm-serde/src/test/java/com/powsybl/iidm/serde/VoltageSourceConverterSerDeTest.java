@@ -221,26 +221,4 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
         return network;
     }
 
-    private static Network createNetworkWithNonDefaultMaxP() {
-        Network network = Network.create("voltageSourceConverterTest", "code");
-        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
-        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
-        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
-        Substation s = network.newSubstation().setId("S").add();
-        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
-        vl.getBusBreakerView().newBus().setId("bus").add();
-        vl.newVoltageSourceConverter()
-                .setId("vsc")
-                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
-                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
-                .setConnectableBus1("bus")
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setTargetVdc(500.)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
-                .setLocalTargetQ(0.)
-                .setMaxP(500.)
-                .add();
-        return network;
-    }
-
 }

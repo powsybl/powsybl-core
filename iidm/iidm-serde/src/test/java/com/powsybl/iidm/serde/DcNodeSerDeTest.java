@@ -78,10 +78,11 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
 
         // a DC node declaring no limit is unaffected
         Network noLimits = Network.create("dcNodeTest", "code");
-        noLimits.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
         noLimits.newDcNode().setId("dcNode").setNominalV(500.).add();
-        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_18.toString("."));
-        assertDoesNotThrow(() -> NetworkSerDe.write(noLimits, options, tmpDir.resolve("noLimits.xml")));
+        testForAllVersionsSince(IidmVersion.V_1_15, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            assertDoesNotThrow(() -> NetworkSerDe.write(noLimits, options, tmpDir.resolve("noLimits.xml")));
+        });
     }
 
     private static Network createBaseNetwork() {

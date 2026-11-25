@@ -9,6 +9,7 @@ package com.powsybl.contingency.violations;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -71,10 +72,12 @@ public final class LimitViolationHelper {
         return voltageLevel.getSubstation().flatMap(Substation::getCountry);
     }
 
+    @Nullable
     public static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
         return getVoltageLevelId(limitViolation, network, false);
     }
 
+    @Nullable
     public static String getVoltageLevelId(LimitViolation limitViolation, Network network, boolean name) {
         return getVoltageLevel(limitViolation, network)
                 .map(voltageLevel -> name ? voltageLevel.getNameOrId() : voltageLevel.getId())
