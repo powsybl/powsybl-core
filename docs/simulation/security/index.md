@@ -25,10 +25,9 @@ violations can have different types:
 - Voltage angle: this kind of violation can be detected if the voltage angle difference between the buses associated to
   two terminals is out of the low-high voltage angle limits defined in the network.
 - Detailed DC equipment: a voltage violation can be detected on a [DC node](../../grid_model/network_subnetwork.md#dc-node)
-  if the magnitude of its voltage is out of its low-high voltage limits, a current violation on
+  if the magnitude of its voltage is out of its low-high voltage limits, and a current violation on
   a [DC line](../../grid_model/network_subnetwork.md#dc-line) if the magnitude of its current reaches its permanent
-  current limit, and an active power violation on an [AC/DC converter](../../grid_model/network_subnetwork.md#acdc-converter)
-  if its active power is out of its [`MinP`..`MaxP`] range. Limit scalings do not apply to these limits.
+  current limit. Limit scalings do not apply to these limits.
 
 ## Inputs
 

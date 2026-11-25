@@ -1096,8 +1096,8 @@ at a given DC voltage is the one which verifies:
 $V_{DC} \in [V_{min}, V_{max})$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 A droop curve must be invertible. This implies that all the droop coefficients $k$ must be non-zero and with the same sign.
 
-`MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
-same load sign convention as `TargetP`.
+`MinP` and `MaxP` are control parameters of the converter: they bound the active power that its control can reach at the
+Point of Common Coupling, using the same load sign convention as `TargetP`.
 
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
