@@ -5,11 +5,10 @@ implementation can attach what this API does not model without the API changing.
 
 ## StateEstimationResult
 
-A load flow writes its answer into the network and returns a status. An estimation carries the
-state itself, because with
+An estimation returns the state it computed. With
 [ESTIMATE_OBSERVABLE_ISLANDS](parameters.md#param-se-unobservable-policy) a single component can
-come back partly estimated, and which of its buses carry a value is exactly what the set of
-`BusResult` entries says. Writing back is opt-in through
+come back partly estimated, and the set of `BusResult` entries says which of its buses carry a
+value. Writing back is opt-in through
 [writeResultsToNetwork](parameters.md#param-se-write-results-to-network), and a caller holding a
 result can write it at any time:
 
@@ -19,10 +18,10 @@ StateEstimationResult estimate = StateEstimation.estimate(network);
 StateEstimation.writeResultsToNetwork(network, estimate);
 ```
 
-Every solved value on the variant is cleared first, through `Networks.unsetSolvedValues`, and the
-voltages then go onto the buses and the flows onto the branch terminals. A bus the result does not
-mention is left at `NaN`, so the network says which parts carry an estimate rather than mixing one
-with stale flows.
+Every solved value on the variant is cleared first, through `Networks.unsetSolvedValues`. The
+voltages then go onto the buses, and the flows onto the terminals of the branches, three-winding
+transformers and injections. A bus the result does not mention is left at `NaN`, so the network
+says which parts carry an estimate rather than mixing one with stale flows.
 
 | Attribute          | Type                    | Unit | Required | Default value | Description                                                |
 |--------------------|-------------------------|------|----------|---------------|------------------------------------------------------------|
@@ -34,6 +33,7 @@ with stale flows.
 | threeWindingsTransformerResults | List<ThreeWindingsTransformerResult> | - | no | Empty list | The flows, one entry per estimated three-winding transformer |
 | injectionResults   | List<InjectionResult>   | -    | no       | Empty list    | The injections the state implies, one entry per estimated device |
 | measurementResults | List<MeasurementResult> | -    | no       | Empty list    | One entry per measurement consumed, in no guaranteed order |
+| quantityAccuracies | List<QuantityAccuracy>  | -    | no       | Empty list    | The accuracy of each estimated quantity the implementation reports one for |
 
 `ComponentResult`:
 
@@ -45,12 +45,8 @@ with stale flows.
 | referenceBusId         | String | -    | yes      | -             | The bus whose voltage angle was held fixed                  |
 | objectiveFunctionValue | double | -    | no       | `NaN`         | Weighted sum of squared residuals at the solution           |
 
-A `statusText`, here and on the other two results, is whatever the implementation wants to add
-about its status, and is empty when it has nothing.
-
-Only angle differences are physical, so one angle per synchronous component is not an unknown and
-`referenceBusId` names the bus that carries it. It also identifies the component, since a component
-number would depend on traversal order and would not survive a topology change.
+`referenceBusId` also identifies the component, since a component number would depend on
+traversal order and would not survive a topology change.
 
 `objectiveFunctionValue` is the quantity a least-squares estimator minimizes, and it is what a
 chi-square test is computed from. An estimator in another family does not produce one and returns
@@ -67,8 +63,7 @@ chi-square test is computed from. An estimator in another family does not produc
 
 Buses are those of the bus view, and so is `referenceBusId` on a `ComponentResult`. The same
 identifier can name a different bus in each view, so an implementation working in the bus/breaker
-view maps back before it reports. The voltage level is carried alongside, the way
-`ShortCircuitBusResults` and security analysis' `BusResult` pair them.
+view maps back before it reports.
 
 `BranchResult` is in the units IIDM uses for a terminal, each quantity positive when flowing from
 the bus into the branch at that side:
@@ -83,9 +78,8 @@ the bus into the branch at that side:
 | q2        | double | MVar | yes      | -             | Reactive power at side 2              |
 | i2        | double | A    | no       | `NaN`         | Current magnitude at side 2           |
 
-Flows are derived rather than estimated: they follow from the voltages at the two ends and the
-branch admittance. They are carried so that a caller holding a result can write it back, compare it
-or serialize it without rebuilding the network model.
+Flows follow from the voltages at the two ends and the branch admittance. They are carried so
+that a caller holding a result can write it back without rebuilding the network model.
 
 A paired boundary line is reported through its tie line, which is itself a branch, and never through
 the two boundary lines behind it, so summing branch flows does not count an interconnector twice. An
@@ -140,8 +134,7 @@ redundancy half of the same question is on [ObservabilityResult](#observabilityr
 | side              | Optional<ThreeSides> | -              | no       | Empty optional | The branch side, always empty for a voltage   |
 | standardDeviation | double               | MW, MVar or kV | yes      | -              | The standard deviation of the estimate        |
 
-An implementation that computes no accuracies returns an empty list. A topological observability
-analysis produces none, since the standard deviation follows from the gain matrix.
+An implementation that computes no accuracies returns an empty list.
 
 ## ObservabilityResult
 
@@ -165,9 +158,8 @@ is a `COMPLETED` analysis reporting `NON_OBSERVABLE` islands.
 return an empty `Optional` when there is no entry.
 
 An `ObservableIsland` depends on where the measurements are rather than on connectivity, so one
-connected component of the network can hold several of them. It is named for what it is rather
-than after the extension, since IIDM already has an `Area` element and an `ObservabilityArea`
-extension. The structure still mirrors `ObservabilityArea.AreaCharacteristics`:
+connected component of the network can hold several of them. The structure mirrors
+`ObservabilityArea.AreaCharacteristics`:
 
 | Attribute    | Type         | Unit | Required | Default value | Description                                           |
 |--------------|--------------|------|----------|---------------|-------------------------------------------------------|
@@ -194,7 +186,7 @@ deviation it also holds describes an estimate, so it is on
 | side      | Optional<ThreeSides> | -    | no       | Empty optional | The branch side, always empty for a voltage    |
 | redundant | Optional<Boolean>    | -    | no       | Empty optional | Whether anything else determines this quantity |
 
-An empty `redundant` means the estimation did not establish it. `false` means the quantity is
+An empty `redundant` means the analysis did not establish it. `false` means the quantity is
 critical: losing the measurement behind it would leave a region unobservable, and an error in it
 cannot be detected.
 

@@ -207,7 +207,8 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
      *
      * <p>Every solved value on the variant is cleared first, so a partly estimated network says
      * which parts carry an estimate instead of mixing one with whatever was there before. The
-     * estimated voltages then go onto the buses and the flows onto the branch terminals.</p>
+     * estimated voltages then go onto the buses, and the flows onto the terminals of the branches,
+     * three-winding transformers and injections.</p>
      *
      * <p>This default writes what {@link StateEstimationResult} models. An implementation with more
      * to publish, such as the IIDM observability extensions or solved tap positions, overrides it

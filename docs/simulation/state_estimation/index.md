@@ -22,11 +22,9 @@ BadDataResult badData = StateEstimation.detectBadData(network, estimate, observa
 `estimate` computes the state. `detectBadData` tests an estimate for readings that disagree
 with the rest.
 
-They are separate calls because the sequence between them is an operating decision. An operator
-who finds part of the network unobservable might add distribution system measurements, fall back
-on pseudo-measurements from a forecast, or reduce the area being estimated. Which of those
-to try, and in what order, differs between operators, so the API gives the steps and the caller
-writes the sequence.
+They are separate calls because the sequence between them is an operating decision. What to do
+about an unobservable part of the network differs between operators, so the API gives the steps
+and the caller writes the sequence.
 
 `detectBadData` takes an estimate it did not compute, so a caller that loops between estimating
 and testing pays for the estimate once per iteration. It also takes an observability result,

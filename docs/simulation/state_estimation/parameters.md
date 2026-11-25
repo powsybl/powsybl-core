@@ -20,9 +20,8 @@ state-estimation-default-parameters:
 They are stored in `com.powsybl.stateestimation.StateEstimationParameters` and are all optional.
 
 Only settings that change what the estimate means are here. A convergence tolerance, an iteration
-cap or a choice of linear solver changes how an implementation reaches the answer rather than
-which answer is correct, so it belongs in an extension that implementation contributes through
-`StateEstimationProvider.getSpecificParametersClass()`.
+cap or a choice of linear solver belongs in an extension that an implementation contributes
+through `StateEstimationProvider.getSpecificParametersClass()`.
 
 (param-se-voltage-init-mode)=
 ### voltageInitMode
@@ -90,13 +89,9 @@ The default value is `MERGE_INVERSE_VARIANCE`.
 ### unobservablePolicy
 
 What `estimate` does when the measurements leave part of the network undetermined:
-- `THROW`.
+- `THROW`: for an automated pipeline where publishing a partial estimate is worse than failing.
 - `SKIP_COMPONENT`: report the component as unobservable and estimate the others.
 - `ESTIMATE_OBSERVABLE_ISLANDS`: estimate each observable island of the component separately.
-
-A caller that runs `analyseObservability` first already knows the answer before calling
-`estimate`, so this setting mostly covers the case where it does not. `THROW` suits an automated
-pipeline where publishing a partial estimate is worse than failing.
 
 The default value is `ESTIMATE_OBSERVABLE_ISLANDS`.
 

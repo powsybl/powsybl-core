@@ -115,8 +115,7 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
      *
      * <p>{@code ObservabilityQuality} also carries a standard deviation. That one describes an
      * estimate rather than the measurement configuration, so it lives on
-     * {@link StateEstimationResult.QuantityAccuracy} and the two are combined when the
-     * observability extensions are written onto the network.
+     * {@link StateEstimationResult.QuantityAccuracy}.
      */
     interface QuantityRedundancy {
 
