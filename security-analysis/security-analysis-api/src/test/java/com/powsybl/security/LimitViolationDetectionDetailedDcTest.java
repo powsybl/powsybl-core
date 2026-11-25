@@ -198,7 +198,7 @@ class LimitViolationDetectionDetailedDcTest {
         "1500.,  -1500.",
     })
     void dcLineCurrentViolationIsReported(double i1, double i2) {
-        // Somewhat contrived: in principle there should be the same current at both
+        // Somewhat contrived: in principle there should be the same current magnitude at both
         // terminals. Let's check this is well defined nonetheless.
         DcLine line = network.getDcLine(DC_LINE_POS).setPermanentCurrentLimit(1000.);
         line.getDcTerminal1().setI(i1);

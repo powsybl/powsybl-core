@@ -431,7 +431,7 @@ public interface LimitViolationDetector {
     void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
-     * Checks whether the values on the detailed DC equipments (DC nodes and DC lines)
+     * Checks whether the values on the detailed DC equipment (DC nodes and DC lines)
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
@@ -446,7 +446,7 @@ public interface LimitViolationDetector {
     }
 
     /**
-     * Checks whether the values on the detailed DC equipments (DC nodes and DC lines)
+     * Checks whether the values on the detailed DC equipment (DC nodes and DC lines)
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *

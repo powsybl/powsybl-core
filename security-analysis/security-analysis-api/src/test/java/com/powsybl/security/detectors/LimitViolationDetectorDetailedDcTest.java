@@ -46,34 +46,42 @@ class LimitViolationDetectorDetailedDcTest {
     static class SilentContingencyBasedDetector extends AbstractLimitViolationDetector {
         @Override
         public void checkCurrent(Contingency contingency, Branch branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkVoltage(Contingency contingency, Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkActivePower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkApparentPower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
 
         @Override
         public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
+            // Silent detector: do nothing
         }
     }
 

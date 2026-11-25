@@ -73,7 +73,7 @@ public final class LimitViolationDetection {
     }
 
     /**
-     * Checks whether the values on the detailed DC equipments (DC nodes and DC lines)
+     * Checks whether the values on the detailed DC equipment (DC nodes and DC lines)
      * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
      * In case it should, feeds the consumer with it.
      * The active power of AC/DC converters is not checked: {@code minP} and {@code maxP} are control parameters,
