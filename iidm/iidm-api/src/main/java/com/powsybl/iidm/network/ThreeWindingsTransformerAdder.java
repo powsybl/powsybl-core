@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
+public interface ThreeWindingsTransformerAdder extends ConnectableAdder<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
 
     interface LegAdder {
 

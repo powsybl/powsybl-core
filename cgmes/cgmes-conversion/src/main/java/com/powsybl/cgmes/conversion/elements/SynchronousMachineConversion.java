@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
@@ -30,31 +29,33 @@ import static com.powsybl.cgmes.conversion.Conversion.*;
  */
 public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
-    private final boolean isCondenser;
+    private final boolean hasCondenserCapability;
+    private final boolean isPureCondenser;
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(CgmesNames.SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
-        isCondenser = type.toLowerCase().contains("condenser");
+        hasCondenserCapability = type != null && type.toLowerCase().contains("condenser");
+        isPureCondenser = type != null && type.contains("condenser");
+
     }
 
     @Override
     public void convert() {
         // If it is a generator, default values for minP and maxP give unlimited range
-        // If it is a condenser, default values for minP and maxP are 0
-        double minP = p.asDouble("minP", isCondenser ? 0 : -Double.MAX_VALUE);
-        double maxP = p.asDouble("maxP", isCondenser ? 0 : Double.MAX_VALUE);
+        // If it is a pure condenser, default values for minP and maxP are 0
+        double minP = p.asDouble("minP", isPureCondenser ? 0 : -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", isPureCondenser ? 0 : Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
         adder.setEnergySource(energySourceFromGeneratingUnitType())
                 .setRatedS(ratedS);
         identify(adder);
         connectWithOnlyEq(adder);
-        adder.setCondenser(isCondenser);
+        adder.setCondenserCapability(hasCondenserCapability);
         Generator g = adder.add();
         addAliasesAndProperties(g);
         convertedTerminalsWithOnlyEq(g.getTerminal());
@@ -132,13 +133,13 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         double targetP = getDefaultValue(getInitialP(generator), generator.getTargetP(), 0.0, 0.0, context);
-        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         if (updatedPowerFlow.defined()) {
             targetP = -updatedPowerFlow.p();
             targetQ = -updatedPowerFlow.q();
         }
-        generator.setTargetP(targetP).setTargetQ(targetQ);
+        generator.setTargetP(targetP).setLocalTargetQ(targetQ);
 
         String generatingUnitId = generator.getProperty(PROPERTY_GENERATING_UNIT);
         if (generatingUnitId != null) {

@@ -21,6 +21,19 @@
         <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.m"/>
     </cim:TapChangerControl>
 
+    <cim:PhaseTapChangerSymmetrical rdf:about="#_T2W-SYMMETRICAL-PhaseTapChanger">
+        <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
+        <cim:TapChanger.step>11</cim:TapChanger.step>
+    </cim:PhaseTapChangerSymmetrical>
+
+    <cim:TapChangerControl rdf:about="#_T2W-SYMMETRICAL-PhaseTapChanger-Control">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetDeadband>0.4</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValue>105</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.m"/>
+    </cim:TapChangerControl>
+
     <cim:RatioTapChanger rdf:about="#_T3W-Winding2-RatioTapChanger">
         <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
         <cim:TapChanger.step>7</cim:TapChanger.step>

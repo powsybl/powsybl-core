@@ -9,18 +9,22 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -34,17 +38,59 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
 
-        svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
+        svc.getVoltageRegulation()
+            .setSlope(0.5)
+            .setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
 
         Network network2 = allFormatsRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
         assertNotNull(svc2);
-        VoltagePerReactivePowerControl control2 = svc2.getExtension(VoltagePerReactivePowerControl.class);
-        assertNotNull(control2);
+        assertEquals(0.5, svc2.getVoltageRegulation().getSlope(), 0.0);
 
-        assertEquals(0.5, control2.getSlope(), 0.0);
-        assertEquals("voltagePerReactivePowerControl", control2.getName());
+        // backward compatibility checks from version 1.5
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("voltagePerReactivePowerControl.xml", IidmVersion.V_1_5, CURRENT_IIDM_VERSION);
     }
 
+    @ParameterizedTest
+    @MethodSource("getVersions")
+    void importWithReactivePowerRegulationAndZeroSlopeExtension(IidmVersion version) {
+        Network network = NetworkSerDe.read(getVersionedNetworkAsStream("/voltagePerReactivePowerControlZeroSlope.xml", version));
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertNotNull(svc);
+        assertNotNull(svc.getVoltageRegulation());
+        assertEquals(RegulationMode.REACTIVE_POWER, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getSlope()));
+        assertEquals(-170.0, svc.getLocalTargetQ(), 0.001);
+        assertNull(svc.getVoltageRegulation().getTerminal());
+    }
+
+    @ParameterizedTest
+    @MethodSource("getVersions")
+    void importWithRegulatingTerminal(IidmVersion version) {
+        Network network = NetworkSerDe.read(getVersionedNetworkAsStream("/voltagePerReactivePowerControlWithTerminal.xml", version));
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertNotNull(svc);
+        assertNotNull(svc.getVoltageRegulation());
+        assertEquals(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+        assertEquals(0.5, svc.getVoltageRegulation().getSlope(), 0.001);
+        assertEquals(380., svc.getVoltageRegulation().getTargetValue(), 0.001);
+        assertEquals(network.getGenerator("G1").getTerminal(), svc.getVoltageRegulation().getTerminal());
+
+        StaticVarCompensator svc3 = network.getStaticVarCompensator("SVC3");
+        assertNotNull(svc3);
+        assertNotNull(svc3.getVoltageRegulation());
+        assertEquals(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, svc3.getVoltageRegulation().getMode());
+        assertFalse(svc3.getVoltageRegulation().isRegulating());
+        assertEquals(0.6, svc3.getVoltageRegulation().getSlope(), 0.001);
+        assertEquals(380., svc3.getVoltageRegulation().getTargetValue(), 0.001);
+        assertEquals(network.getGenerator("G1").getTerminal(), svc3.getVoltageRegulation().getTerminal());
+    }
+
+    static Stream<Arguments> getVersions() {
+        // 1.18: first version after the extension extinction
+        return Stream.of(allBetweenVersions(IidmVersion.V_1_5, IidmVersion.V_1_18)).map(Arguments::of);
+    }
 }

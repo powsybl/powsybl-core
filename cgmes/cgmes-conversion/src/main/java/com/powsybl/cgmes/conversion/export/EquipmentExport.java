@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil.DCConverterUnit;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
@@ -20,8 +21,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
@@ -104,10 +105,11 @@ public final class EquipmentExport {
             writeBoundaryLines(network, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
             writeHvdcLines(network, cimNamespace, writer, context);
 
-            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = getAcDcConvertersUnit(network, context);
-            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, acDcConvertersUnit);
-            writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
-            writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
+            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
+            Map<DcNode, DCConverterUnit> converterDcNodesConverterUnit = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
+            writeDcConverterUnits(network, converterDcNodesConverterUnit, cimNamespace, writer, context);
+            Map<DcNode, DCConverterUnit> allDcNodesConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
+            writeDcNodes(network, allDcNodesConverterUnit, cimNamespace, writer, context);
             writeDcSwitches(network, cimNamespace, writer, context);
             writeDcGrounds(network, cimNamespace, writer, context);
             writeDcLineSegments(network, cimNamespace, writer, context);
@@ -174,9 +176,27 @@ public final class EquipmentExport {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
                 // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
                 // we only export as retained a switch if it will be exported with different TNs at both ends
-                boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
-                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(),
-                    context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, cimNamespace, writer, context);
+                switch (switchType) {
+                    case "ACLineSegment" -> {
+                        String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
+                        AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0,
+                                0.0, 0.0, cimNamespace, writer, context);
+                    }
+                    case "EquivalentBranch" -> {
+                        String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
+                        EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, cimNamespace, writer, context);
+                    }
+                    case "SeriesCompensator" -> {
+                        String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
+                        SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, false,
+                                0.0, 0.0, cimNamespace, writer, context);
+                    }
+                    case null, default -> {
+                        boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
+                        SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(),
+                                context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, cimNamespace, writer, context);
+                    }
+                }
             }
         }
     }
@@ -432,35 +452,27 @@ public final class EquipmentExport {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String cgmesOriginalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
-            RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
-            String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
-            Terminal regulatingTerminal;
-            if (mode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                regulatingTerminal = rrpc.getRegulatingTerminal();
-            } else if (context.isExportGeneratorsInLocalRegulationMode()) {
-                regulatingTerminal = generator.getTerminal();
-            } else {
-                regulatingTerminal = generator.getRegulatingTerminal();
-            }
             String regulatingControlId;
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     String baseVoltageId = context.getBaseVoltageIdFromNominalV(generator.getTerminal().getVoltageLevel().getNominalV());
+                    // Regulation capability is EQ data: it must not depend on the current regulating status
+                    boolean regulationCapability = generator.getVoltageRegulation() != null;
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                            generator.isVoltageRegulatorOn(), generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
+                        regulationCapability, generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
                             reactiveCapabilityCurveId, baseVoltageId,
                             cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
-                    regulatingControlId = writeRegulatingControlId(generator, getTerminalId(regulatingTerminal, context), regulatingControlsWritten, mode, cimNamespace, writer, context);
+                    regulatingControlId = writeRegulatingControl(generator, regulatingControlsWritten, cimNamespace, writer, context);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
                             obtainGeneratorGovernorScd(generator), generator.getMaxP(), getMaxQ(generator), generator.getMinP(), getMinQ(generator),
                             regulatingControlId, cimNamespace, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
-                    regulatingControlId = writeRegulatingControlId(generator, getTerminalId(regulatingTerminal, context), regulatingControlsWritten, mode, cimNamespace, writer, context);
+                    regulatingControlId = writeRegulatingControl(generator, regulatingControlsWritten, cimNamespace, writer, context);
                     writeSynchronousMachine(generator, cimNamespace,
                             generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
                             regulatingControlId, writer, context, generatingUnitsWritten);
@@ -471,13 +483,19 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeRegulatingControlId(Connectable<?> connectable, String terminalId, Set<String> regulatingControlsWritten, String mode,
-                                                   String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static String writeRegulatingControl(Connectable<?> connectable, Set<String> regulatingControlsWritten,
+                                                 String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String regulatingControlId = null;
-        if (hasRegulatingControlCapability(connectable)) {
+        if (connectable instanceof VoltageRegulationHolder<?> regulationHolder && regulationHolder.getVoltageRegulation() != null) {
             regulatingControlId = context.getNamingStrategy().getCgmesIdFromProperty(connectable, PROPERTY_REGULATING_CONTROL);
+            Terminal regulatingTerminal = regulationHolder.getRegulatingTerminal();
+            if (connectable instanceof Generator && context.isExportGeneratorsInLocalRegulationMode()) {
+                regulatingTerminal = regulationHolder.getTerminal();
+            }
+            String regulatingTerminalId = getTerminalId(regulatingTerminal, context);
+            String mode = getRegulatingControlMode(regulationHolder.getVoltageRegulation());
             if (!regulatingControlsWritten.contains(regulatingControlId)) {
-                RegulatingControlEq.writeRegulatingControlEq(connectable, terminalId, regulatingControlId, mode, cimNamespace, writer, context);
+                RegulatingControlEq.writeRegulatingControlEq(connectable, regulatingTerminalId, regulatingControlId, mode, cimNamespace, writer, context);
                 regulatingControlsWritten.add(regulatingControlId);
             }
         }
@@ -689,15 +707,13 @@ public final class EquipmentExport {
                         cimNamespace, writer, context);
             } else {
                 // Shunt can only regulate voltage
-                String mode = RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
                 double bPerSection = 0.0;
                 double gPerSection = Double.NaN;
                 if (s.getModelType().equals(ShuntCompensatorModelType.LINEAR)) {
                     bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
                     gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
                 }
-                String regulatingControlId = writeRegulatingControlId(s, getTerminalId(s.getRegulatingTerminal(), context),
-                    regulatingControlsWritten, mode, cimNamespace, writer, context);
+                String regulatingControlId = writeRegulatingControl(s, regulatingControlsWritten, cimNamespace, writer, context);
                 ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(),
                     s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId,
                         context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
@@ -718,15 +734,23 @@ public final class EquipmentExport {
     private static void writeStaticVarCompensators(Network network, Set<String> regulatingControlsWritten, String cimNamespace,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String mode = CgmesExportUtil.getSvcMode(svc);
-            String regulatingControlId = writeRegulatingControlId(svc, getTerminalId(svc.getRegulatingTerminal(), context),
-                regulatingControlsWritten, mode, cimNamespace, writer, context);
+            String regulatingControlId = writeRegulatingControl(svc, regulatingControlsWritten, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
-            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(),
-                context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId, inductiveRating,
-                capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(),
-                cimNamespace, writer, context);
+            RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
+            double slope = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getSlope() : Double.NaN;
+            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc),
+                svc.getNameOrId(),
+                context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()),
+                regulatingControlId,
+                inductiveRating,
+                capacitiveRating,
+                slope,
+                regulationMode,
+                svc.getRegulatingTargetV(),
+                cimNamespace,
+                writer,
+                context);
         }
     }
 
@@ -967,13 +991,13 @@ public final class EquipmentExport {
             int neutralStep = getClosestNeutralStep(ptc);
             int normalStep = getNormalStep(eq, cgmesTapChangerId).orElse(neutralStep);
             String tapChangerControlId = null;
-            if (CgmesExportUtil.tapChangerControlIsDefined(ptc)) {
+            if (CgmesExportUtil.hasTapChangerControlCapability(ptc)) {
                 tapChangerControlId = getTapChangerControlId(eq, PHASE_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
                     String controlName = twtName + "_PTC_RC";
-                    String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
-                    if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) {
+                    String terminalId = getTapChangerRegulatingTerminalId(eq, ptc.getRegulationTerminal(), endNumber, context);
+                    if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && !Double.isNaN(ptc.getRegulationValue())) {
                         // Log not supported regulation mode
                         CgmesReports.phaseTapChangerCurrentLimiterModeNotSupportedReport(context.getReportNode(), tapChangerId);
 
@@ -1010,6 +1034,14 @@ public final class EquipmentExport {
                     step.getKey(), cimNamespace, writer, context);
             }
         }
+    }
+
+    /**
+     * A tap changer regulation without a terminal is controlled at the end of the tap changer.
+     */
+    private static String getTapChangerRegulatingTerminalId(Connectable<?> eq, Terminal regulatingTerminal, int endNumber, CgmesExportContext context) {
+        Terminal terminal = regulatingTerminal != null ? regulatingTerminal : eq.getTerminals().get(endNumber - 1);
+        return CgmesExportUtil.getTerminalId(terminal, context);
     }
 
     private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber,
@@ -1050,12 +1082,12 @@ public final class EquipmentExport {
             String ratioTapChangerTableId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), RATIO_TAP_CHANGER_TABLE);
             String controlMode = "volt";
             String tapChangerControlId = null;
-            if (CgmesExportUtil.tapChangerControlIsDefined(rtc)) {
+            if (rtc.getVoltageRegulation() != null) {
                 String controlName = twtName + "_RTC_RC";
-                String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
+                String terminalId = getTapChangerRegulatingTerminalId(eq, rtc.getRegulatingTerminal(), endNumber, context);
                 tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
-                    String tccMode = CgmesExportUtil.getTcMode(rtc);
+                    String tccMode = getRegulatingControlMode(rtc.getVoltageRegulation());
                     if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
                         controlMode = "reactive";
                     }
@@ -1421,14 +1453,14 @@ public final class EquipmentExport {
             // - DCNode 2 is connected to the DCLineSegment side 2.
             // - DCNode 1G is connected to a DCGround inside DCConverterUnit 1.
             // - DCNode 2G is connected to a DCGround inside DCConverterUnit 2.
-            String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(1));
+            String dcConverterUnit1 = getDcConverterUnitId(line, 1, context);
             writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation1Id, cimNamespace, writer, context);
             String dcNode1 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(1));
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer, context);
             String dcNode1G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("1G"));
             writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1, cimNamespace, writer, context);
 
-            String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
+            String dcConverterUnit2 = getDcConverterUnitId(line, 2, context);
             writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", MONOPOLAR_GROUND_RETURN, substation2Id, cimNamespace, writer, context);
             String dcNode2 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(2));
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
@@ -1515,8 +1547,8 @@ public final class EquipmentExport {
     }
 
     private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, CgmesExportContext context) {
-        if (converterStation.getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
-            return getTerminalId(((VscConverterStation) converterStation).getRegulatingTerminal(), context);
+        if (converterStation instanceof VscConverterStation vsc && vsc.getRegulatingTerminal() != vsc.getTerminal()) {
+            return getTerminalId(vsc.getRegulatingTerminal(), context);
         }
         return null;
     }
@@ -1568,12 +1600,12 @@ public final class EquipmentExport {
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
         Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
         List<DCEquipment> dcEquipments = new ArrayList<>();
-        dcEquipments.addAll(getDCEquipmentConverters(network));
-        dcEquipments.addAll(getDCEquipmentSwitches(network));
+        dcEquipments.addAll(CgmesExportUtil.getDCEquipmentConverters(network));
+        dcEquipments.addAll(CgmesExportUtil.getDCEquipmentSwitches(network));
         dcNodesByConverterUnit.forEach((converterUnit, dcNodes) ->
             // Retrieve adjacent units by checking node adjacency.
             dcConverterUnitAdjacency.put(converterUnit, dcNodes.stream()
-                    .flatMap(n -> getAdjacentNodes(dcEquipments, n.getId()).stream())
+                    .flatMap(n -> CgmesExportUtil.getAdjacentNodes(dcEquipments, n.getId()).stream())
                     .map(network::getDcNode)
                     .map(dcNodesConverterUnit::get)
                     .distinct()
@@ -1665,7 +1697,10 @@ public final class EquipmentExport {
             String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
             String converterId = context.getNamingStrategy().getCgmesId(converter);
             String className = converterClassName(converter);
-            String pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
+            String pccTerminalId = null;
+            if (converter.getPccTerminal() != converter.getTerminal1()) {
+                pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
+            }
             String capabilityCurveId = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             AcDcConverterEq.write(converterId, converter.getNameOrId(), className, converter.getDcTerminal1().getDcNode().getNominalV(),
                     converter.getIdleLoss(), converter.getSwitchingLoss(), converter.getResistiveLoss(), dcConverterUnitId,
@@ -1808,109 +1843,6 @@ public final class EquipmentExport {
         adjacencies.sort(Comparator.comparing(Collections::min));
 
         return adjacencies;
-    }
-
-    private record DCConverterUnit(String id, String name, String substation) { }
-
-    private static Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit(Network network, CgmesExportContext context) {
-        Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = new HashMap<>();
-
-        Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
-                .forEach(converter -> {
-                    // Multiple ACDCConverter can be contained in the same DCConverterUnit if this property value is common.
-                    String unitId = converter.getProperty(PROPERTY_DC_CONVERTER_UNIT,
-                            context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
-
-                    // Only create a new DCConverterUnit if it hasn't been created already for another AcDcConverter.
-                    DCConverterUnit dcConverterUnit = acDcConvertersUnit.values().stream()
-                            .filter(u -> u.id().equals(unitId))
-                            .findFirst()
-                            .orElseGet(() -> new DCConverterUnit(
-                                    unitId,
-                                    converter.getNameOrId() + " Unit",
-                                    context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
-                            ));
-
-                    acDcConvertersUnit.put(converter, dcConverterUnit);
-                });
-
-        return acDcConvertersUnit;
-    }
-
-    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
-        // Build the DcNode to AcDcConverter associations by traversing the dc network
-        // using breadth first search starting from ACDCConverter DCNodes.
-        List<DCEquipment> converters = getDCEquipmentConverters(network);
-        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
-        Map<String, String> dcNodesConverter = new HashMap<>();
-        Set<String> visitedDcNodes = new HashSet<>();
-        Queue<String> queue = new LinkedList<>();
-        converters.forEach(converter -> {
-            if (!dcNodesConverter.containsKey(converter.node1())) {
-                dcNodesConverter.put(converter.node1(), converter.id());
-                queue.add(converter.node1());
-            }
-            if (!dcNodesConverter.containsKey(converter.node2())) {
-                dcNodesConverter.put(converter.node2(), converter.id());
-                queue.add(converter.node2());
-            }
-        });
-        while (!queue.isEmpty()) {
-            String node = queue.poll();
-            String converter = dcNodesConverter.get(node);
-            List<String> adjacentNodes = getAdjacentNodes(dcSwitches, node);
-            for (String adjacentNode : adjacentNodes) {
-                if (!visitedDcNodes.contains(adjacentNode)) {
-                    visitedDcNodes.add(adjacentNode);
-                    dcNodesConverter.put(adjacentNode, converter);
-                    queue.add(adjacentNode);
-                }
-            }
-        }
-
-        // Build the DcNode to DCConverterUnit associations.
-        return dcNodesConverter.entrySet().stream()
-                .collect(Collectors.toMap(e -> network.getDcNode(e.getKey()),
-                        e -> acDcConvertersUnit.get(getAcDcConverter(network, e.getValue()))));
-    }
-
-    private static AcDcConverter<?> getAcDcConverter(Network network, String converterId) {
-        LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
-        if (lcc != null) {
-            return lcc;
-        }
-        return network.getVoltageSourceConverter(converterId);
-    }
-
-    private static List<DCEquipment> getDCEquipmentConverters(Network network) {
-        return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
-                .sorted(Comparator.comparing(AcDcConverter::getId))
-                .map(c -> new DCEquipment(
-                        c.getId(),
-                        CgmesNames.ACDC_CONVERTER,
-                        c.getDcTerminal1().getDcNode().getId(),
-                        c.getDcTerminal2().getDcNode().getId()))
-                .toList();
-    }
-
-    private static List<DCEquipment> getDCEquipmentSwitches(Network network) {
-        return network.getDcSwitchStream()
-                .sorted(Comparator.comparing(DcSwitch::getId))
-                .map(s -> new DCEquipment(
-                        s.getId(),
-                        CgmesNames.DC_SWITCH,
-                        s.getDcNode1().getId(),
-                        s.getDcNode2().getId()))
-                .toList();
-    }
-
-    private static List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
-        // Get the list of nodes adjacent through the given dc equipments.
-        return dcEquipments.stream()
-                .filter(eq -> node.equals(eq.node1()) || node.equals(eq.node2()))
-                .map(eq -> node.equals(eq.node1()) ? eq.node2() : eq.node1())
-                .filter(Objects::nonNull)
-                .toList();
     }
 
     private EquipmentExport() {

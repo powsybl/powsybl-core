@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesReports;
+import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
@@ -21,7 +22,8 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +35,12 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getCgmesTapChanger;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_CONVERTER_UNIT;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -59,8 +64,8 @@ public final class CgmesExportUtil {
 
     private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)_?[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
     private static final Pattern URN_UUID_PATTERN = Pattern.compile("(?i)urn:uuid:[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
-    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
-    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)_?[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)_?[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
     private static double fixValue(double value, double defaultValue) {
         return Double.isNaN(value) ? defaultValue : value;
@@ -316,7 +321,7 @@ public final class CgmesExportUtil {
     }
 
     public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
-        if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+        if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(converterStation.getHvdcLine().getConvertersMode())) {
             return converterStation.getHvdcLine().getConverterStation1().equals(converterStation);
         } else {
             return converterStation.getHvdcLine().getConverterStation2().equals(converterStation);
@@ -334,18 +339,14 @@ public final class CgmesExportUtil {
     }
 
     public static <C extends Connectable<C>> String getPhaseTapChangerType(C transformer, String cgmesTapChangerId) {
-        return getCgmesTapChanger(transformer, cgmesTapChangerId).map(CgmesTapChanger::getType).orElse(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
+        return getCgmesTapChanger(transformer, cgmesTapChangerId)
+            .map(CgmesTapChanger::getType)
+            .orElse(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
     }
 
-    static boolean tapChangerControlIsDefined(RatioTapChanger rtc) {
-        return !Double.isNaN(rtc.getRegulationValue())
-                && rtc.getRegulationTerminal() != null;
-    }
-
-    static boolean tapChangerControlIsDefined(PhaseTapChanger ptc) {
-        return !Double.isNaN(ptc.getRegulationValue())
-                && !Double.isNaN(ptc.getTargetDeadband())
-                && ptc.getRegulationTerminal() != null;
+    static boolean hasTapChangerControlCapability(PhaseTapChanger ptc) {
+        return ptc.hasLoadTapChangingCapabilities()
+                && ptc.getRegulationMode() != null;
     }
 
     static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, int endNumber, String cgmesTapChangerId, CgmesExportContext context) {
@@ -473,16 +474,16 @@ public final class CgmesExportUtil {
         if (i instanceof Battery battery) {
             return obtainSynchronousMachineKind(battery, battery.getMinP(), battery.getMaxP(), obtainCurve(battery), true);
         } else if (i instanceof Generator generator) {
-            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.isCondenser());
+            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.hasCondenserCapability());
         }
         throw new IllegalStateException("Unexpected machine kind: " + i.getClass().getName());
     }
 
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
-    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean hasCondenserCapability) {
         String kind = i.getProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, isCondenser);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, hasCondenserCapability);
         if (kind == null) {
             return calculatedKind;
         } else if (calculatedKind.contains(kind)) {
@@ -493,12 +494,12 @@ public final class CgmesExportUtil {
         }
     }
 
-    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean hasCondenserCapability) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (!isCondenser) {
+        if (!hasCondenserCapability) {
             kind = getKindNotCondenser(min, max);
         } else {
             kind = getKindCondenser(min, max);
@@ -526,57 +527,12 @@ public final class CgmesExportUtil {
         return "generatorOrMotor";
     }
 
-    public static boolean isValidVoltageSetpoint(double v) {
-        return Double.isFinite(v) && v > 0;
-    }
-
-    public static boolean isValidReactivePowerSetpoint(double q) {
-        return Double.isFinite(q);
-    }
-
-    public static String getGeneratorRegulatingControlMode(Generator generator, RemoteReactivePowerControl rrpc) {
-        if (rrpc == null) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        }
-        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
-        boolean enabledReactivePowerControl = rrpc.isEnabled();
-
-        if (enabledVoltageControl) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (enabledReactivePowerControl) {
-            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
-            if (validReactiveSetpoint && !validVoltageSetpoint) {
-                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            }
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        }
-    }
-
-    public static String getSvcMode(StaticVarCompensator svc) {
-        if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE)) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.REACTIVE_POWER)) {
-            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
-            if (validReactiveSetpoint && !validVoltageSetpoint) {
-                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            }
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        }
-    }
-
-    public static String getTcMode(RatioTapChanger rtc) {
-        if (rtc.getRegulationMode() == null) {
-            throw new PowsyblException("Regulation mode not defined for RTC.");
-        }
-        return switch (rtc.getRegulationMode()) {
-            case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+    public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
+        RegulationMode regulationMode = voltageRegulation.getMode();
+        return switch (regulationMode) {
+            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
         };
     }
 
@@ -584,40 +540,198 @@ public final class CgmesExportUtil {
         return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
 
-    public static boolean hasRegulatingControlCapability(Connectable<?> connectable) {
-        if (connectable.hasProperty(PROPERTY_REGULATING_CONTROL)) {
-            return true;
-        } else if (connectable instanceof Generator generator) {
-            return generator.getExtension(RemoteReactivePowerControl.class) != null
-                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
-        } else if (connectable instanceof ShuntCompensator shuntCompensator) {
-            return CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
-                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable());
-        } else if (connectable instanceof StaticVarCompensator staticVarCompensator) {
-            return CgmesExportUtil.isValidReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
-                || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
-                || !Objects.equals(staticVarCompensator, staticVarCompensator.getRegulatingTerminal().getConnectable());
-        }
-        return false;
-    }
-
-    private static boolean hasReactiveCapability(Generator generator) {
-        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
-        if (reactiveLimits == null) {
-            return false;
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
-            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) reactiveLimits;
-            return rcc.getPoints().stream().anyMatch(p -> p.getMaxQ() != p.getMinQ());
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
-            MinMaxReactiveLimits mmrl = (MinMaxReactiveLimits) reactiveLimits;
-            return mmrl.getMaxQ() != mmrl.getMinQ();
-        }
-        return false;
-    }
-
     static String getEffectivePairingKey(BoundaryLine bl) {
         String pairingKey = bl.getPairingKey();
         return pairingKey != null ? pairingKey : bl.getTieLine().orElseThrow().getId();
 
+    }
+
+    /**
+     * Get the id of the DCConverterUnit at a given side of an HVDC line.
+     *
+     * @param line    An IIDM HVDC line (reduced DC model)
+     * @param side    The side of the HVDC line which DCConverterUnit must be retrieved
+     * @param context CGMES export context
+     * @return The id of the DCConverterUnit at the selected side of the HVDC line
+     */
+    static String getDcConverterUnitId(HvdcLine line, int side, CgmesExportContext context) {
+        return context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(side));
+    }
+
+    // DC detailed model
+    public record DCConverterUnit(String id, String name, String substation) {
+    }
+
+    static Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit(Network network, CgmesExportContext context) {
+        Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = new HashMap<>();
+
+        Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .forEach(converter -> {
+                    // Multiple ACDCConverter can be contained in the same DCConverterUnit if this property value is common.
+                    String unitId = converter.getProperty(PROPERTY_DC_CONVERTER_UNIT,
+                            context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
+
+                    // Only create a new DCConverterUnit if it hasn't been created already for another AcDcConverter.
+                    DCConverterUnit dcConverterUnit = acDcConvertersUnit.values().stream()
+                            .filter(u -> u.id().equals(unitId))
+                            .findFirst()
+                            .orElseGet(() -> new DCConverterUnit(
+                                    unitId,
+                                    converter.getNameOrId() + " Unit",
+                                    context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
+                            ));
+
+                    acDcConvertersUnit.put(converter, dcConverterUnit);
+                });
+
+        return acDcConvertersUnit;
+    }
+
+    /**
+     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network using a breadth first search
+     * starting from ACDCConverter DCNodes and using only DcSwitches (regardless of their open/closed state) to navigate
+     * from one DC node to another.
+     * DcNodes that are connected to a converter through DcLines rather than DcSwitches are not included.
+     * This is used to infer the DCConverterUnit operation mode, which requires *only* the DC Nodes that can be
+     * connected to the converter.
+     * <p>
+     * Tie-break rule, which makes the result deterministic:
+     *  - Converters are sorted by id, so a DcNode shared by several converters (e.g. the neutral node of a bipole)
+     *  is associated to the converter with the lowest id.
+     *
+     * @param network            An IIDM network
+     * @param acDcConvertersUnit A map associating each IIDM AcDcConverter with a DCConverterUnit
+     * @return A map whose key are all DcNodes that are adjacent to DCConverterUnits, and that maps them to one of their
+     * adjacent DCConverterUnits.
+     */
+    public static Map<DcNode, DCConverterUnit> getConvertersDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
+        return getDcNodesConverterUnit(network, acDcConvertersUnit, dcSwitches);
+    }
+
+    /**
+     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network using a breadth first search
+     * starting from ACDCConverter DCNodes with both DcSwitches (regardless of their open/closed state) and DcLines
+     * (regardless of their connected/disconnected state) to navigate from one DC node to another.
+     * As a result, DcNodes that are connected to a converter through DcLines are included.
+     * This is used to compute the dcEquipmentContainerId field of DC Nodes
+     * <p>
+     * Tie-break rules, which make the result deterministic:
+     *  - Converters are sorted by id, so a DcNode shared by several converters (e.g. the neutral node of a bipole)
+     *  is associated to the converter with the lowest id.
+     *  - A DcNode that is not connected to a converter (e.g. an intermediate node of an MTDC grid) is associated to
+     *  the nearest converter, in number of switches/lines crossed. At equal distance, the converter with the lowest
+     *  id wins, since its DcNodes are queued first.
+     *
+     * @param network            An IIDM network
+     * @param acDcConvertersUnit A map associating each IIDM AcDcConverter with a DCConverterUnit
+     * @return A map whose key are all DcNodes of the network, and that maps them to the nearest DCConverterUnit.
+     */
+    public static Map<DcNode, DCConverterUnit> getAllDcNodesConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
+        List<DCEquipment> dcLines = getDCEquipmentLines(network);
+        List<DCEquipment> dcSwitchesAndDcLines = Stream.concat(dcSwitches.stream(), dcLines.stream()).toList();
+        return getDcNodesConverterUnit(network, acDcConvertersUnit, dcSwitchesAndDcLines);
+    }
+
+    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, List<DCEquipment> dcEquipmentForTraversal) {
+        // Build the DcNode to AcDcConverter associations by traversing the dc network
+        // using a breadth first search starting from ACDCConverter DCNodes.
+        List<DCEquipment> converters = getDCEquipmentConverters(network);
+        Map<String, String> dcNodesConverter = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        converters.forEach(converter -> {
+            if (dcNodesConverter.putIfAbsent(converter.node1(), converter.id()) == null) {
+                queue.add(converter.node1());
+            }
+            if (dcNodesConverter.putIfAbsent(converter.node2(), converter.id()) == null) {
+                queue.add(converter.node2());
+            }
+        });
+        while (!queue.isEmpty()) {
+            String node = queue.poll();
+            String converter = dcNodesConverter.get(node);
+            List<String> adjacentNodes = getAdjacentNodes(dcEquipmentForTraversal, node);
+            for (String adjacentNode : adjacentNodes) {
+                if (dcNodesConverter.putIfAbsent(adjacentNode, converter) == null) {
+                    queue.add(adjacentNode);
+                }
+            }
+        }
+
+        // Build the DcNode to DCConverterUnit associations.
+        return dcNodesConverter.entrySet().stream()
+                .collect(Collectors.toMap(e -> network.getDcNode(e.getKey()),
+                        e -> acDcConvertersUnit.get(getAcDcConverter(network, e.getValue()))));
+    }
+
+    /**
+     * Create a map matching each DcBus with a DCConverterUnit based on a map matching each DcNode with a DcConverterUnit.
+     * If the DcBus contains several DcNodes (which may be mapped to different DCConverterUnit), the DcConverterUnit of
+     * the DcNode with the lowest-id is kept.
+     *
+     * @param network              An IIDM network
+     * @param dcNodesConverterUnit A map matching each DcNode with a DCConverterUnit
+     * @return A map matching each DcBus with a DCConverterUnit
+     */
+    static Map<DcBus, DCConverterUnit> getDcBusesConverterUnit(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit) {
+        Map<DcBus, DCConverterUnit> dcBusesConverterUnit = new HashMap<>();
+        for (DcBus dcBus : network.getDcBuses()) {
+            dcBus.getDcNodeStream()
+                    .filter(dcNodesConverterUnit::containsKey)
+                    .min(Comparator.comparing(DcNode::getId))
+                    .ifPresent(dcNode -> dcBusesConverterUnit.put(dcBus, dcNodesConverterUnit.get(dcNode)));
+        }
+        return dcBusesConverterUnit;
+    }
+
+    private static AcDcConverter<?> getAcDcConverter(Network network, String converterId) {
+        LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
+        if (lcc != null) {
+            return lcc;
+        }
+        return network.getVoltageSourceConverter(converterId);
+    }
+
+    static List<DCEquipment> getDCEquipmentConverters(Network network) {
+        return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .sorted(Comparator.comparing(AcDcConverter::getId))
+                .map(c -> new DCEquipment(
+                        c.getId(),
+                        CgmesNames.ACDC_CONVERTER,
+                        c.getDcTerminal1().getDcNode().getId(),
+                        c.getDcTerminal2().getDcNode().getId()))
+                .toList();
+    }
+
+    static List<DCEquipment> getDCEquipmentSwitches(Network network) {
+        return network.getDcSwitchStream()
+                .sorted(Comparator.comparing(DcSwitch::getId))
+                .map(s -> new DCEquipment(
+                        s.getId(),
+                        CgmesNames.DC_SWITCH,
+                        s.getDcNode1().getId(),
+                        s.getDcNode2().getId()))
+                .toList();
+    }
+
+    static List<DCEquipment> getDCEquipmentLines(Network network) {
+        return network.getDcLineStream()
+                .sorted(Comparator.comparing(DcLine::getId))
+                .map(l -> new DCEquipment(
+                        l.getId(),
+                        CgmesNames.DC_LINE_SEGMENT,
+                        l.getDcTerminal1().getDcNode().getId(),
+                        l.getDcTerminal2().getDcNode().getId()))
+                .toList();
+    }
+
+    static List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
+        // Get the list of nodes adjacent through the given dc equipments.
+        return dcEquipments.stream()
+                .filter(eq -> node.equals(eq.node1()) || node.equals(eq.node2()))
+                .map(eq -> node.equals(eq.node1()) ? eq.node2() : eq.node1())
+                .filter(Objects::nonNull)
+                .toList();
     }
 }

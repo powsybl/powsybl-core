@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -64,13 +64,13 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void synchronousMachineImportIsCondenser() {
+    void synchronousMachineImportHasCondenserCapability() {
         Network network = readCgmesResources("/", "SynchronousMachineTypes.xml");
 
-        assertFalse(network.getGenerator("sm_generator").isCondenser());
-        assertFalse(network.getGenerator("sm_motor").isCondenser());
-        assertTrue(network.getGenerator("sm_generator_condenser").isCondenser());
-        assertTrue(network.getGenerator("sm_condenser").isCondenser());
+        assertFalse(network.getGenerator("sm_generator").hasCondenserCapability());
+        assertFalse(network.getGenerator("sm_motor").hasCondenserCapability());
+        assertTrue(network.getGenerator("sm_generator_condenser").hasCondenserCapability());
+        assertTrue(network.getGenerator("sm_condenser").hasCondenserCapability());
     }
 
     @Test
@@ -148,9 +148,8 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(25.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
-            .setCondenser(true)
+            .setLocalTargetQ(10.0)
+            .setCondenserCapability(true)
             .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
@@ -162,9 +161,8 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(0.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
-            .setCondenser(true)
+            .setLocalTargetQ(10.0)
+            .setCondenserCapability(true)
             .add();
         generator2.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
@@ -176,8 +174,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(-100.0)
             .setMaxP(0.0)
             .setTargetP(-10.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .setLocalTargetQ(10.0)
             .add();
         ReactiveCapabilityCurveAdder rcca = generator3.newReactiveCapabilityCurve();
         rcca.beginPoint()
@@ -193,43 +190,42 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         rcca.add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
 
-        // Will be exported as generatorOrCondenserOrMotor (isCondenser is true by default on batteries) and operating as a generator
+        // Will be exported as generatorOrCondenserOrMotor (hasCondenserCapability is considered true by default on batteries) and operating as a generator
         Battery battery = voltageLevel1.newBattery()
             .setId("BAT")
             .setNode(4)
             .setMinP(-10.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         battery.getTerminal().disconnect();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
 
-        // Will be exported as generatorOrCondenser (isCondenser is true by default on batteries) and operating as a condenser
-        Battery battery2 = voltageLevel1.newBattery()
+        // Will be exported as generatorOrCondenser (hasCondenserCapability is considered true by default on batteries) and operating as a condenser
+        voltageLevel1.newBattery()
             .setId("BAT2")
             .setNode(5)
             .setMinP(0.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
+            .setLocalTargetV(400.0)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
             .add();
-        battery2.newExtension(VoltageRegulationAdder.class)
-                .withTargetV(400.0)
-                .withVoltageRegulatorOn(true)
-                .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
 
-        // Will be exported as a generator and operating as a generator because isCondenser is false
+        // Will be exported as a generator and operating as a generator because hasCondenserCapability is false
         Generator generator4 = voltageLevel1.newGenerator()
             .setId("GEN4")
             .setNode(6)
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(0.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
-            .setCondenser(false)
+            .setLocalTargetQ(10.0)
+            .setCondenserCapability(false)
             .add();
         generator4.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(6).add();

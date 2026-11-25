@@ -9,6 +9,7 @@ package com.powsybl.psse.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -41,8 +42,7 @@ class GeneratorConverter extends AbstractConverter {
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
-                .setTargetQ(psseGenerator.getQg())
-                .setVoltageRegulatorOn(false);
+                .setLocalTargetQ(psseGenerator.getQg());
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
         OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getI(), 0, 0, psseGenerator.getI(), "I"));
@@ -83,15 +83,14 @@ class GeneratorConverter extends AbstractConverter {
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetV = psseGenerator.getVs() * vnom;
 
-        boolean voltageRegulatorOn = false;
+        boolean isRegulating = false;
         // we consider < but psse accepts bus type 2 with Qmin == Qmax
         if (targetV > 0.0 && psseGenerator.getQb() < psseGenerator.getQt()) {
-            voltageRegulatorOn = psseVoltageRegulatorOn;
+            isRegulating = psseVoltageRegulatorOn;
         }
+        boolean isLocalTerminal = regulatingTerminal.getConnectable().equals(generator);
 
-        generator.setTargetV(targetV)
-            .setRegulatingTerminal(regulatingTerminal)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
+        VoltageRegulationUtils.buildVoltageRegulation(generator, isLocalTerminal, targetV, regulatingTerminal, isRegulating);
     }
 
     private static boolean defineVoltageRegulatorOn(PsseBus psseBus) {
@@ -130,11 +129,12 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     private static double getVoltageTarget(Generator gen) {
-        if (Double.isNaN(gen.getTargetV()) || gen.getTargetV() <= 0.0) {
+        double targetV = gen.getRegulatingTargetV();
+        if (Double.isNaN(targetV) || targetV <= 0.0) {
             return 1.0;
         } else {
             double vNominal = gen.getRegulatingTerminal() != null ? gen.getRegulatingTerminal().getVoltageLevel().getNominalV() : gen.getTerminal().getVoltageLevel().getNominalV();
-            return gen.getTargetV() / vNominal;
+            return targetV / vNominal;
         }
     }
 
@@ -200,7 +200,7 @@ class GeneratorConverter extends AbstractConverter {
 
     private static double getQ(Generator gen) {
         if (Double.isNaN(gen.getTerminal().getQ())) {
-            return Double.isNaN(gen.getTargetQ()) ? 0.0 : gen.getTargetQ();
+            return Double.isNaN(gen.getRegulatingTargetQ()) ? 0.0 : gen.getRegulatingTargetQ();
         } else {
             return -gen.getTerminal().getQ();
         }

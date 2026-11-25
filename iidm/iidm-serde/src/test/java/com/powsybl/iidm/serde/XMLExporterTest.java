@@ -141,4 +141,34 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         params.setProperty(XMLExporter.VERSION, IidmVersion.V_1_2.toString("."));
         exporterTest(network, IidmVersion.V_1_2, "extensionTooRecentExportTest.xml", params);
     }
+
+    @Test
+    void testChangeAllIdentifiablesAndWriteBusBreaker() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Path workingDir = fileSystem.getPath("/working-dir");
+        Network network = EurostagTutorialExample1Factory.create();
+        int count = 0;
+        for (var identifiable : network.getIdentifiables().stream().toList()) {
+            String id = String.valueOf(count);
+            identifiable.setId(id);
+            assertSame(network.getIdentifiable(id), identifiable);
+            count++;
+        }
+        network.write("XIIDM", new Properties(), workingDir);
+    }
+
+    @Test
+    void testChangeAllIdentifiablesAndWriteNodeBreaker() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Path workingDir = fileSystem.getPath("/working-dir");
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        int count = 0;
+        for (var identifiable : network.getIdentifiables().stream().toList()) {
+            String id = String.valueOf(count);
+            identifiable.setId(id);
+            assertSame(network.getIdentifiable(id), identifiable);
+            count++;
+        }
+        network.write("XIIDM", new Properties(), workingDir);
+    }
 }

@@ -22,6 +22,7 @@ import com.powsybl.ieeecdf.model.elements.IeeeCdfBus;
 import com.powsybl.ieeecdf.model.elements.IeeeCdfTitle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
@@ -177,16 +178,16 @@ public class IeeeCdfImporter implements Importer {
 
                 case HOLD_MVAR_GENERATION_WITHIN_VOLTAGE_LIMITS:
                     newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetQ(ieeeCdfBus.getReactiveGeneration())
-                            .setVoltageRegulatorOn(false)
+                            .setLocalTargetQ(ieeeCdfBus.getReactiveGeneration())
                             .add();
                     break;
 
-                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS:
-                case HOLD_VOLTAGE_AND_ANGLE:
+                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS, HOLD_VOLTAGE_AND_ANGLE:
                     Generator generator = newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
-                            .setVoltageRegulatorOn(true)
+                            .setLocalTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
+                            .newVoltageRegulation()
+                                .withMode(RegulationMode.VOLTAGE)
+                                .add()
                             .add();
                     if (ieeeCdfBus.getMinReactivePowerOrVoltageLimit() != 0 || ieeeCdfBus.getMaxReactivePowerOrVoltageLimit() != 0) {
                         generator.newMinMaxReactiveLimits()
@@ -197,7 +198,7 @@ public class IeeeCdfImporter implements Importer {
                     // Keep the given value for reactive output
                     // It is relevant if we want to load a solved case and validate it
                     // Another option would be to store given p, q values at terminal
-                    generator.setTargetQ(ieeeCdfBus.getReactiveGeneration());
+                    generator.setLocalTargetQ(ieeeCdfBus.getReactiveGeneration());
                     break;
 
                 default:
@@ -433,10 +434,13 @@ public class IeeeCdfImporter implements Importer {
         }
         RatioTapChangerAdder ratioTapChangerAdder = transformer.newRatioTapChanger()
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(regulating)
-                .setRegulationTerminal(regulatingTerminal)
-                .setTargetV(targetV)
-                .setTargetDeadband(regulating ? 0.0 : Double.NaN)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(regulatingTerminal)
+                    .withTargetValue(targetV)
+                    .withTargetDeadband(regulating ? 0.0 : Double.NaN)
+                    .withRegulating(regulating)
+                    .add()
                 .setTapPosition(0);
         for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()

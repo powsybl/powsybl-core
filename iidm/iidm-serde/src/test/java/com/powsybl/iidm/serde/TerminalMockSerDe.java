@@ -62,7 +62,9 @@ public class TerminalMockSerDe extends AbstractVersionableNetworkExtensionSerDe<
         V_1_17("http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_17",
                 new VersionNumbers(1, 17), IidmVersion.V_1_17, IidmVersion.V_1_18),
         V_1_18("http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_18",
-            new VersionNumbers(1, 18), IidmVersion.V_1_18, null);
+            new VersionNumbers(1, 18), IidmVersion.V_1_18, IidmVersion.V_1_19),
+        V_1_19("http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_19",
+            new VersionNumbers(1, 19), IidmVersion.V_1_19, null);
 
         private final VersionInfo versionInfo;
 

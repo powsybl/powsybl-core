@@ -17,6 +17,7 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -270,7 +271,9 @@ class RemoveFeederBayTest {
 
         VoltageLevel vl1 = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.getNodeBreakerView().newBusbarSection().setId("VL1_BBS").setNode(0).add();
-        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setLocalTargetV(400).setMinP(0).setMaxP(10)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+            .add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B1").setNode1(1).setNode2(2).add();
         vl1.getNodeBreakerView().newDisconnector().setId("VL1_D1").setNode1(0).setNode2(2).add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B2").setNode1(3).setNode2(4).add();
@@ -320,5 +323,53 @@ class RemoveFeederBayTest {
 
         NetworkModification modification3 = new RemoveFeederBay("LD1");
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+    }
+
+    /**
+     * Network where a connectable reaches the busbar section through another node on which another
+     * connectable is connected.
+     * <pre>
+     *     GEN2(8) --VL_GEN2_LOAD2-- LOAD2(3) --VL_LOAD2_PTF1-- (6) --VL_BBS1.1_PTF1-- BBS(0)
+     *                                                           |
+     *                                                     VL_GEN1_PTF1
+     *                                                           |
+     *                                                        GEN1(7)
+     * </pre>
+     */
+    private static Network createNetworkWithFeederBehindAnotherFeeder() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(90.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection().setId("BBS").setNode(0).add();
+        vl.newLoad().setId("LOAD2").setNode(3).setP0(0).setQ0(0).add();
+        vl.newGenerator().setId("GEN1").setNode(7).setTargetP(0).setLocalTargetQ(0).setMinP(0).setMaxP(1)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .add();
+        vl.newGenerator().setId("GEN2").setNode(8).setTargetP(0).setLocalTargetQ(0).setMinP(0).setMaxP(1)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_BBS1.1_PTF1").setNode1(0).setNode2(6).add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_GEN1_PTF1").setNode1(7).setNode2(6).add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_LOAD2_PTF1").setNode1(3).setNode2(6).add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_GEN2_LOAD2").setNode1(8).setNode2(3).add();
+        return network;
+    }
+
+    @Test
+    void testRemoveFeederBayStopsAtAnotherFeederNode() {
+        Network network = createNetworkWithFeederBehindAnotherFeeder();
+
+        new RemoveFeederBay("GEN2").apply(network);
+
+        assertNull(network.getGenerator("GEN2"));
+        // the switch of the removed bay is gone
+        assertNull(network.getSwitch("VL_GEN2_LOAD2"));
+        // but LOAD2 keeps its own connection to the busbar section
+        assertNotNull(network.getSwitch("VL_LOAD2_PTF1"));
+        assertNotNull(network.getSwitch("VL_BBS1.1_PTF1"));
+        assertNotNull(network.getLoad("LOAD2"));
     }
 }

@@ -160,3 +160,4 @@ class IdentifiableExtensionGroovyTest {
         assertEquals(5f, s.foo.value, 0f)
     }
 }
+

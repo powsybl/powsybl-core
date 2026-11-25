@@ -212,7 +212,13 @@ public final class ConnectableSerDeUtil {
         double p = reader.readDoubleAttribute("p" + indexToString(index));
         double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
-                .setQ(q);
+            .setQ(q);
+    }
+
+    public static <I extends Injection<I>> void readPQ(List<Consumer<I>> toApply, TreeDataReader reader) {
+        double p = reader.readDoubleAttribute("p");
+        double q = reader.readDoubleAttribute("q");
+        toApply.add(injection -> injection.getTerminal().setP(p).setQ(q));
     }
 
     public static void readOptionalPQ(Integer index, Terminal t, TreeDataReader reader) {
@@ -267,18 +273,24 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
-        String type, A adder, NetworkDeserializerContext context,
-        TreeDataReader reader, ValidationLevel minimalValidationLevel) {
-        String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+            String type, A adder, NetworkDeserializerContext context,
+            TreeDataReader reader, ValidationLevel minimalValidationLevel) {
+        DetectionKind detectionKindEnum;
+        if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
+            detectionKindEnum = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
+        } else {
+            String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+            detectionKindEnum = detectionKindString != null ? DetectionKind.valueOf(detectionKindString) : null;
+        }
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
 
         DetectionKind[] kind = {DetectionKind.HIGH};
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            if (detectionKindString == null) {
+            if (detectionKindEnum == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
-            kind[0] = DetectionKind.valueOf(detectionKindString);
+            kind[0] = detectionKindEnum;
         });
         adder.setDetectionKind(kind[0]);
 
@@ -419,7 +431,7 @@ public final class ConnectableSerDeUtil {
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null && canWriteLimits(limits)) {
             FormattedLimits formattedLimits = new FormattedLimits(limits, version);
-            writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
+            writeLoadingLimitAttributes(index, limits, writer, nsUri, version, type);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
 
@@ -447,13 +459,16 @@ public final class ConnectableSerDeUtil {
             || !limits.getTemporaryLimits().isEmpty();
     }
 
-    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version, String type) {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () ->
-            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+        if (version == IidmVersion.V_1_18) {
+            writer.writeStringAttribute(DETECTION_KIND, kind.name());
+        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, version, () ->
+                writer.writeEnumAttribute(DETECTION_KIND, kind)
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
             () -> {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
@@ -461,7 +476,7 @@ public final class ConnectableSerDeUtil {
                         LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
                 }
             });
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, version,
             () -> {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
@@ -471,7 +486,7 @@ public final class ConnectableSerDeUtil {
                 }
             }
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () -> {
             if (kind == DetectionKind.HIGH) {
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             }
@@ -690,4 +705,16 @@ public final class ConnectableSerDeUtil {
         }
         writer.writeEndNodes();
     }
+
+    public static void writeEquivalent(Connectable<?> connectable, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeBooleanAttribute("equivalent", connectable.isEquivalent(), false));
+    }
+
+    public static void readEquivalent(ConnectableAdder<?, ?> connectableAdder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
+            connectableAdder.setEquivalent(equivalent);
+        });
+    }
+
 }

@@ -59,6 +59,9 @@ public abstract class AbstractGroundTest {
         // Test getters
         assertEquals(IdentifiableType.GROUND, groundNB.getType());
         assertEquals(IdentifiableType.GROUND, groundBB.getType());
+        assertFalse(groundNB.isEquivalent()); // default value
+        groundNB.setEquivalent(true);
+        assertTrue(groundNB.isEquivalent());
         assertEquals(vl1, groundNB.getTerminal().getVoltageLevel());
         assertEquals(vl2, groundBB.getTerminal().getVoltageLevel());
         assertEquals("GroundNB", groundNB.getId());

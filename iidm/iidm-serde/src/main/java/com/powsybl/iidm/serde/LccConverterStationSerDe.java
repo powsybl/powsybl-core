@@ -31,6 +31,7 @@ public class LccConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<Lc
 
     @Override
     protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(cs, context);
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
         context.getWriter().writeFloatAttribute("powerFactor", cs.getPowerFactor());
         writeNodeOrBus(null, cs.getTerminal(), context);
@@ -44,6 +45,7 @@ public class LccConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<Lc
 
     @Override
     protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         float lossFactor = context.getReader().readFloatAttribute("lossFactor");
         float powerFactor = context.getReader().readFloatAttribute("powerFactor");
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());

@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControl ptcControl = getTapChangerControl(rc.phaseTapChanger);
 
         setPhaseTapChangerControl(ptcControl, twt.getPhaseTapChanger(), twt, "");
-        setRatioTapChangerControl(rtcControl, twt.getRatioTapChanger());
+        setRatioTapChangerControl(rtcControl, twt.getRatioTapChanger(), twt, "");
     }
 
     private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt) {
@@ -105,16 +106,16 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControl ptcControl3 = getTapChangerControl(rc.phaseTapChanger3);
 
         setPhaseTapChangerControl(ptcControl1, twt.getLeg1().getPhaseTapChanger(), twt, "1");
-        setRatioTapChangerControl(rtcControl1, twt.getLeg1().getRatioTapChanger());
+        setRatioTapChangerControl(rtcControl1, twt.getLeg1().getRatioTapChanger(), twt, "1");
 
         setPhaseTapChangerControl(ptcControl2, twt.getLeg2().getPhaseTapChanger(), twt, "2");
-        setRatioTapChangerControl(rtcControl2, twt.getLeg2().getRatioTapChanger());
+        setRatioTapChangerControl(rtcControl2, twt.getLeg2().getRatioTapChanger(), twt, "2");
 
         setPhaseTapChangerControl(ptcControl3, twt.getLeg3().getPhaseTapChanger(), twt, "3");
-        setRatioTapChangerControl(rtcControl3, twt.getLeg3().getRatioTapChanger());
+        setRatioTapChangerControl(rtcControl3, twt.getLeg3().getRatioTapChanger(), twt, "3");
     }
 
-    private void setRatioTapChangerControl(RegulatingControl control, RatioTapChanger rtc) {
+    private void setRatioTapChangerControl(RegulatingControl control, RatioTapChanger rtc, Connectable<?> twt, String end) {
         if (control == null || rtc == null) {
             return;
         }
@@ -122,6 +123,8 @@ public class RegulatingControlMappingForTransformers {
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRtcRegulatingControlVoltage(control, rtc, context);
+        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
+            okSet = setRtcRegulatingControlReactivePower(control, rtc, twt, end, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
@@ -134,9 +137,31 @@ public class RegulatingControlMappingForTransformers {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
+        rtc.newVoltageRegulation()
+            .withTerminal(regulatingTerminal.get())
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        return true;
+    }
 
-        rtc.setRegulationTerminal(regulatingTerminal.get())
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+    private boolean setRtcRegulatingControlReactivePower(RegulatingControl control, RatioTapChanger rtc, Connectable<?> twt, String end, Context context) {
+        TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
+            .mapForFlowControl(control.cgmesTerminal, context)
+            .orElseGet(() -> new TerminalAndSign(null, 1));
+
+        if (mappedRegulatingTerminal.getTerminal() == null) {
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
+            return false;
+        }
+
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(mappedRegulatingTerminal.getTerminal())
+            .withRegulating(false)
+            .build();
+
+        twt.setProperty(getTerminalSignPropertyName(end), String.valueOf(mappedRegulatingTerminal.getSign()));
         return true;
     }
 
