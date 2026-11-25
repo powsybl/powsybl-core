@@ -56,6 +56,7 @@ class CgmesExportTest {
 
     private Properties importParams;
     private static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
+    private static final Coordinate SUBSTATION_2 = new Coordinate(52.0, 1.0);
 
     @BeforeEach
     void setUp() {
@@ -579,6 +580,43 @@ class CgmesExportTest {
             String eqModelId = networkFromCgmes.getExtension(CgmesMetadataModels.class)
                     .getModelForSubset(CgmesSubset.EQUIPMENT).orElseThrow().getId();
             assertTrue(gl.contains("rdf:resource=\"" + eqModelId + "\""));
+        }
+    }
+
+    @Test
+    void testCim100GLProfileRoundTrip() throws IOException {
+        Network network = Network.create("network", "test");
+        Substation substation1 = network.newSubstation().setId("station1").setCountry(Country.FR).add();
+        Substation substation2 = network.newSubstation().setId("station2").setCountry(Country.FR).add();
+        VoltageLevel vl1 = substation1.newVoltageLevel().setId("vl1").setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        VoltageLevel vl2 = substation2.newVoltageLevel().setId("vl2").setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("bus1").add();
+        vl2.getBusBreakerView().newBus().setId("bus2").add();
+        Line line = network.newLine().setId("line1").setVoltageLevel1("vl1").setVoltageLevel2("vl2")
+                .setBus1("bus1").setBus2("bus2").setConnectableBus1("bus1").setConnectableBus2("bus2")
+                .setR(1).setX(10).setG1(0).setG2(0).setB1(0).setB2(0).add();
+        substation1.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation1, SUBSTATION_1));
+        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, List.of(SUBSTATION_1, SUBSTATION_2)));
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.CIM_VERSION, "100");
+            exportParams.put(CgmesExport.PROFILES, "EQ,TP,GL");
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, "output"));
+
+            String gl = Files.readString(tmpDir.resolve("output_GL.xml"));
+            assertTrue(gl.contains("xmlns:cim=\"" + CgmesNamespace.CIM_100_NAMESPACE + "\""));
+            assertTrue(gl.contains("md:Model.profile>" + CgmesNamespace.CIM_100_GL_PROFILE));
+
+            importParams.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
+            Network imported = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
+            SubstationPosition substationPosition = imported.getSubstation("station1").getExtension(SubstationPosition.class);
+            assertNotNull(substationPosition);
+            assertEquals(SUBSTATION_1.getLatitude(), substationPosition.getCoordinate().getLatitude(), 0);
+            LinePosition<Line> linePosition = imported.getLine("line1").getExtension(LinePosition.class);
+            assertNotNull(linePosition);
+            assertEquals(List.of(SUBSTATION_1, SUBSTATION_2), linePosition.getCoordinates());
         }
     }
 
