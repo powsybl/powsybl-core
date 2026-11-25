@@ -12,6 +12,7 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
+import de.siegmar.fastcsv.reader.CsvParseException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -483,6 +484,13 @@ class TimeSeriesTest {
             1970-01-01T03:00:00.000+01:00;2.0;1.0
             """.replaceAll("\n", System.lineSeparator());
         assertThatCode(() -> TimeSeries.parseCsv(unexpectedTokens, timeSeriesCsvConfig)).hasMessageContaining("Columns of line 1 are inconsistent with header").isInstanceOf(TimeSeriesException.class);
+
+        String strayElement = """
+            Time;ts1;ts2
+            1970-01-01T01:00:00.000+01:00;1.0;3.2
+            1970-01-01T02:00:00.000+01:00;"2.0"x;1.0
+            """.replaceAll("\n", System.lineSeparator());
+        assertThrows(CsvParseException.class, () -> TimeSeries.parseCsv(strayElement, timeSeriesCsvConfig));
 
         Path path = Path.of("wrongPath.csv");
         assertThrows(UncheckedIOException.class, () -> TimeSeries.parseCsv(path));

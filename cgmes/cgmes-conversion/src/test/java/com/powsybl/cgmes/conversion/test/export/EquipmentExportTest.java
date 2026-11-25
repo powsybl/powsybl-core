@@ -1097,6 +1097,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
 
+            // RTC with VOLTAGE regulation but no terminal (as created by the IEEE CDF importer): controlled at its own end
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setTerminal(null, Double.NaN);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
             // RTC local with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1431,7 +1436,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMaxP(100.0)
                 .setTargetP(25.0)
                 .setLocalTargetQ(10.0)
-                .setCondenser(true)
+                .setCondenserCapability(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();

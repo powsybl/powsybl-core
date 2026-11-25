@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" >
+<md:FullModel rdf:about="urn:uuid:entsoe_pattern_exception_EQBD">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>entsoe_pattern_exception</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundary/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundaryOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR_BE">
+    <cim:IdentifiedObject.name>Geographical region BE</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR_BE">
+    <cim:IdentifiedObject.name>Subgeographical region BE</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR_BE"/>
+</cim:SubGeographicalRegion>
+<cim:GeographicalRegion rdf:ID="_GR_NL">
+    <cim:IdentifiedObject.name>Geographical region NL</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR_NL">
+    <cim:IdentifiedObject.name>Subgeographical region NL</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR_NL"/>
+</cim:SubGeographicalRegion>
+<cim:BaseVoltage rdf:ID="_BV_400">
+    <cim:IdentifiedObject.name>Base voltage 400 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:Line rdf:ID="_LN_BE_NL">
+    <cim:IdentifiedObject.name>Tie line BE NL</cim:IdentifiedObject.name>
+</cim:Line>
+<cim:ConnectivityNode rdf:ID="_44444444cccc5555dddd666666666666">
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_LN_BE_NL"/>
+    <cim:IdentifiedObject.name>ConnectivityNode node BE NL</cim:IdentifiedObject.name>
+    <entsoe:TopologicalNode.fromEndName>Substation BE</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>ELI</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.fromEndIsoCode>BE</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Substation NL</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>TNL</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>NL</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+</cim:ConnectivityNode>
+</rdf:RDF>
