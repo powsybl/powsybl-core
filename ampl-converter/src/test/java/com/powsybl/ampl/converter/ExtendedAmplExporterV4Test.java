@@ -31,13 +31,23 @@ class ExtendedAmplExporterV4Test extends ExtendedAmplExporterV3Test {
     }
 
     @Override
-    String getBatteriesTestRefFileName() {
-        return "inputs/extended_exporter_v4/batteries.txt";
+    String getHeadersTestRefFileName() {
+        return "inputs/extended_exporter_v4/headers.txt";
     }
 
     @Override
-    String getHeadersTestRefFileName() {
-        return "inputs/extended_exporter_v4/headers.txt";
+    String getIsCondenserTestRefFileName() {
+        return "inputs/extended_exporter_v4/generator-is-condenser.txt";
+    }
+
+    @Override
+    String getBatteriesTestRefFileName() {
+        return "inputs/extended_exporter_v4/batteries-default.txt";
+    }
+
+    @Override
+    String getVscTestRefFileName() {
+        return "inputs/extended_exporter_v4/vsc.txt";
     }
 
     @Test
@@ -46,11 +56,11 @@ class ExtendedAmplExporterV4Test extends ExtendedAmplExporterV3Test {
 
         Generator generator = network.getGenerator("GEN");
         generator.newVoltageRegulation()
-                //.withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+                .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
                 .withRegulating(true)
                 .withSlope(0.25)
                 .build();
-        String busId = generator.getTerminal().getBusView().getBus().getId();
+        String busId = generator.getTerminal().getVoltageLevel().getBusBreakerView().getBus("NGEN").getId();
         Generator generator1 = network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GENERATOR1")
                 .setBus(busId)
@@ -105,25 +115,23 @@ class ExtendedAmplExporterV4Test extends ExtendedAmplExporterV3Test {
     void testBatteryExport() throws IOException {
         Network network = BatteryNetworkFactory.create();
         network.getBattery("BAT").newVoltageRegulation()
-                //.withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+                .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
                 .withRegulating(true)
                 .withSlope(0.25)
                 .build();
 
         exporter.export(network, properties, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_battery",
+        assertEqualsToRef(dataSource, "_network_batteries",
                 "inputs/extended_exporter_v4/batteries.txt");
     }
 
     @Test
     void testVscExport() throws IOException {
-        Network network = HvdcTestNetwork.createVsc();;
-
+        Network network = HvdcTestNetwork.createVsc();
 
         exporter.export(network, properties, dataSource);
-
-        assertEqualsToRef(dataSource, "_network_vsc",
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations",
                 "inputs/extended_exporter_v4/vsc.txt");
     }
 }

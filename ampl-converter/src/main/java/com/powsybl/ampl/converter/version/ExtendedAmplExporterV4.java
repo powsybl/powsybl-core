@@ -19,7 +19,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
@@ -36,10 +35,8 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     private static final int BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX = 20;
     private static final int BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_SLOPE_INDEX = 21;
 
-
     private static final int VSC_MINQ_TARGETP_INDEX = 13;
     private static final int VSC_MAXQ_TARGETP_INDEX = 14;
-
 
     public ExtendedAmplExporterV4(AmplExportConfig config,
                                   Network network,
@@ -98,7 +95,7 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
 
         boolean isRegulatingReactivePowerPerActivePower = generator.isRegulatingWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         formatterHelper.addCell(isRegulatingReactivePowerPerActivePower, GENERATOR_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX);
-        double reactivePowerPerActivePowerSlope = isRegulatingReactivePowerPerActivePower? generator.getVoltageRegulation().getSlope() : Double.NaN;
+        double reactivePowerPerActivePowerSlope = isRegulatingReactivePowerPerActivePower ? generator.getVoltageRegulation().getSlope() : Double.NaN;
         formatterHelper.addCell(reactivePowerPerActivePowerSlope, GENERATOR_REACTIVE_POWER_PER_ACTIVE_POWER_SLOPE_INDEX);
     }
 
@@ -114,7 +111,7 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
 
         boolean isRegulatingReactivePowerPerActivePower = battery.isRegulatingWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         formatterHelper.addCell(isRegulatingReactivePowerPerActivePower, BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX);
-        double reactivePowerPerActivePowerSlope = isRegulatingReactivePowerPerActivePower? battery.getVoltageRegulation().getSlope() : Double.NaN;
+        double reactivePowerPerActivePowerSlope = isRegulatingReactivePowerPerActivePower ? battery.getVoltageRegulation().getSlope() : Double.NaN;
         formatterHelper.addCell(reactivePowerPerActivePowerSlope, BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_SLOPE_INDEX);
     }
 
@@ -136,8 +133,7 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
         if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
             minQAtP = ((ReactiveCapabilityCurve) reactiveLimits).getMinQ(p, true);
             maxQAtP = ((ReactiveCapabilityCurve) reactiveLimits).getMaxQ(p, true);
-        }
-        else {
+        } else {
             minQAtP = reactiveLimits.getMinQ(p);
             maxQAtP = reactiveLimits.getMaxQ(p);
         }

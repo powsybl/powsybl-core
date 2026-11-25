@@ -566,7 +566,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         // Nothing to do here
     }
 
-
     private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {
         for (Branch<?> branch : network.getBranches()) {
             String branchId = branch.getId();
