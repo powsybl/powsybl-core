@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.tck.voltage.regulation.backward.compatibility;
 import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.NetworkEventRecorder;
-import com.powsybl.iidm.network.events.NetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
