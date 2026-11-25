@@ -80,7 +80,7 @@ public abstract class AbstractBusTerminalTest {
     }
 
     @Test
-    void busVoltageShouldNotDependOnNodeInsertionOrder() {
+    public void busVoltageShouldNotDependOnNodeInsertionOrder() {
         Network network = createNetwork();
         VoltageLevel vlN = network.getVoltageLevel("VL");
         Load loadNode2 = network.getLoad("L1"); // node 2
@@ -106,7 +106,7 @@ public abstract class AbstractBusTerminalTest {
     }
 
     @Test
-    void busAngleShouldNotDependOnNodeInsertionOrder() {
+    public void busAngleShouldNotDependOnNodeInsertionOrder() {
         Network network = createNetwork();
         VoltageLevel vlN = network.getVoltageLevel("VL");
         Load loadNode2 = network.getLoad("L1"); // node 2
