@@ -52,9 +52,9 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     public List<Column> getGeneratorsColumns() {
         List<Column> generatorsColumns = new ArrayList<>(super.getGeneratorsColumns());
         // Add column for MinQ at TargetP
-        generatorsColumns.add(GENERATOR_MINQ_TARGETP_INDEX, new Column("MinQTargetP"));
+        generatorsColumns.add(GENERATOR_MINQ_TARGETP_INDEX, new Column("minQTargetP (MVar)"));
         // Add column for MaxQ at TargetP
-        generatorsColumns.add(GENERATOR_MAXQ_TARGETP_INDEX, new Column("MaxQTargetP"));
+        generatorsColumns.add(GENERATOR_MAXQ_TARGETP_INDEX, new Column("maxQTargetP (MVar)"));
         // Add column for reactive power per active power regulation
         generatorsColumns.add(GENERATOR_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX, new Column("Q/P in use"));
         // Add column for reactive power per active power regulation slope
@@ -66,9 +66,9 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     public List<Column> getBatteriesColumns() {
         List<Column> batteriesColumns = new ArrayList<>(super.getBatteriesColumns());
         // Add column for MinQ at TargetP
-        batteriesColumns.add(BATTERY_MINQ_TARGETP_INDEX, new Column("MinQTargetP"));
+        batteriesColumns.add(BATTERY_MINQ_TARGETP_INDEX, new Column("minQTargetP (MVar)"));
         // Add column for MaxQ at TargetP
-        batteriesColumns.add(BATTERY_MAXQ_TARGETP_INDEX, new Column("MaxQTargetP"));
+        batteriesColumns.add(BATTERY_MAXQ_TARGETP_INDEX, new Column("maxQTargetP (MVar)"));
         // Add column for reactive power per active power regulation
         batteriesColumns.add(BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX, new Column("Q/P in use"));
         // Add column for reactive power per active power regulation slope
@@ -80,9 +80,9 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     public List<Column> getVscConverterStationsColumns() {
         List<Column> vscConverterStationsColumns = new ArrayList<>(super.getVscConverterStationsColumns());
         // Add column for MinQ at TargetP
-        vscConverterStationsColumns.add(VSC_MINQ_TARGETP_INDEX, new Column("MinQTargetP"));
+        vscConverterStationsColumns.add(VSC_MINQ_TARGETP_INDEX, new Column("minQTargetP (MVar)"));
         // Add column for MaxQ at TargetP
-        vscConverterStationsColumns.add(VSC_MAXQ_TARGETP_INDEX, new Column("MaxQTargetP"));
+        vscConverterStationsColumns.add(VSC_MAXQ_TARGETP_INDEX, new Column("maxQTargetP (MVar)"));
         return vscConverterStationsColumns;
     }
 
@@ -96,7 +96,7 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
         formatterHelper.addCell(minQMaxQAtP.getLeft(), GENERATOR_MINQ_TARGETP_INDEX);
         formatterHelper.addCell(minQMaxQAtP.getRight(), GENERATOR_MAXQ_TARGETP_INDEX);
 
-        boolean isRegulatingReactivePowerPerActivePower = false; //generator.isRegulating() && generator.isRegulatingWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        boolean isRegulatingReactivePowerPerActivePower = generator.isRegulatingWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         formatterHelper.addCell(isRegulatingReactivePowerPerActivePower, GENERATOR_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX);
         double reactivePowerPerActivePowerSlope = isRegulatingReactivePowerPerActivePower? generator.getVoltageRegulation().getSlope() : Double.NaN;
         formatterHelper.addCell(reactivePowerPerActivePowerSlope, GENERATOR_REACTIVE_POWER_PER_ACTIVE_POWER_SLOPE_INDEX);
@@ -112,7 +112,7 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
         formatterHelper.addCell(minQMaxQAtP.getLeft(), BATTERY_MINQ_TARGETP_INDEX);
         formatterHelper.addCell(minQMaxQAtP.getRight(), BATTERY_MAXQ_TARGETP_INDEX);
 
-        boolean isRegulatingReactivePowerPerActivePower = false; //battery.isRegulating() && battery.isRegulatingWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        boolean isRegulatingReactivePowerPerActivePower = battery.isRegulatingWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         formatterHelper.addCell(isRegulatingReactivePowerPerActivePower, BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX);
         double reactivePowerPerActivePowerSlope = isRegulatingReactivePowerPerActivePower? battery.getVoltageRegulation().getSlope() : Double.NaN;
         formatterHelper.addCell(reactivePowerPerActivePowerSlope, BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_SLOPE_INDEX);
