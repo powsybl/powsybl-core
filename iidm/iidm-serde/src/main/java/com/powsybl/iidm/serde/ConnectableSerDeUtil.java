@@ -273,30 +273,25 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
-        String type, A adder, NetworkDeserializerContext context,
-        TreeDataReader reader, ValidationLevel minimalValidationLevel) {
-        String detectionKindString = null;
-        DetectionKind detectionKindEmun = null;
+            String type, A adder, NetworkDeserializerContext context,
+            TreeDataReader reader, ValidationLevel minimalValidationLevel) {
+        DetectionKind detectionKindEnum;
         if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
-            detectionKindEmun = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
+            detectionKindEnum = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
         } else {
-            detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+            String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+            detectionKindEnum = detectionKindString != null ? DetectionKind.valueOf(detectionKindString) : null;
         }
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
 
         DetectionKind[] kind = {DetectionKind.HIGH};
-        if (context.getVersion().compareTo(IidmVersion.V_1_18) == 0) {
-            if (detectionKindString == null) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            if (detectionKindEnum == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
-            kind[0] = DetectionKind.valueOf(detectionKindString);
-        } else if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
-            if (detectionKindEmun == null) {
-                throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
-            }
-            kind[0] = detectionKindEmun;
-        }
+            kind[0] = detectionKindEnum;
+        });
         adder.setDetectionKind(kind[0]);
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
@@ -467,7 +462,7 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version, String type) {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
-        if (version.compareTo(IidmVersion.V_1_18) == 0) {
+        if (version == IidmVersion.V_1_18) {
             writer.writeStringAttribute(DETECTION_KIND, kind.name());
         }
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, version, () ->
