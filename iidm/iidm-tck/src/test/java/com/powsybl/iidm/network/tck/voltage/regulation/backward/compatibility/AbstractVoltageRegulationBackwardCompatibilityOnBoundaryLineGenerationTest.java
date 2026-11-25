@@ -200,13 +200,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBoundaryLi
         // WHEN
         generation.setTargetQ(newTargetQ); // deprecated method
         // THEN
-        assertEquals(1, listener.getEvents().size());
-        NetworkEvent firstEvent = listener.getEvents().getFirst();
-        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
-        assertEquals("localTargetQ", ((UpdateNetworkEvent) firstEvent).attribute());
-        assertEquals(newTargetQ, ((UpdateNetworkEvent) firstEvent).newValue());
-        assertEquals(oldTargetQ, ((UpdateNetworkEvent) firstEvent).oldValue());
-        assertEquals(boundaryLine.getId(), ((UpdateNetworkEvent) firstEvent).id());
+        assertThat(listener.getEvents())
+                .containsExactly(new UpdateNetworkEvent(boundaryLine.getId(), "localTargetQ", INITIAL_VARIANT_ID, oldTargetQ, newTargetQ));
     }
 
     @Test
