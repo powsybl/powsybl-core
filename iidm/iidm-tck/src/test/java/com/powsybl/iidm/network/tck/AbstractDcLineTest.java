@@ -120,7 +120,7 @@ public abstract class AbstractDcLineTest {
     }
 
     @Test
-    public void testPermanentCurrentLimit() {
+    public void testPermanentCurrentLimitSetGet() {
         DcLine noLimit = createDcLine("noLimit");
         assertTrue(Double.isNaN(noLimit.getPermanentCurrentLimit()));
 
@@ -141,7 +141,7 @@ public abstract class AbstractDcLineTest {
     }
 
     @Test
-    public void testPermanentCurrentLimitError() {
+    public void testPermanentCurrentLimitErrorOnNegativeValue() {
         DcLineAdder adder = network.newDcLine()
                 .setId("negativeLimit")
                 .setDcNode1(dcNode1.getId())
