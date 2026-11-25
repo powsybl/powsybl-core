@@ -12,10 +12,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.Optional;
-
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -49,64 +46,20 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
     }
 
     protected void convertBranch(double r, double x, double gch, double bch, String originalClass) {
-        if (isZeroImpedanceInsideVoltageLevel(r, x)) {
-            // Convert to switch
-            boolean normalOpen = false;
-            Switch sw;
-            if (context.nodeBreaker()) {
-                VoltageLevel.NodeBreakerView.SwitchAdder adder;
-                adder = voltageLevel().getNodeBreakerView().newSwitch()
-                                .setKind(SwitchKind.BREAKER)
-                                .setOpen(normalOpen)
-                                .setRetained(true)
-                                .setFictitious(true);
-                identify(adder);
-                connectWithOnlyEq(adder);
-                sw = adder.add();
-            } else {
-                VoltageLevel.BusBreakerView.SwitchAdder adder;
-                adder = voltageLevel().getBusBreakerView().newSwitch()
-                                .setOpen(normalOpen)
-                                .setFictitious(true);
-                identify(adder);
-                connectWithOnlyEq(adder);
-                sw = adder.add();
-            }
-            addAliasesAndProperties(sw);
-            sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
-            sw.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
-        } else {
-            final LineAdder adder = context.network().newLine()
-                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                    .setR(r)
-                    .setX(x)
-                    .setG1(gch / 2)
-                    .setG2(gch / 2)
-                    .setB1(bch / 2)
-                    .setB2(bch / 2);
-            identify(adder);
-            connectWithOnlyEq(adder);
-            final Line l = adder.add();
-            addAliasesAndProperties(l);
-            convertedTerminalsWithOnlyEq(l.getTerminal1(), l.getTerminal2());
-            l.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
-        }
-    }
-
-    private boolean isZeroImpedanceInsideVoltageLevel(double r, double x) {
-        Optional<VoltageLevel> vl1 = voltageLevel(1);
-        Optional<VoltageLevel> vl2 = voltageLevel(2);
-        if (vl1.isPresent()) {
-            if (vl2.isPresent() && vl1.get() == vl2.get()) {
-                return r == 0.0 && x == 0.0;
-            }
-            return false;
-        } else {
-            if (vl2.isPresent()) {
-                return false;
-            }
-            return r == 0.0 && x == 0.0;
-        }
+        final LineAdder adder = context.network().newLine()
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                .setR(r)
+                .setX(x)
+                .setG1(gch / 2)
+                .setG2(gch / 2)
+                .setB1(bch / 2)
+                .setB2(bch / 2);
+        identify(adder);
+        connectWithOnlyEq(adder);
+        final Line l = adder.add();
+        addAliasesAndProperties(l);
+        convertedTerminalsWithOnlyEq(l.getTerminal1(), l.getTerminal2());
+        l.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
     }
 
     protected static void updateBranch(Line line, Context context) {
