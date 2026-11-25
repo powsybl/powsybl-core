@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:35b07375-e01c-48d5-81de-2dbb10e598a9">
+    <dcat:startDate>2024-01-31T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2024-01-31T23:59:59Z</dcat:endDate>
+    <dcat:keyword>SSI</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/SteadyStateInstruction-EU/2.4</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <nc:AssessedElement rdf:about="#_assessed-element-1">
+    <nc:AssessedElement.enabled>false</nc:AssessedElement.enabled>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:about="#_assessed-element-8">
+    <nc:AssessedElement.enabled>true</nc:AssessedElement.enabled>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:about="#_ae1xco1">
+    <nc:AssessedElementWithContingency.enabled>false</nc:AssessedElementWithContingency.enabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElementWithRemedialAction rdf:about="#_ae1xra1">
+    <nc:AssessedElementWithRemedialAction.enabled>false</nc:AssessedElementWithRemedialAction.enabled>
+  </nc:AssessedElementWithRemedialAction>
+</rdf:RDF>

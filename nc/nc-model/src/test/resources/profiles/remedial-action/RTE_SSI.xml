@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a13bebc1-f91c-451f-9845-17ac211e13ab">
+    <dcat:startDate>2024-01-31T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2024-01-31T23:59:59Z</dcat:endDate>
+    <dcat:keyword>SSI</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/SteadyStateInstruction-EU/2.4</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <nc:GridStateAlterationRemedialAction rdf:about="#_remedial-action-1">
+    <nc:RemedialAction.available>false</nc:RemedialAction.available>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:GridStateAlteration rdf:about="#_topology-action-1">
+    <nc:GridStateAlteration.enabled>false</nc:GridStateAlteration.enabled>
+  </nc:GridStateAlteration>
+  <nc:GridStateAlteration rdf:about="#_tap-position-action-1">
+    <nc:GridStateAlteration.enabled>false</nc:GridStateAlteration.enabled>
+  </nc:GridStateAlteration>
+  <nc:GridStateAlteration rdf:about="#_rotating-machine-action-1">
+    <nc:GridStateAlteration.enabled>false</nc:GridStateAlteration.enabled>
+  </nc:GridStateAlteration>
+  <nc:GridStateAlteration rdf:about="#_shunt-compensator-modification-1">
+    <nc:GridStateAlteration.enabled>false</nc:GridStateAlteration.enabled>
+  </nc:GridStateAlteration>
+  <nc:RangeConstraint rdf:about="#_static-property-range-for-tap-position-action-1">
+    <nc:RangeConstraint.value>3</nc:RangeConstraint.value>
+  </nc:RangeConstraint>
+  <nc:ContingencyWithRemedialAction rdf:about="#_co1xra3">
+    <nc:ContingencyWithRemedialAction.enabled>false</nc:ContingencyWithRemedialAction.enabled>
+  </nc:ContingencyWithRemedialAction>
+  <nc:RemedialActionDependency rdf:about="#_1bdfc408-5ff3-4968-a96f-75494908b7e7">
+    <nc:RemedialActionDependency.enabled>false</nc:RemedialActionDependency.enabled>
+  </nc:RemedialActionDependency>
+</rdf:RDF>

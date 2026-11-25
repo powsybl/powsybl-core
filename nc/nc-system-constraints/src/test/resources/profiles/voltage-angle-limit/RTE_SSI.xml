@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dcterms="http://purl.org/dc/terms/#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:nc="http://entsoe.eu/ns/nc#">
+    <md:FullModel rdf:about="urn:uuid:ssi-angle-limits">
+        <dcat:startDate>2024-01-01T00:00:00Z</dcat:startDate>
+        <dcat:endDate>2025-01-01T00:00:00Z</dcat:endDate>
+        <dcat:keyword>SSI</dcat:keyword>
+        <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/SteadyStateInstruction-EU/2.4</dcterms:Model.conformsTo>
+    </md:FullModel>
+    <nc:VoltageAngleLimit rdf:about="#_voltage-angle-limit-1">
+        <nc:VoltageAngleLimit.value>55</nc:VoltageAngleLimit.value>
+    </nc:VoltageAngleLimit>
+</rdf:RDF>
