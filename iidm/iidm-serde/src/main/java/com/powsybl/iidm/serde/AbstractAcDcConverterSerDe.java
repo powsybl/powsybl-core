@@ -110,8 +110,10 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             return;
         }
         IidmVersion version = context.getVersion();
-        if (version.compareTo(IidmVersion.V_1_17) >= 0 && version.compareTo(IidmVersion.V_1_19) < 0) {
-            // In IIDM 1.17 and 1.18, minP and maxP were a beta feature without serialization: keep the beta behavior
+        if (version.compareTo(IidmVersion.V_1_15) >= 0 && version.compareTo(IidmVersion.V_1_19) < 0) {
+            // Before IIDM 1.19, minP and maxP were a beta feature without serialization, whatever the IIDM version
+            // supporting AC/DC converters (1.15 to 1.18): keep the beta behavior.
+            // Before IIDM 1.15, AC/DC converters are not supported: the version incompatibility behavior applies.
             if (!context.getOptions().isForceExportNetworkWithBetaFeatures()) {
                 throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': " + attributeName
                     + " serialization is not supported in IIDM " + version.toString(".")

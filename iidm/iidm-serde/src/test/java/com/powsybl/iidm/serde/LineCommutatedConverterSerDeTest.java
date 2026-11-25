@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
@@ -51,29 +50,27 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testMinPNotSupportedBeforeIidm117() {
+    void testMinPBetaExportBeforeIidm119() {
         Network network = createBaseNetwork(); // contains a LineCommutatedConverter with minP = -400.
 
-        // Versions 1.15 and 1.16 support LineCommutatedConverter but predate minP and maxP
-        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_16, version -> {
-            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-            Path path = tmpDir.resolve("fail");
-            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
-            assertEquals("lineCommutatedConverter.minP is not defined as default and not supported for IIDM version "
-                    + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
-        });
+        // minP and maxP were a beta feature, without serialization, in all the versions supporting
+        // LineCommutatedConverter before 1.19 (1.15 to 1.18)
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> checkBetaExport(network, version));
     }
 
-    @Test
-    void testActivePowerLimitsDroppedWhenExportingToIidm116() {
-        Network network = createBaseNetwork();
+    private void checkBetaExport(Network network, IidmVersion version) {
+        // without forcing the beta export, the export fails
+        ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+        Path failPath = tmpDir.resolve("fail");
+        NotImplementedException e = assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, options, failPath));
+        assertEquals("lineCommutatedConverter 'lccBb2ACWithSolvedV': minP serialization is not supported in IIDM "
+                + version.toString(".") + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
+                + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
+                + " or ExportOptions.setForceExportNetworkWithBetaFeatures", e.getMessage());
 
-        // with LOG_ERROR, exporting to an IIDM version that predates the active power limits succeeds
-        // and silently drops them: the resulting file is a valid file of that version.
-        ExportOptions options = new ExportOptions()
-                .setVersion(IidmVersion.V_1_16.toString("."))
-                .setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        Path path = tmpDir.resolve("lcc-iidm-1-16.xiidm");
+        // forcing the beta export ignores minP and maxP
+        options.setForceExportNetworkWithBetaFeatures(true);
+        Path path = tmpDir.resolve("lcc-force-export-" + version.toString("_") + ".xiidm");
         NetworkSerDe.write(network, options, path);
 
         Network readNetwork = NetworkSerDe.validateAndRead(path);
@@ -81,34 +78,6 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
             assertEquals(-Double.MAX_VALUE, lcc.getMinP());
             assertEquals(Double.MAX_VALUE, lcc.getMaxP());
         }
-    }
-
-    @Test
-    void testMinPBetaExportInIidm117And118() {
-        Network network = createBaseNetwork(); // contains a LineCommutatedConverter with minP = -400.
-
-        // minP and maxP were a beta feature, without serialization, in versions 1.17 and 1.18
-        testForAllVersionsBetween(IidmVersion.V_1_17, IidmVersion.V_1_18, version -> {
-            // without forcing the beta export, the export fails
-            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-            Path failPath = tmpDir.resolve("fail");
-            NotImplementedException e = assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, options, failPath));
-            assertEquals("lineCommutatedConverter 'lccBb2ACWithSolvedV': minP serialization is not supported in IIDM "
-                    + version.toString(".") + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
-                    + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
-                    + " or ExportOptions.setForceExportNetworkWithBetaFeatures", e.getMessage());
-
-            // forcing the beta export ignores minP and maxP
-            options.setForceExportNetworkWithBetaFeatures(true);
-            Path path = tmpDir.resolve("lcc-force-export-" + version.toString("_") + ".xiidm");
-            NetworkSerDe.write(network, options, path);
-
-            Network readNetwork = NetworkSerDe.validateAndRead(path);
-            for (LineCommutatedConverter lcc : readNetwork.getLineCommutatedConverters()) {
-                assertEquals(-Double.MAX_VALUE, lcc.getMinP());
-                assertEquals(Double.MAX_VALUE, lcc.getMaxP());
-            }
-        });
     }
 
     private static Network createBaseNetwork() {
