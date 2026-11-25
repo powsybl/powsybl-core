@@ -74,8 +74,8 @@ package com.powsybl.iidm.network;
  * <p>
  * The voltage limits bound the magnitude of the voltage returned by {@link #getV()}. The DC Node is within its
  * limits when {@code LowVoltageLimit < |V| < HighVoltageLimit}, an undefined
- * limit imposing no bound. The low limit must be positive or zero, the high limit strictly positive, and
- * {@code LowVoltageLimit < HighVoltageLimit}.
+ * limit imposing no bound. The limits must be positive or zero, and
+ * {@code LowVoltageLimit <= HighVoltageLimit}.
  * </p>
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -108,7 +108,7 @@ public interface DcNode extends Identifiable<DcNode>, DcTopologyVisitable {
 
     /**
      * Set the low voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}.
-     * It must be positive, zero or NaN (undefined), and strictly less than highVoltageLimit if they are both defined.
+     * It must be positive, zero or NaN (undefined), and less than or equal to highVoltageLimit if they are both defined.
      *
      * @param lowVoltageLimit new low voltage limit in kV
      * @return self for method chaining
@@ -117,7 +117,7 @@ public interface DcNode extends Identifiable<DcNode>, DcTopologyVisitable {
 
     /**
      * Get the high voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}
-     * and is strictly positive or NaN (undefined).
+     * and is positive, zero or NaN (undefined).
      *
      * @return the high voltage limit or NaN if undefined
      */
@@ -125,7 +125,7 @@ public interface DcNode extends Identifiable<DcNode>, DcTopologyVisitable {
 
     /**
      * Set the high voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}.
-     * It must be strictly positive or NaN (undefined), and strictly greater than lowVoltageLimit if they are both defined.
+     * It must be positive, zero or NaN (undefined), and greater than or equal to lowVoltageLimit if they are both defined.
      *
      * @param highVoltageLimit new high voltage limit in kV
      * @return self for method chaining

@@ -119,7 +119,7 @@ public interface DcLine extends DcConnectable<DcLine> {
     double getPermanentCurrentLimit();
 
     /**
-     * Set the permanent current limit in A. The limit must be strictly positive or NaN (undefined).
+     * Set the permanent current limit in A. The limit must be positive, zero or NaN (undefined).
      *
      * @param permanentCurrentLimit new permanent current limit in A
      * @return self for method chaining

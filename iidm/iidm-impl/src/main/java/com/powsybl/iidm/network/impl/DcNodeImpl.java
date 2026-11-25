@@ -105,7 +105,7 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     @Override
     public DcNode setLowVoltageLimit(double lowVoltageLimit) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, LOW_VOLTAGE_LIMIT_ATTRIBUTE);
-        ValidationUtil.checkDcVoltageLimits(this, lowVoltageLimit, this.highVoltageLimit);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, this.highVoltageLimit);
         double oldValue = this.lowVoltageLimit;
         this.lowVoltageLimit = lowVoltageLimit;
         getNetwork().getListeners().notifyUpdate(this, LOW_VOLTAGE_LIMIT_ATTRIBUTE, oldValue, lowVoltageLimit);
@@ -121,7 +121,7 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
     @Override
     public DcNode setHighVoltageLimit(double highVoltageLimit) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, HIGH_VOLTAGE_LIMIT_ATTRIBUTE);
-        ValidationUtil.checkDcVoltageLimits(this, this.lowVoltageLimit, highVoltageLimit);
+        ValidationUtil.checkVoltageLimits(this, this.lowVoltageLimit, highVoltageLimit);
         double oldValue = this.highVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
         getNetwork().getListeners().notifyUpdate(this, HIGH_VOLTAGE_LIMIT_ATTRIBUTE, oldValue, highVoltageLimit);

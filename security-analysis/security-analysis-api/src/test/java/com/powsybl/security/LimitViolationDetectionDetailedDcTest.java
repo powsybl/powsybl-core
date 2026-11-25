@@ -124,6 +124,11 @@ class LimitViolationDetectionDetailedDcTest {
         "dcNodeFrNeg,   475., 525., -450., LOW_VOLTAGE,  475.",
         // A zero low limit is valid and is reached by a zero voltage
         "dcNodeFrPos,   0.,   ,     0.,    LOW_VOLTAGE,  0.",
+        // A zero high limit is valid and is reached by a zero voltage
+        "dcNodeFrPos,   ,     0.,   0.,    HIGH_VOLTAGE, 0.",
+        // Equal limits: any voltage away from the limit violates exactly one of them
+        "dcNodeFrPos,   500., 500., 510.,  HIGH_VOLTAGE, 500.",
+        "dcNodeFrNeg,   500., 500., -490., LOW_VOLTAGE,  500.",
     })
     void dcNodeVoltageViolationIsReported(String nodeId, Double low, Double high, double v,
                                           LimitViolationType expectedType, double expectedLimit) {
@@ -159,6 +164,17 @@ class LimitViolationDetectionDetailedDcTest {
         Optional.ofNullable(high).ifPresent(node::setHighVoltageLimit);
 
         assertNoViolation(assertDoesNotThrow(() -> detect(network)));
+    }
+
+    @Test
+    void dcNodeAtEqualLimitsViolatesBothLimits() {
+        // as for voltage levels, reaching a limit is a violation, so both limits are reached at once
+        network.getDcNode(DC_NODE_FR_NEG).setLowVoltageLimit(500.).setHighVoltageLimit(500.).setV(-500.);
+
+        List<LimitViolation> result = detect(network);
+
+        assertEquals(List.of(DC_NODE_FR_NEG + "/HIGH_VOLTAGE", DC_NODE_FR_NEG + "/LOW_VOLTAGE"), subjects(result));
+        result.forEach(v -> assertDetailedDcViolation(v, DC_NODE_FR_NEG, v.getLimitType(), 500., -500.));
     }
 
     @Test
@@ -223,6 +239,16 @@ class LimitViolationDetectionDetailedDcTest {
         line.getDcTerminal2().setI(i2);
 
         assertNoViolation(detect(network));
+    }
+
+    @Test
+    void dcLineWithZeroCurrentLimitIsReportedEvenWithZeroCurrent() {
+        // as for AC lines, reaching the limit is a violation, so a zero limit is reached as soon as the current is defined.
+        DcLine line = network.getDcLine(DC_LINE_POS).setPermanentCurrentLimit(0.);
+        line.getDcTerminal1().setI(0.);
+        line.getDcTerminal2().setI(0.);
+
+        assertDetailedDcViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 0., 0.);
     }
 
     @Test

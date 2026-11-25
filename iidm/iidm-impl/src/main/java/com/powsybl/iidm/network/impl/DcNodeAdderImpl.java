@@ -52,7 +52,7 @@ public class DcNodeAdderImpl extends AbstractIdentifiableAdder<DcNodeAdderImpl> 
     public DcNode add() {
         String id = checkAndGetUniqueId();
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkDcVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
 
         DcNodeImpl dcNode = new DcNodeImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), nominalV, lowVoltageLimit, highVoltageLimit);
         NetworkImpl network = networkRef.get();

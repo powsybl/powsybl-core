@@ -98,12 +98,32 @@ public abstract class AbstractDcNodeTest {
         assertEquals(0., zeroLowAndHigh.getLowVoltageLimit());
         assertEquals(520., zeroLowAndHigh.getHighVoltageLimit());
 
+        // equal limits and a zero high voltage limit are valid, as for voltage levels
+        DcNode equalLimits = network.newDcNode().setId("equalLimits").setNominalV(500.)
+                .setLowVoltageLimit(500.).setHighVoltageLimit(500.).add();
+        assertEquals(500., equalLimits.getLowVoltageLimit());
+        assertEquals(500., equalLimits.getHighVoltageLimit());
+        DcNode zeroHighOnly = network.newDcNode().setId("zeroHighOnly").setNominalV(500.)
+                .setHighVoltageLimit(0.).add();
+        assertTrue(Double.isNaN(zeroHighOnly.getLowVoltageLimit()));
+        assertEquals(0., zeroHighOnly.getHighVoltageLimit());
+        DcNode zeroLimits = network.newDcNode().setId("zeroLimits").setNominalV(500.)
+                .setLowVoltageLimit(0.).setHighVoltageLimit(0.).add();
+        assertEquals(0., zeroLimits.getLowVoltageLimit());
+        assertEquals(0., zeroLimits.getHighVoltageLimit());
+
         assertSame(bothLimits, bothLimits.setLowVoltageLimit(490.));
         assertEquals(490., bothLimits.getLowVoltageLimit());
         assertSame(bothLimits, bothLimits.setHighVoltageLimit(510.));
         assertEquals(510., bothLimits.getHighVoltageLimit());
         assertSame(bothLimits, bothLimits.setLowVoltageLimit(0.));
         assertEquals(0., bothLimits.getLowVoltageLimit());
+
+        // setters can make the limits equal
+        bothLimits.setLowVoltageLimit(510.);
+        assertEquals(510., bothLimits.getLowVoltageLimit());
+        assertEquals(510., bothLimits.getHighVoltageLimit());
+
         bothLimits.setLowVoltageLimit(Double.NaN);
         assertTrue(Double.isNaN(bothLimits.getLowVoltageLimit()));
         bothLimits.setHighVoltageLimit(Double.NaN);
@@ -124,7 +144,7 @@ public abstract class AbstractDcNodeTest {
         DcNodeAdder negativeHigh = network.newDcNode().setId("negativeHigh").setNominalV(500.)
                 .setHighVoltageLimit(-480.);
         ValidationException e2 = assertThrows(ValidationException.class, negativeHigh::add);
-        assertEquals("DC Node 'negativeHigh': high voltage limit is <= 0", e2.getMessage());
+        assertEquals("DC Node 'negativeHigh': high voltage limit is < 0", e2.getMessage());
         assertNull(network.getDcNode("negativeHigh"));
 
         DcNodeAdder inconsistent = network.newDcNode().setId("inconsistent").setNominalV(500.)
@@ -132,19 +152,6 @@ public abstract class AbstractDcNodeTest {
         ValidationException e3 = assertThrows(ValidationException.class, inconsistent::add);
         assertEquals("DC Node 'inconsistent': Inconsistent voltage limit range [520.0, 480.0]", e3.getMessage());
         assertNull(network.getDcNode("inconsistent"));
-
-        // a zero high voltage limit and equal limits are rejected too
-        DcNodeAdder zeroHigh = network.newDcNode().setId("zeroHigh").setNominalV(500.)
-                .setHighVoltageLimit(0.);
-        ValidationException e4 = assertThrows(ValidationException.class, zeroHigh::add);
-        assertEquals("DC Node 'zeroHigh': high voltage limit is <= 0", e4.getMessage());
-        assertNull(network.getDcNode("zeroHigh"));
-
-        DcNodeAdder equalLimits = network.newDcNode().setId("equalLimits").setNominalV(500.)
-                .setLowVoltageLimit(500.).setHighVoltageLimit(500.);
-        ValidationException e5 = assertThrows(ValidationException.class, equalLimits::add);
-        assertEquals("DC Node 'equalLimits': Inconsistent voltage limit range [500.0, 500.0]", e5.getMessage());
-        assertNull(network.getDcNode("equalLimits"));
     }
 
     @Test
@@ -159,14 +166,9 @@ public abstract class AbstractDcNodeTest {
         assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [530.0, 520.0]", e2.getMessage());
         ValidationException e3 = assertThrows(ValidationException.class, () -> dcNode.setHighVoltageLimit(470.));
         assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [480.0, 470.0]", e3.getMessage());
-        ValidationException e4 = assertThrows(ValidationException.class, () -> dcNode.setLowVoltageLimit(520.));
-        assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [520.0, 520.0]", e4.getMessage());
-        ValidationException e5 = assertThrows(ValidationException.class, () -> dcNode.setHighVoltageLimit(480.));
-        assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [480.0, 480.0]", e5.getMessage());
 
         // both rules are violated here: only the exception type is guaranteed, not which error is reported
         assertThrows(ValidationException.class, () -> dcNode.setHighVoltageLimit(-1.));
-        assertThrows(ValidationException.class, () -> dcNode.setHighVoltageLimit(0.));
 
         // a rejected value leaves the DC node unchanged
         assertEquals(480., dcNode.getLowVoltageLimit());
@@ -175,11 +177,11 @@ public abstract class AbstractDcNodeTest {
         // with no low limit defined, only the sign rule applies to the high limit
         DcNode highLimitOnly = network.newDcNode().setId("highLimitOnly").setNominalV(500.)
                 .setHighVoltageLimit(520.).add();
-        ValidationException e6 = assertThrows(ValidationException.class, () -> highLimitOnly.setHighVoltageLimit(-1.));
-        assertEquals("DC Node 'highLimitOnly': high voltage limit is <= 0", e6.getMessage());
-        ValidationException e7 = assertThrows(ValidationException.class, () -> highLimitOnly.setHighVoltageLimit(0.));
-        assertEquals("DC Node 'highLimitOnly': high voltage limit is <= 0", e7.getMessage());
+        ValidationException e4 = assertThrows(ValidationException.class, () -> highLimitOnly.setHighVoltageLimit(-1.));
+        assertEquals("DC Node 'highLimitOnly': high voltage limit is < 0", e4.getMessage());
         assertEquals(520., highLimitOnly.getHighVoltageLimit());
+        highLimitOnly.setHighVoltageLimit(0.);
+        assertEquals(0., highLimitOnly.getHighVoltageLimit());
 
         // with only one limit defined, a negative value of the other one is still rejected
         DcNode lowLimitOnly = network.newDcNode().setId("lowLimitOnly").setNominalV(500.)
