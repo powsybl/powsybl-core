@@ -24,6 +24,7 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
     private final Phase phase2;
     private final TDoubleArrayList p;
     private final TDoubleArrayList q;
+    private boolean removed = false;
 
     PhaseToPhaseLoadImpl(PhaseToPhaseLoadsImpl parent, Phase phase1, Phase phase2, double p, double q) {
         this.parent = Objects.requireNonNull(parent);
@@ -52,11 +53,13 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
 
     @Override
     public double getP() {
+        checkNotRemoved();
         return p.get(parent.getCurrentVariantIndex());
     }
 
     @Override
     public PhaseToPhaseLoadImpl setP(double p) {
+        checkNotRemoved();
         checkValue(p, "p");
         this.p.set(parent.getCurrentVariantIndex(), p);
         return this;
@@ -64,11 +67,13 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
 
     @Override
     public double getQ() {
+        checkNotRemoved();
         return q.get(parent.getCurrentVariantIndex());
     }
 
     @Override
     public PhaseToPhaseLoadImpl setQ(double q) {
+        checkNotRemoved();
         checkValue(q, "q");
         this.q.set(parent.getCurrentVariantIndex(), q);
         return this;
@@ -92,6 +97,17 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
         for (int index : indexes) {
             p.set(index, p.get(sourceIndex));
             q.set(index, q.get(sourceIndex));
+        }
+    }
+
+    void markRemoved() {
+        this.removed = true;
+    }
+
+    private void checkNotRemoved() {
+        if (removed) {
+            throw new PowsyblException("Cannot access p/q of removed phase to phase load between phases "
+                    + phase1 + " and " + phase2);
         }
     }
 

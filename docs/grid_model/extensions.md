@@ -661,7 +661,13 @@ Each component gives the active power $P$ and the reactive power $Q$ consumed be
 The phases are chosen among `A`, `B` and `C`. The two phases of a component must be different, and a load can hold at most one component for a given pair of phases: the pair is not ordered, so (A, B) and (B, A) designate the same component.
 
 This extension is independent of the [load asymmetrical](#load-asymmetrical-extension) extension and of the active and reactive power
-setpoints $P0$ and $Q0$ of the load: no consistency check is performed between them.
+setpoints $P0$ and $Q0$ of the load: no consistency check is performed between them. They are independent data: updating one does not update the others, 
+and it is up to the user to keep them consistent if needed.
+
+The grid model defines no priority between the values of this extension and the load setpoints $P0$ and $Q0$. The powers consumed between two phases are 
+only available in this extension, so the $P$ and $Q$ of a component are the reference for what is connected between its two phases, whereas $P0$ and $Q0$ remain 
+the setpoints of the load as a whole. 
+This extension should not be used with the [load asymmetrical extension](#load-asymmetrical-extension).
 
 The extension contains a list of phase-to-phase loads:
 

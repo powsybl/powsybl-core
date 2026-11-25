@@ -157,4 +157,20 @@ public abstract class AbstractPhaseToPhaseLoadsTest {
         assertEquals(10, ab.getP(), 0);
         assertEquals(5, ab.getQ(), 0);
     }
+
+    @Test
+    public void testSetOnRemoved() {
+        Network network = EurostagTutorialExample1Factory.create();
+        PhaseToPhaseLoads ext = createExtension(network);
+        PhaseToPhaseLoad ab = ext.newPhaseToPhaseLoad().withPhase1(Phase.A).withPhase2(Phase.B).withP(10).withQ(5).add();
+
+        // The phase-to-phase load exists and can be modified
+        assertEquals(1, ext.getPhaseToPhaseLoads().size());
+        ab.setP(20).setQ(8);
+
+        // Once removed, the phase-to-phase load cannot be modified anymore
+        assertTrue(ext.removePhaseToPhaseLoad(ab));
+        assertThrows(PowsyblException.class, () -> ab.setP(30));
+        assertThrows(PowsyblException.class, () -> ab.setQ(12));
+    }
 }

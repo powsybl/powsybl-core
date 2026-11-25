@@ -31,7 +31,11 @@ public interface PhaseToPhaseLoads extends Extension<Load> {
 
     /**
      * Get all the phase to phase loads in the extension.
-     * @return an unmodifiable list of phase to phase loads
+     * The returned list is an unmodifiable <b>live view</b> of the phase to phase loads held by this extension,
+     * not a snapshot: it cannot be modified through the list itself, but it reflects any later addition or removal.
+     * Consequently, adding or removing a phase to phase load while iterating over this list may throw a
+     * {@link java.util.ConcurrentModificationException}. To do so safely, iterate over a copy of the list.
+     * @return an unmodifiable live view of the list of phase to phase loads
      */
     List<PhaseToPhaseLoad> getPhaseToPhaseLoads();
 

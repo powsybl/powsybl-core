@@ -59,14 +59,24 @@ public class PhaseToPhaseLoadsImpl extends AbstractMultiVariantIdentifiableExten
 
     @Override
     public boolean removePhaseToPhaseLoad(PhaseToPhaseLoad phaseToPhaseLoad) {
-        return phaseToPhaseLoad instanceof PhaseToPhaseLoadImpl phaseToPhaseLoadImpl && phaseToPhaseLoads.remove(phaseToPhaseLoadImpl);
+        if (phaseToPhaseLoad instanceof PhaseToPhaseLoadImpl phaseToPhaseLoadImpl && phaseToPhaseLoads.remove(phaseToPhaseLoadImpl)) {
+            phaseToPhaseLoadImpl.markRemoved();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean removePhaseToPhaseLoad(Phase phase1, Phase phase2) {
         Objects.requireNonNull(phase1);
         Objects.requireNonNull(phase2);
-        return phaseToPhaseLoads.removeIf(l -> matches(l, phase1, phase2));
+        return phaseToPhaseLoads.removeIf(l -> {
+            if (matches(l, phase1, phase2)) {
+                l.markRemoved();
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override
