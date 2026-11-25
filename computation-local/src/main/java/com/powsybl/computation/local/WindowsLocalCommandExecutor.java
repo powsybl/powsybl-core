@@ -41,7 +41,6 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
                 .build();
 
         StringBuilder internalCmd = new StringBuilder();
-        internalCmd.append("setlocal & ");
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
@@ -69,7 +68,6 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
         for (String arg : args) {
             internalCmd.append(" \"").append(escapeCmdArg(arg)).append("\"");
         }
-        internalCmd.append(" & endlocal");
 
         List<String> cmdLs = ImmutableList.<String>builder()
                 .add("cmd")

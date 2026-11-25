@@ -1,0 +1,173 @@
+/**
+ * Copyright (c) 2026, Elia Group (https://www.eliagroup.eu)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.stateestimation;
+
+import com.powsybl.iidm.network.ThreeSides;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * @author Šime Pavlić {@literal <sime.pavlic at kickstage.com>}
+ */
+class StateEstimationResultImplTest {
+
+    private static StateEstimationResult.ComponentResult component() {
+        return new StateEstimationResultImpl.ComponentResultImpl(
+                StateEstimationResult.ComponentResult.Status.ESTIMATED, "converged", 4, "BUS", 12.5);
+    }
+
+    @Test
+    void anAccuracyNamesItsElementAndQuantityAndASideOnlyOnABranch() {
+        StateEstimationResult.QuantityAccuracy branchSide = new StateEstimationResultImpl.QuantityAccuracyImpl(
+                "LINE", Quantity.ACTIVE_POWER, ThreeSides.TWO, 1.5);
+        StateEstimationResult.QuantityAccuracy bus = new StateEstimationResultImpl.QuantityAccuracyImpl(
+                "BUS", Quantity.VOLTAGE, null, 0.2);
+
+        assertEquals("LINE", branchSide.getElementId());
+        assertEquals(Quantity.ACTIVE_POWER, branchSide.getQuantity());
+        assertEquals(ThreeSides.TWO, branchSide.getSide().orElseThrow());
+        assertEquals(1.5, branchSide.getStandardDeviation());
+
+        assertTrue(bus.getSide().isEmpty());
+        assertEquals(0.2, bus.getStandardDeviation());
+    }
+
+    @Test
+    void aVoltageAccuracyRefusesABranchSide() {
+        assertThrows(IllegalArgumentException.class, () -> new StateEstimationResultImpl.QuantityAccuracyImpl(
+                "BUS", Quantity.VOLTAGE, ThreeSides.ONE, 0.2));
+    }
+
+    @Test
+    void anEstimatorThatReportsNoAccuraciesLeavesThemEmpty() {
+        StateEstimationResultImpl result = new StateEstimationResultImpl(
+                "v", List.of(component()), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertTrue(result.getQuantityAccuracies().isEmpty());
+    }
+
+    @Test
+    void aFailedEstimationHoldsNothing() {
+        StateEstimationResultImpl result = StateEstimationResultImpl.failed("InitialVariant");
+
+        assertEquals(StateEstimationResult.Status.FAILED, result.getStatus());
+        assertTrue(result.getComponentResults().isEmpty());
+        assertTrue(result.getBusResults().isEmpty());
+        assertTrue(result.getBranchResults().isEmpty());
+        assertTrue(result.getMeasurementResults().isEmpty());
+    }
+
+    @Test
+    void doesNotFollowALaterChangeToTheListsItWasGiven() {
+        List<StateEstimationResult.ComponentResult> components = new ArrayList<>(List.of(component()));
+
+        StateEstimationResultImpl result = new StateEstimationResultImpl(
+                "InitialVariant", components, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+        components.clear();
+
+        assertEquals(1, result.getComponentResults().size());
+        assertThrows(UnsupportedOperationException.class, () -> result.getComponentResults().clear());
+    }
+
+    @Test
+    void aComponentReportsWhatTheEstimationDidToIt() {
+        StateEstimationResult.ComponentResult result = component();
+
+        assertEquals("converged", result.getStatusText());
+        assertEquals("BUS", result.getReferenceBusId());
+        assertEquals(12.5, result.getObjectiveFunctionValue());
+    }
+
+    @Test
+    void anEstimatorInAnotherFamilyReportsNoObjectiveFunctionValue() {
+        assertEquals(Double.NaN, new StateEstimationResultImpl.ComponentResultImpl(
+                StateEstimationResult.ComponentResult.Status.ESTIMATED, null, 1, "BUS", Double.NaN)
+                .getObjectiveFunctionValue());
+    }
+
+    @Test
+    void aBusCarriesTheStateInTheUnitsIidmUses() {
+        StateEstimationResult.BusResult result =
+                new StateEstimationResultImpl.BusResultImpl("BUS", "VL", 398.5, -2.75);
+
+        assertEquals("BUS", result.getBusId());
+        assertEquals("VL", result.getVoltageLevelId());
+        assertEquals(398.5, result.getV());
+        assertEquals(-2.75, result.getAngle());
+    }
+
+    @Test
+    void aBranchCarriesTheFlowsAtBothEnds() {
+        StateEstimationResult.BranchResult result = new StateEstimationResultImpl.BranchResultImpl(
+                "LINE", 302.4, 98.7, 456.8, -300.4, -97.1, 455.1);
+
+        assertEquals("LINE", result.getBranchId());
+        assertEquals(302.4, result.getP1());
+        assertEquals(98.7, result.getQ1());
+        assertEquals(456.8, result.getI1());
+        assertEquals(-300.4, result.getP2());
+        assertEquals(-97.1, result.getQ2());
+        assertEquals(455.1, result.getI2());
+    }
+
+    @Test
+    void anEstimatorThatDoesNotProduceCurrentsLeavesThemNaN() {
+        StateEstimationResult.BranchResult result =
+                new StateEstimationResultImpl.BranchResultImpl("LINE", 302.4, 98.7, -300.4, -97.1);
+
+        assertEquals(302.4, result.getP1());
+        assertEquals(Double.NaN, result.getI1());
+        assertEquals(Double.NaN, result.getI2());
+    }
+
+    @Test
+    void anInjectionCarriesTheFlowAtItsTerminal() {
+        StateEstimationResult.InjectionResult result = new StateEstimationResultImpl.InjectionResultImpl(
+                "LOAD", 600.0, 200.0, 912.4);
+
+        assertEquals("LOAD", result.getInjectionId());
+        assertEquals(600.0, result.getP());
+        assertEquals(200.0, result.getQ());
+        assertEquals(912.4, result.getI());
+    }
+
+    @Test
+    void anInjectionWithoutACurrentLeavesItNaN() {
+        StateEstimationResult.InjectionResult result =
+                new StateEstimationResultImpl.InjectionResultImpl("LOAD", 600.0, 200.0);
+
+        assertEquals(600.0, result.getP());
+        assertEquals(Double.NaN, result.getI());
+    }
+
+    @Test
+    void aMeasurementDerivesItsResidualFromTheTwoValues() {
+        StateEstimationResult.MeasurementResult above = new StateEstimationResultImpl.MeasurementResultImpl(
+                "M1", 100.0, 99.5, 2.5, false);
+
+        assertEquals("M1", above.getMeasurementId());
+        assertEquals(100.0, above.getMeasuredValue());
+        assertEquals(99.5, above.getEstimatedValue());
+        assertEquals(0.5, above.getResidual(), 1e-12);
+        assertEquals(2.5, above.getNormalizedResidual());
+        assertFalse(above.isResidualAboveThreshold());
+
+        StateEstimationResult.MeasurementResult below = new StateEstimationResultImpl.MeasurementResultImpl(
+                "M2", 98.0, 100.0, -4.0, true);
+
+        assertEquals(-2.0, below.getResidual(), 1e-12);
+        assertTrue(below.isResidualAboveThreshold(), "the threshold is compared against the absolute value, so a low reading counts too");
+    }
+}

@@ -22,6 +22,7 @@ As a result, it is common to have a single EQ file and multiple SSH files, for e
 
 To handle these cases properly, the importer supports subsequent updates to the initially imported model. 
 You can use the `Network.read` method to perform the initial import, and then apply further updates with `network.update`, where network refers to the originally imported model.
+The update reads the CGMES identifiers as the import does, using the parameters `iidm.import.cgmes.source-for-iidm-id` and `iidm.import.cgmes.decode-escaped-identifiers`, and loads the files in the triplestore given by `iidm.import.cgmes.powsybl-triplestore`; these parameters must have the same values as for the import.
 Next, we present four use cases to illustrate how both methods can be applied:
 
 **Import the entire model in a single step** 
@@ -309,7 +310,7 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
-- `isCondenser` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
+- `hasCondenserCapability` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
 `generatorOrCondenser`, `motorOrCondenser`, `generatorOrMotorOrCondenser`), then the flag is set to `true`. Otherwise, it is set to `false`.
 
 <span style="color: red">TODO reactive limits</span>
@@ -615,31 +616,31 @@ The following CGMES classes are read and imported: `DCNode`, `DCTopologicalNode`
 
 #### DCNode, DCTopologicalNode
 
-If the CGMES model is a node/breaker one, then CGMES `DCNode` are imported into PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node),
+If the CGMES model is a node/breaker one, then CGMES `DCNode` are imported into PowSyBl [`DcNode`](../../grid_model/network_subnetwork.md#dc-node),
 and CGMES `DCTopologicalNode` are discarded. If the CGMES model is a bus/branch one, then CGMES `DCTopologicalNode` are imported into PowSyBl `DcNode`.
 Attribute mapping is:
 - `NominalV` is copied from EQ `ratedUdc` of a CGMES `ACDCConverter` which is located in the same `DCConverterUnit` as the `DCNode`.
 
 #### DCLineSegment
 
-CGMES `DCLineSegment` are imported into PowSyBl [`DC Line`](../../grid_model/network_subnetwork.md#dc-line), with attribute:
+CGMES `DCLineSegment` are imported into PowSyBl [`DcLine`](../../grid_model/network_subnetwork.md#dc-line), with attribute:
 - `R` is copied from EQ `resistance`.
 
 #### DCSwitch, DCBreaker, DCDisconnector
 
-All CGMES `DCSwitch` are imported into PowSyBl [`DC Switch`](../../grid_model/network_subnetwork.md#dc-switch), with attributes described as follow:
+All CGMES `DCSwitch` are imported into PowSyBl [`DcSwitch`](../../grid_model/network_subnetwork.md#dc-switch), with attributes described as follow:
 - `Kind` is defined depending on the CGMES class: it is `BREAKER` for CGMES `DCBreaker`, and it is `DISCONNECTOR` for CGMES `DCSwitch` and `DCDisconnector`.
 - `Open` is defined depending on the associated CGMES `DCTerminal`: if both have SSH `connected` set to `true`, then it is `false`, otherwise it is `true`.
 
 #### DCGround
 
-CGMES `DCGround` are imported into PowSyBl [`DC Ground`](../../grid_model/network_subnetwork.md#dc-ground), with attribute:
+CGMES `DCGround` are imported into PowSyBl [`DcGround`](../../grid_model/network_subnetwork.md#dc-ground), with attribute:
 - `R` is copied from EQ `r`.
 
 #### ACDCConverter (CsConverter, VsConverter)
 
-CGMES `CsConverter` are imported into PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#line-commutated-converter),
-and `VsConverter` into [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter).
+CGMES `CsConverter` are imported into PowSyBl [`LineCommutatedConverter`](../../grid_model/network_subnetwork.md#line-commutated-converter),
+and `VsConverter` into [`VoltageSourceConverter`](../../grid_model/network_subnetwork.md#voltage-source-converter).
 Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter) attributes are mapped as follows:
 - `IdleLoss` is copied from EQ `idleLoss`.
 - `SwitchingLoss` is copied from EQ `switchingLoss`.
