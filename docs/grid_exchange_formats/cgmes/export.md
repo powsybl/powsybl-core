@@ -161,6 +161,94 @@ And the file `manualExampleBasename_SV.xml` will contain:
 
 Remember that, in addition to setting the info for metadata models in the IIDM extensions, you could also rely on parameters passed to the export methods.
 
+(cgmes-partial-ssh-export)=
+## Partial SSH export
+
+A partial SSH file contains the SSH data of a subset of the network only.
+A process that has loaded the same base model can apply it with the network update, and it does not have to read the full network again.
+
+### Export of a subset of the network
+
+To export a partial SSH file, set the partial mode and the exported identifiables in the export context:
+
+```java
+CgmesExportContext context = new CgmesExportContext(network)
+    .setPartialSshExport(true)
+    .setSshExportedIdentifiables(List.of(network.getGenerator("GEN"), network.getLoad("LOAD")));
+try (OutputStream os = Files.newOutputStream(Path.of("partial_SSH.xml"))) {
+    XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+    SteadyStateHypothesisExport.write(network, writer, context);
+}
+```
+
+The partial SSH file has the same header as a full SSH file. Its content obeys these rules:
+- Each exported identifiable writes all its SSH objects, with the same values as the full SSH export.
+- Each connectable also writes the SSH data of its terminals.
+- If two exported identifiables write the same CGMES object, the file contains this object only once.
+- The identifiables without SSH data are ignored, for example the network, the substations and the voltage levels.
+- If there is no exported identifiable, the file contains only the header.
+
+The full SSH export ignores the exported identifiables.
+
+The following table gives the CGMES objects of each kind of identifiable:
+
+| Identifiable                          | CGMES objects in the partial SSH                                                                                                   |
+|---------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Load                                  | `EnergyConsumer` (or one of its subclasses), `AsynchronousMachine` or `EnergySource`                                               |
+| Generator                             | `SynchronousMachine`, `ExternalNetworkInjection` or `EquivalentInjection`, its regulating control (if it has one), its generating unit (if it has a participation factor) |
+| Battery                               | `SynchronousMachine`, its generating unit (if it has a participation factor)                                                       |
+| Shunt compensator                     | `ShuntCompensator` (except an `EquivalentShunt`), its regulating control                                                           |
+| Static var compensator                | `StaticVarCompensator`, its regulating control                                                                                     |
+| Two or three windings transformer     | Its tap changers and their tap changer controls                                                                                    |
+| Boundary line                         | The `EquivalentInjection` at the boundary, its terminal and the terminal at the boundary side                                     |
+| Tie line                              | The objects of its two boundary lines                                                                                              |
+| HVDC converter station                | `CsConverter` or `VsConverter`                                                                                                     |
+| HVDC line                             | The two converters and the DC terminals of the HVDC link                                                                           |
+| AC/DC converter (detailed DC model)   | `CsConverter` or `VsConverter`, its DC terminals                                                                                   |
+| Other DC equipment, DC switch         | Its DC terminals                                                                                                                   |
+| Switch                                | The switch and its two terminals                                                                                                   |
+| Area                                  | `ControlArea`, if the area type is `Interchange`                                                                                   |
+| Bus of a bus-breaker voltage level    | Its fictitious injection and the terminal of this injection; the busbar section terminals recorded at import, if the export does not write the EQ |
+
+The partial SSH export supports node-breaker and bus-breaker networks.
+
+### Shared regulating controls
+
+In CGMES, more than one equipment can refer to the same `RegulatingControl`.
+For example, in the CGMES 3 SmallGrid test case, a `SynchronousMachine` and a `LinearShuntCompensator` share one regulating control.
+In IIDM, each of these equipment has its own voltage regulation, with its own target value.
+
+The partial SSH export writes a shared regulating control with the values of all its holders in the network, and not only with the values of the exported holders.
+Thus, the regulating control in the partial SSH is the same as the regulating control in a full SSH:
+- `enabled` is true if at least one holder regulates.
+- `discrete` is true if at least one holder is discrete (a shunt compensator or a tap changer).
+- `targetValue` and `targetValueUnitMultiplier` are the values of the holders.
+- `targetDeadband` is the deadband of the discrete holders.
+
+One `RegulatingControl` has one target value and one target deadband.
+If the holders do not agree, the partial SSH can not express the IIDM network, and the export fails with an exception:
+- The holders have different target values, or different units for their target values.
+- The discrete holders have different target deadbands.
+
+For example, if you change the target voltage of the generator of the CGMES 3 SmallGrid shared control, and you do not change the target voltage of the shunt compensator, the partial export of the shunt compensator fails.
+To export the change, give the same target value to all the holders of the regulating control.
+
+The same failure can occur after `applySolvedValues()`. This method sets the target voltage of a generator to its solved voltage.
+A generator at its reactive limit does not reach its target voltage, so its new target value can be different from the target values of the other holders.
+
+The full SSH export does not make this check: for a shared regulating control, it writes the target value of the first holder.
+
+### Apply a partial SSH file
+
+The receiver applies a partial SSH file with the network update.
+Set the import parameter **iidm.import.cgmes.use-previous-values-during-update** to `true`, so that the network keeps its current values for all the data that the partial SSH file does not contain:
+
+```java
+Properties properties = new Properties();
+properties.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+network.update(new GenericReadOnlyDataSource(directory, "partial"), properties);
+```
+
 ## Topology kind
 
 The elements written in the exported files depend on the topology kind of the export and on the CIM version.

@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.statement.CgmesObject;
 import com.powsybl.cgmes.model.statement.CgmesObjectSink;
+import com.powsybl.cgmes.model.statement.DeferredCgmesObjectSink;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -47,6 +48,8 @@ public final class SteadyStateHypothesisExport {
     private static final String OPERATING_MODE_GENERATOR = "generator";
     private static final String OPERATING_MODE_MOTOR = "motor";
     private static final String OPERATING_MODE_CONDENSER = "condenser";
+    private static final String SHARED_REGULATING_CONTROLS_DOC = "See the section \"Shared regulating controls\" "
+        + "of the CGMES export documentation (docs/grid_exchange_formats/cgmes/export.md).";
 
     private SteadyStateHypothesisExport() {
     }
@@ -59,34 +62,43 @@ public final class SteadyStateHypothesisExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         SteadyStateHypothesisWriter sshWriter = new SteadyStateHypothesisWriter(writer, context);
-        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
-        CgmesObjectSink sink = sshWriter::write;
-
         try {
             sshWriter.writeRdfRoot();
             sshWriter.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, model);
 
-            exportLoads(network, sink, context);
-            exportFictitiousInjections(network, sink, context);
-            exportEquivalentInjections(network, sink, context);
-            exportTapChangers(network, regulatingControlViews, sink, context);
-            exportGenerators(network, regulatingControlViews, sink, context);
-            exportBatteries(network, sink, context);
-            exportShuntCompensators(network, regulatingControlViews, sink, context);
-            exportStaticVarCompensators(network, regulatingControlViews, sink, context);
-            exportRegulatingControls(regulatingControlViews, sink, context);
-            exportGeneratingUnitsParticitationFactors(network, sink, context);
-            exportConverters(network, sink, context);
-            exportDCTerminals(network, sink, context);
-            // FIXME open status of retained switches in bus-branch models
-            exportSwitches(network, sink, context);
-            exportTerminals(network, sink, context);
-            exportControlAreas(network, sink, context);
+            if (context.isPartialSshExport()) {
+                // A partial export collects the CGMES objects to write each one only once
+                DeferredCgmesObjectSink sink = new DeferredCgmesObjectSink();
+                exportIdentifiables(network, context.getSshExportedIdentifiables(), sink, context);
+                sink.sendAll(sshWriter::write);
+            } else {
+                exportAll(network, sshWriter::write, context);
+            }
 
             sshWriter.writeEndDocument();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static void exportAll(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
+        exportLoads(network, sink, context);
+        exportFictitiousInjections(network, sink, context);
+        exportEquivalentInjections(network, sink, context);
+        exportTapChangers(network, regulatingControlViews, sink, context);
+        exportGenerators(network, regulatingControlViews, sink, context);
+        exportBatteries(network, sink, context);
+        exportShuntCompensators(network, regulatingControlViews, sink, context);
+        exportStaticVarCompensators(network, regulatingControlViews, sink, context);
+        exportRegulatingControls(regulatingControlViews, sink, context);
+        exportGeneratingUnitsParticitationFactors(network, sink, context);
+        exportConverters(network, sink, context);
+        exportDCTerminals(network, sink, context);
+        // FIXME open status of retained switches in bus-branch models
+        exportSwitches(network, sink, context);
+        exportTerminals(network, sink, context);
+        exportControlAreas(network, sink, context);
     }
 
     /**
@@ -96,12 +108,64 @@ public final class SteadyStateHypothesisExport {
      * The identifiables without SSH data are ignored.
      * The regulating control only combines the views of the identifiables of the subset.
      */
-    static void exportIdentifiables(Collection<? extends Identifiable<?>> identifiables, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
-        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
+    private static void exportIdentifiables(Network network, Collection<? extends Identifiable<?>> identifiables,
+                                            CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        final Map<String, List<RegulatingControlView>> regulatingControlViews = new LinkedHashMap<>();
         for (Identifiable<?> identifiable : identifiables) {
             exportIdentifiable(identifiable, regulatingControlViews, sink, context);
         }
-        exportRegulatingControls(regulatingControlViews, sink, context);
+        if (!regulatingControlViews.isEmpty()) {
+            // A regulating control is shared by all its holders, not only by the identifiables of the subset:
+            // it is written with the views of all its holders, and only if it can express all of them
+            Map<String, List<RegulatingControlView>> allHoldersViews = regulatingControlViewsOfAllHolders(network, context);
+            for (String regulatingControlId : regulatingControlViews.keySet()) {
+                List<RegulatingControlView> views = allHoldersViews.get(regulatingControlId);
+                checkRegulatingControlViews(regulatingControlId, views);
+                exportRegulatingControl(combineRegulatingControlViews(views), sink, context);
+            }
+        }
+    }
+
+    /**
+     * The views of the regulating controls given by all their holders,
+     * in the same order as the full export, so that the combined views are the same.
+     */
+    private static Map<String, List<RegulatingControlView>> regulatingControlViewsOfAllHolders(Network network, CgmesExportContext context) throws XMLStreamException {
+        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
+        CgmesObjectSink ignored = cgmesObject -> {
+        };
+        exportTapChangers(network, regulatingControlViews, ignored, context);
+        exportGenerators(network, regulatingControlViews, ignored, context);
+        exportShuntCompensators(network, regulatingControlViews, ignored, context);
+        exportStaticVarCompensators(network, regulatingControlViews, ignored, context);
+        return regulatingControlViews;
+    }
+
+    /**
+     * A single CGMES regulating control must express exactly the regulation of all its holders in IIDM.
+     * The target value and its unit multiplier apply to all the holders, so they must be the same for all of them.
+     * The target deadband applies only to the discrete holders, so it must be the same for all the discrete holders.
+     * The enabled and discrete attributes are combined: each holder keeps its own regulating status and its kind.
+     */
+    private static void checkRegulatingControlViews(String regulatingControlId, List<RegulatingControlView> views) {
+        RegulatingControlView first = views.get(0);
+        RegulatingControlView firstDiscrete = null;
+        for (RegulatingControlView view : views) {
+            if (Double.compare(view.targetValue, first.targetValue) != 0
+                    || !Objects.equals(view.targetValueUnitMultiplier, first.targetValueUnitMultiplier)) {
+                throw new PowsyblException(String.format("Regulating control %s can not be exported: its holders have different target values (%s %s, %s %s). %s",
+                        regulatingControlId, first.targetValue, first.targetValueUnitMultiplier, view.targetValue, view.targetValueUnitMultiplier,
+                        SHARED_REGULATING_CONTROLS_DOC));
+            }
+            if (view.discrete) {
+                if (firstDiscrete == null) {
+                    firstDiscrete = view;
+                } else if (Double.compare(view.targetDeadband, firstDiscrete.targetDeadband) != 0) {
+                    throw new PowsyblException(String.format("Regulating control %s can not be exported: its discrete holders have different target deadbands (%s, %s). %s",
+                            regulatingControlId, firstDiscrete.targetDeadband, view.targetDeadband, SHARED_REGULATING_CONTROLS_DOC));
+                }
+            }
+        }
     }
 
     private static void exportIdentifiable(Identifiable<?> identifiable, Map<String, List<RegulatingControlView>> regulatingControlViews,
