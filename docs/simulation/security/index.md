@@ -16,18 +16,22 @@ pre-contingency state, after a contingency and after a remedial action.
 There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipment, the
 violations can have different types:
 
-- Current, active power and apparent power: this kind of violation can be detected on a branch (line, two-winding
-  transformer, tie line) or on a three-winding transformer, if the computed value is greater than
-  its [permanent limit](../../grid_model/additional.md#loading-limits) or one of
-  its [temporary limits](../../grid_model/additional.md#loading-limits).
-- Voltage: this kind of violation can be detected on a bus or a bus bar section, if the computed voltage is out of the
-  low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
-- Voltage angle: this kind of violation can be detected if the voltage angle difference between the buses associated to
-  two terminals is out of the low-high voltage angle limits defined in the network.
-- Detailed DC equipment: a voltage violation can be detected on a [DC node](../../grid_model/network_subnetwork.md#dc-node)
-  if the magnitude of its voltage is out of its low-high voltage limits, and a current violation on
-  a [DC line](../../grid_model/network_subnetwork.md#dc-line) if the magnitude of its current reaches its permanent
-  current limit. Limit scalings do not apply to these limits. These violations have no side.
+- For AC equipments:
+  - Current, active power and apparent power: this kind of violation can be detected on a branch (line, two-winding
+    transformer, tie line) or on a three-winding transformer, if the computed value is greater than
+    its [permanent limit](../../grid_model/additional.md#loading-limits) or one of
+    its [temporary limits](../../grid_model/additional.md#loading-limits).
+  - Voltage: this kind of violation can be detected on a bus or a bus bar section, if the computed voltage is out of the
+    low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
+  - Voltage angle: this kind of violation can be detected if the voltage angle difference between the buses associated to
+    two terminals is out of the low-high voltage angle limits defined in the network.
+- For detailed DC equipment:
+  - Voltage: a voltage violation can be detected on a [DC node](../../grid_model/network_subnetwork.md#dc-node)
+  if the magnitude of its voltage is out of its low-high voltage limits.
+  - Current: a current violation on a [DC line](../../grid_model/network_subnetwork.md#dc-line) if the magnitude of its current reaches its permanent
+  current limit.
+  
+  Limit scalings do not apply to the detailed DC equipments' limits.
 
 ## Inputs
 
