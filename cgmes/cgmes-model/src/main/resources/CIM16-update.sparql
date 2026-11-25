@@ -254,14 +254,11 @@ SELECT *
     ?SynchronousMachine a cim:SynchronousMachine
     # FIXME(Luma) p in a separate optional block because condensers could not define it
     OPTIONAL { ?SynchronousMachine cim:RotatingMachine.p ?p }
-    OPTIONAL {
-        ?SynchronousMachine
-            cim:RotatingMachine.q ?q ;
-            cim:SynchronousMachine.referencePriority ?referencePriority ;
-            cim:SynchronousMachine.operatingMode ?operatingMode ;
-            cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-        # For condensers giving p is optional,
-    }
+    # One optional block per attribute: a missing attribute must not hide the others (partial SSH)
+    OPTIONAL { ?SynchronousMachine cim:RotatingMachine.q ?q }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.referencePriority ?referencePriority }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.operatingMode ?operatingMode }
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.controlEnabled ?controlEnabled }
 }
 
 # query: generatingUnits
@@ -287,9 +284,9 @@ SELECT *
 {
     ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
         cim:ExternalNetworkInjection.p ?p ;
-        cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled ;
-        cim:ExternalNetworkInjection.referencePriority ?referencePriority
+        cim:ExternalNetworkInjection.q ?q .
+    OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.controlEnabled ?controlEnabled }
+    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.referencePriority ?referencePriority }
 }
 
 # query: asynchronousMachines
