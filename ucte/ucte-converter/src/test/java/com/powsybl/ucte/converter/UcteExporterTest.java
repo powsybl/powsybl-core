@@ -345,6 +345,11 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testNominalPowerRoundTrip() throws IOException {
+        testExporter(loadNetworkFromResourceFile("/nominalPower.uct"), "/expectedExportNominalPower.uct");
+    }
+
+    @Test
     void roundTripOfCombineRtcAndPtc() throws IOException {
         Properties parameters = new Properties();
         parameters.put("ucte.import.combine-phase-angle-regulation", "true");

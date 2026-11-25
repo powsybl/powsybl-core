@@ -170,6 +170,9 @@ The element name of the UCTE line is stored in the `elementName` property and th
 The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer).
 If the current limits are defined, a permanent limit is created only for the second side.
 The nominal power is stored in the dedicated transformer field for rated apparent power: `ratedS`.
+A zero nominal power, although forbidden by the UCTE-DEF format, is tolerated: as IIDM requires a strictly positive `ratedS`,
+it is stored as `1e-5` MVA and a warning is reported. On UCTE-DEF export, this value is truncated to the 5 characters
+of the field and written back as `0.000`.
 The element name of the transformer is stored in the `elementName` property.
 
 If a two-winding transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created,
