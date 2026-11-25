@@ -48,8 +48,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         writeTargetV(g, context);
         writeTargetQ(g, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
-            context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_13, IidmVersion.V_1_18, context, () ->
+            context.getWriter().writeBooleanAttribute("isCondenser", g.hasCondenserCapability(), false));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
+                context.getWriter().writeBooleanAttribute("hasCondenserCapability", g.hasCondenserCapability(), false));
         writeEquivalentLocalTargetV(g, context);
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
@@ -132,8 +134,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute(getTargetVName(context));
         double targetQ = context.getReader().readDoubleAttribute(getTargetQName(context));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
-            adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_13, IidmVersion.V_1_18, context, () ->
+                adder.setCondenserCapability(context.getReader().readBooleanAttribute("isCondenser", false)));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
+            adder.setCondenserCapability(context.getReader().readBooleanAttribute("hasCondenserCapability", false)));
         adder.setTargetP(targetP);
         AtomicReference<Double> equivalentLocalTargetV = new AtomicReference<>(Double.NaN);
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15,
@@ -167,6 +171,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
                 case REGULATING_TERMINAL -> {
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_17, context);
                     VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
+                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
+                    ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(toApply, context);
                 }
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(toApply, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
