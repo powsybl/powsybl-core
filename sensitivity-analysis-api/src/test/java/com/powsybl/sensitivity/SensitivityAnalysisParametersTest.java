@@ -25,6 +25,7 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -234,10 +236,12 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
-        SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"), SensitivityAnalysisResult.Status.SUCCESS);
+        SensitivityStateStatus value = new SensitivityStateStatus(SensitivityState.postContingency("C1"),
+                List.of(new SensitivityStateStatus.ComponentStatus(
+                        0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")));
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
     }
 
     @Test
