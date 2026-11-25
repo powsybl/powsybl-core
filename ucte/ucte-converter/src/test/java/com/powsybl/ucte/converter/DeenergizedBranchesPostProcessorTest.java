@@ -8,8 +8,11 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -226,6 +229,29 @@ class DeenergizedBranchesPostProcessorTest {
                    + 2 de-energized elements exported out of operation
                       Switch: N0000110 N0000111 0
                       Line: N0000011 N0000111 0
+                """, getPostProcessorReportNode(reportNode)));
+    }
+
+    /**
+     * A transformer connected to an X-node is imported with a YNode and a boundary line between the YNode and the
+     * X-node, which the exporter does not export. With "BBBBBB11" energized and the YNode without voltage, the
+     * transformer ("BBBBBB11 XXXXXX11 1") is exported out of operation (8), and the boundary line at the YNode is
+     * ignored instead of making the export fail.
+     */
+    @Test
+    void testDeenergizedBoundaryLineAtYNode() throws IOException {
+        Network network = new UcteImporter().importData(
+                new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct")),
+                NetworkFactory.findDefault(), null);
+        network.getBusBreakerView().getBus("BBBBBB11").setV(400);
+
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
+        assertTrue(export(network, DeenergizedBranchesPostProcessor.NAME, reportNode)
+                .contains("BBBBBB11 XXXXXX11 1 8 "));
+        assertTrue(UcteExporterReportTest.checkReportNode("""
+                + Post-processor deenergized-branches-out-of-operation
+                   + 1 de-energized elements exported out of operation
+                      Two-winding transformer: BBBBBB11 XXXXXX11 1
                 """, getPostProcessorReportNode(reportNode)));
     }
 }

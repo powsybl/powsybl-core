@@ -461,23 +461,7 @@ public final class UcteExporterTestNetworks {
     }
 
     /**
-     * Three bus-breaker areas, with load flow results (bus voltages) where only the Dutch main area is energized:
-     * <ul>
-     *     <li>Dutch main area, energized: 380 kV nodes {@code NA____11}, {@code NA____12} and {@code NA____13}, 220 kV
-     *     node {@code NA____21}. The line {@code NA____11 NA____12 1}, the closed coupler {@code NA____11 NA____13 1}
-     *     and the transformer {@code NA____11 NA____21 1}. {@code NA____13} has no voltage, but it is merged with
-     *     {@code NA____11} through the closed coupler.</li>
-     *     <li>Belgian area, without voltage: 380 kV nodes {@code BD____11}, {@code BD____12} and {@code BD____13},
-     *     220 kV node {@code BD____21}. The line {@code BD____11 BD____12 1}, the equivalent (fictitious) line
-     *     {@code BD____11 BD____12 2}, the line {@code BD____11 BD____12 3} disconnected on its {@code BD____12} side,
-     *     the closed coupler {@code BD____11 BD____13 1}, the open coupler {@code BD____12 BD____13 1}, the transformer
-     *     {@code BD____11 BD____21 1}, the unpaired boundary line {@code BD____12 XD____11 1} and the unpaired boundary
-     *     line {@code BD____13 XC____11 1} exported as a coupler.</li>
-     *     <li>The tie line between the two areas, through the X-node {@code XT____11}: halves
-     *     {@code NA____11 XT____11 1} and {@code BD____11 XT____11 1}.</li>
-     *     <li>Dutch island, without voltage: 380 kV nodes {@code NI____11} and {@code NI____12}, joined by the line
-     *     {@code NI____11 NI____12 1}.</li>
-     * </ul>
+     * Three bus-breaker areas, with load flow results (bus voltages) where only the Dutch main area is energized.
      *
      * @return the network
      */
@@ -485,6 +469,7 @@ public final class UcteExporterTestNetworks {
         Network network = Network.create("deenergizedBranches", "test");
         network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
 
+        // Dutch main area, energized
         Substation mainSubstation = addSubstation(network, "NA", Country.NL);
         VoltageLevel main380 = addBusBreakerVoltageLevel(mainSubstation, "NA1", 380, "NA____11", "NA____12", "NA____13");
         VoltageLevel main220 = addBusBreakerVoltageLevel(mainSubstation, "NA2", 220, "NA____21");
@@ -493,20 +478,27 @@ public final class UcteExporterTestNetworks {
         addTransformer(mainSubstation, "NA____11", "NA____21");
         main380.getBusBreakerView().getBus("NA____11").setV(380);
         main380.getBusBreakerView().getBus("NA____12").setV(380);
+        // NA____13 has no voltage, but it is merged with NA____11 through the closed coupler
         main220.getBusBreakerView().getBus("NA____21").setV(220);
 
+        // Belgian area, without voltage
         Substation belgianSubstation = addSubstation(network, "BD", Country.BE);
         VoltageLevel belgian380 = addBusBreakerVoltageLevel(belgianSubstation, "BD1", 380, "BD____11", "BD____12", "BD____13");
         addBusBreakerVoltageLevel(belgianSubstation, "BD2", 220, "BD____21");
         addLine(network, "BD____11", "BD____12", "1");
+        // Equivalent element
         addLine(network, "BD____11", "BD____12", "2").setFictitious(true);
+        // Already out of operation
         addLine(network, "BD____11", "BD____12", "3").getTerminal2().disconnect();
         addSwitch(belgian380, "BD____11", "BD____13", false);
+        // Already out of operation
         addSwitch(belgian380, "BD____12", "BD____13", true);
         addTransformer(belgianSubstation, "BD____11", "BD____21");
+        // Unpaired boundary lines, the second one exported as a coupler
         addBoundaryLine(belgian380, "BD____12", "XD____11");
         addBoundaryLine(belgian380, "BD____13", "XC____11").setProperty(UcteConverterConstants.IS_COUPLER_PROPERTY_KEY, "true");
 
+        // Tie line between the Dutch main area and the Belgian area, through the X-node XT____11
         addBoundaryLine(main380, "NA____11", "XT____11");
         addBoundaryLine(belgian380, "BD____11", "XT____11");
         network.newTieLine()
@@ -515,6 +507,7 @@ public final class UcteExporterTestNetworks {
                .setBoundaryLine2("BD____11 XT____11 1")
                .add();
 
+        // Dutch island, without voltage
         Substation islandSubstation = addSubstation(network, "NI", Country.NL);
         addBusBreakerVoltageLevel(islandSubstation, "NI1", 380, "NI____11", "NI____12");
         addLine(network, "NI____11", "NI____12", "1");

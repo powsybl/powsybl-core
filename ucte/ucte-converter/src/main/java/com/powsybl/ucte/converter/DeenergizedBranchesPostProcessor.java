@@ -124,7 +124,8 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
                                                 NamingStrategy namingStrategy,
                                                 Map<UcteElementId, IdentifiableType> deenergizedElements) {
         network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> {
-            if (isDeenergized(boundaryLine.getTerminal())) {
+            // The exporter does not export the boundary lines at a YNode: their transformer is connected to the XNode
+            if (!UcteExporter.isBoundaryLineYNode(boundaryLine) && isDeenergized(boundaryLine.getTerminal())) {
                 setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(boundaryLine)),
                         boundaryLine.getType(),
                         deenergizedElements);
@@ -188,16 +189,13 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
     /**
      * Set a UCTE element out of operation if it is in operation, and record it.
      *
-     * @param ucteElement         the UCTE element, possibly null if the element is not exported
+     * @param ucteElement         the UCTE element
      * @param elementType         the type of the IIDM element
      * @param deenergizedElements the types of the IIDM elements set out of operation, by UCTE element id
      */
     private static void setOutOfOperation(UcteElement ucteElement,
                                           IdentifiableType elementType,
                                           Map<UcteElementId, IdentifiableType> deenergizedElements) {
-        if (ucteElement == null) {
-            return;
-        }
         UcteElementStatus status = ucteElement.getStatus();
         UcteElementStatus outOfOperationStatus = outOfOperation(status);
         if (outOfOperationStatus != status) {
