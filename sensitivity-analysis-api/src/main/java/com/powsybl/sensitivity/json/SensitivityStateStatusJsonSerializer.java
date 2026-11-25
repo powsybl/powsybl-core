@@ -10,19 +10,51 @@ package com.powsybl.sensitivity.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityStateStatus;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+import static com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer.*;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityAnalysisResult.SensitivityStateStatus> {
+public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityStateStatus> {
 
     public SensitivityStateStatusJsonSerializer() {
-        super(SensitivityAnalysisResult.SensitivityStateStatus.class);
+        super(SensitivityStateStatus.class);
     }
 
     @Override
-    public void serialize(SensitivityAnalysisResult.SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-        SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, value);
+    public void serialize(SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+        writeJson(jsonGenerator, value);
+    }
+
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
+        try {
+            jsonGenerator.writeStartObject();
+            if (stateStatus.getState().contingencyId() != null) {
+                jsonGenerator.writeStringField("contingencyId", stateStatus.getState().contingencyId());
+            }
+            if (stateStatus.getState().operatorStrategyId() != null) {
+                jsonGenerator.writeStringField("operatorStrategyId", stateStatus.getState().operatorStrategyId());
+            }
+            if (!stateStatus.getComponentsLoadFlowStatusList().isEmpty()) {
+                jsonGenerator.writeArrayFieldStart(COMPONENT_STATUSES);
+                for (SensitivityStateStatus.ComponentStatus componentStatus : stateStatus.getComponentsLoadFlowStatusList()) {
+                    jsonGenerator.writeStartObject();
+                    jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().toString());
+                    jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());
+                    jsonGenerator.writeNumberField(NUM_CC, componentStatus.connectedComponentNum());
+                    jsonGenerator.writeNumberField(NUM_SC, componentStatus.synchronousComponentNum());
+                    jsonGenerator.writeEndObject();
+                }
+                jsonGenerator.writeEndArray();
+            }
+            jsonGenerator.writeEndObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

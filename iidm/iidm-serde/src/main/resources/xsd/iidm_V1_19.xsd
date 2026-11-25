@@ -287,7 +287,7 @@
                 <xs:attribute name="targetP" use="required" type="xs:double"/>
                 <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
-                <xs:attribute name="isCondenser" use="optional" type="xs:boolean"/>
+                <xs:attribute name="hasCondenserCapability" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
