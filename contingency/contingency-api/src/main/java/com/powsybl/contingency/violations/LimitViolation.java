@@ -400,7 +400,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @throws NullPointerException if the violation has no side
      */
     public TwoSides getSideAsTwoSides() {
-        return Objects.requireNonNull(side).toTwoSides();
+        return Objects.requireNonNull(side, () -> "Violation on '" + subjectId + "' has no side.").toTwoSides();
     }
 
     /**

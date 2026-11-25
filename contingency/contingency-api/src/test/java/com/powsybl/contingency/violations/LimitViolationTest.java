@@ -79,7 +79,8 @@ class LimitViolationTest {
                                                         .value(-1200.)
                                                         .build();
         assertNull(currentViolation.getSide());
-        assertThrows(NullPointerException.class, currentViolation::getSideAsTwoSides);
+        NullPointerException noSideException = assertThrows(NullPointerException.class, currentViolation::getSideAsTwoSides);
+        assertEquals("Violation on 'dcLine' has no side.", noSideException.getMessage());
 
         LimitViolationBuilder activePowerBuilder = LimitViolation.builder()
                                                                  .subject("line")
