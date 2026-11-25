@@ -240,6 +240,8 @@ public final class Security {
                     .writeCell(LimitViolationHelper.getCountry(vl).map(Country::name).orElse(""))
                     .writeCell((int) vl.getNominalV());
         } else {
+            // No voltage level: leave the END, COUNTRY and BASE_VOLTAGE cells empty
+            // so that the following cells stay aligned with their columns.
             formatter.writeEmptyCells(3);
         }
         formatter.writeCell(violation.getLimitType().name())
