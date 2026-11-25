@@ -47,7 +47,7 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
                                             .filter(Bus::isInMainConnectedComponent)
                                             .anyMatch(bus -> !Double.isNaN(bus.getV()));
         if (!hasLoadFlowResults) {
-            LOGGER.warn("No load flow results in the main connected component: no element exported out of operation");
+            LOGGER.warn("No load flow results in the main connected component: de-energized elements cannot be identified");
             UcteExporterReports.noLoadFlowResults(context.getReportNode());
             return;
         }

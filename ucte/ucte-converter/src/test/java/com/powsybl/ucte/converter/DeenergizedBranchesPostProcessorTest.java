@@ -90,7 +90,7 @@ class DeenergizedBranchesPostProcessorTest {
                 export(network, DeenergizedBranchesPostProcessor.NAME, reportNode));
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Post-processor deenergized-branches-out-of-operation
-                   No load flow results in the main connected component: no element exported out of operation
+                   No load flow results in the main connected component: de-energized elements cannot be identified
                 """, getPostProcessorReportNode(reportNode)));
     }
 
@@ -109,7 +109,7 @@ class DeenergizedBranchesPostProcessorTest {
                 export(network, DeenergizedBranchesPostProcessor.NAME, reportNode));
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Post-processor deenergized-branches-out-of-operation
-                   No load flow results in the main connected component: no element exported out of operation
+                   No load flow results in the main connected component: de-energized elements cannot be identified
                 """, getPostProcessorReportNode(reportNode)));
     }
 
