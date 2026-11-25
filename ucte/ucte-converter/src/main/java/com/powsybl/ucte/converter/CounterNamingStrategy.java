@@ -10,6 +10,7 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
@@ -34,18 +35,13 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
     private ExportedVoltageLevels exportedVoltageLevels = ExportedVoltageLevels.all();
 
     @Override
-    public void initializeNetwork(Network network) {
-        initializeNetwork(network, ReportNode.NO_OP);
-    }
-
-    @Override
     public ExportedVoltageLevels getExportedVoltageLevels() {
         return exportedVoltageLevels;
     }
 
     @Override
     public void initializeNetwork(Network network, ReportNode reportNode) {
-        exportedVoltageLevels = ExportedVoltageLevels.compute(network, reportNode);
+        exportedVoltageLevels = ExportedVoltageLevels.compute(network, UcteExporterReports.namingStrategySetup(reportNode));
         voltageLevelCounter = 0;
         network.getVoltageLevelStream()
                 .filter(exportedVoltageLevels::isExported)

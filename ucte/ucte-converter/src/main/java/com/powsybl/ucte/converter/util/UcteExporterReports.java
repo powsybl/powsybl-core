@@ -24,15 +24,15 @@ public final class UcteExporterReports {
     private UcteExporterReports() {
     }
 
-    public static ReportNode networkCreation(ReportNode reportNode) {
+    public static ReportNode namingStrategySetup(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.networkCreation")
+                .withMessageTemplate("core.ucte.export.namingStrategySetup")
                 .add();
     }
 
-    public static ReportNode voltageLevels(ReportNode reportNode) {
+    public static ReportNode networkCreation(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.voltageLevels")
+                .withMessageTemplate("core.ucte.export.networkCreation")
                 .add();
     }
 

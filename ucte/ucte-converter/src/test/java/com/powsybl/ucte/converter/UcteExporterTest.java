@@ -34,8 +34,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
-import static com.powsybl.ucte.converter.UcteExporterTestNetworks.Ids.FREE;
-import static com.powsybl.ucte.converter.UcteExporterTestNetworks.Ids.UCTE;
 import static com.powsybl.ucte.converter.UcteExporterTestUtils.exportToString;
 import static com.powsybl.ucte.converter.UcteExporterTestUtils.reimport;
 import static org.junit.jupiter.api.Assertions.*;
@@ -466,7 +464,6 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
-                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -521,7 +518,6 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
-                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -581,7 +577,6 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
-                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -610,11 +605,11 @@ class UcteExporterTest extends AbstractSerDeTest {
     /**
      * Voltage levels without substation, Default naming strategy: their nodes, switches and loads are exported, named
      * after their bus ids, including the isolated one. See
-     * {@link UcteExporterTestNetworks#createWithOrphanVoltageLevels(UcteExporterTestNetworks.Ids)} for the topologies.
+     * {@link UcteExporterTestNetworks#createWithOrphanVoltageLevelsUcteIds()} for the topologies.
      */
     @Test
     void testExportOrphanVoltageLevelsDefault() {
-        Network network = UcteExporterTestNetworks.createWithOrphanVoltageLevels(UCTE);
+        Network network = UcteExporterTestNetworks.createWithOrphanVoltageLevelsUcteIds();
 
         assertTxtEquals("""
                 ##C 2007.05.01
@@ -655,12 +650,12 @@ class UcteExporterTest extends AbstractSerDeTest {
     /**
      * Voltage levels without substation, Counter naming strategy: their nodes get the country of the substations they
      * are linked to, the isolated one without equipment is not exported. See
-     * {@link UcteExporterTestNetworks#createWithOrphanVoltageLevels(UcteExporterTestNetworks.Ids)} for the topologies,
+     * {@link UcteExporterTestNetworks#createWithOrphanVoltageLevels()} for the topologies,
      * plus a node-breaker T-line.
      */
     @Test
     void testExportOrphanVoltageLevelsCounter() {
-        Network network = UcteExporterTestNetworks.createWithOrphanVoltageLevels(FREE);
+        Network network = UcteExporterTestNetworks.createWithOrphanVoltageLevels();
         UcteExporterTestNetworks.addNodeBreakerTLine(network);
 
         assertTxtEquals("""
@@ -710,7 +705,7 @@ class UcteExporterTest extends AbstractSerDeTest {
     void testExportOrphanVoltageLevelsCounterFailures() {
         UcteExporter exporter = new UcteExporter();
         Properties counterNamingParams = counterNamingStrategy();
-        Network acrossTwoCountries = UcteExporterTestNetworks.createWithTLine(FREE, Country.BE);
+        Network acrossTwoCountries = UcteExporterTestNetworks.createWithTLine(Country.BE);
 
         UcteException e = assertThrows(UcteException.class,
                 () -> exportToString(exporter, acrossTwoCountries, counterNamingParams),
@@ -718,8 +713,9 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertEquals("Cannot determine the country of voltage levels [VL_TJUNC]: they are connected to " +
                         "substations of several countries [BE, NL]", e.getMessage());
 
-        Network isolatedWithEquipment = UcteExporterTestNetworks.createWithOrphanVoltageLevels(FREE);
-        UcteExporterTestNetworks.addLoad(isolatedWithEquipment, "BUS_EMPTY_1", "LOAD_EMPTY");
+        Network isolatedWithEquipment = UcteExporterTestNetworks.createWithOrphanVoltageLevels();
+        isolatedWithEquipment.getVoltageLevel("VL_EMPTY").newLoad()
+                .setId("LOAD_EMPTY").setBus("BUS_EMPTY_1").setConnectableBus("BUS_EMPTY_1").setP0(42).setQ0(7).add();
         e = assertThrows(UcteException.class, () -> exportToString(exporter, isolatedWithEquipment, counterNamingParams),
                 "Isolated voltage level holding equipment: no country can be found and its equipment cannot " +
                         "be dropped, the export must fail");

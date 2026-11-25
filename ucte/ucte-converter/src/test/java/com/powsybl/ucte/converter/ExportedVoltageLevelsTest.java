@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ExportedVoltageLevelsTest {
 
-    private static final Ids IDS = Ids.FREE;
-
     private static ReportNode newRootReportNode() {
         return ReportNode.newRootReportNode()
                 .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
@@ -37,16 +35,16 @@ class ExportedVoltageLevelsTest {
 
     @Test
     void invalidCountriesAreRejected() {
-        Network withoutCountry = createWithTLine(IDS, null);
+        Network withoutCountry = createWithTLine(null);
         UcteException e = assertThrows(UcteException.class, () -> ExportedVoltageLevels.compute(withoutCountry, ReportNode.NO_OP));
         assertEquals("Substation S_BBBBB has no country", e.getMessage());
 
-        Network withUnsupportedCountry = createWithTLine(IDS, Country.US);
+        Network withUnsupportedCountry = createWithTLine(Country.US);
         UcteException e2 = assertThrows(UcteException.class,
                 () -> ExportedVoltageLevels.compute(withUnsupportedCountry, ReportNode.NO_OP));
         assertEquals("No UCTE country found for US", e2.getMessage());
 
-        Network acrossTwoCountries = createWithTLine(IDS, Country.BE);
+        Network acrossTwoCountries = createWithTLine(Country.BE);
         e = assertThrows(UcteException.class, () -> ExportedVoltageLevels.compute(acrossTwoCountries, ReportNode.NO_OP));
         assertEquals("Cannot determine the country of voltage levels [VL_TJUNC]: they are connected to substations of several countries [BE, NL]",
                 e.getMessage());
@@ -54,9 +52,12 @@ class ExportedVoltageLevelsTest {
 
     @Test
     void orphansGetTheCountryOfTheirComponent() {
-        Network network = createWithOrphanVoltageLevels(IDS);
+        Network network = createWithOrphanVoltageLevels();
         // Connection status is ignored: an orphan linked by a disconnected line still gets the country
-        addOrphanWithDisconnectedLine(network);
+        String disconnected = newBus(newOrphanVoltageLevel(network, "DISCO"), "BUS_DISCO_1");
+        Line line = newLine(network, "BR_BUS_AAAAA_1_BUS_DISCO_1", "BUS_AAAAA_1", disconnected);
+        line.getTerminal1().disconnect();
+        line.getTerminal2().disconnect();
 
         ExportedVoltageLevels exportedVoltageLevels = ExportedVoltageLevels.compute(network, ReportNode.NO_OP);
 

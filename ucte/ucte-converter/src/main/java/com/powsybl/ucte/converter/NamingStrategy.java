@@ -18,14 +18,7 @@ import com.powsybl.ucte.network.UcteNodeCode;
  */
 public interface NamingStrategy {
 
-    void initializeNetwork(Network network);
-
-    /**
-     * Same as {@link #initializeNetwork(Network)}, reporting under the given report node. Called by the exporter.
-     */
-    default void initializeNetwork(Network network, ReportNode reportNode) {
-        initializeNetwork(network);
-    }
+    void initializeNetwork(Network network, ReportNode reportNode);
 
     /**
      * The voltage levels to export, and their country. Called by the exporter after the network is initialized.
