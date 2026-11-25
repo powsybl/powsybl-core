@@ -59,6 +59,12 @@ public final class LimitViolationHelper {
         }
     }
 
+    /**
+     * @return the country of the substation of the voltage level where the violation is located, or an empty
+     * {@code Optional} if this voltage level has no substation or no country, or if the subject of the violation is
+     * not located in any voltage level (DC node or DC line).
+     * @throws IllegalStateException if the type of the subject of the violation is not supported.
+     */
     public static Optional<Country> getCountry(LimitViolation limitViolation, Network network) {
         return getVoltageLevel(limitViolation, network).flatMap(LimitViolationHelper::getCountry);
     }
@@ -70,11 +76,22 @@ public final class LimitViolationHelper {
         return voltageLevel.getSubstation().flatMap(Substation::getCountry);
     }
 
+    /**
+     * @return the ID of the voltage level where the violation is located, or {@code null} if the subject of the
+     * violation is not located in any voltage level (DC node or DC line).
+     * @throws IllegalStateException if the type of the subject of the violation is not supported.
+     */
     @Nullable
     public static String getVoltageLevelId(LimitViolation limitViolation, Network network) {
         return getVoltageLevelId(limitViolation, network, false);
     }
 
+    /**
+     * @param name if {@code true}, return the name of the voltage level (or its ID if it has no name) instead of its ID.
+     * @return the name or the ID of the voltage level where the violation is located, or {@code null} if the subject
+     * of the violation is not located in any voltage level (DC node or DC line).
+     * @throws IllegalStateException if the type of the subject of the violation is not supported.
+     */
     @Nullable
     public static String getVoltageLevelId(LimitViolation limitViolation, Network network, boolean name) {
         return getVoltageLevel(limitViolation, network)
@@ -82,6 +99,12 @@ public final class LimitViolationHelper {
                 .orElse(null);
     }
 
+    /**
+     * @return the nominal voltage in kV of the voltage level where the violation is located, or {@code NaN} if the
+     * subject of the violation is not located in any voltage level (DC node or DC line). Note that casting
+     * {@code NaN} to an integer type silently gives {@code 0}.
+     * @throws IllegalStateException if the type of the subject of the violation is not supported.
+     */
     public static double getNominalVoltage(LimitViolation limitViolation, Network network) {
         return getVoltageLevel(limitViolation, network)
                 .map(VoltageLevel::getNominalV)
