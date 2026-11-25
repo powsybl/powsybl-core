@@ -48,11 +48,12 @@ Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csvAsS
 
 ## Splitting time series
 
-A stored time series can be split into time series of at most `k` points, using `timeSeries.split(k)` (or
+A time series can be split (as in re-arranged) into time series of at most `k` points, using `timeSeries.split(k)` (or
 `TimeSeries.split(timeSeriesList, k)` to split a list of time series sharing the same index; each of them must then have
 data in every window, otherwise a `TimeSeriesException` is thrown). A `k` lower than 1 is rejected with an
 `IllegalArgumentException`.
-- the index is cut into windows aligned on the absolute grid `[j * k, (j + 1) * k[`;
+- the index is cut into windows aligned on the absolute grid `[j * k, (j + 1) * k[`, where `j` is the window number (`j = 0, 1, 2...`);
+- chunks crossing a window boundary are cut, and chunks lying in the same window are merged
 - one time series, holding a single data chunk, is created for each window containing data. Windows without data are skipped;
 - inside a window, the chunk starts at the first index and ends at the last index covered by data: there is no filling
   at the edges of the window. If the window contains several parts of chunks separated by indexes without data, they are

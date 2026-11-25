@@ -53,25 +53,26 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         int stepCount = chunks.stream().mapToInt(piece -> ((CompressedDoubleDataChunk) piece).getStepLengths().length).sum();
         double[] stepValues = new double[stepCount];
         int[] stepLengths = new int[stepCount];
-        int n = 0;
+        // number of steps already written in stepValues and stepLengths
+        int writtenSteps = 0;
         for (DoubleDataChunk piece : chunks) {
             CompressedDoubleDataChunk chunk = (CompressedDoubleDataChunk) piece;
             double[] values = chunk.getStepValues();
             int[] lengths = chunk.getStepLengths();
             // as in append, the first step is merged with the previous one when they have the same value
             int firstStep = 0;
-            if (n > 0 && stepValues[n - 1] == values[0]) {
-                stepLengths[n - 1] += lengths[0];
+            if (writtenSteps > 0 && stepValues[writtenSteps - 1] == values[0]) {
+                stepLengths[writtenSteps - 1] += lengths[0];
                 firstStep = 1;
             }
-            System.arraycopy(values, firstStep, stepValues, n, values.length - firstStep);
-            System.arraycopy(lengths, firstStep, stepLengths, n, lengths.length - firstStep);
-            n += values.length - firstStep;
+            System.arraycopy(values, firstStep, stepValues, writtenSteps, values.length - firstStep);
+            System.arraycopy(lengths, firstStep, stepLengths, writtenSteps, lengths.length - firstStep);
+            writtenSteps += values.length - firstStep;
         }
         int offset = chunks.getFirst().getOffset();
         DoubleDataChunk last = chunks.getLast();
         return new CompressedDoubleDataChunk(offset, last.getOffset() + last.getLength() - offset,
-                Arrays.copyOf(stepValues, n), Arrays.copyOf(stepLengths, n));
+                Arrays.copyOf(stepValues, writtenSteps), Arrays.copyOf(stepLengths, writtenSteps));
     }
 
     private void forEachChunk(Consumer<DoubleDataChunk> consumer) {

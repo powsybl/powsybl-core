@@ -104,10 +104,16 @@ public abstract class AbstractCompressedDataChunk {
 
     /**
      * Get the step lengths of the slice {@code [from, to[}, which spans the steps {@code firstStep} to {@code lastStep}.
+     *
+     * @param from      first absolute index of the slice (inclusive)
+     * @param to        last absolute index of the slice (exclusive)
+     * @param firstStep position in {@code stepLengths} of the step containing {@code from}
+     * @param lastStep  position in {@code stepLengths} of the step containing {@code to - 1}
      */
     protected int[] sliceStepLengths(int from, int to, int firstStep, int lastStep) {
         int[] starts = getStepStarts();
         int[] lengths = Arrays.copyOfRange(stepLengths, firstStep, lastStep + 1);
+        // the first and last steps may only partially lie in the slice: trim their lengths
         lengths[0] -= from - starts[firstStep];
         lengths[lengths.length - 1] -= starts[lastStep] + stepLengths[lastStep] - to;
         return lengths;

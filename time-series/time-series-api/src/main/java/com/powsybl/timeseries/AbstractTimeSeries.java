@@ -157,7 +157,8 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     }
 
     /**
-     * <p>Split the time series into time series of at most {@code newChunkSize} points.</p>
+     * <p>Re-arrange the time series into time series of at most {@code newChunkSize} points: chunks crossing a window
+     * boundary are cut, and chunks lying in the same window are merged.</p>
      *
      * <p>The index range is cut into windows aligned on the absolute grid {@code [j * newChunkSize, (j + 1) * newChunkSize[}.
      * One time series, holding a single chunk, is created for each window containing data; windows without data are
@@ -192,7 +193,8 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
                 int window = from / newChunkSize;
                 int to = (int) Math.min(end, (window + 1L) * newChunkSize);
                 if (window != currentWindow && !partsOfTheChunksInTheWindow.isEmpty()) {
-                    // merge the parts of the previous window and create a time series, then start a new window
+                    // chunks are sorted and do not overlap: a part falling in a later window means the current window is
+                    // complete, so merge its parts into one chunk, create the time series and start collecting the next window
                     splitTimeSeries.add(createTimeSeries(mergeWindowChunkParts(partsOfTheChunksInTheWindow)));
                     partsOfTheChunksInTheWindow.clear();
                 }
