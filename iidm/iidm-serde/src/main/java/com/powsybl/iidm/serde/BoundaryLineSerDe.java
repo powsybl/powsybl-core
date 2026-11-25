@@ -200,9 +200,9 @@ class BoundaryLineSerDe extends AbstractComplexIdentifiableSerDe<BoundaryLine, B
             targetVAttribute = GENERATION_LOCAL_TARGET_V;
             targetQAttribute = GENERATION_LOCAL_TARGET_Q;
         }
-        Optional<Boolean> legacyVoltageRegulationOn = context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON);
         // From V1_19 the regulation is read from the voltageRegulation child element: the legacy attribute is ignored
-        Optional<Boolean> voltageRegulationOn = context.getVersion().compareTo(IidmVersion.V_1_19) < 0 ? legacyVoltageRegulationOn : Optional.empty();
+        Optional<Boolean> voltageRegulationOn = context.getVersion().compareTo(IidmVersion.V_1_19) < 0
+                ? context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON) : Optional.empty();
         OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
         OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
         OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
