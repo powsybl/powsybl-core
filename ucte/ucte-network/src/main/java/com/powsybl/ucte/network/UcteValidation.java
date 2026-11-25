@@ -19,6 +19,12 @@ public final class UcteValidation {
     public static final String LINE_ID_KEY = "lineId";
 
     public static final double ZERO_EPS = 1e-4;
+    /**
+     * Replaces a zero transformer nominal power, forbidden by the UCTE-DEF format but found in real files, as it would
+     * be rejected by consumers requiring a strictly positive value (e.g. IIDM {@code ratedS}).
+     * Truncated to the 5 characters of the field, it is written back as zero.
+     */
+    public static final double NOMINAL_POWER_EPS = 1e-5;
     public static final double REACTANCE_EPS = 0.05;
     public static final double DU_LIMIT = 6;
     public static final double THETA_ABS_LIMIT = 180;
@@ -68,7 +74,11 @@ public final class UcteValidation {
     // Data: transformer characteristics
     public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer, ReportNode reportNode) {
         String transformerId = ucteTransformer.getId().toString();
-        if (ucteTransformer.getNominalPower() < ZERO_EPS) {
+        if (ucteTransformer.getNominalPower() == 0) {
+            UcteReports.zeroTransformerNominalPower(reportNode, transformerId);
+            LOGGER.warn(transformerId, "Nominal power is zero", NOMINAL_POWER_EPS + " MVA used instead");
+            ucteTransformer.setNominalPower(NOMINAL_POWER_EPS);
+        } else if (ucteTransformer.getNominalPower() < ZERO_EPS) {
             UcteReports.invalidateTransformerNominalPowerValue(reportNode, transformerId, ucteTransformer.getNominalPower());
             LOGGER.error(transformerId, "Value must be positive, blank and zero is not allowed", ucteTransformer.getNominalPower() + " MW");
         }
