@@ -7,14 +7,19 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +42,29 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripFromVersionedXmlTest("reactiveLimitsShapeRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         allFormatsRoundTripTest(ReactiveLimitsTestNetworkFactory.createWithShape(), "reactiveLimitsShapeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
+    void exportShapeShouldFailBeforeIidm119() {
+        Network network = ReactiveLimitsTestNetworkFactory.createWithShape();
+        testForAllPreviousVersions(IidmVersion.V_1_19, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            NotImplementedException e = assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, options, path));
+            assertTrue(e.getMessage().contains("export of this kind of reactive limits is not supported for IIDM versions older than 1.19"));
+        });
+    }
+
+    @Test
+    void importShapeShouldFailBeforeIidm119() throws IOException {
+        String xml119;
+        try (InputStream is = getVersionedNetworkAsStream("reactiveLimitsShapeRoundTripRef.xml", IidmVersion.V_1_19)) {
+            xml119 = new String(is.readAllBytes(), StandardCharsets.ISO_8859_1);
+        }
+        String xml118 = xml119.replace(IidmVersion.V_1_19.getNamespaceURI(), IidmVersion.V_1_18.getNamespaceURI());
+        InputStream is = new ByteArrayInputStream(xml118.getBytes(StandardCharsets.ISO_8859_1));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(is));
+        assertEquals("generator.reactiveCapabilityShape is not supported for IIDM version 1.18. IIDM version should be >= 1.19", e.getMessage());
     }
 
     @Test

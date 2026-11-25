@@ -232,7 +232,7 @@
     <xs:complexType name="ReactiveCapabilityShape">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element name="plane" maxOccurs="unbounded" type="iidm:Plane"/>
+            <xs:element name="plane" minOccurs="1" maxOccurs="unbounded" type="iidm:Plane"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="ReactiveCapabilityCurve">
