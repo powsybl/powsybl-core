@@ -179,10 +179,10 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 1 positions, high side spans 3)
                          FRDEVI11 FRDEVI12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
                          FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
-                         FPCLOS11 FPCLOS12 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
-                         FPTIEB11 FPTIEB12 1 [angle tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
-                         FSDEVI11 FSDEVI12 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
-                         FADEVI11 FADEVI12 1 [angle tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPCLOS11 FPCLOS12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPTIEB11 FPTIEB12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FSDEVI11 FSDEVI12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FADEVI11 FADEVI12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
                    Network exported to file .uct
                 """, rootReportNode));
     }

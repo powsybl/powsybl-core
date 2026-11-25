@@ -847,14 +847,29 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
-        if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
-            UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
-                    .map(rtc -> convertRatioTapChanger(twoWindingsTransformer, context.getReportNode())).orElse(null);
-            UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
-                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, context.withCombinePhaseAngleRegulation(), context.getReportNode())).orElse(null);
-            UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
-            ucteNetwork.addRegulation(ucteRegulation);
+        UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
+                .filter(rtc -> hasSeveralSteps(rtc, twoWindingsTransformer.getId(), "ratio tap changer", context.getReportNode()))
+                .map(rtc -> convertRatioTapChanger(twoWindingsTransformer, context.getReportNode())).orElse(null);
+        UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
+                .filter(ptc -> hasSeveralSteps(ptc, twoWindingsTransformer.getId(), "phase tap changer", context.getReportNode()))
+                .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, context.withCombinePhaseAngleRegulation(), context.getReportNode())).orElse(null);
+        if (uctePhaseRegulation != null || ucteAngleRegulation != null) {
+            ucteNetwork.addRegulation(new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation));
         }
+    }
+
+    /**
+     * UCTE-DEF has no constant-step model for a single tap (n = 0 is read back as an incomplete regulation), so such a
+     * tap changer is not exported, and reported.
+     */
+    private static boolean hasSeveralSteps(TapChanger<?, ?, ?, ?> tapChanger, String equipmentId, String tapChangerType,
+                                           ReportNode reportNode) {
+        if (tapChanger.getStepCount() > 1) {
+            return true;
+        }
+        LOGGER.warn("Two windings transformer {}: {} with a single step not exported", equipmentId, tapChangerType);
+        UcteExporterReports.singleStepTapChangerNotExported(reportNode, equipmentId, tapChangerType);
+        return false;
     }
 
     /**
@@ -940,7 +955,7 @@ public class UcteExporter implements Exporter {
             // the deviation check must use the geometric (pre-division) absDu: the actual IIDM tap steps march at
             // that value even when combinePhaseAngleRegulation divides absDu by the RTC's rho0 for the UCTE record
             double geometricAbsDu = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, false).abs();
-            checkAsymmAngleTapChangerDeviation(phaseTapChanger, geometricAbsDu, angle, twoWindingsTransformer.getId(), reportNode);
+            checkAsymmAngleTapChangerDeviation(phaseTapChanger, geometricAbsDu, angle, neutralPosition, twoWindingsTransformer.getId(), reportNode);
             return new UcteAngleRegulation(absDu,
                     Math.toDegrees(angle),
                     range.n(),

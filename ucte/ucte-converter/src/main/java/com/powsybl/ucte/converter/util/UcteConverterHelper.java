@@ -261,22 +261,17 @@ public final class UcteConverterHelper {
     }
 
     /**
-     * Predicts the complex point the UCTE asymmetric-angle linear model implies {@code stepsFromLow} taps away from
-     * the low tap position, anchored at {@code lowPositionComplex} the same way
-     * {@link #calculateAsymmAngleDuAndAngle(TwoWindingsTransformer, boolean)} fits its line.
+     * Predicts the complex point the UCTE asymmetric-angle linear model implies {@code offset} taps away from
+     * neutral, anchored at {@code 1 + 0j} on the neutral tap as the UCTE importer rebuilds it.
      *
-     * @param lowPositionComplex the complex point at the low tap position
      * @param absDu the δu(%) (module) of the asymmetric angle regulation
      * @param theta the angle (radians) of the asymmetric angle regulation
-     * @param stepsFromLow the number of taps away from the low tap position
+     * @param offset the number of taps away from neutral
      * @return the predicted complex point
      */
-    public static Complex predictAsymmAngleStep(Complex lowPositionComplex,
-                                                double absDu,
-                                                double theta,
-                                                int stepsFromLow) {
+    public static Complex predictAsymmAngleStep(double absDu, double theta, int offset) {
         Complex direction = new Complex(Math.cos(theta), Math.sin(theta));
-        return lowPositionComplex.add(direction.multiply(stepsFromLow * absDu / 100));
+        return Complex.ONE.add(direction.multiply(offset * absDu / 100));
     }
 
     /**
@@ -325,7 +320,7 @@ public final class UcteConverterHelper {
             double predicted = predictSymmAngleStep(du, p - neutralPosition);
             double actual = tapChanger.getStep(p).getAlpha();
             if (Math.abs(actual - predicted) > DEVIATION_EPSILON) {
-                logDeviationWarning(equipmentId, "angle tap changer (SYMM)", reportNode);
+                logDeviationWarning(equipmentId, "phase tap changer (SYMM)", reportNode);
                 return;
             }
         }
@@ -340,27 +335,25 @@ public final class UcteConverterHelper {
      * @param tapChanger the phase tap changer to check
      * @param absDu the δu(%) (module) of the asymmetric angle regulation
      * @param theta the angle (radians) of the asymmetric angle regulation
+     * @param neutralPosition the neutral tap position
      * @param equipmentId the id of the two windings transformer, used in the warning message
      * @param reportNode the reportNode used for functional logs
      */
     public static void checkAsymmAngleTapChangerDeviation(PhaseTapChanger tapChanger,
                                                           double absDu,
                                                           double theta,
+                                                          int neutralPosition,
                                                           String equipmentId,
                                                           ReportNode reportNode) {
-        int lowTapPosition = tapChanger.getLowTapPosition();
-        double lowPositionAlpha = Math.toRadians(-tapChanger.getStep(lowTapPosition).getAlpha());
-        double lowPositionRho = 1 / tapChanger.getStep(lowTapPosition).getRho();
-        Complex lowPositionComplex = ComplexUtils.polar2Complex(lowPositionRho, lowPositionAlpha);
-        for (int p = lowTapPosition; p <= tapChanger.getHighTapPosition(); p++) {
-            Complex predicted = predictAsymmAngleStep(lowPositionComplex, absDu, theta, p - lowTapPosition);
+        for (int p = tapChanger.getLowTapPosition(); p <= tapChanger.getHighTapPosition(); p++) {
+            Complex predicted = predictAsymmAngleStep(absDu, theta, p - neutralPosition);
             double actualAlpha = Math.toRadians(-tapChanger.getStep(p).getAlpha());
             double actualRho = 1 / tapChanger.getStep(p).getRho();
             Complex actual = ComplexUtils.polar2Complex(actualRho, actualAlpha);
-            // absDu is rounded: the predicted point is shifted by up to (p - lowTapPosition).error/100
-            double tolerance = DEVIATION_EPSILON + (p - lowTapPosition) * DU_ROUNDING_ERROR / 100;
+            // absDu is rounded: the predicted point is shifted by up to |offset|.error/100
+            double tolerance = DEVIATION_EPSILON + Math.abs(p - neutralPosition) * DU_ROUNDING_ERROR / 100;
             if (predicted.subtract(actual).abs() > tolerance) {
-                logDeviationWarning(equipmentId, "angle tap changer (ASYM)", reportNode);
+                logDeviationWarning(equipmentId, "phase tap changer (ASYM)", reportNode);
                 return;
             }
         }

@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteRegulation;
 import com.powsybl.ucte.network.io.UcteReader;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
@@ -320,6 +322,61 @@ class UcteExporterTest extends AbstractSerDeTest {
                 exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho());
         assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(),
                 exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
+    }
+
+    @Test
+    void testSingleStepTapChangers() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        String rtcId = "0BBBBB5  0AAAAA2  1";
+        String asymId = "HDDDDD2  HCCCCC1  1";
+        String symmId = "ZABCD221 ZEFGH221 1";
+        network.getTwoWindingsTransformer(rtcId).newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .setLoadTapChangingCapabilities(false)
+                .beginStep().setRho(1.0).endStep()
+                .add();
+        network.getTwoWindingsTransformer(asymId).newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep().setRho(1.0).setAlpha(0.0).endStep()
+                .add();
+        network.getTwoWindingsTransformer(symmId).newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep().setRho(1.0).setAlpha(0.0).endStep()
+                .add();
+
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, new Properties(), dataSource, reportNode);
+
+        UcteNetwork ucteNetwork;
+        try (InputStream is = dataSource.newInputStream(null, "uct")) {
+            ucteNetwork = new UcteReader().read(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)), ReportNode.NO_OP);
+        }
+        for (UcteRegulation regulation : ucteNetwork.getRegulations()) {
+            String id = regulation.getTransfoId().toString();
+            assertNotEquals(rtcId, id);
+            assertNotEquals(symmId, id);
+            if (id.equals(asymId)) {
+                assertNotNull(regulation.getPhaseRegulation());
+                assertNull(regulation.getAngleRegulation());
+            }
+        }
+        assertTrue(UcteExporterReportTest.checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         0BBBBB5  0AAAAA2  1 [ratio tap changer] - tap changer with a single step not exported
+                         HDDDDD2  HCCCCC1  1 [phase tap changer] - tap changer with a single step not exported
+                         ZABCD221 ZEFGH221 1 [phase tap changer] - tap changer with a single step not exported
+                   Network exported to file .uct
+                """, reportNode));
     }
 
     @Test

@@ -22,6 +22,8 @@ associated to a free value. On export, the taps are renumbered around the neutra
 [Tap numbering](#tap-numbering)), but tap steps that don't follow a constant-step model can't be represented exactly.
 In that case, the export does not fail, but the tap changer is approximated and a warning is [reported](#reporting)
 (see [Deviation from the constant-step model](#deviation-from-the-constant-step-model)).
+A tap changer with a single step can't be described by this model: it is not exported, and a warning is
+[reported](#reporting) (see [Tap numbering](#tap-numbering)).
 
 ## Options
 
@@ -419,6 +421,9 @@ When the tap range is not centered on the neutral tap, as in the second case, th
 IIDM one on the shorter side, and a warning is [reported](#reporting). This does not change the exported δu, nor the
 current tap position.
 
+A tap changer with a single step would be exported with n = `0`, which a UCTE-DEF reader treats as an incomplete
+regulation. Such a tap changer is therefore not exported, and a warning is [reported](#reporting).
+
 #### Deviation from the constant-step model
 
 A UCTE-DEF regulation is a constant-step model: δu (and the angle θ, for an angle regulation) is computed from the two
@@ -451,4 +456,5 @@ following situations are reported:
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
 | The tap range of a tap changer is not centered on its neutral tap                                            | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| A tap changer has a single step: it is not exported                                                          | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
 | The tap steps of a ratio or phase tap changer differ from the exported constant-step model                   | `WARN`   | [Deviation from the constant-step model](#deviation-from-the-constant-step-model)           |

@@ -20,6 +20,8 @@ public final class UcteExporterReports {
     public static final String BUS_ID = "busId";
     public static final String GENERATOR_ID = "generatorId";
     public static final String TARGET_V = "targetV";
+    public static final String TAP_CHANGER_TYPE = "tapChangerType";
+    public static final String EQUIPMENT_ID = "equipmentId";
 
     private UcteExporterReports() {
     }
@@ -82,11 +84,20 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static void singleStepTapChangerNotExported(ReportNode reportNode, String equipmentId, String tapChangerType) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.singleStepTapChangerNotExported")
+                .withUntypedValue(EQUIPMENT_ID, equipmentId)
+                .withUntypedValue(TAP_CHANGER_TYPE, tapChangerType)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void tapChangerModelDeviation(ReportNode reportNode, String equipmentId, String tapChangerType) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.tapChangerModelDeviation")
-                .withUntypedValue("equipmentId", equipmentId)
-                .withUntypedValue("tapChangerType", tapChangerType)
+                .withUntypedValue(EQUIPMENT_ID, equipmentId)
+                .withUntypedValue(TAP_CHANGER_TYPE, tapChangerType)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -98,8 +109,8 @@ public final class UcteExporterReports {
                                                 int highSpan) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.tapPositionRangeExtended")
-                .withUntypedValue("equipmentId", equipmentId)
-                .withUntypedValue("tapChangerType", tapChangerType)
+                .withUntypedValue(EQUIPMENT_ID, equipmentId)
+                .withUntypedValue(TAP_CHANGER_TYPE, tapChangerType)
                 .withUntypedValue("lowSpan", lowSpan)
                 .withUntypedValue("highSpan", highSpan)
                 .withSeverity(TypedValue.WARN_SEVERITY)

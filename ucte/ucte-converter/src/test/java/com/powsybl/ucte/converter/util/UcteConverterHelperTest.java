@@ -107,16 +107,19 @@ class UcteConverterHelperTest {
 
     @Test
     void predictStepTest() {
-        assertEquals(1.0, predictRatioStep(100.0, 0), 1e-9);
-        assertEquals(0.5, predictRatioStep(100.0, 1), 1e-9);
+        assertEquals(1.0, predictRatioStep(10.0, 0), 1e-9);
+        assertEquals(1 / 1.1, predictRatioStep(10.0, 1), 1e-9);
 
-        assertEquals(0.0, predictSymmAngleStep(200.0, 0), 1e-9);
-        assertEquals(-90.0, predictSymmAngleStep(200.0, 1), 1e-9);
-        assertEquals(90.0, predictSymmAngleStep(200.0, -1), 1e-9);
+        assertEquals(0.0, predictSymmAngleStep(10.0, 0), 1e-9);
+        assertEquals(-5.724810452, predictSymmAngleStep(10.0, 1), 1e-9);
+        assertEquals(5.724810452, predictSymmAngleStep(10.0, -1), 1e-9);
 
-        Complex predicted = predictAsymmAngleStep(new Complex(1.0, 0.0), 100.0, Math.PI / 2, 1);
+        Complex predicted = predictAsymmAngleStep(10.0, Math.PI / 2, 1);
         assertEquals(1.0, predicted.getReal(), 1e-9);
-        assertEquals(1.0, predicted.getImaginary(), 1e-9);
+        assertEquals(0.1, predicted.getImaginary(), 1e-9);
+        predicted = predictAsymmAngleStep(10.0, Math.PI / 2, -1);
+        assertEquals(1.0, predicted.getReal(), 1e-9);
+        assertEquals(-0.1, predicted.getImaginary(), 1e-9);
     }
 
     /**
