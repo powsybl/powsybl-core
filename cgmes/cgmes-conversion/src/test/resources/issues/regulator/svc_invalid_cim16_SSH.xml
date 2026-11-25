@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:svc_invalid_cim16_SSH">
+        <md:Model.created>2014-10-24T16:53:10</md:Model.created>
+        <md:Model.scenarioTime>2014-03-28T10:13:02</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.description>Static var compensator with an invalid control mode</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.DependentOn rdf:resource="urn:uuid:svc_invalid_cim16_EQ"/>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_T_SVC_1_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:StaticVarCompensator rdf:about="#_SVC_1">
+        <cim:StaticVarCompensator.q>0e+000</cim:StaticVarCompensator.q>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_SVC_1">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.500000</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+</rdf:RDF>
