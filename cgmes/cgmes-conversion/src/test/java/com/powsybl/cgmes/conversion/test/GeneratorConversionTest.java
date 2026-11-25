@@ -29,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class GeneratorConversionTest extends AbstractSerDeTest {
 
+    private static final String DIR = "/issues/generators/";
+
     @Test
     void generatingUnitTypes() {
         Network network = readCgmesResources("/", "GeneratingUnitTypes.xml");
@@ -77,8 +79,12 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testGeneratorActivePowerLimits() {
-        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+    void testGeneratorIncorrectActivePowerLimitsOrder() {
+        // CGMES network:
+        //   A SynchronousMachine whose GeneratingUnit minOperatingP (200.0) is greater than maxOperatingP (50.0)
+        // IIDM network:
+        //   Active power limits have been swapped and imported in the Generator minP and maxP
+        Network network = readCgmesResources(DIR, "generators_EQ.xml");
         Generator g = network.getGenerator("SM1");
         assertEquals(50.0, g.getMinP());
         assertEquals(200.0, g.getMaxP());
@@ -87,7 +93,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
     @Test
     void testGeneratorRemoteReactivePowerControl() {
-        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        Network network = readCgmesResources(DIR, "generators_EQ.xml", "generators_SSH.xml");
         Generator g = network.getGenerator("SM1");
         VoltageRegulation voltageRegulation = g.getVoltageRegulation();
         assertNotNull(voltageRegulation);
