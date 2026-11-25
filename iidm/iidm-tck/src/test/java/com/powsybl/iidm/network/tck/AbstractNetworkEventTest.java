@@ -67,11 +67,14 @@ public abstract class AbstractNetworkEventTest {
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
+        apc.setDroop(4.0);
+        apc.setDroop(4.0); // same value: no event
         apc.setParticipationFactor(2.5);
         apc.setMinTargetP(1.0);
         apc.setMaxTargetP(50.0);
         apc.setMaxTargetP(50.0); // same stored value: no event
-        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "participationFactor", "InitialState", Double.NaN, 2.5),
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "droop", "InitialState", 1.0, 4.0),
+                             new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "participationFactor", "InitialState", Double.NaN, 2.5),
                              new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "minTargetP", "InitialState", Double.NaN, 1.0),
                              new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "maxTargetP", "InitialState", Double.NaN, 50.0)),
                 eventRecorder.getEvents());
