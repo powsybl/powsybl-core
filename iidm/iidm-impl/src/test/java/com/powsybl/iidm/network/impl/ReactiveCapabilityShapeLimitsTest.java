@@ -101,7 +101,7 @@ class ReactiveCapabilityShapeLimitsTest {
 
     @Test
     void testVoltageBoundConstrainsOptimalQ() {
-        // Planes: Q ≤ U (delta=1, alpha=-1) and Q ≥ -1000, with U bounded to [10, 20].
+        // Planes: Q ≤ U (coeffQ=1, coeffU=-1) and Q ≥ -1000, with U bounded to [10, 20].
         // No P or Q bounds are set, so the voltage bound is the only thing capping max Q.
         List<ReactiveCapabilityShapePlane> envelopeConstraints = Arrays.asList(
             ReactiveCapabilityShapePlaneImpl.build(-1.0, 0.0).lessOrEqual(0.0),      // Q - U ≤ 0  → Q ≤ U
@@ -121,9 +121,9 @@ class ReactiveCapabilityShapeLimitsTest {
         // Generator PQV upper limit: Q + 0.002*U - 0.300*P ≤ 200
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.002, -0.3).lessOrEqual(200.0);
 
-        assertEquals(0.002, plane.getAlpha(), EPSILON_PRECISION);
-        assertEquals(-0.3, plane.getBeta(), EPSILON_PRECISION);
-        assertEquals(200.0, plane.getGamma(), EPSILON_PRECISION);
+        assertEquals(0.002, plane.getCoeffU(), EPSILON_PRECISION);
+        assertEquals(-0.3, plane.getCoeffP(), EPSILON_PRECISION);
+        assertEquals(200.0, plane.getRhs(), EPSILON_PRECISION);
         assertTrue(plane.isLessOrEqual());
 
         String expected = "Q + 0.002 * U - 0.300 * P ≤ 200.000";
@@ -136,9 +136,9 @@ class ReactiveCapabilityShapeLimitsTest {
         // Battery PQV lower limit: Q - 0.001*U + 0.200*P ≥ -150
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(-0.001, 0.2).greaterOrEqual(-150.0);
 
-        assertEquals(-0.001, plane.getAlpha(), EPSILON_PRECISION);
-        assertEquals(0.2, plane.getBeta(), EPSILON_PRECISION);
-        assertEquals(-150.0, plane.getGamma(), EPSILON_PRECISION);
+        assertEquals(-0.001, plane.getCoeffU(), EPSILON_PRECISION);
+        assertEquals(0.2, plane.getCoeffP(), EPSILON_PRECISION);
+        assertEquals(-150.0, plane.getRhs(), EPSILON_PRECISION);
         assertTrue(plane.isGreaterOrEqual());
 
         String expected = "Q - 0.001 * U + 0.200 * P ≥ -150.000";
