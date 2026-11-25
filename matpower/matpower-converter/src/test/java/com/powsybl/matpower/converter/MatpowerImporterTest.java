@@ -12,6 +12,8 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
@@ -205,6 +207,57 @@ class MatpowerImporterTest extends AbstractSerDeTest {
 
     private void testNetwork(Network network) throws IOException {
         testNetwork(network, network.getId());
+    }
+
+    @Test
+    void testPurelyResistiveShuntImport() throws IOException {
+        MatpowerModel model = new MatpowerModel("case-resistive-shunt");
+        model.setVersion(MatpowerFormatVersion.V2);
+        model.setBaseMva(100.0);
+
+        MBus bus1 = new MBus();
+        bus1.setNumber(1);
+        bus1.setName("BUS-1");
+        bus1.setType(MBus.Type.PQ);
+        bus1.setBaseVoltage(100.0);
+        bus1.setVoltageMagnitude(1.0);
+        bus1.setVoltageAngle(0.0);
+        bus1.setShuntConductance(10.0);
+        bus1.setShuntSusceptance(0.0);
+        model.addBus(bus1);
+
+        MBus bus2 = new MBus();
+        bus2.setNumber(2);
+        bus2.setName("BUS-2");
+        bus2.setType(MBus.Type.PQ);
+        bus2.setBaseVoltage(100.0);
+        bus2.setVoltageMagnitude(1.0);
+        bus2.setVoltageAngle(0.0);
+        bus2.setShuntConductance(-5.0);
+        bus2.setShuntSusceptance(0.0);
+        model.addBus(bus2);
+
+        Path matFile = tmpDir.resolve("case-resistive-shunt.mat");
+        MatpowerWriter.write(model, matFile, true);
+
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, "case-resistive-shunt"), NetworkFactory.findDefault(), null);
+
+        ShuntCompensator shunt1 = network.getShuntCompensator("SHUNT-1");
+        assertNotNull(shunt1, "Resistive shunt on BUS-1 must be created");
+        assertEquals(1, shunt1.getSectionCount());
+        ShuntCompensatorLinearModel lm1 = (ShuntCompensatorLinearModel) shunt1.getModel();
+        assertEquals(10.0, lm1.getGPerSection(), 1e-9);
+        assertEquals(0.0, lm1.getBPerSection(), 1e-9);
+
+        ShuntCompensator shunt2 = network.getShuntCompensator("SHUNT-2");
+        assertNotNull(shunt2, "Resistive shunt on BUS-2 with negative Gs must be created");
+        assertEquals(1, shunt2.getSectionCount());
+        ShuntCompensatorLinearModel lm2 = (ShuntCompensatorLinearModel) shunt2.getModel();
+        assertEquals(-5.0, lm2.getGPerSection(), 1e-9);
+        assertEquals(0.0, lm2.getBPerSection(), 1e-9);
+
+        assertEquals(2, network.getShuntCompensatorStream().count());
+        assertEquals(0, network.getLoadStream().count());
     }
 
     private void testCaseSolved(MatpowerModel model) throws IOException {
