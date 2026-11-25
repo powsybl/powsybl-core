@@ -334,4 +334,14 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     public void update(Path parametersPath) {
         JsonSecurityAnalysisParameters.update(this, parametersPath);
     }
+
+    /**
+     * Deep copies these parameters through a JSON round trip. An extension whose JSON serializer is not
+     * provided by any provider found via {@code ServiceLoader} is not copied (a warning is logged).
+     *
+     * @return a new instance, independent from this one.
+     */
+    public SecurityAnalysisParameters copy() {
+        return JsonSecurityAnalysisParameters.copy(this);
+    }
 }

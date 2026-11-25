@@ -8,9 +8,11 @@
 package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
+import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -48,9 +50,9 @@ public abstract class AbstractInjectionObservabilityTest {
         assertTrue(injectionObservability.getQualityQ().isPresent());
         assertTrue(injectionObservability.getQualityV().isPresent());
 
-        assertEquals(injectionObservability.getNullableQualityP(), injectionObservability.getQualityP().orElse(null));
-        assertEquals(injectionObservability.getNullableQualityQ(), injectionObservability.getQualityQ().orElse(null));
-        assertEquals(injectionObservability.getNullableQualityV(), injectionObservability.getQualityV().orElse(null));
+        assertEqualsObservabilityQuality(injectionObservability.getNullableQualityP(), injectionObservability.getQualityP().orElse(null));
+        assertEqualsObservabilityQuality(injectionObservability.getNullableQualityQ(), injectionObservability.getQualityQ().orElse(null));
+        assertEqualsObservabilityQuality(injectionObservability.getNullableQualityV(), injectionObservability.getQualityV().orElse(null));
 
         assertEquals(0.02d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);
         injectionObservability.getNullableQualityP().setStandardDeviation(0.03d);
@@ -149,4 +151,11 @@ public abstract class AbstractInjectionObservabilityTest {
         assertFalse(injectionObservability.getNullableQualityQ().isRedundant().isPresent());
         assertEquals(0.2, injectionObservability.getNullableQualityQ().getStandardDeviation(), 0.01);
     }
+
+    private <I extends Injection<I>> void assertEqualsObservabilityQuality(ObservabilityQuality<I> expected, ObservabilityQuality<I> encountered) {
+        assertNotNull(encountered);
+        assertEquals(expected.getStandardDeviation(), encountered.getStandardDeviation(), 0.01);
+        assertEquals(expected.isRedundant(), encountered.isRedundant());
+    }
+
 }
