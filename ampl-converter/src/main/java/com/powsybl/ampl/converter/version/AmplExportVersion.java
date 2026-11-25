@@ -27,7 +27,8 @@ public enum AmplExportVersion {
     V1_0("1.0", BasicAmplExporter::new),
     V1_1("1.1", ExtendedAmplExporter::new),
     V1_2("1.2", ExtendedAmplExporterV2::new),
-    V1_3("1.3", ExtendedAmplExporterV3::new);
+    V1_3("1.3", ExtendedAmplExporterV3::new),
+    V1_4("1.4", ExtendedAmplExporterV4::new);
 
     public interface Factory {
         AmplColumnsExporter create(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
@@ -66,6 +67,6 @@ public enum AmplExportVersion {
     }
 
     public static AmplExportVersion defaultVersion() {
-        return V1_3;
+        return V1_4;
     }
 }

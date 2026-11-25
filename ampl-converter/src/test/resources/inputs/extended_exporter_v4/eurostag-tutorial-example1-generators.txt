@@ -1,0 +1,5 @@
+#Generators (sim1/InitialState)
+#"variant" "num" "bus" "con. bus" "substation" "minP (MW)" "maxP (MW)" "minQmaxP (MVar)" "minQ0 (MVar)" "minQminP (MVar)" "maxQmaxP (MVar)" "maxQ0 (MVar)" "maxQminP (MVar)" "MinQTargetP" "MaxQTargetP" "v regul." "v regul. bus" "targetV (pu)" "condenser" "Q/P in use" "Q/P slope" "targetP (MW)" "targetQ (MVar)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
+1 1 1 1 1 -9999.99 9999.99 -9999.99 -9999.99 -9999.99 9999.99 9999.99 9999.99 -9999.99 9999.99 true 1 1.02083 false false -99999.0 607.000 301.000 0 0 "GEN" "GEN" -99999.0 -99999.0
+1 2 1 1 1 -9999.99 9999.99 4.00000 6.00000 6.00000 5.00000 7.00000 7.00000 5.87860 6.87860 true 1 1.02083 false false -99999.0 607.000 301.000 0 0 "GEN2" "GEN2" -99999.0 -99999.0
+1 3 1 1 1 -9999.99 9999.99 -1.79769e+308 -1.79769e+308 -1.79769e+308 1.79769e+308 1.79769e+308 1.79769e+308 -1.79769e+308 1.79769e+308 true 4 1.01667 true false -99999.0 607.000 301.000 0 0 "GEN3" "GEN3" -99999.0 -99999.0
