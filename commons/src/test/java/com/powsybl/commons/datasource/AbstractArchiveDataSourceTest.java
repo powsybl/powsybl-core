@@ -13,10 +13,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -61,10 +61,9 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
     }
 
     @Test
-    void testFileInSubfolder() throws IOException {
-        // File
-        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getFile());
-        Path path = file.toPath();
+    void testFileInSubfolder() throws IOException, URISyntaxException {
+        // File (through toURI(): URL.getFile() keeps the percent-encoding, e.g. %20 for a space)
+        Path path = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).toURI());
 
         // Create the datasource
         DataSource dataSource = DataSource.fromPath(path);

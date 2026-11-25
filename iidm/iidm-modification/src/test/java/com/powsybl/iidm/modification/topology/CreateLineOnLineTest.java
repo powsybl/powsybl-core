@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.modification.TestUtils.assertConnectablePositionEquals;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -401,5 +402,59 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         ReportNode reportNode = createReportNode();
         modification.apply(network, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-on-line-with-busbreaker-topology.txt");
+    }
+
+    @Test
+    void testKeepExistingPosition() {
+        Network network = createNbNetworkWithBusbarSection();
+        VoltageLevel vlM = network.newVoltageLevel().setId("M")
+                .setNominalV(225.0)
+                .setLowVoltageLimit(220.0)
+                .setHighVoltageLimit(245.00002)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Bus bus = vlM.getBusBreakerView().newBus()
+                .setId("test")
+                .add();
+        Line line = network.getLine("CJ");
+        line.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                    .withName("feeder1")
+                    .withDirection(ConnectablePosition.Direction.TOP)
+                    .withOrder(1)
+                    .add()
+                .newFeeder2()
+                    .withName("feeder2")
+                    .withDirection(ConnectablePosition.Direction.BOTTOM)
+                    .withOrder(3)
+                    .add()
+                .add();
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(bus.getId())
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPositionPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .withPositionForNewLine(1)
+                .build();
+        modification.apply(network, ReportNode.NO_OP);
+        Line line1 = network.getLine("FICT1L");
+        ConnectablePosition<Line> line1Position = line1.getExtension(ConnectablePosition.class);
+        assertNotNull(line1Position);
+        assertConnectablePositionEquals("feeder1", 1, ConnectablePosition.Direction.TOP, line1Position.getFeeder1());
+
+        Line line2 = network.getLine("FICT2L");
+        ConnectablePosition<Line> line2Position = line2.getExtension(ConnectablePosition.class);
+        assertNotNull(line2Position);
+        assertConnectablePositionEquals("feeder2", 3, ConnectablePosition.Direction.BOTTOM, line2Position.getFeeder2());
     }
 }

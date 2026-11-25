@@ -75,7 +75,7 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
     /**
      * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
-    GeneratorAdder setCondenser(boolean isCondenser);
+    GeneratorAdder setCondenserCapability(boolean hasCondenserCapability);
 
     /**
      * Build the Generator object.

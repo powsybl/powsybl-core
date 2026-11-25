@@ -20,6 +20,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.*;
@@ -32,6 +33,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.DoublePredicate;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -49,13 +53,18 @@ public class UcteExporter implements Exporter {
 
     public static final String COMBINE_PHASE_ANGLE_REGULATION = "ucte.export.combine-phase-angle-regulation";
 
+    public static final String POST_PROCESSORS = "ucte.export.post-processors";
+
     private static final Parameter NAMING_STRATEGY_PARAMETER
             = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
 
     private static final Parameter COMBINE_PHASE_ANGLE_REGULATION_PARAMETER
             = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
 
-    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
+    private static final Parameter POST_PROCESSORS_PARAMETER
+            = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList());
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, POST_PROCESSORS_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -69,7 +78,7 @@ public class UcteExporter implements Exporter {
 
     @Override
     public String getFormat() {
-        return "UCTE";
+        return UCTE_FORMAT;
     }
 
     @Override
@@ -95,17 +104,41 @@ public class UcteExporter implements Exporter {
         namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation, networkCreationReportNode);
+        List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
+        // same as for naming strategies, new instances for each export so that post-processors may keep per-export state
+        List<UcteExportPostProcessor> postProcessors = findPostProcessors(postProcessorNames,
+                ServiceLoader.load(UcteExportPostProcessor.class, UcteExporter.class.getClassLoader())
+                        .stream()
+                        .map(ServiceLoader.Provider::get)
+                        .toList());
 
-        try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
+        // convert IIDM Network to UcteNetwork
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
+
+        // apply post-processors modifications
+        Map<UcteExportPostProcessor, UcteExporterContext> postProcessorContexts = new LinkedHashMap<>();
+        for (UcteExportPostProcessor postProcessor : postProcessors) {
+            UcteExporterContext postProcessorContext = context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName()));
+            postProcessor.process(network, ucteNetwork, postProcessorContext);
+            postProcessorContexts.put(postProcessor, postProcessorContext);
+        }
+        // get post-processors UcteNode comparators, only once all post-processors have modified the UCTE network
+        Comparator<UcteNode> nodeComparator = postProcessorContexts.entrySet().stream()
+                .map(e -> e.getKey().getNodeComparator(network, ucteNetwork, e.getValue()))
+                .flatMap(Optional::stream)
+                .reduce(Comparator::thenComparing)
+                .orElse(Comparator.naturalOrder());
+
+        // write - the node sorting within each country is performed by the writer using the UcteNode comparator
+        try (OutputStream os = dataSource.newOutputStream(null, UCT_LOWERCASE, false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
-            new UcteWriter(ucteNetwork).write(writer);
+            new UcteWriter(ucteNetwork, nodeComparator).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
+        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, UCT_LOWERCASE));
     }
 
     @Override
@@ -136,10 +169,10 @@ public class UcteExporter implements Exporter {
      * Convert an IIDM network to an UCTE network
      *
      * @param network the IIDM network to convert
-     * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
+     * @param context the export context, holding the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
+    private static UcteNetwork createUcteNetwork(Network network, UcteExporterContext context) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -152,7 +185,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
+        ReportNode reportNode = context.getReportNode();
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
@@ -196,13 +229,6 @@ public class UcteExporter implements Exporter {
     private static void convertBus(UcteNetwork ucteNetwork, Bus bus, UcteExporterContext context) {
         LOGGER.trace("Converting bus {}", bus.getId());
 
-        if (bus.getGeneratorStream().count() > 1) {
-            throw new UcteException("Too many generators connected to this bus");
-        }
-        if (bus.getLoadStream().count() > 1) {
-            throw new UcteException("Too many loads connected to this bus");
-        }
-
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
@@ -230,7 +256,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addNode(ucteNode);
 
         convertLoads(ucteNode, bus);
-        convertGenerators(ucteNode, bus);
+        convertGenerators(ucteNode, bus, context.getReportNode());
 
         if (isSlackBus(bus)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.UT);
@@ -255,21 +281,18 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Initialize the power generation fields from the generators connected to the specified bus.
+     * Initialize the power generation fields from the generators connected to the specified bus. If there are several
+     * generators, their injections are aggregated (see {@code docs/grid_exchange_formats/ucte/export.md}).
      *
      * @param ucteNode The UCTE node to fill
      * @param bus The bus the generators are connected to
+     * @param reportNode The report node used to report aggregation issues
      */
-    private static void convertGenerators(UcteNode ucteNode, Bus bus) {
+    private static void convertGenerators(UcteNode ucteNode, Bus bus, ReportNode reportNode) {
         double activePowerGeneration = -0.0;
         double reactivePowerGeneration = -0.0;
-        double voltageReference = Double.NaN;
-        double minP = Double.NaN;
-        double maxP = Double.NaN;
-        double minQ = Double.NaN;
-        double maxQ = Double.NaN;
         UcteNodeTypeCode nodeType = UcteNodeTypeCode.PQ;
-        UctePowerPlantType powerPlantType = null;
+        double voltageReference = selectVoltageReference(bus, reportNode);
         for (Generator generator : bus.getGenerators()) {
             if (!Double.isNaN(generator.getTargetP())) {
                 activePowerGeneration += generator.getTargetP();
@@ -277,39 +300,107 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getLocalTargetQ())) {
                 reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (!Double.isNaN(generator.getLocalTargetV())) {
-                // FIXME(mathbagu): what if not all the generators have the same targetV?
-                // Should we use bus.getV() instead?
-                voltageReference = generator.getLocalTargetV();
-            }
-            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageReference)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
-            minP = generator.getMinP();
-            maxP = generator.getMaxP();
-            // FIXME(mathbagu): how to get minQ and maxQ for an aggregated generator
-            minQ = generator.getReactiveLimits().getMinQ(activePowerGeneration);
-            maxQ = generator.getReactiveLimits().getMaxQ(activePowerGeneration);
-
-            // FIXME(mathbagu): what if not all the generators have the same energy source?
-            powerPlantType = energySourceToUctePowerPlantType(generator);
         }
         ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
         ucteNode.setVoltageReference(voltageReference);
-        ucteNode.setPowerPlantType(powerPlantType);
+        ucteNode.setPowerPlantType(aggregatePowerPlantType(bus, reportNode));
         ucteNode.setTypeCode(nodeType);
-        // FIXME(mathbagu): to be changed in UcteImporter?
-        if (minP != -DEFAULT_POWER_LIMIT) {
+        setNodePowerGenerationLimits(ucteNode,
+                aggregateLimit(Generator::getMinP, UcteExporter::isMinLimitInbounds, "minP", bus, reportNode),
+                aggregateLimit(Generator::getMaxP, UcteExporter::isMaxLimitInbounds, "maxP", bus, reportNode),
+                aggregateLimit(UcteExporter::ownMinReactiveLimit, UcteExporter::isMinLimitInbounds, "minQ", bus, reportNode),
+                aggregateLimit(UcteExporter::ownMaxReactiveLimit, UcteExporter::isMaxLimitInbounds, "maxQ", bus, reportNode));
+    }
+
+    /**
+     * @return the minimum reactive limit of the generator, evaluated at its own target active power
+     */
+    private static double ownMinReactiveLimit(Generator generator) {
+        return generator.getReactiveLimits().getMinQ(getGenTargetP(generator));
+    }
+
+    /**
+     * @return the maximum reactive limit of the generator, evaluated at its own target active power
+     */
+    private static double ownMaxReactiveLimit(Generator generator) {
+        return generator.getReactiveLimits().getMaxQ(getGenTargetP(generator));
+    }
+
+    /**
+     * Aggregate one generator power limit over all the generators of a bus. If any generator has no limit (value out
+     * of bounds), the aggregated limit is "no limit". Otherwise it is the sum of the limits; if the sum is itself out
+     * of bounds, a warning is reported.
+     *
+     * @return the aggregated limit, or NaN if the limit must be left undefined
+     */
+    private static double aggregateLimit(ToDoubleFunction<Generator> limit,
+                                         DoublePredicate isInbounds,
+                                         String limitName,
+                                         Bus bus,
+                                         ReportNode reportNode) {
+        if (bus.getGeneratorStream().findAny().isEmpty()) {
+            return Double.NaN;
+        }
+        double sum = -0.0;
+        for (Generator generator : bus.getGenerators()) {
+            double value = limit.applyAsDouble(generator);
+            if (!isInbounds.test(value)) {
+                return Double.NaN;
+            }
+            sum += value;
+        }
+        if (!isInbounds.test(sum)) {
+            UcteExporterReports.aggregatedPowerLimitOutOfBounds(reportNode, bus.getId(), limitName, sum);
+            return Double.NaN;
+        }
+        return sum;
+    }
+
+    /**
+     * @return the common power plant type of the generators, type F if they differ, or null if there is no generator
+     */
+    private static UctePowerPlantType aggregatePowerPlantType(Bus bus, ReportNode reportNode) {
+        Set<UctePowerPlantType> types = bus.getGeneratorStream()
+                                                  .map(UcteExporter::energySourceToUctePowerPlantType)
+                                                  .collect(Collectors.toSet());
+        if (types.size() > 1) {
+            UcteExporterReports.mixedPowerPlantTypes(reportNode, bus.getId());
+            return UctePowerPlantType.F;
+        }
+        return types.stream().findFirst().orElse(null);
+    }
+
+    /**
+     * If provided generator power limits are permissible, set the ucteNode corresponding active and reactive power
+     * generation limits. Max limit is valid if it is lower than {@code 9999} and min limit is valid if it is greater
+     * than {@code -9999}. See {@link UcteConverterConstants#DEFAULT_POWER_LIMIT} that defines the special "no value" in
+     * UCTE import. Invalid values are simply not exported (cell left empty in the export file)
+     *
+     * @param ucteNode an exported node
+     * @param minP min active power
+     * @param maxP max active power
+     * @param minQ min reactive power
+     * @param maxQ max reactive power
+     */
+    private static void setNodePowerGenerationLimits(UcteNode ucteNode,
+                                                     double minP,
+                                                     double maxP,
+                                                     double minQ,
+                                                     double maxQ) {
+        if (isMinLimitInbounds(minP)) {
             ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         }
-        if (maxP != DEFAULT_POWER_LIMIT) {
+        if (isMaxLimitInbounds(maxP)) {
             ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
         }
-        if (minQ != -DEFAULT_POWER_LIMIT) {
+        if (isMinLimitInbounds(minQ)) {
             ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
         }
-        if (maxQ != DEFAULT_POWER_LIMIT) {
+        if (isMaxLimitInbounds(maxQ)) {
             ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
         }
     }
@@ -329,30 +420,56 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad(boundaryLine.getP0());
         ucteNode.setReactiveLoad(boundaryLine.getQ0());
-        double generatorTargetP = boundaryLine.getGeneration().getTargetP();
-        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = boundaryLine.getGeneration().getTargetQ();
-        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (boundaryLine.getGeneration().isVoltageRegulationOn()) {
-            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(boundaryLine.getGeneration().getTargetV());
-            double minP = boundaryLine.getGeneration().getMinP();
-            double maxP = boundaryLine.getGeneration().getMaxP();
-            double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
-            double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
-            if (minP != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-            }
-            if (maxP != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-            }
-            if (minQ != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-            }
-            if (maxQ != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
-            }
+        if (boundaryLine.getGeneration() != null) {
+            applyGenerationToUcteNode(boundaryLine.getGeneration(), ucteNode);
         }
+    }
+
+    /**
+     * Given a non-null {@link BoundaryLine.Generation} from the original boundary line, apply it to the exported
+     * {@link UcteNode}.
+     *
+     * @param generation The {@link BoundaryLine.Generation} associated to the {@link BoundaryLine} at the origin of
+     *                   {@code ucteNode}
+     * @param ucteNode   an {@link UcteNode} to export
+     */
+    private static void applyGenerationToUcteNode(BoundaryLine.Generation generation, UcteNode ucteNode) {
+        double generatorTargetP = generation.getTargetP();
+        ucteNode.setActivePowerGeneration(getOrZero(-generatorTargetP));
+        ucteNode.setReactivePowerGeneration(getOrZero(-generation.getTargetQ()));
+        if (generation.isVoltageRegulationOn()) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
+            ucteNode.setVoltageReference(generation.getTargetV());
+            double minP = generation.getMinP();
+            double maxP = generation.getMaxP();
+            double minQ = generation.getReactiveLimits().getMinQ(generatorTargetP);
+            double maxQ = generation.getReactiveLimits().getMaxQ(generatorTargetP);
+            setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
+        }
+    }
+
+    /**
+     * Generator min power limits must be strictly greater than -9999 (see
+     * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
+     * blank.
+     *
+     * @param value a generator min power limit
+     * @return whether this min power limit should be exported
+     */
+    private static boolean isMinLimitInbounds(double value) {
+        return value > -DEFAULT_POWER_LIMIT;
+    }
+
+    /**
+     * Generator max power limits must be strictly smaller than 9999 (see
+     * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
+     * blank.
+     *
+     * @param value a generator max power limit
+     * @return whether this max power limit should be exported
+     */
+    private static boolean isMaxLimitInbounds(double value) {
+        return value < DEFAULT_POWER_LIMIT;
     }
 
     /**
@@ -535,8 +652,8 @@ public class UcteExporter implements Exporter {
 
     private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
         String value;
-        String value1 = identifiable1.getProperty(key, "");
-        String value2 = identifiable2.getProperty(key, "");
+        String value1 = Objects.requireNonNullElse(identifiable1.getProperty(key, ""), "");
+        String value2 = Objects.requireNonNullElse(identifiable2.getProperty(key, ""), "");
         if (value1.equals(value2)) {
             value = value1;
         } else if (value1.isEmpty()) {
@@ -669,10 +786,8 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        double nominalPower = Double.NaN;
-        if (twoWindingsTransformer.hasProperty(NOMINAL_POWER_KEY)) {
-            nominalPower = Double.parseDouble(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
-        }
+
+        double nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer, context);
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
@@ -689,6 +804,36 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addTransformer(ucteTransformer);
 
         convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
+    }
+
+    /**
+     * Extract a nominal power value from the provided transformer. It should be present in the dedicated
+     * {@link TwoWindingsTransformer} as the {@code ratedS} field. For retro-compatibility, if ratedS is {@code NaN},
+     * also look in the {@code nomimalPower} property (now deprecated).
+     * <br>
+     * If both are absent, return default value {@code 99999} and log + report a warning
+     * @param twoWindingsTransformer a transformer
+     * @return The nominal power of the transformer
+     */
+    private static double extractNominalPowerFromTransformer(TwoWindingsTransformer twoWindingsTransformer,
+                                                             UcteExporterContext context) {
+        if (!Double.isNaN(twoWindingsTransformer.getRatedS())) {
+            return twoWindingsTransformer.getRatedS();
+        }
+        String legacyNominalPowerProperty = twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null);
+        if (legacyNominalPowerProperty != null) {
+            double legacyNominalPower = Double.parseDouble(legacyNominalPowerProperty);
+            if (!Double.isNaN(legacyNominalPower)) {
+                return legacyNominalPower;
+            }
+        }
+        LOGGER.warn("Transformer {}: No nominal power provided. Defaulting to {}",
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        UcteExporterReports.nominalPowerMissing(context.getReportNode(),
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        return NOMINAL_POWER_NOVALUE;
     }
 
     /**
@@ -795,15 +940,18 @@ public class UcteExporter implements Exporter {
     }
 
     private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw, UcteExporterContext context) {
+        boolean wasSet = false;
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
-            } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit(null);
-                LOGGER.warn("Switch {}: No current limit provided", sw.getId());
-                UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
+                wasSet = true;
+            } catch (NumberFormatException e) {
+                LOGGER.debug("Couldn't parse number '{}': {}",
+                        sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY),
+                        e.getMessage());
             }
-        } else {
+        }
+        if (!wasSet) {
             ucteLine.setCurrentLimit(null);
             LOGGER.warn("Switch {}: No current limit provided", sw.getId());
             UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
@@ -858,6 +1006,15 @@ public class UcteExporter implements Exporter {
                     .findFirst()
                     .orElseThrow(() -> new PowsyblException("NamingStrategy '" + name + "' not found"));
         }
+    }
+
+    static List<UcteExportPostProcessor> findPostProcessors(List<String> names, List<UcteExportPostProcessor> postProcessors) {
+        return names.stream()
+                .map(name -> postProcessors.stream()
+                        .filter(pp -> pp.getName().equals(name))
+                        .findFirst()
+                        .orElseThrow(() -> new PowsyblException("UCTE export post-processor '" + name + "' not found")))
+                .toList();
     }
 
 }
