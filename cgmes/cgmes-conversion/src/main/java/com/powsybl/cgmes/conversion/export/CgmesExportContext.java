@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
+import com.powsybl.cgmes.conversion.export.CgmesRecords.GeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.CgmesRecords.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -30,7 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
-import static com.powsybl.cgmes.conversion.export.EquipmentExport.hasDifferentTNsAtBothEnds;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.hasDifferentTNsAtBothEnds;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
@@ -65,6 +67,7 @@ public class CgmesExportContext {
     // From QoCDC 3.3.1 rules IGMConvergence, KirchhoffsFirstLaw, ... that refer to SV_INJECTION_LIMIT=0.1
     public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
+    public static final double POWER_TRANSFORMER_END_RATED_S_DEFAULT_VALUE = 100.0;
     public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
     public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
@@ -84,13 +87,12 @@ public class CgmesExportContext {
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
-    private final Map<String, Region> regionsById = new HashMap<>();
-    private final Map<String, SubRegion> subRegionsById = new HashMap<>();
+    private final Map<String, GeographicalRegionEq> regionsById = new HashMap<>();
+    private final Map<String, SubGeographicalRegionEq> subRegionsById = new HashMap<>();
     private final Map<String, String> substationsSubRegion = new HashMap<>();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
-    private final Network network; // Used for naming strategy of OperationalLimitType and LoadGroups
     private String cgmExportWithTp;
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
@@ -111,7 +113,6 @@ public class CgmesExportContext {
     @Deprecated(since = "7.4.0", forRemoval = true)
     public CgmesExportContext() {
         referenceDataProvider = null;
-        network = null;
     }
 
     public CgmesExportContext(Network network) {
@@ -140,7 +141,6 @@ public class CgmesExportContext {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         scenarioTime = network.getCaseDate();
-        this.network = network;
         addParameters(exportParameters);
         computeCimVersion(exportParameters, network);
         computeTopologyKind(exportParameters, network);
@@ -188,7 +188,7 @@ public class CgmesExportContext {
         } else {
             CgmesTopologyKind topologyKindForExport = detectNetworkTopologyKind(network);
             if (topologyKindForExport == CgmesTopologyKind.MIXED_TOPOLOGY) {
-                if (getCimVersion() < 100) {
+                if (getCimVersion() == 16) {
                     topologyKindForExport = CgmesTopologyKind.BUS_BRANCH;
                 } else {
                     topologyKindForExport = CgmesTopologyKind.NODE_BREAKER;
@@ -252,35 +252,34 @@ public class CgmesExportContext {
 
     private void computeSubstationMapping(Network network) {
         // A GeographicalRegion corresponding to the sourcing actor may be defined in the reference data.
-        Region regionRef = null;
+        GeographicalRegionEq regionRef = null;
         if (referenceDataProvider != null && referenceDataProvider.getSourcingActorRegion() != null) {
             Pair<String, String> sourcingActorRegion = referenceDataProvider.getSourcingActorRegion();
-            regionRef = new Region(sourcingActorRegion.getLeft(), sourcingActorRegion.getRight(), Source.BOUNDARY);
-            regionsById.put(regionRef.id(), regionRef);
+            regionRef = new GeographicalRegionEq(sourcingActorRegion.getLeft(), sourcingActorRegion.getRight());
         }
         for (Substation substation : network.getSubstations()) {
-            Region region = getOrCreateRegion(substation, regionRef);
+            GeographicalRegionEq region = getOrCreateRegion(substation, regionRef);
             String subRegionId = getOrCreateSubRegion(substation, region);
             substationsSubRegion.put(substation.getId(), subRegionId);
         }
     }
 
-    private Region getOrCreateRegion(Substation substation, Region regionRef) {
+    private GeographicalRegionEq getOrCreateRegion(Substation substation, GeographicalRegionEq regionRef) {
         String regionId;
-        Region region;
+        GeographicalRegionEq region;
         String defaultRegionName = substation.hasProperty(PROPERTY_REGION_NAME) ?
                 substation.getProperty(PROPERTY_REGION_NAME) :
                 substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
 
         if (substation.hasProperty(PROPERTY_REGION_ID)) {
             regionId = namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_REGION_ID);
-            region = new Region(regionId, defaultRegionName, Source.IGM);
+            region = new GeographicalRegionEq(regionId, defaultRegionName);
         } else if (regionRef != null) {
-            regionId = regionRef.id();
+            regionId = regionRef.rdfId();
             region = regionRef;
         } else {
             regionId = namingStrategy.getCgmesId(ref(defaultRegionName), GEOGRAPHICAL_REGION);
-            region = new Region(regionId, defaultRegionName, Source.IGM);
+            region = new GeographicalRegionEq(regionId, defaultRegionName);
         }
 
         // Note that if regionId matches the one from the reference data,
@@ -289,13 +288,13 @@ public class CgmesExportContext {
         return regionsById.computeIfAbsent(regionId, k -> region);
     }
 
-    private String getOrCreateSubRegion(Substation substation, Region region) {
+    private String getOrCreateSubRegion(Substation substation, GeographicalRegionEq region) {
         Set<String> geoTags = substation.getGeographicalTags();
-        String subRegionName = geoTags.size() == 1 ? geoTags.iterator().next() : region.name;
+        String subRegionName = geoTags.size() == 1 ? geoTags.iterator().next() : region.name();
         String subRegionId = substation.hasProperty(PROPERTY_SUB_REGION_ID) ?
                 namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_SUB_REGION_ID) :
                 namingStrategy.getCgmesId(ref(subRegionName), SUB_GEOGRAPHICAL_REGION);
-        subRegionsById.computeIfAbsent(subRegionId, k -> new SubRegion(subRegionId, subRegionName, region.id));
+        subRegionsById.computeIfAbsent(subRegionId, k -> new SubGeographicalRegionEq(subRegionId, subRegionName, region.rdfId()));
 
         return subRegionId;
     }
@@ -509,11 +508,11 @@ public class CgmesExportContext {
         return baseVoltageMapping.get(nominalV).id();
     }
 
-    protected Set<Region> getRegions() {
+    protected Set<GeographicalRegionEq> getRegions() {
         return new HashSet<>(regionsById.values());
     }
 
-    protected Set<SubRegion> getSubRegions() {
+    protected Set<SubGeographicalRegionEq> getSubRegions() {
         return new HashSet<>(subRegionsById.values());
     }
 
@@ -637,10 +636,6 @@ public class CgmesExportContext {
         return updateDependencies;
     }
 
-    public Network getNetwork() {
-        return network;
-    }
-
     /**
      * Sets the CGM quick export parameter allowing to export the TP profile, either for all IGMs or for the CGM.
      *
@@ -659,9 +654,5 @@ public class CgmesExportContext {
     }
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }
-
-    record Region(String id, String name, Source source) { }
-
-    record SubRegion(String id, String name, String regionId) { }
 }
 
