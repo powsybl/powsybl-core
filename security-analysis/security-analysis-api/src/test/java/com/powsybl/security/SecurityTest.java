@@ -382,7 +382,7 @@ class SecurityTest {
             new LimitViolation(DcDetailedNetworkFactory.DC_NODE_FR_NEG, "FR negative pole", null, LimitViolationType.HIGH_VOLTAGE,
                 null, Integer.MAX_VALUE, 525., 1.0, -530., null, null),
             new LimitViolation("dcLinePos", null, null, LimitViolationType.CURRENT,
-                null, Integer.MAX_VALUE, 1000., 1.0, -1200., ThreeSides.ONE, null));
+                null, Integer.MAX_VALUE, 1000., 1.0, -1200., null, null));
     }
 
     // Rows are sorted by subject id: dcLinePos, dcNodeFrNeg.

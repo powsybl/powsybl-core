@@ -105,31 +105,31 @@ public final class LimitViolationDetection {
         double magnitude = Math.abs(v);
         double lowLimit = dcNode.getLowVoltageLimit();
         if (!Double.isNaN(lowLimit) && magnitude <= lowLimit) {
-            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.LOW_VOLTAGE, lowLimit, v, null));
+            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.LOW_VOLTAGE, lowLimit, v));
         }
         double highLimit = dcNode.getHighVoltageLimit();
         if (!Double.isNaN(highLimit) && magnitude >= highLimit) {
-            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.HIGH_VOLTAGE, highLimit, v, null));
+            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.HIGH_VOLTAGE, highLimit, v));
         }
     }
 
     /**
      * Checks the current magnitude at terminal 1 of a DC line against its permanent current limit.
-     * A DC line has no shunt admittance, so checking terminal 1 is enough. The limit is never scaled,
-     * and the signed current is reported.
+     * A DC line has no shunt admittance, so checking terminal 1 is enough. The violation has no side.
+     * The limit is never scaled, and the signed current is reported.
      */
     private static void checkCurrent(DcLine dcLine, Consumer<LimitViolation> consumer) {
         double i = dcLine.getDcTerminal1().getI();
         double limit = dcLine.getPermanentCurrentLimit();
         if (!Double.isNaN(i) && !Double.isNaN(limit) && Math.abs(i) >= limit) {
-            consumer.accept(createDetailedDcEquipmentViolation(dcLine, LimitViolationType.CURRENT, limit, i, ThreeSides.ONE));
+            consumer.accept(createDetailedDcEquipmentViolation(dcLine, LimitViolationType.CURRENT, limit, i));
         }
     }
 
     private static LimitViolation createDetailedDcEquipmentViolation(Identifiable<?> subject, LimitViolationType type, double limit,
-                                                            double value, ThreeSides side) {
+                                                                     double value) {
         return new LimitViolation(subject.getId(), subject.getOptionalName().orElse(null), null, type, null,
-                Integer.MAX_VALUE, limit, 1.0, value, side, null);
+                Integer.MAX_VALUE, limit, 1.0, value, null, null);
     }
 
     private static void checkCurrent(Branch<?> branch, Set<LoadingLimitType> currentLimitTypes,

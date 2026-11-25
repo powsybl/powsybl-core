@@ -58,17 +58,15 @@ class LimitViolationDetectionDetailedDcTest {
 
     /**
      * Checks the content that every detailed DC violation must have, plus the fields given as arguments.
-     *
-     * @param side expected side, {@code null} for a DC node voltage violation
      */
     private static void assertDetailedDcViolation(LimitViolation violation, String subjectId, LimitViolationType type,
-                                                  double limit, double value, ThreeSides side) {
+                                                  double limit, double value) {
         assertEquals(subjectId, violation.getSubjectId());
         assertEquals(type, violation.getLimitType());
         assertEquals(limit, violation.getLimit(), 0.0);
         assertEquals(value, violation.getValue(), 0.0);
         assertEquals(1.0, violation.getLimitScaling(), 0.0);
-        assertEquals(side, violation.getSide());
+        assertNull(violation.getSide());
         assertNull(violation.getOperationalLimitsGroupId());
         assertNull(violation.getLimitName());
         assertEquals(Optional.empty(), violation.getViolationLocation());
@@ -133,7 +131,7 @@ class LimitViolationDetectionDetailedDcTest {
         Optional.ofNullable(low).ifPresent(node::setLowVoltageLimit);
         Optional.ofNullable(high).ifPresent(node::setHighVoltageLimit);
 
-        assertDetailedDcViolation(single(detect(network)), nodeId, expectedType, expectedLimit, v, null);
+        assertDetailedDcViolation(single(detect(network)), nodeId, expectedType, expectedLimit, v);
     }
 
     @ParameterizedTest(name = "limits [{0}, {1}], V = {2}")
@@ -173,7 +171,7 @@ class LimitViolationDetectionDetailedDcTest {
         List<LimitViolation> result = detect(switchNetwork);
 
         assertEquals(List.of("dcNode1/HIGH_VOLTAGE", "dcNode2/HIGH_VOLTAGE"), subjects(result));
-        result.forEach(v -> assertDetailedDcViolation(v, v.getSubjectId(), LimitViolationType.HIGH_VOLTAGE, 550., 600., null));
+        result.forEach(v -> assertDetailedDcViolation(v, v.getSubjectId(), LimitViolationType.HIGH_VOLTAGE, 550., 600.));
     }
 
     @Test
@@ -194,7 +192,7 @@ class LimitViolationDetectionDetailedDcTest {
         "1000.,  -1000.",
         // The signed value is reported
         "-1200., 1200.",
-        // both terminals exceed the limit, a single violation on side ONE
+        // both terminals exceed the limit, a single violation without side
         "1500.,  -1500.",
     })
     void dcLineCurrentViolationIsReported(double i1, double i2) {
@@ -204,7 +202,7 @@ class LimitViolationDetectionDetailedDcTest {
         line.getDcTerminal1().setI(i1);
         line.getDcTerminal2().setI(i2);
 
-        assertDetailedDcViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 1000., i1, ThreeSides.ONE);
+        assertDetailedDcViolation(single(detect(network)), DC_LINE_POS, LimitViolationType.CURRENT, 1000., i1);
     }
 
     @ParameterizedTest(name = "limit {0}, I1 = {1}, I2 = {2}")
