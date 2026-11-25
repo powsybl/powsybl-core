@@ -174,7 +174,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "componentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
-                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.valueOf(parser.nextTextValue()));
+                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.fromString(parser.nextTextValue()));
                     break;
 
                 case "hvdcAcEmulation":
