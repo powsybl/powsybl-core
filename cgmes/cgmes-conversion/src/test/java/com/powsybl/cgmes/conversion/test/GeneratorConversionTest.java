@@ -92,14 +92,19 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testGeneratorRemoteReactivePowerControl() {
+    void testGeneratorRemoteReactivePowerRegulation() {
+        // CGMES network:
+        //   A SynchronousMachine in reactive power regulation mode on a distant branch
+        // IIDM network:
+        //   Regulation is correctly imported
         Network network = readCgmesResources(DIR, "generators_EQ.xml", "generators_SSH.xml");
         Generator g = network.getGenerator("SM1");
         VoltageRegulation voltageRegulation = g.getVoltageRegulation();
         assertNotNull(voltageRegulation);
+        assertEquals(RegulationMode.REACTIVE_POWER, voltageRegulation.getMode());
         assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(network.getLine("ACL").getId(), voltageRegulation.getTerminal().getConnectable().getId());
         assertTrue(voltageRegulation.isRegulating());
-        assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), voltageRegulation.getTerminal());
     }
 
     @Test
