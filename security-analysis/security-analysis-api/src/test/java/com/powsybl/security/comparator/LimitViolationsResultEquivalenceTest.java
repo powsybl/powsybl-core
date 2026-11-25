@@ -9,7 +9,6 @@ package com.powsybl.security.comparator;
 
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolationsResult;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.Test;
@@ -211,21 +210,21 @@ class LimitViolationsResultEquivalenceTest {
         // operational limits group
         LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.INSTANCE);
         LimitViolationsResult result1 = new LimitViolationsResult(new ArrayList<>(List.of(
-            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530., null),
-            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE))));
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.),
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200.))));
 
         LimitViolationsResult similarResult = new LimitViolationsResult(new ArrayList<>(List.of(
-            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE),
-            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.05, null))));
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200.),
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.05))));
         assertTrue(resultEquivalence.equivalent(result1, similarResult));
 
         LimitViolationsResult differentResult = new LimitViolationsResult(new ArrayList<>(List.of(
-            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1210., ThreeSides.ONE),
-            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530., null))));
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1210.),
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.))));
         assertFalse(resultEquivalence.equivalent(result1, differentResult));
     }
 
-    private static LimitViolation dcViolation(String subjectId, LimitViolationType type, double limit, double value, ThreeSides side) {
-        return new LimitViolation(subjectId, null, null, type, null, Integer.MAX_VALUE, limit, 1.0, value, side, null);
+    private static LimitViolation dcViolation(String subjectId, LimitViolationType type, double limit, double value) {
+        return new LimitViolation(subjectId, null, null, type, null, Integer.MAX_VALUE, limit, 1.0, value, null, null);
     }
 }

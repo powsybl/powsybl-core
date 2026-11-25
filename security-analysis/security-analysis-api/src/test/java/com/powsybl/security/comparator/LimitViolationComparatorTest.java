@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  *
@@ -130,7 +131,6 @@ class LimitViolationComparatorTest {
             .operationalLimitsGroupId(null)
             .limit(1000.)
             .value(-1200.)
-            .side(TwoSides.ONE)
             .build();
         LimitViolation acViolation = LimitViolation.builder()
             .subject("VL1")
@@ -151,5 +151,15 @@ class LimitViolationComparatorTest {
         violations.sort(comparator);
 
         assertEquals(List.of(acViolation, dcLineViolation, dcNodeViolation), violations);
+    }
+
+    @Test
+    void compareViolationsWithAndWithoutSide() {
+        LimitViolation withoutSide = LimitViolation.builder().subject("dcLine").current().limit(1000.).value(-1200.).build();
+        LimitViolation withSide = LimitViolation.builder().subject("dcLine").current().limit(1000.).value(-1200.).side1().build();
+        LimitViolationComparator comparator = new LimitViolationComparator();
+        int comparison = comparator.compare(withoutSide, withSide);
+        assertNotEquals(0, comparison); // no side != with a side
+        assertEquals(-Integer.signum(comparison), Integer.signum(comparator.compare(withSide, withoutSide))); // Contract for comparison
     }
 }

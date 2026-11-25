@@ -9,6 +9,7 @@ package com.powsybl.security.comparator;
 
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -24,6 +25,9 @@ public class LimitViolationComparator implements Comparator<LimitViolation> {
         .thenComparing(LimitViolation::getOperationalLimitsGroupId, Comparator.nullsFirst(Comparator.naturalOrder()))
         .thenComparing(LimitViolation::getLimitType);
 
+    // The side is null for violations on equipments without sides (e.g. DC lines)
+    private static final Comparator<ThreeSides> SIDE_COMPARATOR = Comparator.nullsFirst(Comparator.naturalOrder());
+
     @Override
     public int compare(LimitViolation violation1, LimitViolation violation2) {
         Objects.requireNonNull(violation1);
@@ -36,7 +40,7 @@ public class LimitViolationComparator implements Comparator<LimitViolation> {
         if (LimitViolationType.CURRENT == violation1.getLimitType()
             || LimitViolationType.ACTIVE_POWER == violation1.getLimitType()
             || LimitViolationType.APPARENT_POWER == violation1.getLimitType()) {
-            return violation1.getSide().compareTo(violation2.getSide());
+            return SIDE_COMPARATOR.compare(violation1.getSide(), violation2.getSide());
         }
         return 0;
 
