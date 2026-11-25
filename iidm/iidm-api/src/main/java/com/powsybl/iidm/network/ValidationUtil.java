@@ -138,6 +138,14 @@ public final class ValidationUtil {
         return checkActivePowerSetpoint(validable, activePowerSetpoint, checkValidationActionOnError(validationLevel), reportNode);
     }
 
+    public static ValidationLevel checkPlannedActivePowerSetpoint(Validable validable, double plannedActivePowerSetpoint, double minP, double maxP, ReportNode reportNode) {
+        if (plannedActivePowerSetpoint < minP || plannedActivePowerSetpoint > maxP) {
+            NetworkReports.plannedActivePowerTargetNotWithinRange(reportNode, validable.getMessageHeader().id(), plannedActivePowerSetpoint, minP, maxP);
+            return ValidationLevel.EQUIPMENT;
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
     private static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, ActionOnError actionOnError, ReportNode reportNode) {
         if (Double.isNaN(activePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, activePowerSetpoint, ACTIVE_POWER_SETPOINT, actionOnError,
@@ -165,6 +173,16 @@ public final class ValidationUtil {
     public static void checkActivePowerLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
             throw new ValidationException(validable, "invalid active limits [" + minP + ", " + maxP + "]");
+        }
+    }
+
+    public static void checkActivePowerTargetWithinRange(Validable validable, double targetP, double minP, double maxP, ReportNode reportNode) {
+        // targetP=0 is always an acceptable state for a generator
+        if ((validable instanceof Generator || validable instanceof GeneratorAdder) && targetP == 0) {
+            return;
+        }
+        if (targetP < minP || targetP > maxP) {
+            NetworkReports.activePowerTargetNotWithinRange(reportNode, validable.getMessageHeader().id(), targetP, minP, maxP);
         }
     }
 
@@ -1278,7 +1296,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationLevel checkVoltageRegulationSlope(@NonNull Validable owner, RegulationMode mode, boolean regulating, double slope, ActionOnError actionOnError, ReportNode reportNode) {
-        Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+        Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         if (mode != null && Double.isNaN(slope) && slopeMode.contains(mode) && regulating) {
             throwExceptionOrLogError(owner,
                 "Undefined value for voltageRegulation.slope. Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER",

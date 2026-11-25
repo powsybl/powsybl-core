@@ -17,6 +17,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
-    private static ReportNode newTestRootReportNode() {
+    static ReportNode newTestRootReportNode() {
         return ReportNode.newRootReportNode()
                          .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME,
                                  PowsyblCoreReportResourceBundle.BASE_NAME)
@@ -47,7 +48,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          .build();
     }
 
-    private static boolean checkReportNode(String expected, ReportNode reportNode) {
+    static boolean checkReportNode(String expected, ReportNode reportNode) {
         StringWriter sw = new StringWriter();
         try {
             reportNode.print(sw);
@@ -78,6 +79,31 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                       Lines
                       Tie-Lines
                       Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks that a transformer with no nominal power (no {@code ratedS} and no legacy property) is reported
+     * when exporting the network.
+     */
+    @Test
+    void testNominalPowerMissingReported() {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").setRatedS(Double.NaN);
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         Transformer F_SU1_11 F_SU1_21 1: No nominal power provided. Defaulting to 99999
                    Network exported to file .uct
                 """, rootReportNode));
     }
@@ -118,6 +144,121 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                    + Creating UCTE Network
                       + Buses and Switches
                          Switch FFFFFF11 FFFFFF12 1: No current limit provided
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported for tap changers that don't fit the UCTE-DEF model: tap range extended to be centered
+     * on the neutral tap, and tap steps deviating from the constant-step model. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void testTapChangerReports() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 0 positions, high side spans 1)
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 1 positions, high side spans 3)
+                         FRDEVI11 FRDEVI12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
+                         FPCLOS11 FPCLOS12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPTIEB11 FPTIEB12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FSDEVI11 FSDEVI12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FADEVI11 FADEVI12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported when several generators or loads are aggregated on a bus. See
+     * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases: only the out of bounds aggregated
+     * maxP ({@code CASE6}) and the mixed power plant types ({@code CASE7}) are reported, a disconnected generator of
+     * another type ({@code CASE9}) is not.
+     */
+    @Test
+    void testMultipleInjectionsReports() {
+        Network network = UcteExporterTestNetworks.createWithMultipleInjections();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Bus FCASE671: aggregated maxP (12000.0) reaches or exceeds 9999 in absolute value ("no limit" value) and is left undefined
+                         Bus FCASE771: generators have different power plant types, type F (further) is used
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported when selecting the voltage reference of a bus. See
+     * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases: conflicting targets
+     * ({@code CASE1}, {@code CASE2}, {@code CASE6}) and rescaled remote targets ({@code CASE4}, {@code CASE8}) are
+     * reported, a remote target on a bus with the same nominal voltage ({@code CASEA}) is not, and a voltage target
+     * regulating a disconnected terminal ({@code CASEB}) is reported as ignored, then as missing. When the only
+     * voltage target of a voltage-regulating node comes from a non-regulating generator ({@code CASEC}), the ignored
+     * target and the non-regulating origin of the kept target are reported.
+     * <p>
+     * A regulating generator without any voltage target, only accepted at the {@link ValidationLevel#EQUIPMENT}
+     * validation level, is added to {@code CASE9}: the missing voltage target is reported.
+     */
+    @Test
+    void testVoltageTargetReports() {
+        Network network = UcteExporterTestNetworks.createWithMultipleVoltageTargets();
+        // EQUIPMENT to have FCASE971 pass validation (regulating node without generator carrying a voltage target)
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        GeneratorAdder missingTargetAdder = network.getVoltageLevel("VL21").newGenerator()
+                .setId("CASE9_GB")
+                .setBus("FCASE971")
+                .setConnectableBus("FCASE971")
+                .setTargetP(10)
+                .setMinP(0)
+                .setMaxP(100)
+                .setLocalTargetQ(0);
+        missingTargetAdder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
+        missingTargetAdder.add();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Bus FCASE171: generators have different voltage targets, 23.0 kV from generator CASE1_GB is used
+                         Bus FCASE271: generators have different voltage targets, 22.0 kV from generator CASE2_GA is used
+                         Bus FCASE471: generator CASE4_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
+                         Bus FCASE671: generators have different voltage targets, 23.0 kV from generator CASE6_GB is used
+                         Bus FCASE871: generator CASE8_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
+                         Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined and the node is exported as PQ
+                         Bus FCASEB71: generator CASEB_GA, connected to this bus, regulates the voltage of the disconnected terminal of CASEB_L; its target 22.5 kV is ignored
+                         Bus FCASEB71: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined and the node is exported as PQ
+                         Bus FCASEC71: generator CASEC_GA, connected to this bus, regulates the voltage of the disconnected terminal of CASEC_L; its target 22.5 kV is ignored
+                         Bus FCASEC71: voltage target 23.0 kV comes from non-regulating generator CASEC_GB
                       Boundary Lines
                       Lines
                       Tie-Lines

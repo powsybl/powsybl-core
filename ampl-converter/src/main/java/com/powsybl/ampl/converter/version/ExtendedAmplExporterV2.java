@@ -27,7 +27,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
 public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
 
     private static final int BATTERY_Q0_COLUMN_INDEX = 6;
-    private static final int GENERATOR_IS_CONDENSER_COLUMN_INDEX = 16;
+    private static final int GENERATOR_HAS_CONDENSER_CAPABILITY_COLUMN_INDEX = 16;
     private static final int LCC_TARGET_Q_COLUMN_INDEX = 5;
     private static final int HVDC_AC_EMULATION_COLUMN_INDEX = 8;
     private static final int HVDC_P_OFFSET_COLUMN_INDEX = 10;
@@ -51,8 +51,8 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     @Override
     public List<Column> getGeneratorsColumns() {
         List<Column> generatorsColumns = new ArrayList<>(super.getGeneratorsColumns());
-        // add column to indicate if generator is a condenser
-        generatorsColumns.add(GENERATOR_IS_CONDENSER_COLUMN_INDEX, new Column("condenser"));
+        // add column to indicate if generator can behave as a condenser
+        generatorsColumns.add(GENERATOR_HAS_CONDENSER_CAPABILITY_COLUMN_INDEX, new Column("condenser"));
         return generatorsColumns;
     }
 
@@ -77,7 +77,7 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     @Override
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
         super.addAdditionalCellsGenerator(formatterHelper, gen);
-        formatterHelper.addCell(gen.isCondenser(), GENERATOR_IS_CONDENSER_COLUMN_INDEX);
+        formatterHelper.addCell(gen.hasCondenserCapability(), GENERATOR_HAS_CONDENSER_CAPABILITY_COLUMN_INDEX);
     }
 
     @Override

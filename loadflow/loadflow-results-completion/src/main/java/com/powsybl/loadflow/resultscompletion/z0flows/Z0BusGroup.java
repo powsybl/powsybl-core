@@ -175,7 +175,9 @@ public class Z0BusGroup {
         }
         graph.addVertex(b1);
         graph.addVertex(b2);
-        graph.addEdge(b1, b2, new Z0Edge(line));
+        Z0Edge edge = new Z0Edge(line);
+        graph.addEdge(b1, b2, edge);
+        graph.setEdgeWeight(edge, edge.getMinimumLineLoadingLimit());
     }
 
     private void addLoop(Line line) {

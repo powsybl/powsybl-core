@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.util.Objects;
 
@@ -177,5 +178,15 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     public SensitivityAnalysisParameters setDebugDir(String debugDir) {
         this.debugDir = debugDir;
         return this;
+    }
+
+    /**
+     * Deep copies these parameters through a JSON round trip. An extension whose JSON serializer is not
+     * provided by any provider found via {@code ServiceLoader} is not copied (a warning is logged).
+     *
+     * @return a new instance, independent from this one.
+     */
+    public SensitivityAnalysisParameters copy() {
+        return JsonSensitivityAnalysisParameters.copy(this);
     }
 }
