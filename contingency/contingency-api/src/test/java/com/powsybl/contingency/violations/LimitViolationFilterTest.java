@@ -36,11 +36,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class LimitViolationFilterTest {
 
-    private static final String DC_CONVERTER = "VscFr";
     private static final String DC_LINE = "dcLinePos";
-    private static final String DC_CONVERTER_SUBSTATION = "SDC-FR-" + DcDetailedNetworkFactory.X_NODE_DC_1_FR;
-    private static final String DC_CONVERTER_VOLTAGE_LEVEL = DcDetailedNetworkFactory.getVoltageLevelId(Country.FR,
-            DcDetailedNetworkFactory.X_NODE_DC_1_FR, DcDetailedNetworkFactory.SUFFIX_150);
 
     private FileSystem fileSystem;
 
@@ -195,23 +191,7 @@ class LimitViolationFilterTest {
 
     // ----------------------------------------------------------------------------------------------------------------
     // Detailed DC violations
-    //
-    // In the fixture, the AC terminal 1 of converter VscFr is in voltage level VLDC-FR-xNodeDc1fr-150 (150 kV), while
-    // its PCC terminal is in voltage level VLDC-FR-xNodeDc1fr-400 (400 kV). Their substation has no country, unless a
-    // test sets one.
     // ----------------------------------------------------------------------------------------------------------------
-
-    @Test
-    void detailedDcConverterViolationIsLocatedAtAcTerminalOne() {
-        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
-        network.getSubstation(DC_CONVERTER_SUBSTATION).setCountry(Country.FR);
-        LimitViolation converterViolation = createDcConverterViolation();
-
-        assertEquals(DC_CONVERTER_VOLTAGE_LEVEL, LimitViolationHelper.getVoltageLevelId(converterViolation, network));
-        // 150 kV (AC terminal 1), not 400 kV (PCC terminal)
-        assertEquals(150.0, LimitViolationHelper.getNominalVoltage(converterViolation, network), 0.0);
-        assertEquals(Optional.of(Country.FR), LimitViolationHelper.getCountry(converterViolation, network));
-    }
 
     @Test
     void detailedDcNodeAndLineViolationsHaveNoVoltageLevel() {
@@ -229,18 +209,14 @@ class LimitViolationFilterTest {
     void applyMinBaseVoltageOnDetailedDcViolations() {
         Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
         List<LimitViolation> violations = createDetailedDcViolations();
-        List<String> all = List.of(DC_CONVERTER, DC_LINE, DcDetailedNetworkFactory.DC_NODE_FR_POS);
+        List<String> all = List.of(DC_LINE, DcDetailedNetworkFactory.DC_NODE_FR_POS);
 
         // The default filter and an explicit 0 kV threshold keep every detailed DC violation
         assertEquals(all, subjects(new LimitViolationFilter().apply(violations, network)));
         assertEquals(all, subjects(new LimitViolationFilter().setMinBaseVoltage(0.0).apply(violations, network)));
 
         // Any threshold strictly greater than 0 removes the DC node and DC line violations
-        assertEquals(List.of(DC_CONVERTER), subjects(new LimitViolationFilter().setMinBaseVoltage(1e-6).apply(violations, network)));
-
-        // The converter violation is filtered on its AC terminal 1 (150 kV), not on its PCC terminal (400 kV)
-        assertEquals(List.of(DC_CONVERTER), subjects(new LimitViolationFilter().setMinBaseVoltage(150.0).apply(violations, network)));
-        assertEquals(List.of(), subjects(new LimitViolationFilter().setMinBaseVoltage(200.0).apply(violations, network)));
+        assertEquals(List.of(), subjects(new LimitViolationFilter().setMinBaseVoltage(1e-6).apply(violations, network)));
     }
 
     @Test
@@ -248,14 +224,9 @@ class LimitViolationFilterTest {
         Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
         List<LimitViolation> violations = createDetailedDcViolations();
 
-        // The converter substation has no country: an explicit empty set keeps the converter violation, as for AC
-        // equipment, but removes the DC node and DC line violations
-        assertEquals(List.of(DC_CONVERTER), subjects(new LimitViolationFilter().setCountries(Set.of()).apply(violations, network)));
-
-        // Any explicit non-empty set also removes the DC node and DC line violations
-        network.getSubstation(DC_CONVERTER_SUBSTATION).setCountry(Country.FR);
-        assertEquals(List.of(DC_CONVERTER), subjects(new LimitViolationFilter().setCountries(EnumSet.of(Country.FR)).apply(violations, network)));
-        assertEquals(List.of(), subjects(new LimitViolationFilter().setCountries(EnumSet.of(Country.BE)).apply(violations, network)));
+        // Any explicit set of countries, empty or not, removes the DC node and DC line violations
+        assertEquals(List.of(), subjects(new LimitViolationFilter().setCountries(Set.of()).apply(violations, network)));
+        assertEquals(List.of(), subjects(new LimitViolationFilter().setCountries(EnumSet.of(Country.FR)).apply(violations, network)));
     }
 
     private static LimitViolation createDcNodeViolation() {
@@ -279,19 +250,8 @@ class LimitViolationFilterTest {
             .build();
     }
 
-    private static LimitViolation createDcConverterViolation() {
-        return LimitViolation.builder()
-            .subject(DC_CONVERTER)
-            .type(LimitViolationType.ACTIVE_POWER)
-            .operationalLimitsGroupId(null)
-            .limit(200.0)
-            .value(250.0)
-            .side(TwoSides.ONE)
-            .build();
-    }
-
     private static List<LimitViolation> createDetailedDcViolations() {
-        return List.of(createDcNodeViolation(), createDcLineViolation(), createDcConverterViolation());
+        return List.of(createDcNodeViolation(), createDcLineViolation());
     }
 
     private static List<String> subjects(List<LimitViolation> violations) {

@@ -16,14 +16,6 @@
         "limitScaling" : 1.0,
         "value" : -1200.0,
         "side" : "ONE"
-      }, {
-        "subjectId" : "VscFr",
-        "subjectName" : "VSC France",
-        "limitType" : "ACTIVE_POWER",
-        "limit" : 200.0,
-        "limitScaling" : 1.0,
-        "value" : 250.0,
-        "side" : "ONE"
       } ],
       "actionsTaken" : [ ]
     },
@@ -52,14 +44,6 @@
         "limit" : 1000.0,
         "limitScaling" : 1.0,
         "value" : -1200.0,
-        "side" : "ONE"
-      }, {
-        "subjectId" : "VscFr",
-        "subjectName" : "VSC France",
-        "limitType" : "ACTIVE_POWER",
-        "limit" : 200.0,
-        "limitScaling" : 1.0,
-        "value" : 250.0,
         "side" : "ONE"
       } ],
       "actionsTaken" : [ ]

@@ -207,22 +207,19 @@ class LimitViolationsResultEquivalenceTest {
 
     @Test
     void equivalentWithViolationsWithoutOperationalLimitsGroup() {
-        // Compatibility with limit violations in detailed DC networks: DC node, DC line and AC/DC converter violations
-        // have no operational limits group
+        // Compatibility with limit violations in detailed DC networks: DC node and DC line violations have no
+        // operational limits group
         LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.INSTANCE);
         LimitViolationsResult result1 = new LimitViolationsResult(new ArrayList<>(List.of(
             dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530., null),
-            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE),
-            dcViolation("converter", LimitViolationType.ACTIVE_POWER, 200., 250., ThreeSides.ONE))));
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE))));
 
         LimitViolationsResult similarResult = new LimitViolationsResult(new ArrayList<>(List.of(
-            dcViolation("converter", LimitViolationType.ACTIVE_POWER, 200., 250., ThreeSides.ONE),
             dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE),
             dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.05, null))));
         assertTrue(resultEquivalence.equivalent(result1, similarResult));
 
         LimitViolationsResult differentResult = new LimitViolationsResult(new ArrayList<>(List.of(
-            dcViolation("converter", LimitViolationType.ACTIVE_POWER, 200., 250., ThreeSides.ONE),
             dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1210., ThreeSides.ONE),
             dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530., null))));
         assertFalse(resultEquivalence.equivalent(result1, differentResult));

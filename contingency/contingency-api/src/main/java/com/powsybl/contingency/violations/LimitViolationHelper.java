@@ -52,8 +52,6 @@ public final class LimitViolationHelper {
             return voltageLevel;
         } else if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
-        } else if (identifiable instanceof AcDcConverter<?> converter) {
-            return converter.getTerminal1().getVoltageLevel();
         } else if (identifiable instanceof DcNode || identifiable instanceof DcLine) {
             return null;
         } else {

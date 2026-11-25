@@ -115,8 +115,8 @@ class LimitViolationComparatorTest {
 
     @Test
     void compareViolationsWithoutOperationalLimitsGroup() {
-        // Compatibility with limit violations in detailed DC networks: DC node, DC line and AC/DC converter violations
-        // have no operational limits group
+        // Compatibility with limit violations in detailed DC networks: DC node and DC line violations have no
+        // operational limits group
         LimitViolation dcNodeViolation = LimitViolation.builder()
             .subject("dcNode")
             .type(LimitViolationType.HIGH_VOLTAGE)
@@ -132,14 +132,6 @@ class LimitViolationComparatorTest {
             .value(-1200.)
             .side(TwoSides.ONE)
             .build();
-        LimitViolation converterViolation = LimitViolation.builder()
-            .subject("converter")
-            .type(LimitViolationType.ACTIVE_POWER)
-            .operationalLimitsGroupId(null)
-            .limit(200.)
-            .value(250.)
-            .side(TwoSides.ONE)
-            .build();
         LimitViolation acViolation = LimitViolation.builder()
             .subject("VL1")
             .type(LimitViolationType.HIGH_VOLTAGE)
@@ -149,15 +141,15 @@ class LimitViolationComparatorTest {
         LimitViolationComparator comparator = new LimitViolationComparator();
 
         // Same subject: the comparison goes through the operational limits group, then the side
-        for (LimitViolation violation : List.of(dcNodeViolation, dcLineViolation, converterViolation)) {
+        for (LimitViolation violation : List.of(dcNodeViolation, dcLineViolation)) {
             LimitViolation copy = new LimitViolation(violation.getSubjectId(), null, null, violation.getLimitType(), null,
                 Integer.MAX_VALUE, violation.getLimit(), 1.0, violation.getValue() + 1., violation.getSide(), null);
             assertEquals(0, comparator.compare(violation, copy), violation.getSubjectId());
         }
 
-        List<LimitViolation> violations = Arrays.asList(converterViolation, acViolation, dcLineViolation, dcNodeViolation);
+        List<LimitViolation> violations = Arrays.asList(dcNodeViolation, acViolation, dcLineViolation);
         violations.sort(comparator);
 
-        assertEquals(List.of(acViolation, converterViolation, dcLineViolation, dcNodeViolation), violations);
+        assertEquals(List.of(acViolation, dcLineViolation, dcNodeViolation), violations);
     }
 }
