@@ -7,9 +7,8 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -41,18 +40,71 @@ class ExtendedAmplExporterV4Test extends ExtendedAmplExporterV3Test {
         return "inputs/extended_exporter_v4/headers.txt";
     }
 
-    @Override
     @Test
-    void testVscExtendedReactiveCapabilityCurveData() throws IOException {
-        Network network = HvdcTestNetwork.createVsc();
+    void testGeneratorExport() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        Generator generator = network.getGenerator("GEN");
+        generator.newVoltageRegulation()
+                //.withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+                .withRegulating(true)
+                .withSlope(0.25)
+                .build();
+        String busId = generator.getTerminal().getBusView().getBus().getId();
+        Generator generator1 = network.getVoltageLevel("VLGEN").newGenerator()
+                .setId("GENERATOR1")
+                .setBus(busId)
+                .setConnectableBus(busId)
+                .setMinP(-500)
+                .setMaxP(500)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(24.5)
+                .setTargetP(607.0)
+                .setLocalTargetQ(301.0)
+                .add();
+        generator1.newReactiveCapabilityCurve()
+                .beginPoint()
+                    .setP(-500)
+                    .setMinQ(-30)
+                    .setMaxQ(30)
+                .endPoint()
+                .beginPoint()
+                    .setP(0)
+                    .setMinQ(-60)
+                    .setMaxQ(60)
+                .endPoint()
+                .beginPoint()
+                    .setP(500)
+                    .setMinQ(-20)
+                    .setMaxQ(20)
+                .endPoint()
+                .add();
+        Generator generator2 = network.getVoltageLevel("VLGEN").newGenerator()
+                .setId("GENERATOR2")
+                .setBus(busId)
+                .setConnectableBus(busId)
+                .setMinP(-100)
+                .setMaxP(700)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(24.5)
+                .setTargetP(607.0)
+                .setLocalTargetQ(301.0)
+                .add();
+        generator2.newMinMaxReactiveLimits()
+                .setMinQ(-50)
+                .setMaxQ(400)
+                .add();
+
         exporter.export(network, properties, dataSource);
-        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/extended_exporter_v4/vsc-test-case.txt");
+
+        assertEqualsToRef(dataSource, "_network_generators",
+                "inputs/extended_exporter_v4/generators.txt");
     }
 
     @Test
-    void testReactivePowerPerActivePowerRegulation() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.getGenerator("GEN").newVoltageRegulation()
+    void testBatteryExport() throws IOException {
+        Network network = BatteryNetworkFactory.create();
+        network.getBattery("BAT").newVoltageRegulation()
                 //.withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
                 .withRegulating(true)
                 .withSlope(0.25)
@@ -60,7 +112,18 @@ class ExtendedAmplExporterV4Test extends ExtendedAmplExporterV3Test {
 
         exporter.export(network, properties, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_generators",
-                "inputs/extended_exporter_v4/generator-qp-regulation.txt");
+        assertEqualsToRef(dataSource, "_network_battery",
+                "inputs/extended_exporter_v4/batteries.txt");
+    }
+
+    @Test
+    void testVscExport() throws IOException {
+        Network network = HvdcTestNetwork.createVsc();;
+
+
+        exporter.export(network, properties, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_vsc",
+                "inputs/extended_exporter_v4/vsc.txt");
     }
 }
