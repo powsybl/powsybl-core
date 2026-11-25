@@ -46,6 +46,7 @@ public class CgmesExportContext {
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.NODE_BREAKER;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
+    private ZonedDateTime modelCreated = null;
     private ReportNode reportNode = ReportNode.NO_OP;
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
     private NamingStrategy namingStrategy = new IdentityNamingStrategy();
@@ -422,6 +423,23 @@ public class CgmesExportContext {
 
     public CgmesExportContext setScenarioTime(ZonedDateTime scenarioTime) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
+        return this;
+    }
+
+    /**
+     * Get the creation time written in the header of the exported models.
+     * If it is null, the header contains the time of the export.
+     */
+    public ZonedDateTime getModelCreated() {
+        return modelCreated;
+    }
+
+    /**
+     * Set the creation time written in the header of the exported models.
+     * If it is null, the header contains the time of the export.
+     */
+    public CgmesExportContext setModelCreated(ZonedDateTime modelCreated) {
+        this.modelCreated = modelCreated;
         return this;
     }
 

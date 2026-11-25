@@ -66,16 +66,29 @@ public final class SteadyStateHypothesisExport {
             sshWriter.writeRdfRoot();
             sshWriter.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, model);
 
-            if (context.isPartialSshExport()) {
-                // A partial export collects the CGMES objects to write each one only once
-                DeferredCgmesObjectSink sink = new DeferredCgmesObjectSink();
-                exportIdentifiables(network, context.getSshExportedIdentifiables(), sink, context);
-                sink.sendAll(sshWriter::write);
-            } else {
-                exportAll(network, sshWriter::write, context);
-            }
-
+            export(network, sshWriter::write, context);
             sshWriter.writeEndDocument();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    /**
+     * Send the CGMES objects of the SSH export to the given sink, without the XML of the file.
+     * The sink receives the objects that {@link #write} writes, in the same order.
+     * In a partial SSH export, they are the objects of the identifiables of the context,
+     * and the sink receives each object only once.
+     */
+    public static void export(Network network, CgmesObjectSink sink, CgmesExportContext context) {
+        try {
+            if (context.isPartialSshExport()) {
+                // A partial export collects the CGMES objects to send each one only once
+                DeferredCgmesObjectSink deferredSink = new DeferredCgmesObjectSink();
+                exportIdentifiables(network, context.getSshExportedIdentifiables(), deferredSink, context);
+                deferredSink.sendAll(sink);
+            } else {
+                exportAll(network, sink, context);
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

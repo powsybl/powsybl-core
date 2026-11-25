@@ -9,6 +9,12 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.statement.CgmesObject;
+import com.powsybl.cgmes.model.statement.CgmesProperty;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -26,6 +32,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -230,6 +237,98 @@ class SteadyStateHypothesisSubsetExportTest {
 
         // The fictitious load and its terminal
         assertEquals(List.of("NonConformLoad", "Terminal"), partial.stream().map(SshObject::className).sorted().toList());
+    }
+
+    @Test
+    void exportSendsTheWrittenObjectsToTheSink() throws XMLStreamException {
+        Network network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        List<Identifiable<?>> identifiables = List.of(network.getGenerators().iterator().next(), network.getLoads().iterator().next());
+
+        assertExportSendsTheWrittenObjects(network, new CgmesExportContext(network)
+            .setPartialSshExport(true)
+            .setSshExportedIdentifiables(identifiables));
+        assertExportSendsTheWrittenObjects(network, new CgmesExportContext(network));
+    }
+
+    private static void assertExportSendsTheWrittenObjects(Network network, CgmesExportContext context) throws XMLStreamException {
+        List<CgmesObject> sent = new ArrayList<>();
+        SteadyStateHypothesisExport.export(network, sent::add, context);
+        List<SshObject> written = sshObjects(export(network, context));
+
+        assertFalse(sent.isEmpty());
+        assertEquals(written, sent.stream().map(SteadyStateHypothesisSubsetExportTest::sshObject).toList());
+    }
+
+    // The object as the XML writer writes it, in the form of sshObjects
+    private static SshObject sshObject(CgmesObject cgmesObject) {
+        StringBuilder content = new StringBuilder();
+        for (CgmesProperty property : cgmesObject.properties()) {
+            if (property.resource()) {
+                content.append("<cim:").append(property.predicate()).append(" rdf:resource=\"").append(property.object()).append("\"/>");
+            } else {
+                String text = property.object().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+                content.append("<cim:").append(property.predicate()).append('>').append(text)
+                    .append("</cim:").append(property.predicate()).append('>');
+            }
+            content.append(' ');
+        }
+        return new SshObject(cgmesObject.type(), cgmesObject.subject().replaceFirst("^_", ""),
+            content.toString().replaceAll("\\s+", " ").trim());
+    }
+
+    @Test
+    void modelCreatedIsWrittenInTheHeader() throws XMLStreamException {
+        Network network = EurostagTutorialExample1Factory.create();
+        CgmesExportContext context = new CgmesExportContext(network);
+        assertNull(context.getModelCreated());
+
+        context.setModelCreated(ZonedDateTime.parse("2026-11-19T10:00:00Z"));
+        String created = "<md:Model.created>2026-11-19T10:00:00Z</md:Model.created>";
+
+        assertTrue(export(network, context).contains(created));
+        StringWriter sv = new StringWriter();
+        StateVariablesExport.write(network, XmlUtil.initializeWriter(true, "    ", sv), context);
+        assertTrue(sv.toString().contains(created));
+
+        context.setPartialSshExport(true).setSshExportedIdentifiables(List.of(network.getGenerator("GEN")));
+        assertTrue(export(network, context).contains(created));
+    }
+
+    @Test
+    void headerExampleOfTheDocumentationHasANewIdAndSupersedesThePreviousModel() throws XMLStreamException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(CgmesMetadataModelsAdder.class)
+            .newModel()
+                .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
+                .setId("previous-ssh")
+                .setVersion(1)
+                .setModelingAuthoritySet("http://example.com/modeling-authority")
+                .addSupersedes("older-ssh")
+                .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
+            .add()
+            .add();
+        CgmesExportContext context = new CgmesExportContext(network)
+            .setPartialSshExport(true)
+            .setSshExportedIdentifiables(List.of(network.getGenerator("GEN")));
+
+        // Without a model update, the model keeps the id of the SSH model of the network
+        assertEquals("previous-ssh",
+            CgmesExport.initializeModelForExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, false).getId());
+
+        // The example of the documentation
+        context.setModelVersion(String.valueOf(1 + 1));
+        CgmesMetadataModel model = CgmesExport.initializeModelForExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, true);
+        model.clearSupersedes();
+        model.addSupersedes("previous-ssh");
+        StringWriter stringWriter = new StringWriter();
+        SteadyStateHypothesisExport.write(network, XmlUtil.initializeWriter(true, "    ", stringWriter), context, model);
+        String ssh = stringWriter.toString();
+
+        List<String> ids = Pattern.compile("FullModel rdf:about=\"(.*?)\"").matcher(ssh).results().map(r -> r.group(1)).toList();
+        assertEquals(1, ids.size());
+        assertNotEquals("previous-ssh", ids.get(0));
+        assertEquals(List.of("previous-ssh"),
+            Pattern.compile("Model.Supersedes rdf:resource=\"(.*?)\"").matcher(ssh).results().map(r -> r.group(1)).toList());
     }
 
     @Test
