@@ -246,7 +246,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
      * @param converter The IIDM converter which requires a valid targetP. It may already have a targetP.
      * @param cgmesData SSH data that can contain a "targetPpcc" property.
      * @param context   CGMES import context.
-     * @return The "targetPpcc" in the SSH data if it exists and is valid, otherwise the targetP already stored in the IIDM converter and else 0.
+     * @return The "targetPpcc" in the SSH data if it exists and is valid, otherwise the targetP already stored in the IIDM converter and else NaN.
      */
     private static double getValidTargetPpcc(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
         double defaultTargetPpcc = getDefaultValue(null, converter.getTargetP(), Double.NaN, Double.NaN, context);
@@ -260,7 +260,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
      * @param converter The IIDM converter which requires a valid targetVdc. It may already have a targetVdc.
      * @param cgmesData SSH data that can contain a "targetUdc" property.
      * @param context   CGMES import context.
-     * @return The "targetUdc" in the SSH data if it exists and is valid, otherwise the targetVdc already stored in the IIDM converter and else the DC nominal voltage.
+     * @return The "targetUdc" in the SSH data if it exists and is valid, otherwise the targetVdc already stored in the IIDM converter and else NaN.
      */
     private static double getValidTargetVdc(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
         double defaultTargetVdc = getDefaultValue(null, converter.getTargetVdc(), Double.NaN, Double.NaN, context);
