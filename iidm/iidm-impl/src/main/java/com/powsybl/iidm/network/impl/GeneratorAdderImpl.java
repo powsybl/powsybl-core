@@ -40,7 +40,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double ratedS = Double.NaN;
 
-    private boolean isCondenser = false;
+    private boolean hasCondenserCapability = false;
 
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -130,8 +130,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdder setCondenser(boolean isCondenser) {
-        this.isCondenser = isCondenser;
+    public GeneratorAdder setCondenserCapability(boolean hasCondenserCapability) {
+        this.hasCondenserCapability = hasCondenserCapability;
         return this;
     }
 
@@ -180,7 +180,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                                     minP, maxP,
                                     voltageRegulationAttributes,
                                     targetP, localTargetQ, localTargetV,
-                                    ratedS, isCondenser);
+                                    ratedS, hasCondenserCapability);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
