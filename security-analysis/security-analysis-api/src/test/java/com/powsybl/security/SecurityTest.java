@@ -492,7 +492,7 @@ class SecurityTest {
         Network dcNetwork = createDetailedDcNetwork();
         setUpAcAndDetailedDcEquipmentViolations(dcNetwork);
 
-        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
+        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
             subjects(Security.checkLimits(dcNetwork)));
         // No AC voltage violation in DC mode
         assertEquals(DETAILED_DC_SUBJECTS, subjects(Security.checkLimitsDc(dcNetwork, 1, 0.95)));

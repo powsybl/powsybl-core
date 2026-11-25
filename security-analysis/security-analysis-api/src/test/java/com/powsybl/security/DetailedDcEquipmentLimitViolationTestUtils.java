@@ -10,7 +10,6 @@ package com.powsybl.security;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 
 import java.util.List;
@@ -23,14 +22,14 @@ import java.util.List;
 public final class DetailedDcEquipmentLimitViolationTestUtils {
 
     /**
-     * AC voltage level of the fixture, subject of the AC violation written by {@link #setUpAcAndDetailedDcViolations}.
+     * AC voltage level of the fixture, subject of the AC violation written by {@link #setUpAcAndDetailedDcEquipmentViolations}.
      */
     public static final String AC_SUBJECT = "VL-FR";
 
     /**
-     * Violations written by {@link #setUpAcAndDetailedDcViolations} on detailed DC equipment, as given by {@link #subjects}.
+     * Violations written by {@link #setUpAcAndDetailedDcEquipmentViolations} on detailed DC equipment, as given by {@link #subjects}.
      */
-    public static final List<String> DETAILED_DC_SUBJECTS = List.of("VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE");
+    public static final List<String> DETAILED_DC_SUBJECTS = List.of("dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE");
 
     private DetailedDcEquipmentLimitViolationTestUtils() {
     }
@@ -48,9 +47,6 @@ public final class DetailedDcEquipmentLimitViolationTestUtils {
         DcLine line = network.getDcLine("dcLinePos").setPermanentCurrentLimit(1000.);
         line.getDcTerminal1().setI(1200.);
         line.getDcTerminal2().setI(-1200.);
-        // Converter
-        VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr").setMaxP(200.);
-        vsc.getPccTerminal().setP(250.);
     }
 
     /**

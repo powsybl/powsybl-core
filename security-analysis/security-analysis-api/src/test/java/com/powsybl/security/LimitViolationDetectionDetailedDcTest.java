@@ -23,9 +23,6 @@ import java.util.*;
 
 import static com.powsybl.security.DetailedDcEquipmentLimitViolationTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Detailed DC limit violation detection through the static entry points of {@link LimitViolationDetection}.
@@ -44,9 +41,6 @@ class LimitViolationDetectionDetailedDcTest {
     private static final String DC_NODE_FR_POS = DcDetailedNetworkFactory.DC_NODE_FR_POS;
     private static final String DC_NODE_FR_NEG = DcDetailedNetworkFactory.DC_NODE_FR_NEG;
     private static final String DC_LINE_POS = "dcLinePos";
-    private static final String VSC_FR = "VscFr";
-    private static final String VSC_GB = "VscGb";
-    private static final String LCC_FR = "LccFr";
 
     private Network network;
     private List<LimitViolation> violations;
@@ -96,10 +90,9 @@ class LimitViolationDetectionDetailedDcTest {
 
     @Test
     void noViolationWhenNoSolvedValueIsWritten() {
-        // limits defined everywhere, but V, I and P are left NaN
+        // limits defined everywhere, but V and I are left NaN
         network.getDcNodeStream().forEach(n -> n.setLowVoltageLimit(475.).setHighVoltageLimit(525.));
         network.getDcLineStream().forEach(l -> l.setPermanentCurrentLimit(1000.));
-        network.getVoltageSourceConverterStream().forEach(c -> c.setMinP(10.).setMaxP(200.));
 
         List<LimitViolation> detected = detect(network);
         assertNoViolation(detected);
@@ -116,8 +109,6 @@ class LimitViolationDetectionDetailedDcTest {
 
         assertEquals("FR positive pole", names.get(DC_NODE_FR_POS));
         assertEquals("Positive pole cable", names.get(DC_LINE_POS));
-        assertTrue(names.containsKey(VSC_FR));
-        assertNull(names.get(VSC_FR));
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -246,179 +237,6 @@ class LimitViolationDetectionDetailedDcTest {
         assertNoViolation(assertDoesNotThrow(() -> detect(network)));
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // AC/DC converter active power
-    // ---------------------------------------------------------------------------------------------------------------
-
-    private VoltageSourceConverter vscFr() {
-        VoltageSourceConverter vsc = network.getVoltageSourceConverter(VSC_FR);
-        // Precondition of the PCC tests: the PCC terminal is the 400 kV transformer terminal, not the converter one
-        assertNotSame(vsc.getTerminal1(), vsc.getPccTerminal());
-        return vsc;
-    }
-
-    private VoltageSourceConverter setUpVscFr(Double minP, Double maxP, double pccP, Double ac1P) {
-        VoltageSourceConverter vsc = vscFr();
-        Optional.ofNullable(minP).ifPresent(vsc::setMinP);
-        Optional.ofNullable(maxP).ifPresent(vsc::setMaxP);
-        vsc.getPccTerminal().setP(pccP);
-        Optional.ofNullable(ac1P).ifPresent(p -> vsc.getTerminal1().setP(p));
-        return vsc;
-    }
-
-    @ParameterizedTest(name = "bounds [{0}, {1}], P at PCC = {2}, P at AC terminal = {3}")
-    @CsvSource({
-        // minP,  maxP, P at PCC, P at AC terminal 1, expected limit
-        "-200.,  200., 200.,     ,                   200.",
-        "-200.,  200., 250.,     ,                   200.",
-        // The signed value is reported
-        "-200.,  200., -250.,    ,                   -200.",
-        "50.,    200., 50.,      ,                   50.",
-        // P = 0 with minP > 0 is a violation
-        "10.,    200., 0.,       ,                   10.",
-        // the PCC value is checked, even if the AC terminal value is within bounds
-        "-200.,  200., 250.,     150.,               200.",
-    })
-    void converterActivePowerViolationIsReported(Double minP, Double maxP, double pccP, Double ac1P, double expectedLimit) {
-        setUpVscFr(minP, maxP, pccP, ac1P);
-
-        assertDetailedDcViolation(single(detect(network)), VSC_FR, LimitViolationType.ACTIVE_POWER, expectedLimit, pccP, ThreeSides.ONE);
-    }
-
-    @ParameterizedTest(name = "bounds [{0}, {1}], P at PCC = {2}, P at AC terminal = {3}")
-    @CsvSource({
-        // minP,  maxP, P at PCC,                 P at AC terminal 1
-        "-200.,  200., -199.99,                  ",
-        "-200.,  200., 0.,                       ",
-        "-200.,  200., 199.99,                   ",
-        // the PCC value is within bounds, the AC terminal value is not
-        "-200.,  200., 150.,                     250.",
-        // bounds left at their default values never produce a violation
-        ",       ,     1e9,                      ",
-        ",       ,     -1e9,                     ",
-        // Only one bound defined
-        ",       200., -1e9,                     ",
-        "-200.,  ,     1e9,                      ",
-        // NaN at the PCC terminal, even if the AC terminal holds an out-of-bounds value
-        "10.,    200., NaN,                      1000.",
-    })
-    void converterActivePowerViolationIsNotReported(Double minP, Double maxP, double pccP, Double ac1P) {
-        setUpVscFr(minP, maxP, pccP, ac1P);
-
-        assertNoViolation(assertDoesNotThrow(() -> detect(network)));
-    }
-
-    @Test
-    void everyConverterIsChecked() {
-        setUpVscFr(null, 200., 250., null);
-        network.getVoltageSourceConverter(VSC_GB).setMinP(-200.).getPccTerminal().setP(-250.);
-
-        assertEquals(List.of(VSC_FR + "/ACTIVE_POWER", VSC_GB + "/ACTIVE_POWER"), subjects(detect(network)));
-    }
-
-    @ParameterizedTest(name = "P at PCC = {0}, P1 = {1}, P2 = {2}")
-    @CsvSource({
-        // P at PCC, P1,   P2,   expected limit
-        "300.,      100., 100., 250.",
-        // The sum of the AC terminals would exceed maxP, but the PCC terminal is set and takes precedence
-        "200.,      200., 200., ",
-    })
-    void lineCommutatedConverterIsCheckedAtPcc(double pccP, double p1, double p2, Double expectedLimit) {
-        // LccFr has two AC terminals and its PCC terminal is on an AC line
-        Network lccNetwork = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
-        LineCommutatedConverter lcc = lccNetwork.getLineCommutatedConverter(LCC_FR).setMinP(-250.).setMaxP(250.);
-        lcc.getPccTerminal().setP(pccP);
-        lcc.getTerminal1().setP(p1);
-        lcc.getTerminal2().orElseThrow().setP(p2);
-
-        List<LimitViolation> result = detect(lccNetwork);
-
-        if (expectedLimit == null) {
-            assertNoViolation(result);
-        } else {
-            assertDetailedDcViolation(single(result), LCC_FR, LimitViolationType.ACTIVE_POWER, expectedLimit, pccP, ThreeSides.ONE);
-        }
-    }
-
-    // ---------------------------------------------------------------------------------------------------------------
-    // AC/DC converter without PCC terminal
-    // The reference implementation always sets a PCC terminal, so another Network implementation is mocked.
-    // The mocked network exposes the converters through their typed streams and iterables, and nothing else.
-    // ---------------------------------------------------------------------------------------------------------------
-
-    private static Terminal terminalWithP(double p) {
-        Terminal terminal = mock(Terminal.class);
-        when(terminal.getP()).thenReturn(p);
-        return terminal;
-    }
-
-    private static <C extends AcDcConverter<C>> C mockConverterWithoutPcc(Class<C> type, String id, double minP, double maxP,
-                                                                         Terminal terminal1, Terminal terminal2) {
-        C converter = mock(type);
-        when(converter.getId()).thenReturn(id);
-        when(converter.getOptionalName()).thenReturn(Optional.empty());
-        when(converter.getNameOrId()).thenReturn(id);
-        when(converter.getMinP()).thenReturn(minP);
-        when(converter.getMaxP()).thenReturn(maxP);
-        when(converter.getPccTerminal()).thenReturn(null);
-        when(converter.getTerminal1()).thenReturn(terminal1);
-        when(converter.getTerminal(TerminalNumber.ONE)).thenReturn(Optional.of(terminal1));
-        when(converter.getTerminal2()).thenReturn(Optional.ofNullable(terminal2));
-        when(converter.getTerminal(TerminalNumber.TWO)).thenReturn(Optional.ofNullable(terminal2));
-        doReturn(terminal2 == null ? List.of(terminal1) : List.of(terminal1, terminal2))
-                .when(converter).getTerminals();
-        return converter;
-    }
-
-    private static Network mockNetworkWith(List<VoltageSourceConverter> vscs, List<LineCommutatedConverter> lccs) {
-        Network mockedNetwork = mock(Network.class);
-        when(mockedNetwork.getId()).thenReturn("mockedNetwork");
-        when(mockedNetwork.getVoltageSourceConverterStream()).thenAnswer(inv -> vscs.stream());
-        when(mockedNetwork.getVoltageSourceConverters()).thenAnswer(inv -> vscs);
-        when(mockedNetwork.getVoltageSourceConverterCount()).thenReturn(vscs.size());
-        when(mockedNetwork.getLineCommutatedConverterStream()).thenAnswer(inv -> lccs.stream());
-        when(mockedNetwork.getLineCommutatedConverters()).thenAnswer(inv -> lccs);
-        when(mockedNetwork.getLineCommutatedConverterCount()).thenReturn(lccs.size());
-        vscs.forEach(c -> when(c.getNetwork()).thenReturn(mockedNetwork));
-        lccs.forEach(c -> when(c.getNetwork()).thenReturn(mockedNetwork));
-        return mockedNetwork;
-    }
-
-    @ParameterizedTest(name = "bounds [{2}, {3}], P1 = {0}, P2 = {1}")
-    @CsvSource({
-        // P1,   P2,   minP,  maxP, expected limit
-        // A single AC terminal (VSC): P = P1
-        "120.,  ,     -100., 100., 100.",
-        "NaN,   ,     10.,   100., ",
-        // Two AC terminals (LCC): P = P1 + P2. Neither terminal exceeds the bound on its own, the sum does.
-        "60.,   50.,  -100., 100., 100.",
-        "-60.,  -50., -100., 100., -100.",
-        // 60 - 50 = 10: within bounds, although terminal 1 alone would not be
-        "60.,   -50., -50.,  50.,  ",
-    })
-    void converterWithoutPccIsCheckedOnItsAcTerminals(double p1, Double p2, double minP, double maxP, Double expectedLimit) {
-        Network mockedNetwork;
-        String id;
-        if (p2 == null) {
-            id = "vscNoPcc";
-            mockedNetwork = mockNetworkWith(List.of(mockConverterWithoutPcc(VoltageSourceConverter.class, id, minP, maxP,
-                    terminalWithP(p1), null)), List.of());
-        } else {
-            id = "lccNoPcc";
-            mockedNetwork = mockNetworkWith(List.of(), List.of(mockConverterWithoutPcc(LineCommutatedConverter.class, id, minP, maxP,
-                    terminalWithP(p1), terminalWithP(p2))));
-        }
-
-        List<LimitViolation> result = assertDoesNotThrow(() -> detect(mockedNetwork));
-
-        if (expectedLimit == null) {
-            assertNoViolation(result);
-        } else {
-            double expectedP = p1 + (p2 == null ? 0. : p2);
-            assertDetailedDcViolation(single(result), id, LimitViolationType.ACTIVE_POWER, expectedLimit, expectedP, ThreeSides.ONE);
-        }
-    }
-
     // ================================================================================================================
     // Level 2: wiring of the static entry points
     // ================================================================================================================
@@ -480,8 +298,8 @@ class LimitViolationDetectionDetailedDcTest {
         LimitViolationDetection.checkAll(network, EnumSet.of(LoadingLimitType.TATL), NO_SCALING, all::add);
 
         assertAll(
-                () -> assertEquals(List.of("VscFr/ACTIVE_POWER", "dcNodeFrPos/HIGH_VOLTAGE"), subjects(detailedDc), "checkAllDetailedDc"),
-                () -> assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "VscFr/ACTIVE_POWER", "dcNodeFrPos/HIGH_VOLTAGE"), subjects(all), "checkAll")
+                () -> assertEquals(List.of("dcNodeFrPos/HIGH_VOLTAGE"), subjects(detailedDc), "checkAllDetailedDc"),
+                () -> assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "dcNodeFrPos/HIGH_VOLTAGE"), subjects(all), "checkAll")
         );
     }
 
@@ -492,7 +310,6 @@ class LimitViolationDetectionDetailedDcTest {
         // with a 0.5 scaling, these values would all be violations if limits were scaled
         network.getDcNode(DcDetailedNetworkFactory.DC_NODE_GB_POS).setHighVoltageLimit(525.).setV(300.);
         network.getDcLine("dcLineNeg").setPermanentCurrentLimit(1000.).getDcTerminal1().setI(600.);
-        network.getVoltageSourceConverter(VSC_GB).setMaxP(200.).getPccTerminal().setP(150.);
 
         LimitsComputer<Identifiable<?>, LoadingLimits> halfLimits = new SimpleLimitsComputer(0.5);
         LimitViolationDetection.checkAll(network, ALL_LIMIT_TYPES, halfLimits, violations::add);

@@ -73,9 +73,11 @@ public final class LimitViolationDetection {
     }
 
     /**
-     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * Checks whether the values on the detailed DC equipments (DC nodes and DC lines)
      * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
      * In case it should, feeds the consumer with it.
+     * The active power of AC/DC converters is not checked: {@code minP} and {@code maxP} are control parameters,
+     * not operational limits.
      *
      * @param network           The network on which physical values must be checked.
      * @param currentLimitTypes The current limit type to consider.
@@ -89,8 +91,6 @@ public final class LimitViolationDetection {
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             network.getDcLineStream().forEach(l -> checkCurrent(l, consumer));
         }
-        network.getVoltageSourceConverterStream().forEach(c -> checkActivePower(c, consumer));
-        network.getLineCommutatedConverterStream().forEach(c -> checkActivePower(c, consumer));
     }
 
     /**
@@ -124,37 +124,6 @@ public final class LimitViolationDetection {
         if (!Double.isNaN(i) && !Double.isNaN(limit) && Math.abs(i) >= limit) {
             consumer.accept(createDetailedDcEquipmentViolation(dcLine, LimitViolationType.CURRENT, limit, i, ThreeSides.ONE));
         }
-    }
-
-    /**
-     * Checks the active power of an AC/DC converter against its minP and maxP bounds.
-     * Bounds are never scaled, and bounds left at their default values never produce a violation.
-     */
-    private static void checkActivePower(AcDcConverter<?> converter, Consumer<LimitViolation> consumer) {
-        double p = getConverterActivePower(converter);
-        if (Double.isNaN(p)) {
-            return;
-        }
-        double maxP = converter.getMaxP();
-        if (maxP != Double.MAX_VALUE && p >= maxP) {
-            consumer.accept(createDetailedDcEquipmentViolation(converter, LimitViolationType.ACTIVE_POWER, maxP, p, ThreeSides.ONE));
-        }
-        double minP = converter.getMinP();
-        if (minP != -Double.MAX_VALUE && p <= minP) {
-            consumer.accept(createDetailedDcEquipmentViolation(converter, LimitViolationType.ACTIVE_POWER, minP, p, ThreeSides.ONE));
-        }
-    }
-
-    /**
-     * @return the active power at the PCC terminal of the converter if any, otherwise the sum of the active powers
-     * at its AC terminals.
-     */
-    private static double getConverterActivePower(AcDcConverter<?> converter) {
-        Terminal pccTerminal = converter.getPccTerminal();
-        if (pccTerminal != null) {
-            return pccTerminal.getP();
-        }
-        return converter.getTerminal1().getP() + converter.getTerminal2().map(Terminal::getP).orElse(0.);
     }
 
     private static LimitViolation createDetailedDcEquipmentViolation(Identifiable<?> subject, LimitViolationType type, double limit,

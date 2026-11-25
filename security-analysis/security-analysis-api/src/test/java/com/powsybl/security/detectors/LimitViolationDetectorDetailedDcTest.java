@@ -93,7 +93,7 @@ class LimitViolationDetectorDetailedDcTest {
 
         new DefaultLimitViolationDetector().checkAll(network, violations::add);
 
-        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
+        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
                 subjects(violations));
     }
 
@@ -150,8 +150,6 @@ class LimitViolationDetectorDetailedDcTest {
         network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS).setHighVoltageLimit(525.).setV(300.);
         DcLine line = network.getDcLine("dcLinePos").setPermanentCurrentLimit(1000.);
         line.getDcTerminal1().setI(600.);
-        VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr").setMinP(-200.).setMaxP(200.);
-        vsc.getPccTerminal().setP(150.);
         DefaultLimitViolationDetector detector = new DefaultLimitViolationDetector(0.5, EnumSet.allOf(LoadingLimitType.class));
 
         detector.checkAll(network, violations::add);
@@ -169,7 +167,7 @@ class LimitViolationDetectorDetailedDcTest {
 
         new DefaultLimitViolationDetector(0.5, EnumSet.allOf(LoadingLimitType.class)).checkAll(network, violations::add);
 
-        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
+        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
                 subjects(violations));
         violations.forEach(v -> assertEquals(AC_SUBJECT.equals(v.getSubjectId()) ? 0.5 : 1.0, v.getLimitScaling(), 0.0, v.getSubjectId()));
     }
@@ -180,7 +178,7 @@ class LimitViolationDetectorDetailedDcTest {
 
         new DefaultLimitViolationDetector(EnumSet.of(LoadingLimitType.TATL)).checkAllDetailedDcEquipment(network, violations::add);
 
-        assertEquals(List.of("VscFr/ACTIVE_POWER", "dcNodeFrPos/HIGH_VOLTAGE"), subjects(violations));
+        assertEquals(List.of("dcNodeFrPos/HIGH_VOLTAGE"), subjects(violations));
     }
 
     @Test
