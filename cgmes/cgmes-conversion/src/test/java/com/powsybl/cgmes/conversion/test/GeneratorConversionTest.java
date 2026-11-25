@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.CgmesImport.POST_PROCESSORS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_WIND_GEN_UNIT_TYPE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -109,13 +109,20 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
     @Test
     void testGeneratorEntsoeCategory() {
-        Properties params = new Properties();
-        params.put(POST_PROCESSORS, "EntsoeCategory");
-        Network network = readCgmesResources(params, "/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        // CGMES network:
+        //   3 SynchronousMachine with their GeneratingUnit:
+        //     SM1 GeneratingUnit has no description
+        //     SM2 GeneratingUnit has an invalid entsoe category
+        //     SM3 GeneratingUnit has a valid entsoe category
+        // IIDM network:
+        //   GeneratorEntsoeCategory extension is created only for SM3
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
+        Network network = readCgmesResources(importParameters, DIR, "generators_EQ.xml", "generators_SSH.xml");
         Generator g1 = network.getGenerator("SM1");
         assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
         Generator g2 = network.getGenerator("SM2");
-        assertEquals(42, g2.getExtension(GeneratorEntsoeCategory.class).getCode());
+        assertNull(g2.getExtension(GeneratorEntsoeCategory.class));
         Generator g3 = network.getGenerator("SM3");
         assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
     }
