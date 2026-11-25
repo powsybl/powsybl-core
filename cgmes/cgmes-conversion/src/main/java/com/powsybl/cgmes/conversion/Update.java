@@ -34,6 +34,10 @@ public final class Update {
     private Update() {
     }
 
+    public static String cgmesId(Identifiable<?> identifiable) {
+        return identifiable.getAliasFromType(ALIAS_TYPE_ORIGINAL_ID).orElse(identifiable.getId());
+    }
+
     static void updateLoads(Network network, CgmesModel cgmes, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LOAD.name()));
 
@@ -311,9 +315,5 @@ public final class Update {
     private static PropertyBag getSwitchPropertyBag(String switchId, Context context) {
         PropertyBag cgmesData = context.cgmesSwitch(switchId);
         return cgmesData != null ? cgmesData : EMPTY_PROPERTY_BAG;
-    }
-
-    private static String cgmesId(Identifiable<?> identifiable) {
-        return identifiable.getAliasFromType(ALIAS_TYPE_ORIGINAL_ID).orElse(identifiable.getId());
     }
 }
