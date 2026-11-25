@@ -27,7 +27,7 @@ violations can have different types:
 - Detailed DC equipment: a voltage violation can be detected on a [DC node](../../grid_model/network_subnetwork.md#dc-node)
   if the magnitude of its voltage is out of its low-high voltage limits, and a current violation on
   a [DC line](../../grid_model/network_subnetwork.md#dc-line) if the magnitude of its current reaches its permanent
-  current limit. Limit scalings do not apply to these limits.
+  current limit. Limit scalings do not apply to these limits. These violations have no side.
 
 ## Inputs
 
