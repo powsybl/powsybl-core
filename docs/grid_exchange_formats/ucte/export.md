@@ -332,7 +332,9 @@ If the transformer has a ratio and/or a phase tap changer, a regulation is expor
 
 #### Nominal power
 
-The nominal power is the transformer's rated apparent power `ratedS`, used as-is.<br>
+The nominal power is the transformer's rated apparent power `ratedS`, used as-is.
+Being truncated to the 5 characters of the field, the `1e-5` MVA value set by the UCTE-DEF import for a zero
+nominal power is written back as `0.000`.<br>
 If `ratedS` is undefined (`Double.NaN`), the value of the `nomimalPower` property is used instead:
 the `nomimalPower` property was set by the UCTE-DEF import in older PowSyBl versions (with a typo),
 and this is to remain retro-compatible with networks serialized with these older versions.
