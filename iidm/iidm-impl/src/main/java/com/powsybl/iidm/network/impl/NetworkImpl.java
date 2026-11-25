@@ -168,10 +168,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     private static void setCommonCaseDate(NetworkImpl mergedNetwork, Network[] networks) {
-        //if all subnetworks have same case date then apply it to merged network
+        //if all subnetworks have same case date (the same instant, whatever its time zone) then apply it to merged network
         ZonedDateTime caseDate = networks[0].getCaseDate();
         for (Network n : networks) {
-            if (!Objects.equals(caseDate, n.getCaseDate())) {
+            if (!caseDate.isEqual(n.getCaseDate())) {
                 return;
             }
         }
