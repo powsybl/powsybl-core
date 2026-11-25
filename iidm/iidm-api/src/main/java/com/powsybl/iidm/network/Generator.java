@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
@@ -294,6 +295,21 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      */
     @Override
     Generator setLocalTargetQ(double targetQ);
+
+    /**
+     * Retrieves the regulating target reactive power.
+     * If the Generator is regulating in {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER},
+     * this is equal to the slope (tan phi) times the target active power.
+     * <p>Otherwise:</p>
+     * {@inheritDoc}
+     */
+    @Override
+    default double getRegulatingTargetQ() {
+        if (isWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)) {
+            return getVoltageRegulation().getSlope() * getTargetP();
+        }
+        return VoltageRegulationHolder.super.getRegulatingTargetQ();
+    }
 
     /**
      * Get the rated nominal power (apparent power rating) in MVA.
