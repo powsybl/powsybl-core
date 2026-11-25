@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -51,16 +52,44 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testMaxPNotSupportedBeforeIidm119() {
+    void testMaxPNotSupportedBeforeIidm117() {
         Network network = createBaseNetwork(); // contains a VoltageSourceConverter with maxP = 400.
 
-        // Versions 1.15 to 1.18 support VoltageSourceConverter but not minP and maxP
-        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
+        // Versions 1.15 and 1.16 support VoltageSourceConverter but predate minP and maxP
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_16, version -> {
             ExportOptions options = new ExportOptions().setVersion(version.toString("."));
             Path path = tmpDir.resolve("fail");
             PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
             assertEquals("voltageSourceConverter.maxP is not defined as default and not supported for IIDM version "
                     + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
+        });
+    }
+
+    @Test
+    void testMaxPBetaExportInIidm117And118() {
+        Network network = createBaseNetwork(); // contains a VoltageSourceConverter with maxP = 400.
+
+        // minP and maxP were a beta feature, without serialization, in versions 1.17 and 1.18
+        testForAllVersionsBetween(IidmVersion.V_1_17, IidmVersion.V_1_18, version -> {
+            // without forcing the beta export, the export fails
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path failPath = tmpDir.resolve("fail");
+            NotImplementedException e = assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, options, failPath));
+            assertEquals("voltageSourceConverter 'vscBb2ACWithSolvedV': maxP serialization is not supported in IIDM "
+                    + version.toString(".") + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
+                    + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
+                    + " or ExportOptions.setForceExportNetworkWithBetaFeatures", e.getMessage());
+
+            // forcing the beta export ignores minP and maxP
+            options.setForceExportNetworkWithBetaFeatures(true);
+            Path path = tmpDir.resolve("vsc-force-export-" + version.toString("_") + ".xiidm");
+            NetworkSerDe.write(network, options, path);
+
+            Network readNetwork = NetworkSerDe.validateAndRead(path);
+            for (VoltageSourceConverter vsc : readNetwork.getVoltageSourceConverters()) {
+                assertEquals(-Double.MAX_VALUE, vsc.getMinP());
+                assertEquals(Double.MAX_VALUE, vsc.getMaxP());
+            }
         });
     }
 

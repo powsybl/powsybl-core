@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -97,14 +98,32 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
 
-        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(converter.getMinP() != -Double.MAX_VALUE, getRootElementName(), MIN_P,
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context,
-                () -> context.getWriter().writeDoubleAttribute(MIN_P, converter.getMinP()));
-        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(converter.getMaxP() != Double.MAX_VALUE, getRootElementName(), MAX_P,
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context,
-                () -> context.getWriter().writeDoubleAttribute(MAX_P, converter.getMaxP()));
+        writeActivePowerBound(converter, MIN_P, converter.getMinP(), -Double.MAX_VALUE, context);
+        writeActivePowerBound(converter, MAX_P, converter.getMaxP(), Double.MAX_VALUE, context);
 
         writeNodeOrBus(converter, context);
+    }
+
+    private void writeActivePowerBound(T converter, String attributeName, double value, double defaultValue,
+                                       NetworkSerializerContext context) {
+        if (value == defaultValue) {
+            return;
+        }
+        IidmVersion version = context.getVersion();
+        if (version.compareTo(IidmVersion.V_1_17) >= 0 && version.compareTo(IidmVersion.V_1_19) < 0) {
+            // In IIDM 1.17 and 1.18, minP and maxP were a beta feature without serialization: keep the beta behavior
+            if (!context.getOptions().isForceExportNetworkWithBetaFeatures()) {
+                throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': " + attributeName
+                    + " serialization is not supported in IIDM " + version.toString(".")
+                    + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
+                    + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
+                    + " or ExportOptions.setForceExportNetworkWithBetaFeatures");
+            }
+            return;
+        }
+        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(true, getRootElementName(), attributeName,
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context,
+                () -> context.getWriter().writeDoubleAttribute(attributeName, value));
     }
 
     protected void writeRootElementPqiAttributes(final T converter, final NetworkSerializerContext context) {
