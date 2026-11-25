@@ -19,6 +19,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 
+import static com.powsybl.iidm.modification.ReplaceIdsByNames.ALIAS_TYPE_ORIGINAL_ID;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -40,7 +42,7 @@ public final class Update {
         addPropertyBags(cgmes.energySources(), CgmesNames.ENERGY_SOURCE, equipmentIdPropertyBag);
         addPropertyBags(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, equipmentIdPropertyBag);
 
-        network.getLoads().forEach(load -> updateLoad(load, getPropertyBag(load.getId(), equipmentIdPropertyBag), context));
+        network.getLoads().forEach(load -> updateLoad(load, getPropertyBag(cgmesId(load), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -74,9 +76,9 @@ public final class Update {
         String originalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
 
         switch (originalClass) {
-            case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context);
-            case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, getEquivalentInjectionPropertyBag(generator.getId(), context), context);
-            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context);
+            case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, getPropertyBag(cgmesId(generator), equipmentIdPropertyBag), context);
+            case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, getEquivalentInjectionPropertyBag(cgmesId(generator), context), context);
+            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, getPropertyBag(cgmesId(generator), equipmentIdPropertyBag), context);
             default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Generator: " + generator.getId());
         }
     }
@@ -98,7 +100,7 @@ public final class Update {
         addPropertyBags(cgmes.staticVarCompensators(), CgmesNames.STATIC_VAR_COMPENSATOR, equipmentIdPropertyBag);
 
         network.getStaticVarCompensators()
-            .forEach(staticVarCompensator -> StaticVarCompensatorConversion.update(staticVarCompensator, getPropertyBag(staticVarCompensator.getId(), equipmentIdPropertyBag), context));
+            .forEach(staticVarCompensator -> StaticVarCompensatorConversion.update(staticVarCompensator, getPropertyBag(cgmesId(staticVarCompensator), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -110,7 +112,7 @@ public final class Update {
         addPropertyBags(cgmes.equivalentShunts(), CgmesNames.EQUIVALENT_SHUNT, equipmentIdPropertyBag);
 
         network.getShuntCompensators()
-            .forEach(shuntCompensator -> updateShuntCompensator(shuntCompensator, getPropertyBag(shuntCompensator.getId(), equipmentIdPropertyBag), context));
+            .forEach(shuntCompensator -> updateShuntCompensator(shuntCompensator, getPropertyBag(cgmesId(shuntCompensator), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -130,8 +132,8 @@ public final class Update {
         addPropertyBags(cgmes.acDcConverters(), CgmesNames.ACDC_CONVERTER, equipmentIdPropertyBag);
         network.getHvdcLines()
             .forEach(hvdcLine -> HvdcLineConversion.update(hvdcLine,
-                getPropertyBag(hvdcLine.getConverterStation1().getId(), equipmentIdPropertyBag),
-                getPropertyBag(hvdcLine.getConverterStation2().getId(), equipmentIdPropertyBag),
+                getPropertyBag(cgmesId(hvdcLine.getConverterStation1()), equipmentIdPropertyBag),
+                getPropertyBag(cgmesId(hvdcLine.getConverterStation2()), equipmentIdPropertyBag),
                 context));
 
         context.popReportNode();
@@ -149,7 +151,7 @@ public final class Update {
             case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(boundaryLine, context);
             case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(boundaryLine, context);
             case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(boundaryLine, context);
-            case CgmesNames.SWITCH -> SwitchConversion.update(boundaryLine, getSwitchPropertyBag(boundaryLine.getId(), context), context);
+            case CgmesNames.SWITCH -> SwitchConversion.update(boundaryLine, getSwitchPropertyBag(cgmesId(boundaryLine), context), context);
             default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for BoundaryLine: " + boundaryLine.getId());
         }
     }
@@ -187,7 +189,7 @@ public final class Update {
             case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(sw, context);
             case CgmesNames.SERIES_COMPENSATOR -> SeriesCompensatorConversion.update(sw, context);
             case CgmesNames.SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector", "Jumper" ->
-                SwitchConversion.update(sw, getSwitchPropertyBag(sw.getId(), context), context);
+                SwitchConversion.update(sw, getSwitchPropertyBag(cgmesId(sw), context), context);
             default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Switch: " + sw.getId());
         }
     }
@@ -241,7 +243,7 @@ public final class Update {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.AREA.name()));
         Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
         addPropertyBags(cgmes.controlAreas(), CgmesNames.CONTROL_AREA, equipmentIdPropertyBag);
-        network.getAreas().forEach(area -> ControlAreaConversion.update(area, getPropertyBag(area.getId(), equipmentIdPropertyBag), context));
+        network.getAreas().forEach(area -> ControlAreaConversion.update(area, getPropertyBag(cgmesId(area), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -268,11 +270,11 @@ public final class Update {
         addPropertyBags(cgmes.acDcConverters(), CgmesNames.ACDC_CONVERTER, equipmentIdPropertyBag);
 
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LINE_COMMUTATED_CONVERTER.name()));
-        network.getLineCommutatedConverters().forEach(lcc -> AcDcConverterConversion.update(lcc, getPropertyBag(lcc.getId(), equipmentIdPropertyBag), context));
+        network.getLineCommutatedConverters().forEach(lcc -> AcDcConverterConversion.update(lcc, getPropertyBag(cgmesId(lcc), equipmentIdPropertyBag), context));
         context.popReportNode();
 
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.VOLTAGE_SOURCE_CONVERTER.name()));
-        network.getVoltageSourceConverters().forEach(vsc -> AcDcConverterConversion.update(vsc, getPropertyBag(vsc.getId(), equipmentIdPropertyBag), context));
+        network.getVoltageSourceConverters().forEach(vsc -> AcDcConverterConversion.update(vsc, getPropertyBag(cgmesId(vsc), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -309,5 +311,9 @@ public final class Update {
     private static PropertyBag getSwitchPropertyBag(String switchId, Context context) {
         PropertyBag cgmesData = context.cgmesSwitch(switchId);
         return cgmesData != null ? cgmesData : EMPTY_PROPERTY_BAG;
+    }
+
+    private static String cgmesId(Identifiable<?> identifiable) {
+        return identifiable.getAliasFromType(ALIAS_TYPE_ORIGINAL_ID).orElse(identifiable.getId());
     }
 }

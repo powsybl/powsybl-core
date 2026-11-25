@@ -67,6 +67,37 @@ class ReplaceIdsWithNamesTest {
     }
 
     @Test
+    void testImportRenameUpdateLoads() {
+        // A minimal network with loads
+        Network n = Network.read(new ResourceDataSource("update_load_eq",
+                new ResourceSet("/update/load/", "load_EQ.xml")));
+        Load l = n.getLoad("EnergySource");
+        l.setName("LOAD_NAME");
+        Load a = n.getLoad("AsynchronousMachine");
+        a.setName("ASYNC_MACHINE_NAME");
+
+        // Rename the identifiers before calling the update
+        new ReplaceIdsByNames().apply(n);
+
+        // We can use either the original identifiers or the name, to locate the elements again
+        assertNotNull(n.getLoad("EnergySource"));
+        assertNotNull(n.getLoad("AsynchronousMachine"));
+        assertNotNull(n.getLoad("LOAD_NAME"));
+        assertNotNull(n.getLoad("ASYNC_MACHINE_NAME"));
+
+        // Update the network after being renamed, using SSH data with the original identifiers
+        n.update(new ResourceDataSource("update_load_ssh",
+                new ResourceSet("/update/load/", "load_SSH.xml")));
+
+        // Check that values coming from SSH have been put in the elements of the network
+        double epsilon = 0.001;
+        assertEquals(-200.0, l.getP0(), epsilon);
+        assertEquals(-90.0, l.getQ0(), epsilon);
+        assertEquals(200.0, a.getP0(), epsilon);
+        assertEquals(50.0, a.getQ0(), epsilon);
+    }
+
+    @Test
     @Disabled("slow test using a big network")
     void testSvedala() {
         testReplaceIdsByNames(Cgmes3Catalog.svedala().dataSource());
