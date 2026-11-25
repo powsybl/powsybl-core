@@ -61,7 +61,7 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testIsCondenserExportGenerators() throws IOException {
+    void testHasCondenserCapabilityExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN3")
@@ -76,7 +76,7 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
                     .add()
                 .setTargetP(607.0)
                 .setLocalTargetQ(301.0)
-                .setCondenser(true)
+                .setCondenserCapability(true)
                 .add();
 
         exporter.export(network, properties, dataSource);

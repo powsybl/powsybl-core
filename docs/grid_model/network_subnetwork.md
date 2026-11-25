@@ -174,19 +174,19 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Characteristics**
 
-| Attribute           | Unit | Description                                                                        |
-|---------------------|------|------------------------------------------------------------------------------------|
-| $MinP$              | MW   | Minimum generator active power output                                              |
-| $MaxP$              | MW   | Maximum generator active power output                                              |
-| $ReactiveLimits$    | MVar | Operational limits of the generator (P/Q/V diagram)                                |
-| $RatedS$            | MVA  | The rated nominal power                                                            |
-| $TargetP$           | MW   | The active power target                                                            |
-| $LocalTargetQ$      | MVar | The reactive power target at local terminal                                        |
-| $LocalTargetV$      | kV   | The voltage target at local terminal                                               |
-| $EnergySource$      |      | The energy source harnessed to turn the generator                                  |
-| $IsCondenser$       |      | True if the generator may behave as a condenser                                    |
-| $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                       |
-| $Equivalent$        | -    | Indicates if the generator is an equivalent, from a network reduction for instance | 
+| Attribute                | Unit | Description                                                                        |
+|--------------------------|------|------------------------------------------------------------------------------------|
+| $MinP$                   | MW   | Minimum generator active power output                                              |
+| $MaxP$                   | MW   | Maximum generator active power output                                              |
+| $ReactiveLimits$         | MVar | Operational limits of the generator (P/Q/V diagram)                                |
+| $RatedS$                 | MVA  | The rated nominal power                                                            |
+| $TargetP$                | MW   | The active power target                                                            |
+| $LocalTargetQ$           | MVar | The reactive power target at local terminal                                        |
+| $LocalTargetV$           | kV   | The voltage target at local terminal                                               |
+| $EnergySource$           |      | The energy source harnessed to turn the generator                                  |
+| $HasCondenserCapability$ |      | True if the generator may behave as a condenser                                    |
+| $VoltageRegulation$      |      | See [Voltage Regulation](./additional.md#voltage-regulation)                       |
+| $Equivalent$             | -    | Indicates if the generator is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -194,7 +194,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 - [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
 - `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 - Target values for generators (`TargetP` and `LocalTargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `LocalTargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The diagram above shows the sign convention of these quantities with an example.
-- The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
+- The `HasCondenserCapability` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 - The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
 - The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 
