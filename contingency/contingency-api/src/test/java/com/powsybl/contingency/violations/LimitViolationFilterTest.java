@@ -246,7 +246,6 @@ class LimitViolationFilterTest {
             .operationalLimitsGroupId(null)
             .limit(1000.0)
             .value(-1200.0)
-            .side(TwoSides.ONE)
             .build();
     }
 

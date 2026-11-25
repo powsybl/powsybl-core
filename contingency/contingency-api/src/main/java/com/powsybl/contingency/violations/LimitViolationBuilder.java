@@ -137,7 +137,8 @@ public class LimitViolationBuilder {
     }
 
     /**
-     * @param side The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param side The side of the equipment where the violation occurred. Must not be {@code null}: to build a violation
+     *             without side, do not call this method.
      * @return this {@link LimitViolationBuilder}
      */
     public LimitViolationBuilder side(ThreeSides side) {
@@ -146,7 +147,8 @@ public class LimitViolationBuilder {
     }
 
     /**
-     * @param side side The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param side The side of the equipment where the violation occurred. Must not be {@code null}: to build a violation
+     *             without side, do not call this method.
      * @return this {@link LimitViolationBuilder}
      */
     public LimitViolationBuilder side(TwoSides side) {
@@ -194,7 +196,6 @@ public class LimitViolationBuilder {
             case APPARENT_POWER:
             case CURRENT:
                 requireNonNull(duration, "Acceptable duration must be defined.");
-                requireNonNull(side, "Violation side must be defined.");
                 return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, duration, limit, scaling, value, side, violationLocation);
             case LOW_VOLTAGE:
             case HIGH_VOLTAGE:
