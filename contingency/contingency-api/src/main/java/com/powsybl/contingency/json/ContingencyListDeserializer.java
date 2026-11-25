@@ -24,6 +24,22 @@ import com.powsybl.contingency.list.TwoWindingsTransformerCriterionContingencyLi
 import java.io.IOException;
 
 /**
+ * Deserializer for {@link ContingencyList} and its implementations.
+ * <p>
+ * It reads the {@code type} field of the JSON object and delegates to the deserializer of the matching
+ * implementation (e.g. {@code "default"} for {@link DefaultContingencyList}, {@code "list"} for
+ * {@link ListOfContingencyLists}). An exception is thrown if the type is unknown or missing.
+ * <p>
+ * <b>This deserializer is not discovered automatically</b>: it is not attached to {@link ContingencyList}
+ * through annotations, so it must be registered on the {@link com.fasterxml.jackson.databind.ObjectMapper}
+ * before deserializing a {@link ContingencyList}. Without it, Jackson cannot resolve the concrete
+ * implementation to instantiate. The simplest way is to register {@link ContingencyJsonModule}, which
+ * registers this deserializer along with the other contingency (de)serializers, e.g.:
+ * <pre>{@code
+ * ObjectMapper mapper = JsonUtil.createObjectMapper().registerModule(new ContingencyJsonModule());
+ * ContingencyList list = mapper.readValue(json, ContingencyList.class);
+ * }</pre>
+ *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ContingencyListDeserializer extends StdDeserializer<ContingencyList> {
