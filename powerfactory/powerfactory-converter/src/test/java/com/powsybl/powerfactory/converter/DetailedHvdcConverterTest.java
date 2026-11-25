@@ -414,19 +414,19 @@ class DetailedHvdcConverterTest {
     @Test
     void testDcLineCurrentLimits() {
         // DC-Line_pos has a limit and 2 parallel circuits, DC-Line_neg has a "no limit" value,
-        // DC-Line_dummy has an empty Imaxlim cell.
+        // DC-Line_dummy has a zero limit.
         Network network = importDgs("MTDC-limits_DC-lines");
 
         final double currentLimit = 1000.0 * 1.5 * 2;
         assertEquals(currentLimit, network.getDcLine("DC-Line_pos").getPermanentCurrentLimit(), RELATIVE_DELTA * currentLimit);
         assertTrue(Double.isNaN(network.getDcLine("DC-Line_neg").getPermanentCurrentLimit()));
-        assertTrue(Double.isNaN(network.getDcLine("DC-Line_dummy").getPermanentCurrentLimit()));
+        assertEquals(0.0, network.getDcLine("DC-Line_dummy").getPermanentCurrentLimit());
     }
 
     @Test
     void testDcLineCurrentLimitBad() {
         PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-limits_bad-Imaxlim"));
-        assertEquals("ElmLne 4 has non-positive Imaxlim (0.0).", e.getMessage());
+        assertEquals("ElmLne 4 has negative Imaxlim (-0.5).", e.getMessage());
 
         PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-limits_bad-nlnum"));
         assertEquals("ElmLne 4 has non-positive nlnum (0).", e2.getMessage());
@@ -434,7 +434,7 @@ class DetailedHvdcConverterTest {
 
     @Test
     void testDcNodeVoltageLimits() {
-        // The positive node has both limits, the negative node has vmin = 0 (no limit) and vmax only.
+        // The positive node has both limits, the negative node has zero limits.
         Network network = importDgs("MTDC-limits");
         final double nominalDcV = 320.0;
 
@@ -445,8 +445,8 @@ class DetailedHvdcConverterTest {
         assertEquals(highVoltageLimit, posNode.getHighVoltageLimit(), RELATIVE_DELTA * highVoltageLimit);
 
         DcNode negNode = network.getDcNode("6 HVDC Link_T_DC_neg1");
-        assertTrue(Double.isNaN(negNode.getLowVoltageLimit()));
-        assertEquals(highVoltageLimit, negNode.getHighVoltageLimit(), RELATIVE_DELTA * highVoltageLimit);
+        assertEquals(0.0, negNode.getLowVoltageLimit());
+        assertEquals(0.0, negNode.getHighVoltageLimit());
     }
 
     @Test
@@ -455,10 +455,10 @@ class DetailedHvdcConverterTest {
         assertEquals("ElmTerm 14 has negative vmin (-0.5).", e.getMessage());
 
         PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-limits_bad-vmax"));
-        assertEquals("ElmTerm 14 has non-positive vmax (0.0).", e2.getMessage());
+        assertEquals("ElmTerm 14 has negative vmax (-0.5).", e2.getMessage());
 
         PowerFactoryException e3 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-limits_bad-vmin-vmax"));
-        assertEquals("ElmTerm 14 has vmin (1.5) greater than or equal to vmax (1.5).", e3.getMessage());
+        assertEquals("ElmTerm 14 has vmin (1.5) greater than vmax (1.25).", e3.getMessage());
     }
 
     private Network importDgs(String id) {

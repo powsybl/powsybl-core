@@ -13,7 +13,7 @@ $$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);systype(i);iUsage(i);uknom(r);unkno
 12;2 Bus 2;9;0;0;165;95.26279;0;;
 13;3 Bus 2-Load;9;0;0;165;95.26279;0;;
 14;4 HVDC Link_T_DC_pos1;9;1;0;320;320.0;0;0.9;1.1
-16;6 HVDC Link_T_DC_neg1;9;1;0;320;320.0;1;0;1.1
+16;6 HVDC Link_T_DC_neg1;9;1;0;320;320.0;1;0;0
 
 $$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
 22;HVDC Converter 1 AC Node;12;0;6;0;1;2

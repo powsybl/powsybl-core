@@ -93,10 +93,10 @@ then keeps its default value, as when the attribute is absent:
   if `Pmin_uc` <= -9999;
 - `permanentCurrentLimit` is undefined if `Imaxlim` >= 9999.
 
-A `vmin` equal to zero also means that there is no low voltage limit: `lowVoltageLimit` is then undefined.
+Zero or equal limits are imported as they are.
 
 The import fails with a `PowerFactoryException` in case of inconsistent limits: `Pmin_uc` > `Pmax_uc` when both
-are defined, `Imaxlim` <= 0, `vmin` < 0, `vmax` <= 0, or `vmin` >= `vmax` when both are defined. It also fails if
+are defined, `Imaxlim` < 0, `vmin` < 0, `vmax` < 0, or `vmin` > `vmax` when both are defined. It also fails if
 the `nlnum` of a DC line is present and not strictly positive.
 
 ### Control mode (_detailed_)

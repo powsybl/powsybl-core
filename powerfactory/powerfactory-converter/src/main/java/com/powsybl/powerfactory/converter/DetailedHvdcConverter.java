@@ -361,12 +361,12 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     /**
      * Set the voltage limits of the DC node from the steady-state voltage limits of the terminal.
-     * A limit is left undefined (NaN) if vmax is missing, or if vmin is missing or zero.
+     * A limit is left undefined (NaN) if its attribute is missing.
      * @param dcNodeAdder adder of the DC node.
      * @param terminal terminal in the DGS file.
      * @param uknom nominal voltage (kV) of the terminal.
-     * @throws PowerFactoryException if vmin is negative, vmax is not strictly positive,
-     * or vmin is greater than or equal to vmax when both are set.
+     * @throws PowerFactoryException if vmin or vmax is negative,
+     * or vmin is greater than vmax when both are set.
      */
     private static void setVoltageLimits(DcNodeAdder dcNodeAdder, DataObject terminal, double uknom) {
         double vmin = terminal.findFloatAttributeValue("vmin").orElse(Float.NaN); // pu
@@ -374,13 +374,13 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         if (vmin < 0) {
             throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmin (" + (float) vmin + ").");
         }
-        if (vmax <= 0) {
-            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has non-positive vmax (" + (float) vmax + ").");
+        if (vmax < 0) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmax (" + (float) vmax + ").");
         }
-        boolean vminSet = vmin > 0; // false if NaN
+        boolean vminSet = !Double.isNaN(vmin);
         boolean vmaxSet = !Double.isNaN(vmax);
-        if (vminSet && vmaxSet && vmin >= vmax) {
-            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has vmin (" + (float) vmin + ") greater than or equal to vmax (" + (float) vmax + ").");
+        if (vminSet && vmaxSet && vmin > vmax) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has vmin (" + (float) vmin + ") greater than vmax (" + (float) vmax + ").");
         }
         if (vminSet) {
             dcNodeAdder.setLowVoltageLimit(vmin * uknom);
@@ -465,15 +465,15 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      *
      * @param line DC line in the DGS file.
      * @return permanent current limit (A) of the line, or NaN if Imaxlim is missing or denotes the absence of a limit.
-     * @throws PowerFactoryException if Imaxlim is not strictly positive.
+     * @throws PowerFactoryException if Imaxlim is negative.
      */
     private static double getPermanentCurrentLimit(DataObject line) {
         double maxCurrentPerCircuit = line.findFloatAttributeValue("Imaxlim").orElse(Float.NaN); // kA
         if (Double.isNaN(maxCurrentPerCircuit) || maxCurrentPerCircuit >= NO_LIMIT) {
             return Double.NaN;
         }
-        if (maxCurrentPerCircuit <= 0) {
-            throw new PowerFactoryException("ElmLne " + line.getId() + " has non-positive Imaxlim (" + (float) maxCurrentPerCircuit + ").");
+        if (maxCurrentPerCircuit < 0) {
+            throw new PowerFactoryException("ElmLne " + line.getId() + " has negative Imaxlim (" + (float) maxCurrentPerCircuit + ").");
         }
         return 1000 * maxCurrentPerCircuit * getNumberOfParallelLines(line); // A
     }
