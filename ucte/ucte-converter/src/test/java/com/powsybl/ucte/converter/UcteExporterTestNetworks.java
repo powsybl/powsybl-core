@@ -7,18 +7,11 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.time.ZonedDateTime;
+import java.util.stream.IntStream;
 
 /**
  * Test networks for the UCTE exporter tests.
@@ -387,6 +380,149 @@ public final class UcteExporterTestNetworks {
         GeneratorAdder adder = generatorAdder(voltageLevel, id, busId, targetP, 0, 1000);
         adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true)
              .withTerminal(terminal).withTargetValue(targetValue).add();
+        adder.add();
+    }
+
+    /**
+     * One French substation with two 380 kV voltage levels, and one transformer {@code F<case>11 F<case>12 1} per
+     * case, each with a single tap changer. Each case is described by a comment: the kind of tap changer, its steps,
+     * the neutral tap found by the exporter, and the expected effects of the export.
+     *
+     * @return the network
+     */
+    public static Network createWithTapChangers() {
+        Network network = Network.create("tapChangers", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        Substation substation = network.newSubstation()
+                                       .setId("SUBSTATION")
+                                       .setCountry(Country.FR)
+                                       .add();
+        for (String voltageLevelId : new String[] {"VL1", "VL2"}) {
+            substation.newVoltageLevel()
+                      .setId(voltageLevelId)
+                      .setNominalV(380)
+                      .setTopologyKind(TopologyKind.BUS_BREAKER)
+                      .add();
+        }
+
+        // Ratio, constant-step model on [-2, 2]: neutral at 0
+        addRatioTapChanger(addTransformer(substation, "RLINE"), -2, 0, 1 / 0.96, 1 / 0.98, 1, 1 / 1.02, 1 / 1.04);
+        // Ratio on [1, 5], closest rho to 1 not exact: neutral at 4, range extended on the high side, deviation
+        addRatioTapChanger(addTransformer(substation, "RSHAP"), 1, 3, 0.90, 0.95, 1.05, 0.98, 1.10);
+        // Ratio on [1, 2], tie on the distance to 1 broken by the distance to the middle: neutral at 1, range extended
+        // on the low side, deviation
+        addRatioTapChanger(addTransformer(substation, "RTIEB"), 1, 1, 0.95, 1.05);
+        // Ratio, constant-step model on [-1, 3]: neutral at 0, range extended on the low side
+        addRatioTapChanger(addTransformer(substation, "RLOWX"), -1, 0, 1 / 0.98, 1, 1 / 1.02, 1 / 1.04, 1 / 1.06);
+        // Ratio, constant-step model on [-2, 2] except rho 1.5 at tap 1: neutral at 0, deviation
+        addRatioTapChanger(addTransformer(substation, "RDEVI"), -2, 0, 1 / 0.96, 1 / 0.98, 1, 1.5, 1 / 1.04);
+        // SYMM on [1, 5], closest alpha to 0 not exact: neutral at 4, range extended on the high side, deviation
+        addPhaseTapChanger(addTransformer(substation, "PCLOS"),
+                1,
+                3,
+                new double[]{-10, -5, 5, 2, -8},
+                new double[]{1, 1, 1, 1, 1});
+        // ASYM on [1, 5], tie on the distance of alpha to 0 (taps 2 to 4) broken by the distance to the middle: neutral
+        // at 3, deviation
+        addPhaseTapChanger(addTransformer(substation, "PTIEB"),
+                1,
+                3,
+                new double[]{-10, 5, -5, 5, 10},
+                new double[]{0.90, 0.95, 1.05, 0.98, 1.10});
+        // SYMM, constant-step model on [-1, 1]: neutral at 0
+        addPhaseTapChanger(addTransformer(substation, "SLINE"), -1, 0, new double[]{90, 0, -90}, new double[]{1, 1, 1});
+        // SYMM, constant-step model on [-1, 1] except alpha -50 at tap 1: neutral at 0, deviation
+        addPhaseTapChanger(addTransformer(substation, "SDEVI"), -1, 0, new double[]{90, 0, -50}, new double[]{1, 1, 1});
+        // ASYM, constant-step model on [-1, 1], δu = 25 %, θ = 60°: neutral at 0
+        addAsymPhaseTapChanger(addTransformer(substation, "ALINE"), -1, 1, 25, 60);
+        // ASYM, constant-step model on [-2, 2], δu = 25 %, θ = 60°, except rho reduced by 10 % at tap 1: neutral at 0,
+        // deviation
+        TwoWindingsTransformer adevi = addTransformer(substation, "ADEVI");
+        addAsymPhaseTapChanger(adevi, -2, 2, 25, 60);
+        PhaseTapChangerStep adeviStep = adevi.getPhaseTapChanger().getStep(1);
+        adeviStep.setRho(adeviStep.getRho() * 0.9);
+        // Ratio, constant-step model on [-10, 10], δu = 1.23456 % (more than 4 decimals): neutral at 0, no deviation
+        double[] roundingRhos = IntStream.rangeClosed(-10, 10).mapToDouble(k -> 1 / (1 + 1.23456 * k / 100)).toArray();
+        addRatioTapChanger(addTransformer(substation, "RROUN"), -10, 0, roundingRhos);
+        // ASYM, constant-step model on [-10, 10], δu = 1.23456 % (more than 4 decimals), θ = 60°: neutral at 0, no
+        // deviation
+        addAsymPhaseTapChanger(addTransformer(substation, "AROUN"), -10, 10, 1.23456, 60);
+        return network;
+    }
+
+    /**
+     * Add a non-regulating asymmetrical phase tap changer following the UCTE-DEF constant-step model, with its neutral
+     * and current tap at position 0: in the complex plane, the point {@code (1 / rho).e^(-i.alpha)} of tap {@code k}
+     * is {@code 1 + k.(du / 100).e^(i.theta)}.
+     *
+     * @param transformer the transformer to add the phase tap changer to
+     * @param lowTapPosition the low tap position, negative or zero
+     * @param highTapPosition the high tap position, positive or zero
+     * @param du the δu (%) between two consecutive taps
+     * @param thetaDegrees the angle θ of the regulation, in degrees
+     */
+    private static void addAsymPhaseTapChanger(TwoWindingsTransformer transformer, int lowTapPosition, int highTapPosition,
+                                               double du, double thetaDegrees) {
+        int stepCount = highTapPosition - lowTapPosition + 1;
+        double[] alphas = new double[stepCount];
+        double[] rhos = new double[stepCount];
+        double theta = Math.toRadians(thetaDegrees);
+        for (int i = 0; i < stepCount; i++) {
+            double distance = (lowTapPosition + i) * du / 100;
+            double x = 1 + distance * Math.cos(theta);
+            double y = distance * Math.sin(theta);
+            alphas[i] = -Math.toDegrees(Math.atan2(y, x));
+            rhos[i] = 1 / Math.hypot(x, y);
+        }
+        addPhaseTapChanger(transformer, lowTapPosition, 0, alphas, rhos);
+    }
+
+    /**
+     * Add buses {@code F<name>11} in {@code VL1} and {@code F<name>12} in {@code VL2}, and a transformer
+     * {@code F<name>11 F<name>12 1} between them.
+     */
+    private static TwoWindingsTransformer addTransformer(Substation substation, String name) {
+        String bus1 = "F" + name + "11";
+        String bus2 = "F" + name + "12";
+        substation.getNetwork().getVoltageLevel("VL1").getBusBreakerView().newBus().setId(bus1).add();
+        substation.getNetwork().getVoltageLevel("VL2").getBusBreakerView().newBus().setId(bus2).add();
+        return substation.newTwoWindingsTransformer()
+                         .setId(bus1 + " " + bus2 + " 1")
+                         .setVoltageLevel1("VL1").setBus1(bus1).setConnectableBus1(bus1)
+                         .setVoltageLevel2("VL2").setBus2(bus2).setConnectableBus2(bus2)
+                         .setRatedU1(380).setRatedU2(380).setRatedS(100)
+                         .setR(2).setX(100)
+                         .add();
+    }
+
+    /**
+     * Add a non-regulating ratio tap changer with one step per given rho, starting at {@code lowTapPosition}.
+     */
+    private static void addRatioTapChanger(TwoWindingsTransformer transformer, int lowTapPosition, int tapPosition,
+                                           double... rhos) {
+        RatioTapChangerAdder adder = transformer.newRatioTapChanger()
+                                                .setLoadTapChangingCapabilities(false)
+                                                .setLowTapPosition(lowTapPosition)
+                                                .setTapPosition(tapPosition);
+        for (double rho : rhos) {
+            adder.beginStep().setRho(rho).endStep();
+        }
+        adder.add();
+    }
+
+    /**
+     * Add a non-regulating phase tap changer with one step per given (alpha, rho) pair, starting at
+     * {@code lowTapPosition}.
+     */
+    private static void addPhaseTapChanger(TwoWindingsTransformer transformer, int lowTapPosition, int tapPosition,
+                                           double[] alphas, double[] rhos) {
+        PhaseTapChangerAdder adder = transformer.newPhaseTapChanger()
+                                                .setLowTapPosition(lowTapPosition)
+                                                .setTapPosition(tapPosition)
+                                                .setRegulating(false);
+        for (int i = 0; i < alphas.length; i++) {
+            adder.beginStep().setAlpha(alphas[i]).setRho(rhos[i]).endStep();
+        }
         adder.add();
     }
 }

@@ -11,12 +11,10 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.converter.UcteExporterTestNetworks;
 import com.powsybl.ucte.converter.UcteImporter;
-import com.powsybl.ucte.converter.util.UcteConverterHelper.VoltageCandidate;
+import com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -94,6 +92,64 @@ class UcteConverterHelperTest {
         Complex duRef6 = calculateAsymmAngleDuAndAngle(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
         assertEquals(0.990, duRef6.abs(), 0.00001);
         assertEquals(90.00, Math.toDegrees(duRef6.getArgument()), 0.00001); // loss of one decimal with sign
+    }
+
+    /**
+     * n is the distance from the neutral tap to the furthest end of the range, n' the current tap counted from the
+     * neutral tap.
+     */
+    @Test
+    void computeTapPositionRangeTest() {
+        assertEquals(new TapPositionRange(2, 0), computeTapPositionRange(-2, 2, 0, 0));
+        assertEquals(new TapPositionRange(3, -1), computeTapPositionRange(1, 5, 3, 4));
+        assertEquals(new TapPositionRange(3, 0), computeTapPositionRange(-1, 3, 0, 0));
+    }
+
+    @Test
+    void predictStepTest() {
+        assertEquals(1.0, predictRatioStep(10.0, 0), 1e-9);
+        assertEquals(1 / 1.1, predictRatioStep(10.0, 1), 1e-9);
+
+        assertEquals(0.0, predictSymmAngleStep(10.0, 0), 1e-9);
+        assertEquals(-5.724810452, predictSymmAngleStep(10.0, 1), 1e-9);
+        assertEquals(5.724810452, predictSymmAngleStep(10.0, -1), 1e-9);
+
+        Complex predicted = predictAsymmAngleStep(10.0, Math.PI / 2, 1);
+        assertEquals(1.0, predicted.getReal(), 1e-9);
+        assertEquals(0.1, predicted.getImaginary(), 1e-9);
+        predicted = predictAsymmAngleStep(10.0, Math.PI / 2, -1);
+        assertEquals(1.0, predicted.getReal(), 1e-9);
+        assertEquals(-0.1, predicted.getImaginary(), 1e-9);
+    }
+
+    /**
+     * The neutral tap position is the exact neutral step if any, otherwise the step closest to rho = 1 (ratio) or
+     * alpha = 0 (phase), ties being broken by the distance to the middle tap position. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void findNeutralTapPositionTest() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        assertNeutralTapPosition(network, "RLINE", 0);
+        assertNeutralTapPosition(network, "RSHAP", 4);
+        assertNeutralTapPosition(network, "RTIEB", 1);
+        assertNeutralTapPosition(network, "RLOWX", 0);
+        assertNeutralTapPosition(network, "RDEVI", 0);
+        assertNeutralTapPosition(network, "PCLOS", 4);
+        assertNeutralTapPosition(network, "PTIEB", 3);
+        assertNeutralTapPosition(network, "SLINE", 0);
+        assertNeutralTapPosition(network, "SDEVI", 0);
+        assertNeutralTapPosition(network, "ALINE", 0);
+        assertNeutralTapPosition(network, "ADEVI", 0);
+    }
+
+    private static void assertNeutralTapPosition(Network network, String name, int expected) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("F" + name + "11 F" + name + "12 1");
+        int actual = transformer.hasRatioTapChanger()
+                     ? findNeutralTapPosition(transformer.getRatioTapChanger())
+                     : findNeutralTapPosition(transformer.getPhaseTapChanger());
+        assertEquals(expected, actual, name);
     }
 
     /**

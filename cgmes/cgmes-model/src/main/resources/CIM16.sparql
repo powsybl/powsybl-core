@@ -952,6 +952,7 @@ GRAPH ?graphEQ {
     OPTIONAL { ?ACDCConverter cim:ACDCConverter.idleLoss ?idleLoss }
     OPTIONAL { ?ACDCConverter cim:ACDCConverter.switchingLoss ?switchingLoss }
     OPTIONAL { ?ACDCConverter cim:ACDCConverter.resistiveLoss ?resistiveLoss }
+    OPTIONAL { ?ACDCConverter cim:ACDCConverter.baseS ?baseS }
 }
 }
 
