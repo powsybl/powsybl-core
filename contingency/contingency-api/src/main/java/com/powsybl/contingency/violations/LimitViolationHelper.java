@@ -25,7 +25,8 @@ public final class LimitViolationHelper {
     /**
      * @return the voltage level where the violation is located, or an empty {@code Optional} if its subject is not
      * located in any voltage level (DC node or DC line). Such a violation has no country and no nominal voltage.
-     * @throws IllegalStateException if the type of the subject of the violation is not supported.
+     * @throws IllegalStateException if the type of the subject of the violation is not supported, or if the subject is
+     * a branch and the violation has no side.
      */
     public static Optional<VoltageLevel> getVoltageLevel(LimitViolation limitViolation, Network network) {
         return Optional.ofNullable(findVoltageLevel(limitViolation, network));

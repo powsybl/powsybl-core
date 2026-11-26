@@ -397,10 +397,13 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * The side of the equipment with two sides (like branch) where the violation occurred.
      *
      * @return the side of the equipment with two sides (like branch) where the violation occurred.
-     * @throws NullPointerException if the violation has no side
+     * @throws IllegalStateException if the violation has no side
      */
     public TwoSides getSideAsTwoSides() {
-        return Objects.requireNonNull(side, () -> "Violation on '" + subjectId + "' has no side.").toTwoSides();
+        if (side == null) {
+            throw new IllegalStateException("Violation on '" + subjectId + "' has no side.");
+        }
+        return side.toTwoSides();
     }
 
     /**
