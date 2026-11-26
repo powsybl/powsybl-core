@@ -12,12 +12,10 @@ import com.powsybl.iidm.network.Network;
 
 /**
  * A computation carried out on a network, which result
- * may be validated through the validation tool.
- *
+ * may be validated through the validation tool.<br>
  * All computation tools which want to pass the validation tests
  * must implement that interface and register itself as a known
- * candidate through the use of @AutoService.
- *
+ * candidate through the use of @AutoService.<br>
  * Must be thread-safe.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}

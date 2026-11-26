@@ -1,15 +1,10 @@
-/**
- * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * SPDX-License-Identifier: MPL-2.0
- */
 package com.powsybl.loadflow.validation;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.loadflow.validation.data.GeneratorData;
+import com.powsybl.loadflow.validation.data.Validated;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +28,10 @@ public final class GeneratorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorsValidation.class);
 
-    public static final GeneratorsValidation INSTANCE = new GeneratorsValidation();
-
     private GeneratorsValidation() {
     }
 
-    public boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -47,7 +40,7 @@ public final class GeneratorsValidation {
         }
     }
 
-    public boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -58,7 +51,7 @@ public final class GeneratorsValidation {
         }
     }
 
-    public boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
+    public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -66,28 +59,29 @@ public final class GeneratorsValidation {
         BalanceTypeGuesser guesser = new BalanceTypeGuesser(network, config.getThreshold());
         LOGGER.info("Using {} balance type", guesser.getBalanceType());
         return network.getGeneratorStream()
-                      .sorted(Comparator.comparing(Generator::getId))
-                      .map(gen -> checkGenerator(gen, config, generatorsWriter, guesser))
-                      .reduce(Boolean::logicalAnd)
-                      .orElse(true);
+                .sorted(Comparator.comparing(Generator::getId))
+                .map(gen -> checkGenerator(gen, config, generatorsWriter, guesser))
+                .reduce(Boolean::logicalAnd)
+                .orElse(true);
     }
 
-    public boolean checkGenerator(Generator gen, ValidationConfig config, Writer writer) {
+    public static boolean checkGenerator(Generator gen, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(gen.getId(), config, writer, ValidationType.GENERATORS)) {
-            return checkGenerator(gen, config, generatorsWriter, new BalanceTypeGuesser());
+            return checkGenerator(gen, config, generatorsWriter, BalanceTypeGuesser.NO_BALANCING_GUESSER);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkGenerator(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
+    public static boolean checkGenerator(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
+        Objects.requireNonNull(guesser);
         double p = gen.getTerminal().getP();
         double q = gen.getTerminal().getQ();
         double targetP = gen.getTargetP();
@@ -100,30 +94,26 @@ public final class GeneratorsValidation {
         double minQ = gen.getReactiveLimits().getMinQ(targetP);
         double maxQ = gen.getReactiveLimits().getMaxQ(targetP);
         TerminalState terminalState = getTerminalState(gen.getTerminal());
-        return checkGenerator(gen.getId(), p, q, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, terminalState, config, generatorsWriter, guesser);
+        GeneratorData d = new GeneratorData(gen.getId(),
+                p, q, terminalState.v(),
+                targetP, targetQ, targetV,
+                regulationMode, regulating,
+                minP, maxP, minQ, maxQ,
+                terminalState.connected(), terminalState.mainComponent(),
+                guesser);
+        return checkGenerator(d, config, generatorsWriter, guesser);
     }
 
-    public boolean checkGenerator(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
-                                  String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, boolean connected,
-                                  boolean mainComponent, ValidationConfig config, Writer writer) {
-        Objects.requireNonNull(id);
+    public static boolean checkGenerator(GeneratorData d, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(d);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
-            return checkGenerator(id, p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, config,
-                    generatorsWriter, new BalanceTypeGuesser());
+        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(d.generatorId(), config, writer, ValidationType.GENERATORS)) {
+            return checkGenerator(d, config, generatorsWriter, BalanceTypeGuesser.NO_BALANCING_GUESSER);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private boolean checkGenerator(String id, double p, double q, double targetP, double targetQ, double targetV,
-                                   String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, TerminalState terminalState,
-                                   ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
-
-        return checkGenerator(id, p, q, terminalState.v(), targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ,
-                terminalState.connected(), terminalState.mainComponent(), config, generatorsWriter, guesser);
     }
 
     /**
@@ -138,81 +128,64 @@ public final class GeneratorsValidation {
      *   - qGen ~ maxQ if V < targetV - threshold <br/>
      *   - else qGen within [minQ, maxQ])
      */
-    public boolean checkGenerator(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
-                                  String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, boolean connected,
-                                  boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
-        Objects.requireNonNull(id);
+    public static boolean checkGenerator(GeneratorData d, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
+        Objects.requireNonNull(d);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
+        Objects.requireNonNull(guesser);
         boolean validated = true;
-        double expectedP = getExpectedP(guesser, id, p, targetP, minP, maxP, config.getThreshold());
-        if (isConnectedAndMainComponent(connected, mainComponent, config)) {
-            if (Double.isNaN(p) || Double.isNaN(q)) {
-                validated = validateMissingPQRule(id, p, q, targetP, targetQ);
-            } else if (isGenReactiveBoundInverted(minQ, maxQ, config.getThreshold(), config.isNoRequirementIfReactiveBoundInversion())) {
+
+        if (isConnectedAndMainComponent(d.connected(), d.mainComponent(), config)) {
+            if (Double.isNaN(d.p()) || Double.isNaN(d.q())) {
+                validated = validateMissingPQRule(d.generatorId(), d.p(), d.q(), d.targetP(), d.targetQ());
+            } else if (isGenReactiveBoundInverted(d.minQ(), d.maxQ(), config.getThreshold(), config.isNoRequirementIfReactiveBoundInversion())) {
                 validated = true;
-            } else if (isGenSetpointOutsidePowerBounds(targetP, minP, maxP, config.getThreshold(), config.isNoRequirementIfSetpointOutsidePowerBounds())) {
+            } else if (isGenSetpointOutsidePowerBounds(d.targetP(), d.minP(), d.maxP(), config.getThreshold(), config.isNoRequirementIfSetpointOutsidePowerBounds())) {
                 validated = true;
             } else {
-                validated = checkGeneratorValues(id, p, q, v, expectedP, targetQ, targetV, regulationMode, regulating, minQ, maxQ, config);
+                validated = checkGeneratorValues(d, config);
             }
         }
         try {
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, expectedP, connected, regulationMode, regulating, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.writeGenerator(new Validated<>(d, validated));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return validated;
     }
 
-    private static double getExpectedP(BalanceTypeGuesser guesser, String id, double p, double targetP, double minP, double maxP, double threshold) {
-        if (Math.abs(p + targetP) <= threshold) {
-            return targetP;
-        }
-        switch (guesser.getBalanceType()) {
-            case NONE:
-                return id.equals(guesser.getSlack()) ? -p : targetP;
-            case PROPORTIONAL_TO_GENERATION_P_MAX:
-                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + maxP * guesser.getKMax()));
-            case PROPORTIONAL_TO_GENERATION_P:
-                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + targetP * guesser.getKTarget()));
-            case PROPORTIONAL_TO_GENERATION_HEADROOM:
-                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + (maxP - targetP) * guesser.getKHeadroom()));
-            default:
-                throw new IllegalStateException("Unhandled Balance Type: " + guesser.getBalanceType());
-        }
-    }
-
-    private static boolean checkGeneratorValues(String id, double p, double q, double v, double expectedP, double targetQ, double targetV,
-                                                String regulationMode, boolean regulating, double minQ, double maxQ, ValidationConfig config) {
-
+    private static boolean checkGeneratorValues(GeneratorData d, ValidationConfig config) {
         boolean validated = true;
+        String id = d.generatorId();
         double threshold = config.getThreshold();
-        if (areNaN(config, expectedP) || isGenActivePowerInconsistent(p, expectedP, threshold)) {
-            LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
+        double expectedP = d.expectedP();
+        if (areNaN(config, expectedP) || isGenActivePowerInconsistent(d.p(), expectedP, threshold)) {
+            LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, d.p(), expectedP);
             validated = false;
         }
 
+        String regulationMode = d.regulationMode();
+        boolean regulating = d.regulating();
         if ((regulationMode == null || !regulating || RegulationMode.REACTIVE_POWER.name().equals(regulationMode))
-                && (areNaN(config, targetQ) || isGenReactivePowerInconsistent(q, targetQ, threshold))) {
-            LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} targetQ={}", regulationMode, ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
+                && (areNaN(config, d.targetQ()) || isGenReactivePowerInconsistent(d.q(), d.targetQ(), threshold))) {
+            LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, d.q(), d.targetQ());
             validated = false;
         }
 
-        double qGen = -q;
-        if (RegulationMode.VOLTAGE.toString().equals(regulationMode)
-            && regulating
-            && (ValidationUtils.areNaN(config, minQ, maxQ, targetV) || isGenVoltageRegulationInconsistent(qGen, v, targetV, minQ, maxQ, threshold))) {
+        double qGen = -d.q();
+        if (RegulationMode.VOLTAGE.name().equals(regulationMode)
+                && regulating
+                && (areNaN(config, d.minQ(), d.maxQ(), d.targetV()) || isGenVoltageRegulationInconsistent(qGen, d.v(), d.targetV(), d.minQ(), d.maxQ(), threshold))) {
             LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} minQ={} maxQ={} - V={} targetV={}",
-                    regulationMode,
                     ValidationType.GENERATORS,
                     ValidationUtils.VALIDATION_ERROR,
                     id,
+                    regulationMode,
                     qGen,
-                    minQ,
-                    maxQ,
-                    v,
-                    targetV);
+                    d.minQ(),
+                    d.maxQ(),
+                    d.v(),
+                    d.targetV());
             validated = false;
         }
         return validated;

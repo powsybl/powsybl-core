@@ -9,6 +9,8 @@ package com.powsybl.loadflow.validation;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.data.ShuntData;
+import com.powsybl.loadflow.validation.data.Validated;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +34,10 @@ public final class ShuntCompensatorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShuntCompensatorsValidation.class);
 
-    public static final ShuntCompensatorsValidation INSTANCE = new ShuntCompensatorsValidation();
-
     private ShuntCompensatorsValidation() {
     }
 
-    public boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(file);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -46,7 +46,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunts(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkShunts(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -57,7 +57,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunts(Network network, ValidationConfig config, ValidationWriter shuntsWriter) {
+    public static boolean checkShunts(Network network, ValidationConfig config, ValidationWriter shuntsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
@@ -69,7 +69,7 @@ public final class ShuntCompensatorsValidation {
                 .orElse(true);
     }
 
-    public boolean checkShunt(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
+    public static boolean checkShunt(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(shunt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -81,7 +81,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunt(ShuntCompensator shunt, ValidationConfig config, ValidationWriter shuntsWriter) {
+    public static boolean checkShunt(ShuntCompensator shunt, ValidationConfig config, ValidationWriter shuntsWriter) {
         Objects.requireNonNull(shunt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
@@ -98,27 +98,27 @@ public final class ShuntCompensatorsValidation {
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         TerminalState terminalState = getTerminalState(shunt.getTerminal());
-        return checkShunt(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, qMax, nominalV, terminalState, config, shuntsWriter);
+        ShuntData d = new ShuntData(shunt.getId(),
+                p, q,
+                currentSectionCount, maximumSectionCount,
+                bPerSection,
+                qMax,
+                terminalState.v(), terminalState.connected(),
+                nominalV,
+                terminalState.mainComponent());
+        return checkShunt(d, config, shuntsWriter);
     }
 
-    public boolean checkShunt(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
-                              double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
-                              Writer writer) {
-        Objects.requireNonNull(id);
+    public static boolean checkShunt(ShuntData d, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(d);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter shuntsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SHUNTS)) {
-            return checkShunt(id, p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
+        try (ValidationWriter shuntsWriter = ValidationUtils.createValidationWriter(d.shuntId(), config, writer, ValidationType.SHUNTS)) {
+            return checkShunt(d, config, shuntsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private boolean checkShunt(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
-                               double qMax, double nominalV, TerminalState terminalState, ValidationConfig config, ValidationWriter shuntsWriter) {
-        return checkShunt(id, p, q, currentSectionCount, maximumSectionCount, bPerSection, terminalState.v(), qMax, nominalV, terminalState.connected(),
-                terminalState.mainComponent(), config, shuntsWriter);
     }
 
     /**
@@ -127,40 +127,34 @@ public final class ShuntCompensatorsValidation {
      * - Rule: q must match expectedQ <br/>
      * - Rule: if the shunt is disconnected, q should be NaN or 0
      */
-    public boolean checkShunt(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
-                              double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
-                              ValidationWriter shuntsWriter) {
+    public static boolean checkShunt(ShuntData d, ValidationConfig config,
+                               ValidationWriter shuntsWriter) {
         boolean validated = true;
         double threshold = config.getThreshold();
+        String id = d.shuntId();
+
         // Rule: if the shunt is disconnected, q should be NaN or 0
-        if (!connected && !isNaNOrZero(q, threshold)) {
-            LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
+        if (!d.connected() && !isNaNOrZero(d.q(), config.getThreshold())) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
+            LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, d.q());
             validated = false;
         }
-
-        double expectedQ = computeShuntExpectedQ(bPerSection, currentSectionCount, v);
-        if (isConnectedAndMainComponent(connected, mainComponent, config)) {
+        if (isConnectedAndMainComponent(d.connected(), d.mainComponent(), config)) {
             // Rule: |p| < e
-            if (!Double.isNaN(p) && Math.abs(p) > threshold) {
-                LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
+            if (!Double.isNaN(d.p()) && Math.abs(d.p()) > threshold) {
+                LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, d.p());
                 validated = false;
             }
             // Rule: q must match expectedQ
-            if (areNaN(config, q, expectedQ) || isOutsideTolerance(q, expectedQ, threshold)) {
-                LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
+            if (areNaN(config, d.q(), d.expectedQ()) || isOutsideTolerance(d.q(), d.expectedQ(), threshold)) {
+                LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, d.q(), d.expectedQ());
                 validated = false;
             }
         }
         try {
-            shuntsWriter.write(id, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+            shuntsWriter.writeShunt(new Validated<>(d, validated));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return validated;
-    }
-
-    // expectedQ = - #sections * B * v^2
-    private static double computeShuntExpectedQ(double bPerSection, int sectionCount, double v) {
-        return -bPerSection * sectionCount * v * v;
     }
 }

@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -65,7 +64,7 @@ class ValidationConfigTest {
     }
 
     @Test
-    void checkIncompleteConfig() throws Exception {
+    void checkIncompleteConfig() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -79,7 +78,7 @@ class ValidationConfigTest {
     }
 
     @Test
-    void checkCompleteConfig() throws Exception {
+    void checkCompleteConfig() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -137,32 +136,51 @@ class ValidationConfigTest {
 
     @Test
     void testWrongConfig() {
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
-        assertThrows(IllegalArgumentException.class, () -> new ValidationConfig(-1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
-                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, loadFlowParameters,
+        try {
+            new ValidationConfig(-1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
                                  ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS));
+                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+            fail();
+        } catch (Exception e) {
+            assertEquals("Negative values for threshold not permitted", e.getMessage());
+        }
         new ValidationConfig(1, false, null, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
-                             ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, loadFlowParameters,
+                             ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
                              ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                              ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                              ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
-        assertThrows(NullPointerException.class, () -> new ValidationConfig(1, false, loadFlowName, null, ValidationConfig.EPSILON_X_DEFAULT,
-            ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, loadFlowParameters,
-            ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
-            ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-            ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS));
-        assertThrows(IllegalArgumentException.class, () -> new ValidationConfig(1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1,
-            ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, loadFlowParameters,
-            ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
-            ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-            ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS));
-        assertThrows(NullPointerException.class, () -> new ValidationConfig(1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
-            ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, loadFlowParameters,
-            ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
-            ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-            ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS));
+        try {
+            new ValidationConfig(1, false, loadFlowName, null, ValidationConfig.EPSILON_X_DEFAULT,
+                                ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
+                                ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
+                                ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+            fail();
+        } catch (Exception e) {
+            assertInstanceOf(NullPointerException.class, e);
+        }
+        try {
+            new ValidationConfig(1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1,
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                 ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
+                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+            fail();
+        } catch (Exception e) {
+            assertEquals("Negative values for epsilonX not permitted", e.getMessage());
+        }
+        try {
+            new ValidationConfig(1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
+                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, new LoadFlowParameters(),
+                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
+                                 ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
+                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+            fail();
+        } catch (Exception e) {
+            assertInstanceOf(NullPointerException.class, e);
+        }
     }
 
 }

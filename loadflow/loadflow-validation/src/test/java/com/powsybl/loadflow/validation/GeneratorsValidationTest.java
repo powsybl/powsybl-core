@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.loadflow.validation.data.GeneratorData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -60,6 +62,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
     private Terminal genTerminal;
     private Generator generator;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();
@@ -103,130 +106,130 @@ class GeneratorsValidationTest extends AbstractValidationTest {
     @Test
     void checkGeneratorsValues() {
         // active power should be equal to setpoint
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         p = -39.8;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         p = -39.5056;
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         // check with NaN values
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, Float.NaN, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, Float.NaN, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         strictConfig.setOkMissingValues(true);
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, Float.NaN, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, Float.NaN, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         strictConfig.setOkMissingValues(false);
 
         //  if voltageRegulatorOn="false" then reactive power should be equal to setpoint
         regulationMode = RegulationMode.REACTIVE_POWER.name();
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         q = 3.7;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, looseConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), looseConfig, NullWriter.INSTANCE));
         // check with NaN values
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, Float.NaN, targetV,
-                regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, looseConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, Float.NaN, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(true);
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, Float.NaN, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, looseConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, Float.NaN, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(false);
 
         // if voltageRegulatorOn="true" then either V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
         regulationMode = RegulationMode.VOLTAGE.name();
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         v = 400;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         v = 380;
         q = 11;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         // check main component
         mainComponent = false;
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         mainComponent = true;
         q = 3.7;
 
         // check with NaN values
         v = 380;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, Float.NaN, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, Float.NaN, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, Float.NaN,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, Float.NaN, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, Float.NaN, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, Float.NaN, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         strictConfig.setOkMissingValues(true);
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, Float.NaN, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, Float.NaN, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, Float.NaN,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, Float.NaN, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, Float.NaN, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, Float.NaN, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         strictConfig.setOkMissingValues(false);
 
         // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMinQ(p) and v is higher than targetV
         q = 10;
         v = 360;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         v = 400;
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         q = 5;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
 
         // when maxQ < minQ
         strictConfig.setNoRequirementIfReactiveBoundInversion(true);
         // if noRequirementIfReactiveBoundInversion return true
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, maxQ, minQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, maxQ, minQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         strictConfig.setNoRequirementIfReactiveBoundInversion(false);
         // the code switches the 2 values to go back to a situation where minQ < maxQ and the normal tests are done
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, maxQ, minQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, maxQ, minQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
 
         // if voltageRegulatorOn="true" then either q is equal to g.getReactiveLimits().getMaxQ(p) and v is lower than targetV
         q = 0;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         v = 360;
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         q = 5;
         v = 400;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
 
         // a validation error should be detected if there is both a voltage and a target but no p or q
         v = 380;
         p = Float.NaN;
         q = Float.NaN;
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
         targetP = 0;
         targetQ = 0;
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator("test", p, q, v, targetP, targetQ, targetV,
-            regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(new GeneratorData("test", p, q, v, targetP, targetQ, targetV, regulationMode, regulating, minP, maxP, minQ, maxQ, connected, mainComponent,
+                BalanceTypeGuesser.NO_BALANCING_GUESSER), strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
     void checkGenerators() {
         // active power should be equal to setpoint
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE));
-        when(genTerminal.getP()).thenReturn(-39.8);
-        assertFalse(GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE));
+        Mockito.when(genTerminal.getP()).thenReturn(-39.8);
+        assertFalse(GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE));
 
         // the unit is disconnected
-        when(genBusView.getBus()).thenReturn(null);
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE));
+        Mockito.when(genBusView.getBus()).thenReturn(null);
+        assertTrue(GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
@@ -266,13 +269,13 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         when(generator1.getMinP()).thenReturn(minP);
         when(generator1.getReactiveLimits()).thenReturn(genReactiveLimits1);
 
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerator(generator1, strictConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerator(generator1, strictConfig, NullWriter.INSTANCE));
 
         Network network = mock(Network.class);
         when(network.getId()).thenReturn("network");
         when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1));
 
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(network, looseConfig, data));
+        assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, data));
 
         assertTrue(ValidationType.GENERATORS.check(network, looseConfig, tmpDir));
 
@@ -317,7 +320,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
 
         when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1, generator2));
 
-        assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(network, looseConfig, NullWriter.INSTANCE));
+        assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, NullWriter.INSTANCE));
     }
 
     @DisplayName("Rule: A validation error should be detected if there is both a voltage and a target but no p or q")
@@ -329,7 +332,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         when(generator.getTargetP()).thenReturn(10.0);
         when(generator.getRegulatingTargetQ()).thenReturn(10.0);
         // When
-        boolean result = GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
+        boolean result = GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
         // Then
         assertFalse(result);
     }
@@ -347,7 +350,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         when(generator.getReactiveLimits()).thenReturn(invertedLimits);
         when(genTerminal.getQ()).thenReturn(5.0); // bypassed by rule 1
         // When
-        boolean result = GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
+        boolean result = GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
         // Then
         assertEquals(expectedValid, result);
     }
@@ -362,7 +365,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         when(generator.getMaxP()).thenReturn(30.0);
         when(generator.getTargetP()).thenReturn(40.0); // outside [minP=20.0, maxP=30.0]
         // When
-        boolean result = GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
+        boolean result = GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
         // Then
         assertEquals(expectedValid, result);
     }
@@ -374,7 +377,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         when(generator.getTargetP()).thenReturn(20.0);
         when(genTerminal.getP()).thenReturn(-22.0);
         // When
-        boolean result = GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
+        boolean result = GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
         // Then
         assertFalse(result);
     }
@@ -391,7 +394,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         when(generator.getLocalTargetQ()).thenReturn(10.0);
         when(genTerminal.getQ()).thenReturn(-12.0); // expected q = -targetQ = -10
         // When
-        boolean result = GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
+        boolean result = GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
         // Then
         assertFalse(result);
     }
@@ -428,7 +431,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         // q
         when(genTerminal.getQ()).thenReturn(q);
         // When
-        boolean result = GeneratorsValidation.INSTANCE.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
+        boolean result = GeneratorsValidation.checkGenerator(generator, strictConfig, NullWriter.INSTANCE);
         // Then
         assertEquals(expectedValid, result, caseName);
     }

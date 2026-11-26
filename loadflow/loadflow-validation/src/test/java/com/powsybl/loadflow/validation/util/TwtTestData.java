@@ -76,10 +76,10 @@ public class TwtTestData {
     public static final boolean MAIN_COMPONENT2 = true;
     public static final boolean MAIN_COMPONENT3 = true;
 
-    private Terminal leg1Terminal;
-    private Terminal leg2Terminal;
-    private Terminal leg3Terminal;
-    private ThreeWindingsTransformer twt3w;
+    private final Terminal leg1Terminal;
+    private final Terminal leg2Terminal;
+    private final Terminal leg3Terminal;
+    private final ThreeWindingsTransformer twt3w;
 
     public TwtTestData() {
         Bus leg1Bus = Mockito.mock(Bus.class);
