@@ -71,7 +71,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         addAliasesAndProperties(shunt);
 
         convertedTerminalsWithOnlyEq(shunt.getTerminal());
-        context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
+        setRegulatingControlProperty(shunt);
         shunt.setProperty(PROPERTY_NORMAL_SECTIONS, String.valueOf(normalSections));
     }
 

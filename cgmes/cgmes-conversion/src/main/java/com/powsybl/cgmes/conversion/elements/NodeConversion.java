@@ -207,7 +207,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private static void updateVoltageMagnitudeAndAngle(PropertyBag svVoltage, Bus bus, Context context) {
-        double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
+        double v = svVoltage.asDouble(CgmesNames.V);
         double angle = svVoltage.asDouble(CgmesNames.ANGLE);
         if (valid(v, angle)) {
             bus.setV(v).setAngle(angle);

@@ -120,7 +120,7 @@ public abstract class AbstractMeasurementsTest {
     }
 
     @Test
-    void setValueAndValidity() {
+    public void setValueAndValidity() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
 

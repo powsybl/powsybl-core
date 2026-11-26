@@ -49,12 +49,12 @@ public class ExtendedAmplExporterV3 extends ExtendedAmplExporterV2 {
     public void addAdditionalCellsBattery(TableFormatterHelper formatterHelper, Battery battery) {
         super.addAdditionalCellsBattery(formatterHelper, battery);
 
-        boolean isRegulating = battery.isRegulatingWithMode(RegulationMode.VOLTAGE);
+        boolean isRegulatingVoltage = battery.isRegulatingWithMode(RegulationMode.VOLTAGE);
         double targetV = battery.getRegulatingTargetV();
-        int regulatingBusNum = isRegulating && battery.getRegulatingTerminal().isConnected() ?
+        int regulatingBusNum = isRegulatingVoltage && battery.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, battery.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
-        formatterHelper.addCell(isRegulating, BATTERY_V_REGUL_COLUMN_INDEX);
+        formatterHelper.addCell(isRegulatingVoltage, BATTERY_V_REGUL_COLUMN_INDEX);
         formatterHelper.addCell(targetV, BATTERY_TARGET_V_COLUMN_INDEX);
         formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);
     }

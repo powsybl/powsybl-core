@@ -21,6 +21,10 @@ The inputs of a dynamic simulation are the following:
 - a set of parameters for the simulator itself (simulation start and stop time, solver parameters, etc.)
 - a configuration file to configure the output variables to export at the end of the simulation
 
+```{warning}
+Groovy scripts are executed without any sandbox. Only use scripts from trusted sources. See [Groovy scripts security](../../user/groovy-security.md).
+```
+
 (dynamic-models-configuration)=
 ### Dynamic models configuration
 The dynamic models may be provided through a groovy script thanks to the `GroovyDynamicModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
