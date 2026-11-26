@@ -20,6 +20,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.powsybl.ampl.converter.AmplConstants.MAX_Q_TARGET_P;
+import static com.powsybl.ampl.converter.AmplConstants.MIN_Q_TARGET_P;
+
 /**
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
@@ -49,9 +52,9 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     public List<Column> getGeneratorsColumns() {
         List<Column> generatorsColumns = new ArrayList<>(super.getGeneratorsColumns());
         // Add column for MinQ at TargetP
-        generatorsColumns.add(GENERATOR_MINQ_TARGETP_INDEX, new Column("minQTargetP (MVar)"));
+        generatorsColumns.add(GENERATOR_MINQ_TARGETP_INDEX, new Column(MIN_Q_TARGET_P));
         // Add column for MaxQ at TargetP
-        generatorsColumns.add(GENERATOR_MAXQ_TARGETP_INDEX, new Column("maxQTargetP (MVar)"));
+        generatorsColumns.add(GENERATOR_MAXQ_TARGETP_INDEX, new Column(MAX_Q_TARGET_P));
         // Add column for reactive power per active power regulation
         generatorsColumns.add(GENERATOR_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX, new Column("Q/P in use"));
         // Add column for reactive power per active power regulation slope
@@ -63,9 +66,9 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     public List<Column> getBatteriesColumns() {
         List<Column> batteriesColumns = new ArrayList<>(super.getBatteriesColumns());
         // Add column for MinQ at TargetP
-        batteriesColumns.add(BATTERY_MINQ_TARGETP_INDEX, new Column("minQTargetP (MVar)"));
+        batteriesColumns.add(BATTERY_MINQ_TARGETP_INDEX, new Column(MIN_Q_TARGET_P));
         // Add column for MaxQ at TargetP
-        batteriesColumns.add(BATTERY_MAXQ_TARGETP_INDEX, new Column("maxQTargetP (MVar)"));
+        batteriesColumns.add(BATTERY_MAXQ_TARGETP_INDEX, new Column(MAX_Q_TARGET_P));
         // Add column for reactive power per active power regulation
         batteriesColumns.add(BATTERY_REACTIVE_POWER_PER_ACTIVE_POWER_INDEX, new Column("Q/P in use"));
         // Add column for reactive power per active power regulation slope
@@ -77,9 +80,9 @@ public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {
     public List<Column> getVscConverterStationsColumns() {
         List<Column> vscConverterStationsColumns = new ArrayList<>(super.getVscConverterStationsColumns());
         // Add column for MinQ at TargetP
-        vscConverterStationsColumns.add(VSC_MINQ_TARGETP_INDEX, new Column("minQTargetP (MVar)"));
+        vscConverterStationsColumns.add(VSC_MINQ_TARGETP_INDEX, new Column(MIN_Q_TARGET_P));
         // Add column for MaxQ at TargetP
-        vscConverterStationsColumns.add(VSC_MAXQ_TARGETP_INDEX, new Column("maxQTargetP (MVar)"));
+        vscConverterStationsColumns.add(VSC_MAXQ_TARGETP_INDEX, new Column(MAX_Q_TARGET_P));
         return vscConverterStationsColumns;
     }
 
