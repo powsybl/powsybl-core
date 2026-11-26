@@ -83,7 +83,7 @@
 </cim:GeneratingUnit>
 <cim:RegulatingControl rdf:ID="_RC">
     <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.reactivePower"/>
-    <cim:RegulatingControl.Terminal rdf:resource="#_T_ACL1"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_ACL2"/>
     <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
 </cim:RegulatingControl>
 <cim:ReactiveCapabilityCurve rdf:ID="_RCC">
