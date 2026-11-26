@@ -9,6 +9,7 @@ package com.powsybl.ucte.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 
 import java.time.ZonedDateTime;
 import java.util.stream.IntStream;
@@ -524,5 +525,253 @@ public final class UcteExporterTestNetworks {
             adder.beginStep().setAlpha(alphas[i]).setRho(rhos[i]).endStep();
         }
         adder.add();
+    }
+
+    /**
+     * Two Dutch 380 kV node-breaker voltage levels {@code VL_A} and {@code VL_B}, joined by the line {@code LINE}. Each
+     * voltage level holds two busbar sections joined by a closed retained breaker ({@code COUPLER_A} and
+     * {@code COUPLER_B}), and the line is connected to the second busbar section through a breaker.
+     */
+    static Network createNodeBreakerWithCouplers() {
+        Network network = Network.create("nodeBreakerWithCouplers", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        addNodeBreakerVoltageLevelWithCoupler(network, "A");
+        addNodeBreakerVoltageLevelWithCoupler(network, "B");
+        network.newLine()
+               .setId("LINE")
+               .setVoltageLevel1("VL_A")
+               .setNode1(2)
+               .setVoltageLevel2("VL_B")
+               .setNode2(2)
+               .setR(1)
+               .setX(10)
+               .setG1(0)
+               .setB1(0)
+               .setG2(0)
+               .setB2(0)
+               .add();
+        return network;
+    }
+
+    /**
+     * Add a substation {@code S_<name>} and a 380 kV node-breaker voltage level {@code VL_<name>}, with busbar sections
+     * {@code BBS_<name>1} (node 0) and {@code BBS_<name>2} (node 1), the closed retained breaker {@code COUPLER_<name>}
+     * between them, and the breaker {@code BREAKER_<name>} between node 1 and node 2, left free for a branch.
+     *
+     * @param network the network to add the substation to
+     * @param name the suffix of the ids
+     */
+    private static void addNodeBreakerVoltageLevelWithCoupler(Network network, String name) {
+        VoltageLevel voltageLevel = network.newSubstation()
+                                           .setId("S_" + name)
+                                           .setCountry(Country.NL)
+                                           .add()
+                                           .newVoltageLevel()
+                                           .setId("VL_" + name)
+                                           .setNominalV(380)
+                                           .setTopologyKind(TopologyKind.NODE_BREAKER)
+                                           .add();
+        voltageLevel.getNodeBreakerView().newBusbarSection()
+                    .setId("BBS_" + name + "1")
+                    .setNode(0)
+                    .add();
+        voltageLevel.getNodeBreakerView().newBusbarSection()
+                    .setId("BBS_" + name + "2")
+                    .setNode(1)
+                    .add();
+        voltageLevel.getNodeBreakerView().newBreaker()
+                    .setId("COUPLER_" + name)
+                    .setNode1(0)
+                    .setNode2(1)
+                    .setRetained(true)
+                    .setOpen(false)
+                    .add();
+        voltageLevel.getNodeBreakerView().newBreaker()
+                    .setId("BREAKER_" + name)
+                    .setNode1(1)
+                    .setNode2(2)
+                    .setOpen(false)
+                    .add();
+    }
+
+    /**
+     * Three bus-breaker areas, with load flow results (bus voltages) where only the Dutch main area is energized.
+     *
+     * @return the network
+     */
+    static Network createWithDeenergizedBranches() {
+        Network network = Network.create("deenergizedBranches", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+
+        // Dutch main area, energized
+        Substation mainSubstation = addSubstation(network, "NA", Country.NL);
+        VoltageLevel main380 = addBusBreakerVoltageLevel(mainSubstation, "NA1", 380, "NA____11", "NA____12", "NA____13");
+        VoltageLevel main220 = addBusBreakerVoltageLevel(mainSubstation, "NA2", 220, "NA____21");
+        addLine(network, "NA____11", "NA____12", "1");
+        addSwitch(main380, "NA____11", "NA____13", false);
+        addTransformer(mainSubstation, "NA____11", "NA____21");
+        main380.getBusBreakerView().getBus("NA____11").setV(380);
+        main380.getBusBreakerView().getBus("NA____12").setV(380);
+        // NA____13 has no voltage, but it is merged with NA____11 through the closed coupler
+        main220.getBusBreakerView().getBus("NA____21").setV(220);
+
+        // Belgian area, without voltage
+        Substation belgianSubstation = addSubstation(network, "BD", Country.BE);
+        VoltageLevel belgian380 = addBusBreakerVoltageLevel(belgianSubstation, "BD1", 380, "BD____11", "BD____12", "BD____13");
+        addBusBreakerVoltageLevel(belgianSubstation, "BD2", 220, "BD____21");
+        addLine(network, "BD____11", "BD____12", "1");
+        // Equivalent element
+        addLine(network, "BD____11", "BD____12", "2").setFictitious(true);
+        // Already out of operation
+        addLine(network, "BD____11", "BD____12", "3").getTerminal2().disconnect();
+        addSwitch(belgian380, "BD____11", "BD____13", false);
+        // Already out of operation
+        addSwitch(belgian380, "BD____12", "BD____13", true);
+        addTransformer(belgianSubstation, "BD____11", "BD____21");
+        // Unpaired boundary lines, the second one exported as a coupler
+        addBoundaryLine(belgian380, "BD____12", "XD____11");
+        addBoundaryLine(belgian380, "BD____13", "XC____11").setProperty(UcteConverterConstants.IS_COUPLER_PROPERTY_KEY, "true");
+
+        // Tie line between the Dutch main area and the Belgian area, through the X-node XT____11
+        addBoundaryLine(main380, "NA____11", "XT____11");
+        addBoundaryLine(belgian380, "BD____11", "XT____11");
+        network.newTieLine()
+               .setId("XT____11")
+               .setBoundaryLine1("NA____11 XT____11 1")
+               .setBoundaryLine2("BD____11 XT____11 1")
+               .add();
+
+        // Dutch island, without voltage
+        Substation islandSubstation = addSubstation(network, "NI", Country.NL);
+        addBusBreakerVoltageLevel(islandSubstation, "NI1", 380, "NI____11", "NI____12");
+        addLine(network, "NI____11", "NI____12", "1");
+        return network;
+    }
+
+    /**
+     * Add a substation.
+     *
+     * @param network the network to add the substation to
+     * @param id the id of the substation
+     * @param country the country of the substation
+     * @return the substation
+     */
+    private static Substation addSubstation(Network network, String id, Country country) {
+        return network.newSubstation()
+                      .setId(id)
+                      .setCountry(country)
+                      .add();
+    }
+
+    /**
+     * Add a bus-breaker voltage level and its buses.
+     *
+     * @param substation the substation to add the voltage level to
+     * @param id the id of the voltage level
+     * @param nominalV the nominal voltage of the voltage level, in kV
+     * @param busIds the ids of the buses of the voltage level
+     * @return the voltage level
+     */
+    private static VoltageLevel addBusBreakerVoltageLevel(Substation substation, String id, double nominalV,
+                                                          String... busIds) {
+        VoltageLevel voltageLevel = substation.newVoltageLevel()
+                                              .setId(id)
+                                              .setNominalV(nominalV)
+                                              .setTopologyKind(TopologyKind.BUS_BREAKER)
+                                              .add();
+        for (String busId : busIds) {
+            voltageLevel.getBusBreakerView().newBus()
+                        .setId(busId)
+                        .add();
+        }
+        return voltageLevel;
+    }
+
+    /**
+     * Add a line {@code <bus1> <bus2> <orderCode>} between two buses of the bus-breaker view.
+     *
+     * @param network the network to add the line to
+     * @param bus1 the id of the bus of side 1
+     * @param bus2 the id of the bus of side 2
+     * @param orderCode the order code of the line
+     * @return the line
+     */
+    private static Line addLine(Network network, String bus1, String bus2, String orderCode) {
+        return network.newLine()
+                      .setId(bus1 + " " + bus2 + " " + orderCode)
+                      .setVoltageLevel1(network.getBusBreakerView().getBus(bus1).getVoltageLevel().getId())
+                      .setBus1(bus1)
+                      .setVoltageLevel2(network.getBusBreakerView().getBus(bus2).getVoltageLevel().getId())
+                      .setBus2(bus2)
+                      .setR(1)
+                      .setX(10)
+                      .setG1(0)
+                      .setB1(0)
+                      .setG2(0)
+                      .setB2(0)
+                      .add();
+    }
+
+    /**
+     * Add a switch {@code <bus1> <bus2> 1} between two buses of a bus-breaker voltage level.
+     *
+     * @param voltageLevel the voltage level to add the switch to
+     * @param bus1 the id of the bus of side 1
+     * @param bus2 the id of the bus of side 2
+     * @param open true if the switch is open
+     */
+    private static void addSwitch(VoltageLevel voltageLevel, String bus1, String bus2, boolean open) {
+        voltageLevel.getBusBreakerView().newSwitch()
+                    .setId(bus1 + " " + bus2 + " 1")
+                    .setBus1(bus1)
+                    .setBus2(bus2)
+                    .setOpen(open)
+                    .add();
+    }
+
+    /**
+     * Add a 380/220 kV two-winding transformer {@code <bus1> <bus2> 1}.
+     *
+     * @param substation the substation to add the transformer to
+     * @param bus1 the id of the 380 kV bus
+     * @param bus2 the id of the 220 kV bus
+     */
+    private static void addTransformer(Substation substation, String bus1, String bus2) {
+        Network network = substation.getNetwork();
+        substation.newTwoWindingsTransformer()
+                  .setId(bus1 + " " + bus2 + " 1")
+                  .setVoltageLevel1(network.getBusBreakerView().getBus(bus1).getVoltageLevel().getId())
+                  .setBus1(bus1)
+                  .setVoltageLevel2(network.getBusBreakerView().getBus(bus2).getVoltageLevel().getId())
+                  .setBus2(bus2)
+                  .setRatedU1(380)
+                  .setRatedU2(220)
+                  .setR(1)
+                  .setX(10)
+                  .setG(0)
+                  .setB(0)
+                  .add();
+    }
+
+    /**
+     * Add a boundary line {@code <bus> <xnode> 1} from a bus to an X-node.
+     *
+     * @param voltageLevel the voltage level to add the boundary line to
+     * @param bus the id of the bus
+     * @param xnode the code of the X-node, used as pairing key
+     * @return the boundary line
+     */
+    private static BoundaryLine addBoundaryLine(VoltageLevel voltageLevel, String bus, String xnode) {
+        return voltageLevel.newBoundaryLine()
+                           .setId(bus + " " + xnode + " 1")
+                           .setBus(bus)
+                           .setR(1)
+                           .setX(10)
+                           .setG(0)
+                           .setB(0)
+                           .setP0(0)
+                           .setQ0(0)
+                           .setPairingKey(xnode)
+                           .add();
     }
 }

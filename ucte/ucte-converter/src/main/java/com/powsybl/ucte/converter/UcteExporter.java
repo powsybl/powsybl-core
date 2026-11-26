@@ -155,7 +155,7 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
+    static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
         return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
