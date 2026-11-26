@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Round trip of a partial SSH export:
  * the changes recorded on a network are exported as a partial SSH, the partial SSH is applied with Network.update
- * to a copy of the original network, and the SSH data of both networks must be the same.
+ * to a copy of the original network, and both networks must be the same: their SSH data and their IIDM data.
  *
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
@@ -159,8 +159,9 @@ class PartialSshRoundTripTest {
         properties.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         copy.update(new GenericReadOnlyDataSource(dir, "partial"), properties);
 
-        // Both networks must have the same SSH data
+        // Both networks must have the same SSH data and the same IIDM data
         assertEquals(List.of(), differences(network, copy));
+        assertEquals(CgmesTestModels.iidmData(network), CgmesTestModels.iidmData(copy));
     }
 
     private static void exportPartialSsh(Network network, Set<Identifiable<?>> changed, Path file) throws IOException, XMLStreamException {

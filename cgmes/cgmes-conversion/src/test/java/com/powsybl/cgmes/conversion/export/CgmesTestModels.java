@@ -12,7 +12,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,6 +37,21 @@ public final class CgmesTestModels {
     public static final String SHARED_CONTROL_GENERATOR = EurostagTutorialExample1Factory.GENERATOR_ID;
     public static final String SHARED_CONTROL_SHUNT = "SHUNT1";
     public static final String SHARED_CONTROL_SHUNT_2 = "SHUNT2";
+
+    /**
+     * The state variables of the IIDM data: the update of a partial SSH does not keep the state variables of the network.
+     */
+    private static final Pattern STATE_VARIABLE = Pattern.compile(" (p|q|p1|q1|p2|q2|p3|q3|v|angle|solvedTapPosition|solvedSectionCount)=\"[^\"]*\"");
+
+    /**
+     * A bus of the bus view of a node-breaker voltage level: the IIDM data contains it only with its state variables.
+     */
+    private static final Pattern CALCULATED_BUS = Pattern.compile("\\s*<iidm:bus nodes=\"[^\"]*\"/>");
+
+    /**
+     * The SSH update recomputes the maximum active power of an HVDC line (issue 4111).
+     */
+    private static final Pattern HVDC_LINE_MAX_P = Pattern.compile("(<iidm:hvdcLine .*?) maxP=\"[^\"]*\"");
 
     private CgmesTestModels() {
     }
@@ -122,6 +139,23 @@ public final class CgmesTestModels {
      */
     public static String sharedControl(Network network) {
         return network.getGenerator(SHARED_CONTROL_GENERATOR).getProperty(PROPERTY_REGULATING_CONTROL);
+    }
+
+    /**
+     * The XIIDM of the network, without the state variables and without the data that the SSH update recomputes.
+     * Two networks with the same SSH data and the same equipment data have the same IIDM data.
+     */
+    public static String iidmData(Network network) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        NetworkSerDe.write(network, os);
+        StringBuilder data = new StringBuilder();
+        for (String line : os.toString(StandardCharsets.UTF_8).split("\\R")) {
+            String withoutStateVariables = STATE_VARIABLE.matcher(line).replaceAll("");
+            if (!CALCULATED_BUS.matcher(withoutStateVariables).matches()) {
+                data.append(HVDC_LINE_MAX_P.matcher(withoutStateVariables).replaceAll("$1")).append('\n');
+            }
+        }
+        return data.toString();
     }
 
     /**
