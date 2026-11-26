@@ -1328,4 +1328,20 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer transformer = createThreeWindingsTransformerAdder().setEquivalent(true).add();
         assertTrue(transformer.isEquivalent());
     }
+
+    @Test
+    public void applySolvedValuesTest() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE)).setSolvedTapPosition(1);
+        createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE)).setSolvedTapPosition(1);
+
+        assertNotEquals(leg1.getPhaseTapChanger().getSolvedTapPosition(), leg1.getPhaseTapChanger().getTapPosition());
+        assertNotEquals(leg1.getRatioTapChanger().getSolvedTapPosition(), leg1.getRatioTapChanger().getTapPosition());
+
+        transformer.applySolvedValues();
+
+        assertEquals(leg1.getPhaseTapChanger().getSolvedTapPosition(), leg1.getPhaseTapChanger().getTapPosition());
+        assertEquals(leg1.getRatioTapChanger().getSolvedTapPosition(), leg1.getRatioTapChanger().getTapPosition());
+    }
 }

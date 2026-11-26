@@ -377,4 +377,19 @@ public abstract class AbstractLoadTest {
         ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setNp(-2));
         assertEquals("Load 'newZipLoad': Invalid load model exponential value: -2.0", e.getMessage());
     }
+
+    @Test
+    void applySolvedValuesTest() {
+        Load load = network.getLoad("CE");
+        assertNotNull(load);
+        // Modify p and q of load so that it is different to P0 and Q0
+        load.getTerminal().setP(81).setQ(11);
+        assertNotEquals(load.getTerminal().getP(), load.getP0());
+        assertNotEquals(load.getTerminal().getQ(), load.getQ0());
+
+        load.applySolvedValues();
+
+        assertEquals(load.getTerminal().getP(), load.getP0());
+        assertEquals(load.getTerminal().getQ(), load.getQ0());
+    }
 }

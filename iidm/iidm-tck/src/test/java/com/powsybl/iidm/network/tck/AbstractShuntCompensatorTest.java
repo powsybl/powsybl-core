@@ -664,6 +664,18 @@ public abstract class AbstractShuntCompensatorTest {
         assertNotNull(voltageRegulation);
     }
 
+    @Test
+    void applySolvedValuesTest() {
+        ShuntCompensator shuntCompensator = createLinearShunt(SHUNT, "shuntName", 5.0, 4.0, 6, 10, terminal, true,
+                200, 10);
+        shuntCompensator.setSolvedSectionCount(0);
+        assertNotEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
+
+        shuntCompensator.applySolvedValues();
+
+        assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
+    }
+
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection,
                                                int sectionCount, int maxSectionCount, Terminal regulatingTerminal,
                                                boolean voltageRegulatorOn, double targetV, double targetDeadband) {

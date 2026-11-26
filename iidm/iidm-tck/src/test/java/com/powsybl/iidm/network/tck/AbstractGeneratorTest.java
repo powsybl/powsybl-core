@@ -598,6 +598,23 @@ public abstract class AbstractGeneratorTest {
         assertEquals(remoteTargetQGeneratorSignConvention, generator.getRegulatingTargetQ());
     }
 
+    @Test
+    void applySolvedValuesTest() {
+        Generator generator = network.getGenerator("CD");
+        assertNotNull(generator);
+        // Modify p, q and v of generator so that it is different to the targets
+        generator.getTerminal().setP(-20).setQ(-10);
+        generator.getTerminal().getBusView().getBus().setV(240);
+        assertNotEquals(-generator.getTerminal().getP(), generator.getTargetP());
+        assertNotEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
+
+        generator.applySolvedValues();
+
+        assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
+        assertEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
+        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
+    }
+
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                       double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
         return createGeneratorAdder(id, source, maxP, minP, ratedS, activePowerSetpoint, reactivePowerSetpoint, regulatorOn, voltageSetpoint)
