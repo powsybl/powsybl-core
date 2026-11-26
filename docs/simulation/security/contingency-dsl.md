@@ -3,6 +3,10 @@
 The contingency DSL is a domain specific language written in groovy for the creation of a contingency list, used
 in [security analyses](./index.md) or [sensitivity analyses](../sensitivity/index).
 
+```{warning}
+Groovy scripts are executed without any sandbox. Only use scripts from trusted sources. See [Groovy scripts security](../../user/groovy-security.md).
+```
+
 ## N-1 contingency
 
 An N-1 contingency is a contingency that triggers a single piece of equipment at a time.
