@@ -179,7 +179,7 @@ public class Conversion {
         cgmes.computedTerminals().stream()
                 .filter(t -> !CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType()))
                 .forEach(t -> context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t));
-        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
+        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().storeRegulatingControl(p));
         context.popReportNode();
 
         // Convert containers
@@ -354,7 +354,7 @@ public class Conversion {
         // Switches are updated first because the subsequent update of the terminals
         // is configurable and, if activated, may modify their state.
         // Then, the update of the terminals can overwrite the state of the switches
-        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, updateContext);
         updateSwitches(network, updateContext);
 
         updateLoads(network, cgmes, updateContext);
@@ -1172,6 +1172,7 @@ public class Conversion {
     public static final String ALIAS_TRANSFORMER_END2 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END2;
     public static final String ALIAS_TRANSFORMER_END3 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END3;
 
+    public static final String PROPERTY_BASE_S = CGMES_PREFIX_ALIAS_PROPERTIES + "baseS";
     public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
     public static final String PROPERTY_CONNECTIVITY_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + CONNECTIVITY_NODE_BOUNDARY;
@@ -1189,7 +1190,6 @@ public class Conversion {
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
     public static final String PROPERTY_LINE_CONTAINER = CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId";
     public static final String PROPERTY_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + LOW_VOLTAGE_LIMIT;
-    public static final String PROPERTY_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + MODE;
     public static final String PROPERTY_NORMAL_OPEN = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_OPEN;
     public static final String PROPERTY_NORMAL_PF = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_PF;
     public static final String PROPERTY_NORMAL_SECTIONS = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_SECTIONS;
@@ -1201,6 +1201,7 @@ public class Conversion {
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
     public static final String PROPERTY_P_FIXED = CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED;
     public static final String PROPERTY_Q_FIXED = CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED;
+    public static final String PROPERTY_RATED_UDC = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATED_UDC;
     public static final String PROPERTY_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID;
     public static final String PROPERTY_REGION_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME;
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL;

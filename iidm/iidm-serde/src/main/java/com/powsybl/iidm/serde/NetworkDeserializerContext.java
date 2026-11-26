@@ -10,12 +10,9 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
@@ -62,19 +59,19 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         endTasks.add(new DeserializationEndTask(step, task));
     }
 
-    public void executeEndTasks(Network network, DeserializationEndTask.Step step, ReportNode reportNode) {
+    public void executeEndTasks(DeserializationEndTask.Step step) {
         if (!processedEndTasksSteps.add(step)) {
             // Skip if step was already processed
             return;
         }
-        Networks.executeWithReportNode(network, reportNode, () -> endTasks.stream()
+        endTasks.stream()
                 .filter(t -> t.getStep() == step
                         || step == DeserializationEndTask.Step.AFTER_EXTENSIONS &&
                             t.getStep() == DeserializationEndTask.Step.BEFORE_EXTENSIONS && !t.isProcessed()) // If no "extensions" tag was found, BEFORE_EXTENSIONS tasks were not processed.
                 .forEach(t -> {
                     t.setProcessed(true);
                     t.getTask().run();
-                }));
+                });
     }
 
     @Override

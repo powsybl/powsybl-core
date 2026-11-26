@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -29,20 +30,23 @@ import static com.powsybl.cgmes.conversion.Conversion.*;
  */
 public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
-    private final boolean isCondenser;
+    private final boolean hasCondenserCapability;
+    private final boolean isPureCondenser;
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(CgmesNames.SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
-        isCondenser = type != null && type.toLowerCase().contains("condenser");
+        hasCondenserCapability = type != null && type.toLowerCase().contains("condenser");
+        isPureCondenser = type != null && type.contains("condenser");
+
     }
 
     @Override
     public void convert() {
         // If it is a generator, default values for minP and maxP give unlimited range
-        // If it is a condenser, default values for minP and maxP are 0
-        double minP = p.asDouble("minP", isCondenser ? 0 : -Double.MAX_VALUE);
-        double maxP = p.asDouble("maxP", isCondenser ? 0 : Double.MAX_VALUE);
+        // If it is a pure condenser, default values for minP and maxP are 0
+        double minP = p.asDouble("minP", isPureCondenser ? 0 : -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", isPureCondenser ? 0 : Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
 
@@ -52,14 +56,15 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
                 .setRatedS(ratedS);
         identify(adder);
         connectWithOnlyEq(adder);
-        adder.setCondenser(isCondenser);
+        adder.setCondenserCapability(hasCondenserCapability);
         Generator g = adder.add();
         addAliasesAndProperties(g);
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
         convertGenerator(g);
+        convertQPercent(g);
 
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        setRegulatingControlProperty(g);
         addSpecificProperties(g, p);
     }
 
@@ -77,6 +82,16 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             g.setProperty(PROPERTY_GENERATING_UNIT, generatingUnit);
         }
         addGeneratingUnitProperties(g, p);
+    }
+
+    private void convertQPercent(Generator g) {
+        // add qPercent as an extension
+        double qPercent = p.asDouble("qPercent");
+        if (!Double.isNaN(qPercent)) {
+            g.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
+        }
     }
 
     private static void addGeneratingUnitProperties(Generator generator, PropertyBag p) {

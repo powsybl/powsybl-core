@@ -21,4 +21,8 @@ public class UcteException extends PowsyblException {
     public UcteException(Throwable throwable) {
         super(throwable);
     }
+
+    public UcteException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
