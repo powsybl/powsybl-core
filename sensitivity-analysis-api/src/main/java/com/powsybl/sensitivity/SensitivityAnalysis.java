@@ -118,7 +118,8 @@ public final class SensitivityAnalysis {
                         resultWriter.getStateStatuses(),
                         runParameters.getContingencies().stream().map(Contingency::getId).toList(),
                         runParameters.getOperatorStrategies().stream().map(OperatorStrategy::getId).toList(),
-                        resultWriter.getValues()));
+                        resultWriter.getValues(),
+                        resultWriter.isComputationComplete()));
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,

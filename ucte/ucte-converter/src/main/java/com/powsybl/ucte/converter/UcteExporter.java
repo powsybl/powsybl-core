@@ -33,6 +33,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.DoublePredicate;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -98,7 +101,7 @@ public class UcteExporter implements Exporter {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network);
+        namingStrategy.initializeNetwork(network, reportNode);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
         List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
@@ -152,7 +155,7 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
+    static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
         return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
@@ -188,16 +191,18 @@ public class UcteExporter implements Exporter {
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
 
         UcteExporterContext busesAndSwitchesContext = context.withReportNode(UcteExporterReports.busesAndSwitches(reportNode));
-        network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
-            voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
-                if (isYNode(bus)) {
-                    LOGGER.warn("Ignoring YNode {}", bus.getId());
-                } else {
-                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
-                }
-            });
-            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
-        }));
+        network.getVoltageLevelStream()
+                .filter(context.getNamingStrategy().getExportedVoltageLevels()::isExported)
+                .forEach(voltageLevel -> {
+                    voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
+                        if (isYNode(bus)) {
+                            LOGGER.warn("Ignoring YNode {}", bus.getId());
+                        } else {
+                            convertBus(ucteNetwork, bus, busesAndSwitchesContext);
+                        }
+                    });
+                    voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
+                });
 
         UcteExporterContext boundaryLinesContext = context.withReportNode(UcteExporterReports.boundaryLines(reportNode));
         network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, boundaryLinesContext));
@@ -226,13 +231,6 @@ public class UcteExporter implements Exporter {
     private static void convertBus(UcteNetwork ucteNetwork, Bus bus, UcteExporterContext context) {
         LOGGER.trace("Converting bus {}", bus.getId());
 
-        if (bus.getGeneratorStream().count() > 1) {
-            throw new UcteException("Too many generators connected to this bus");
-        }
-        if (bus.getLoadStream().count() > 1) {
-            throw new UcteException("Too many loads connected to this bus");
-        }
-
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
@@ -260,7 +258,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addNode(ucteNode);
 
         convertLoads(ucteNode, bus);
-        convertGenerators(ucteNode, bus);
+        convertGenerators(ucteNode, bus, context.getReportNode());
 
         if (isSlackBus(bus)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.UT);
@@ -285,21 +283,18 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Initialize the power generation fields from the generators connected to the specified bus.
+     * Initialize the power generation fields from the generators connected to the specified bus. If there are several
+     * generators, their injections are aggregated (see {@code docs/grid_exchange_formats/ucte/export.md}).
      *
      * @param ucteNode The UCTE node to fill
      * @param bus The bus the generators are connected to
+     * @param reportNode The report node used to report aggregation issues
      */
-    private static void convertGenerators(UcteNode ucteNode, Bus bus) {
+    private static void convertGenerators(UcteNode ucteNode, Bus bus, ReportNode reportNode) {
         double activePowerGeneration = -0.0;
         double reactivePowerGeneration = -0.0;
-        double voltageReference = Double.NaN;
-        double minP = Double.NaN;
-        double maxP = Double.NaN;
-        double minQ = Double.NaN;
-        double maxQ = Double.NaN;
         UcteNodeTypeCode nodeType = UcteNodeTypeCode.PQ;
-        UctePowerPlantType powerPlantType = null;
+        double voltageReference = selectVoltageReference(bus, reportNode);
         for (Generator generator : bus.getGenerators()) {
             if (!Double.isNaN(generator.getTargetP())) {
                 activePowerGeneration += generator.getTargetP();
@@ -307,30 +302,78 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getLocalTargetQ())) {
                 reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (!Double.isNaN(generator.getLocalTargetV())) {
-                // FIXME(mathbagu): what if not all the generators have the same targetV?
-                // Should we use bus.getV() instead?
-                voltageReference = generator.getLocalTargetV();
-            }
-            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageReference)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
-            minP = generator.getMinP();
-            maxP = generator.getMaxP();
-            // FIXME(mathbagu): how to get minQ and maxQ for an aggregated generator
-            minQ = generator.getReactiveLimits().getMinQ(activePowerGeneration);
-            maxQ = generator.getReactiveLimits().getMaxQ(activePowerGeneration);
-
-            // FIXME(mathbagu): what if not all the generators have the same energy source?
-            powerPlantType = energySourceToUctePowerPlantType(generator);
         }
         ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
         ucteNode.setVoltageReference(voltageReference);
-        ucteNode.setPowerPlantType(powerPlantType);
+        ucteNode.setPowerPlantType(aggregatePowerPlantType(bus, reportNode));
         ucteNode.setTypeCode(nodeType);
-        // FIXME(mathbagu): to be changed in UcteImporter?
-        setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
+        setNodePowerGenerationLimits(ucteNode,
+                aggregateLimit(Generator::getMinP, UcteExporter::isMinLimitInbounds, "minP", bus, reportNode),
+                aggregateLimit(Generator::getMaxP, UcteExporter::isMaxLimitInbounds, "maxP", bus, reportNode),
+                aggregateLimit(UcteExporter::ownMinReactiveLimit, UcteExporter::isMinLimitInbounds, "minQ", bus, reportNode),
+                aggregateLimit(UcteExporter::ownMaxReactiveLimit, UcteExporter::isMaxLimitInbounds, "maxQ", bus, reportNode));
+    }
+
+    /**
+     * @return the minimum reactive limit of the generator, evaluated at its own target active power
+     */
+    private static double ownMinReactiveLimit(Generator generator) {
+        return generator.getReactiveLimits().getMinQ(getGenTargetP(generator));
+    }
+
+    /**
+     * @return the maximum reactive limit of the generator, evaluated at its own target active power
+     */
+    private static double ownMaxReactiveLimit(Generator generator) {
+        return generator.getReactiveLimits().getMaxQ(getGenTargetP(generator));
+    }
+
+    /**
+     * Aggregate one generator power limit over all the generators of a bus. If any generator has no limit (value out
+     * of bounds), the aggregated limit is "no limit". Otherwise it is the sum of the limits; if the sum is itself out
+     * of bounds, a warning is reported.
+     *
+     * @return the aggregated limit, or NaN if the limit must be left undefined
+     */
+    private static double aggregateLimit(ToDoubleFunction<Generator> limit,
+                                         DoublePredicate isInbounds,
+                                         String limitName,
+                                         Bus bus,
+                                         ReportNode reportNode) {
+        if (bus.getGeneratorStream().findAny().isEmpty()) {
+            return Double.NaN;
+        }
+        double sum = -0.0;
+        for (Generator generator : bus.getGenerators()) {
+            double value = limit.applyAsDouble(generator);
+            if (!isInbounds.test(value)) {
+                return Double.NaN;
+            }
+            sum += value;
+        }
+        if (!isInbounds.test(sum)) {
+            UcteExporterReports.aggregatedPowerLimitOutOfBounds(reportNode, bus.getId(), limitName, sum);
+            return Double.NaN;
+        }
+        return sum;
+    }
+
+    /**
+     * @return the common power plant type of the generators, type F if they differ, or null if there is no generator
+     */
+    private static UctePowerPlantType aggregatePowerPlantType(Bus bus, ReportNode reportNode) {
+        Set<UctePowerPlantType> types = bus.getGeneratorStream()
+                                                  .map(UcteExporter::energySourceToUctePowerPlantType)
+                                                  .collect(Collectors.toSet());
+        if (types.size() > 1) {
+            UcteExporterReports.mixedPowerPlantTypes(reportNode, bus.getId());
+            return UctePowerPlantType.F;
+        }
+        return types.stream().findFirst().orElse(null);
     }
 
     /**
@@ -762,7 +805,7 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getG());
         ucteNetwork.addTransformer(ucteTransformer);
 
-        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
+        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context);
     }
 
     /**
@@ -803,36 +846,67 @@ public class UcteExporter implements Exporter {
      * @param ucteNetwork The target UcteNetwork
      * @param ucteElementId The UcteElementId corresponding to the TwoWindingsTransformer
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
+     * @param context The context used to store temporary data during the conversion
      */
-    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
-        if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
-            UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
-                    .map(rtc -> convertRatioTapChanger(twoWindingsTransformer)).orElse(null);
-            UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
-                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, combinePhaseAngleRegulation)).orElse(null);
-            UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
-            ucteNetwork.addRegulation(ucteRegulation);
+    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
+        UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
+                .filter(rtc -> hasSeveralSteps(rtc, twoWindingsTransformer.getId(), "ratio tap changer", context.getReportNode()))
+                .map(rtc -> convertRatioTapChanger(twoWindingsTransformer, context.getReportNode())).orElse(null);
+        UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
+                .filter(ptc -> hasSeveralSteps(ptc, twoWindingsTransformer.getId(), "phase tap changer", context.getReportNode()))
+                .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, context.withCombinePhaseAngleRegulation(), context.getReportNode())).orElse(null);
+        if (uctePhaseRegulation != null || ucteAngleRegulation != null) {
+            ucteNetwork.addRegulation(new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation));
         }
+    }
+
+    /**
+     * UCTE-DEF has no constant-step model for a single tap (n = 0 is read back as an incomplete regulation), so such a
+     * tap changer is not exported, and reported.
+     */
+    private static boolean hasSeveralSteps(TapChanger<?, ?, ?, ?> tapChanger, String equipmentId, String tapChangerType,
+                                           ReportNode reportNode) {
+        if (tapChanger.getStepCount() > 1) {
+            return true;
+        }
+        LOGGER.warn("Two windings transformer {}: {} with a single step not exported", equipmentId, tapChangerType);
+        UcteExporterReports.singleStepTapChangerNotExported(reportNode, equipmentId, tapChangerType);
+        return false;
     }
 
     /**
      * Creates the {@link UcteRegulation} linked to the twoWindingsTransformer
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
+     * @param reportNode the reportNode used for functional logs
      * @return the UctePhaseRegulation needed to create a {@link UcteRegulation}
      * @see UcteConverterHelper#calculatePhaseDu(TwoWindingsTransformer)
      */
-    private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer, ReportNode reportNode) {
         LOGGER.trace("Converting iidm ratio tap changer of transformer {}", twoWindingsTransformer.getId());
 
+        RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
         double du = calculatePhaseDu(twoWindingsTransformer);
+        int neutralPosition = findNeutralTapPosition(ratioTapChanger);
+        warnIfTapPositionRangeExtended(
+                ratioTapChanger.getLowTapPosition(),
+                ratioTapChanger.getHighTapPosition(),
+                neutralPosition,
+                twoWindingsTransformer.getId(),
+                "ratio tap changer",
+                reportNode
+        );
+        UcteConverterHelper.TapPositionRange range = computeTapPositionRange(
+                ratioTapChanger.getLowTapPosition(), ratioTapChanger.getHighTapPosition(),
+                ratioTapChanger.getTapPosition(), neutralPosition);
+        checkRatioTapChangerDeviation(ratioTapChanger, du, neutralPosition, twoWindingsTransformer.getId(), reportNode);
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
-                twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
-                twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
+                range.n(),
+                range.np(),
                 Double.NaN);
-        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV())) {
-            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV());
+        if (!Double.isNaN(ratioTapChanger.getRegulatingTargetV())) {
+            uctePhaseRegulation.setU(ratioTapChanger.getRegulatingTargetV());
         }
         return uctePhaseRegulation;
     }
@@ -841,28 +915,90 @@ public class UcteExporter implements Exporter {
      * Determines the UcteAngleRegulationType and depending on it, creates the UcteAngleRegulation
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the PhaseTapChanger we want to convert
+     * @param reportNode the reportNode used for functional logs
      * @return the UcteAngleRegulation needed to create a {@link UcteRegulation}
      * @see UcteAngleRegulation
      * @see UcteExporter#findRegulationType(TwoWindingsTransformer)
      */
-    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
+    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer,
+                                                              boolean combinePhaseAngleRegulation,
+                                                              ReportNode reportNode) {
         LOGGER.trace("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
+        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+        int neutralPosition = findNeutralTapPosition(phaseTapChanger);
+        warnIfTapPositionRangeExtended(
+                phaseTapChanger.getLowTapPosition(),
+                phaseTapChanger.getHighTapPosition(),
+                neutralPosition,
+                twoWindingsTransformer.getId(),
+                "phase tap changer",
+                reportNode
+        );
+        UcteConverterHelper.TapPositionRange range = computeTapPositionRange(
+                phaseTapChanger.getLowTapPosition(),
+                phaseTapChanger.getHighTapPosition(),
+                phaseTapChanger.getTapPosition(),
+                neutralPosition
+        );
         UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
         if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
-            return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
+            double du = calculateSymmAngleDu(twoWindingsTransformer);
+            checkSymmAngleTapChangerDeviation(phaseTapChanger, du, neutralPosition, twoWindingsTransformer.getId(), reportNode);
+            return new UcteAngleRegulation(du,
                     90,
-                    twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                    range.n(),
+                    range.np(),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
             Complex duAndAngle = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation);
-            return new UcteAngleRegulation(duAndAngle.abs(),
-                    Math.toDegrees(duAndAngle.getArgument()),
-                    twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+            double absDu = duAndAngle.abs();
+            double angle = duAndAngle.getArgument();
+            // the deviation check must use the geometric (pre-division) absDu: the actual IIDM tap steps march at
+            // that value even when combinePhaseAngleRegulation divides absDu by the RTC's rho0 for the UCTE record
+            double geometricAbsDu = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, false).abs();
+            checkAsymmAngleTapChangerDeviation(phaseTapChanger, geometricAbsDu, angle, neutralPosition, twoWindingsTransformer.getId(), reportNode);
+            return new UcteAngleRegulation(absDu,
+                    Math.toDegrees(angle),
+                    range.n(),
+                    range.np(),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
+        }
+    }
+
+    /**
+     * Logs a warning, and reports it, if the declared tap position range isn't symmetric around the neutral tap
+     * position, i.e. if {@link UcteConverterHelper#computeTapPositionRange} had to extend it to stay symmetric.
+     *
+     * @param lowTapPosition  the tap changer's low tap position
+     * @param highTapPosition the tap changer's high tap position
+     * @param neutralPosition the neutral tap position, as found by {@code findNeutralTapPosition}
+     * @param equipmentId     the id of the two windings transformer, used in the warning message
+     * @param tapChangerType  type of the tap changer
+     * @param reportNode      the reportNode used for functional logs
+     */
+    private static void warnIfTapPositionRangeExtended(int lowTapPosition,
+                                                       int highTapPosition,
+                                                       int neutralPosition,
+                                                       String equipmentId,
+                                                       String tapChangerType,
+                                                       ReportNode reportNode) {
+        int offsetLow = lowTapPosition - neutralPosition;
+        int offsetHigh = highTapPosition - neutralPosition;
+        if (offsetLow != -offsetHigh) {
+            LOGGER.warn(
+                    "Two windings transformer {}: tap position range extended on the shorter side to be centered on " +
+                            "the neutral tap (low side spans {} positions, high side spans {})",
+                    equipmentId,
+                    Math.abs(offsetLow),
+                    Math.abs(offsetHigh)
+            );
+            UcteExporterReports.tapPositionRangeExtended(reportNode,
+                    equipmentId,
+                    tapChangerType,
+                    Math.abs(offsetLow),
+                    Math.abs(offsetHigh));
         }
     }
 

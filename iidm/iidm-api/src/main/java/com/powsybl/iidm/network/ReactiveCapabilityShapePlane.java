@@ -24,37 +24,37 @@ public interface ReactiveCapabilityShapePlane {
     boolean isGreaterOrEqual();
 
     /**
-     * @return the alpha coefficient for the tension U
+     * @return the coefficient for the tension U
      */
-    double getAlpha();
+    double getCoeffU();
 
     /**
-     * @return the beta coefficient for the active power P
+     * @return the coefficient for the active power P
      */
-    double getBeta();
+    double getCoeffP();
 
     /**
-     * @return the delta coefficient for the reactive power Q
+     * @return the coefficient for the reactive power Q
      */
-    double getDelta();
+    double getCoeffQ();
 
     /**
-     * @return the gamma Right hand side
+     * @return the right hand side
      */
-    double getGamma();
+    double getRhs();
 
     /**
-     * Set the hyperplane constraint to a less or equal ≤ inequality with gamma right hand side
-     * @param gamma the gamma right hand side
+     * Set the hyperplane constraint to a less or equal ≤ inequality with the given right hand side
+     * @param rhs the right hand side
      * @return this
      */
-    ReactiveCapabilityShapePlane lessOrEqual(double gamma);
+    ReactiveCapabilityShapePlane lessOrEqual(double rhs);
 
     /**
-     * Set the hyperplane constraint to a greater or equal ≥ inequality with gamma right hand side
-     * @param gamma the gamma right hand side
+     * Set the hyperplane constraint to a greater or equal ≥ inequality with the given right hand side
+     * @param rhs the right hand side
      * @return this
      */
-    ReactiveCapabilityShapePlane greaterOrEqual(double gamma);
+    ReactiveCapabilityShapePlane greaterOrEqual(double rhs);
 
 }
