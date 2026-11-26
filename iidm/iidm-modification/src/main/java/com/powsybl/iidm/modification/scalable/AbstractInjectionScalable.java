@@ -42,14 +42,37 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
         this.maxValue = maxValue;
     }
 
+    /**
+     * Returns the id of the injection scaled by this scalable.
+     *
+     * @return the id of the injection
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the minimum active power value allowed for the injection by this scalable, in MW.
+     * <p>
+     * This bound is expressed in the natural sign convention of the injection (e.g. load convention
+     * for loads, generator convention for generators) and is applied in addition to the injection's own
+     * limits. Defaults to {@code -Double.MAX_VALUE} when not specified.
+     *
+     * @return the minimum active power value
+     */
     public double getMinValue() {
         return minValue;
     }
 
+    /**
+     * Returns the maximum active power value allowed for the injection by this scalable, in MW.
+     * <p>
+     * This bound is expressed in the natural sign convention of the injection (e.g. load convention
+     * for loads, generator convention for generators) and is applied in addition to the injection's own
+     * limits. Defaults to {@code Double.MAX_VALUE} when not specified.
+     *
+     * @return the maximum active power value
+     */
     public double getMaxValue() {
         return maxValue;
     }
