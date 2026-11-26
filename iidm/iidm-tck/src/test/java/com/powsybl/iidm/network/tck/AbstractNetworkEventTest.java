@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public abstract class AbstractNetworkEventTest {
 
     @Test
-    void testNotif() {
+    public void testNotif() {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
         network.addListener(eventRecorder);
@@ -69,6 +70,19 @@ public abstract class AbstractNetworkEventTest {
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
+        apc.setDroop(4.0);
+        apc.setDroop(4.0); // same value: no event
+        apc.setParticipationFactor(2.5);
+        apc.setMinTargetP(1.0);
+        apc.setMaxTargetP(50.0);
+        apc.setMaxTargetP(50.0); // same stored value: no event
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "droop", "InitialState", 1.0, 4.0),
+                             new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "participationFactor", "InitialState", Double.NaN, 2.5),
+                             new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "minTargetP", "InitialState", Double.NaN, 1.0),
+                             new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "maxTargetP", "InitialState", Double.NaN, 50.0)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
         gen.removeExtension(ActivePowerControl.class);
         assertEquals(List.of(new ExtensionRemovalNetworkEvent("GEN", "activePowerControl", false),
                              new ExtensionRemovalNetworkEvent("GEN", "activePowerControl", true)),
@@ -105,6 +119,17 @@ public abstract class AbstractNetworkEventTest {
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
+        ZonedDateTime oldCaseDate = network.getCaseDate();
+        ZonedDateTime newCaseDate = ZonedDateTime.parse("2030-01-01T00:00:00Z");
+        network.setCaseDate(newCaseDate);
+        network.setForecastDistance(60);
+        network.setCaseDate(newCaseDate); // unchanged values fire no event
+        network.setForecastDistance(60);
+        assertEquals(List.of(new UpdateNetworkEvent("sim1", "caseDate", null, oldCaseDate, newCaseDate),
+                             new UpdateNetworkEvent("sim1", "forecastDistance", null, 0, 60)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
         ReferencePriority.set(gen, 1);
         assertEquals(List.of(new ExtensionCreationNetworkEvent("GEN", "referencePriorities"),
                         new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 0, 1)),
@@ -130,6 +155,5 @@ public abstract class AbstractNetworkEventTest {
         assertEquals(List.of(new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", false),
                         new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", true)),
                 eventRecorder.getEvents());
-
     }
 }

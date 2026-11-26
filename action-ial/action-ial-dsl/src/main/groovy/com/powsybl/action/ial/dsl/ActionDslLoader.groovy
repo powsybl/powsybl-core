@@ -21,6 +21,11 @@ import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 
 /**
+ * <p><b>Security warning:</b> the Groovy DSL script is evaluated as-is, without any sandbox (no {@code SecureASTCustomizer},
+ * no class or method restriction), with the full privileges of the JVM. PowSyBl is a library: sandboxing untrusted
+ * scripts is the responsibility of the application embedding it. Only run scripts from trusted sources.
+ * See <a href="https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/groovy-security.html">Groovy scripts security</a>.
+ *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ActionDslLoader extends DslLoader {

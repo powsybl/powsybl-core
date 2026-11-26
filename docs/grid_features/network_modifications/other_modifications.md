@@ -155,6 +155,30 @@ It sets the phase tap changer as not regulating and updates its `tapPosition` by
 
 Class: `PhaseShifterShiftTap`
 
+## Replace ids by names
+This modification is used to replace the id of every identifiable of a network by its name. The original id is kept as an alias of type `original-id`, so the identifiable can still be retrieved using it.
+
+An id is changed only when the new id can be used as a unique identifier in the network. The following checks are applied in order, and the first one that fails skips the change:
+- The identifiable must not be a network or a subnetwork.
+- The identifiable must not already have an alias of type `original-id`. As a consequence, ids replaced by a previous application of the modification are left untouched.
+- The identifiable must have a name, and it must not be empty or blank.
+- The name must be different from the id.
+- The name must be unique. If it is duplicated, the new id is the name suffixed with the original id: `<name>_<original-id>`, and this new id must not be already in use as an id or as an alias. This suffix can be disabled, then the identifiables with duplicated names keep their ids.
+- A unique name must not be already in use as an id or as an alias of another identifiable.
+
+Identifiables whose change is skipped keep their original id. Skipped changes that indicate a conflict can be reported.
+
+The behavior can be configured in the `replace-ids-by-names-default-parameters` module of the configuration file:
+
+| Property | Type | Default value | Description |
+|---|---|---|---|
+| `suffix-with-id-if-name-is-duplicated` | Boolean | `true` | If `true`, the new id of an identifiable with a duplicated name is its name suffixed with its original id. If `false`, its id is not changed. |
+| `report-skipped-changes` | Boolean | `false` | If `true`, the skipped changes that indicate a conflict are reported, with the id, name, type and reason. |
+
+This modification can also be applied automatically when a network is imported, using the [replace ids by names post-processor](../import_post_processor.md#replace-ids-by-names-post-processor).
+
+Class: `ReplaceIdsByNames`
+
 ## Replace tie lines by lines
 This modification is used to replace all the tie lines of a network with simple lines built from the original tie line and its 2 boundary lines.
 
