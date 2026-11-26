@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
-import static com.powsybl.iidm.modification.scalable .ScalableTestNetwork.createNetwork;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithBoundaryLine;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static org.junit.jupiter.api.Assertions.*;
