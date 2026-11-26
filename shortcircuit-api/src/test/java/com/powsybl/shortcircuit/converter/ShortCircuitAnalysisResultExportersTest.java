@@ -156,7 +156,6 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
         LimitViolation violation = faultResult.getLimitViolations().getFirst();
         assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
-        assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
 
         ViolationLocation location = violation.getViolationLocation().orElseThrow();
         assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
@@ -191,6 +190,42 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
             UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> ShortCircuitAnalysisResultDeserializer.read(inputStream));
             assertTrue(e.getMessage().contains("limit-violation. limitReduction is not valid for this version"));
         }
+    }
+
+    @Test
+    void readJsonFaultResultVersion16() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version16.json"));
+        assertEquals(1, result.getFaultResults().size());
+
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(Fault.FaultType.SINGLE_PHASE, faultResult.getFault().getFaultType());
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+
+        LimitViolation violation = faultResult.getLimitViolations().getFirst();
+        assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
+
+        ViolationLocation location = violation.getViolationLocation().orElseThrow();
+        assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
+        BusBreakerViolationLocation locationBusBreaker = (BusBreakerViolationLocation) location;
+        assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
+
+        assertTrue(Double.isNaN(faultResult.getEquivalentR()));
+        assertTrue(Double.isNaN(faultResult.getEquivalentX()));
+    }
+
+    @Test
+    void readJsonFaultResultVersion17() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version17.json"));
+        assertEquals(1, result.getFaultResults().size());
+
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(2.0, faultResult.getEquivalentR(), 0);
+        assertEquals(4.0, faultResult.getEquivalentX(), 0);
     }
 
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
@@ -242,6 +277,18 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     void roundtripTestWithTwoFaultTypes() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithTwoFaultResults(Fault.FaultType.LINE_TO_LINE, Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION);
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-fault-types.json");
+    }
+
+    @Test
+    void roundTripJsonMagnitudeResultsWithEquivalentImpedance() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createMagnitudeResultWithEquivalentImpedance();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-magnitude-results-with-equivalent-impedance.json");
+    }
+
+    @Test
+    void roundTripJsonFortescueResultsWithEquivalentImpedance() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createFortescueResultWithEquivalentImpedance();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-fortescue-results-with-equivalent-impedance.json");
     }
 
 }
