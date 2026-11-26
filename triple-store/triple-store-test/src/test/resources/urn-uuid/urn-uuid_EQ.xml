@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:0f2c5d9e-6a51-4c47-9a7e-3b1d2e8f4a60">
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+    <cim:ConnectivityNode rdf:about="urn:uuid:5b8e1c3a-2d47-4f9b-8c61-7e0a9d3f2b14">
+        <cim:IdentifiedObject.name>CN1</cim:IdentifiedObject.name>
+    </cim:ConnectivityNode>
+    <cim:Terminal rdf:about="urn:uuid:a3d9f6e2-81c4-4b5a-9e07-6c2f1b8d4e93">
+        <cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConnectivityNode rdf:resource="urn:uuid:5b8e1c3a-2d47-4f9b-8c61-7e0a9d3f2b14"/>
+    </cim:Terminal>
+</rdf:RDF>
