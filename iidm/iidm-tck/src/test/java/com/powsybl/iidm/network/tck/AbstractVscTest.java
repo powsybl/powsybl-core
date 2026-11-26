@@ -296,7 +296,7 @@ public abstract class AbstractVscTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         Terminal remoteTerminal = cs2.getTerminal();
         double localTargetQ = 40.0;
         double remoteTargetQGeneratorSignConvention = 10.0;

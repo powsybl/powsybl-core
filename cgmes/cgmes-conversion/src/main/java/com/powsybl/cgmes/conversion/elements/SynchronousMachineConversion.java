@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -61,8 +62,9 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
         convertGenerator(g);
+        convertQPercent(g);
 
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        setRegulatingControlProperty(g);
         addSpecificProperties(g, p);
     }
 
@@ -80,6 +82,16 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             g.setProperty(PROPERTY_GENERATING_UNIT, generatingUnit);
         }
         addGeneratingUnitProperties(g, p);
+    }
+
+    private void convertQPercent(Generator g) {
+        // add qPercent as an extension
+        double qPercent = p.asDouble("qPercent");
+        if (!Double.isNaN(qPercent)) {
+            g.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
+        }
     }
 
     private static void addGeneratingUnitProperties(Generator generator, PropertyBag p) {

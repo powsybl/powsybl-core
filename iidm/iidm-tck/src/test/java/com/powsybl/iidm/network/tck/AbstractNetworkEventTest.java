@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public abstract class AbstractNetworkEventTest {
 
     @Test
-    void testNotif() {
+    public void testNotif() {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
         network.addListener(eventRecorder);

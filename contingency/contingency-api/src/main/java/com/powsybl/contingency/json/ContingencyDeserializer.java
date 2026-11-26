@@ -9,7 +9,11 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -29,13 +33,27 @@ import java.util.function.Supplier;
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class ContingencyDeserializer extends StdDeserializer<Contingency> {
+public class ContingencyDeserializer extends StdDeserializer<Contingency>
+    implements ContextualDeserializer {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
+    private final transient JsonDeserializer<Object> elementDeserializer;
+
     public ContingencyDeserializer() {
+        this(null);
+    }
+
+    public ContingencyDeserializer(JsonDeserializer<Object> elementDeserializer) {
         super(Contingency.class);
+        this.elementDeserializer = elementDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
+                                                BeanProperty property) throws JsonMappingException {
+        return new ContingencyDeserializer(JsonUtil.buildListDeserializer(deserializationContext, property, ContingencyElement.class));
     }
 
     @Override
@@ -52,7 +70,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
                 case "name" -> name = parser.nextTextValue();
                 case "elements" -> {
                     parser.nextToken();
-                    elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
+                    elements = JsonUtil.readList(elementDeserializer, deserializationContext, parser, ContingencyElement.class);
                 }
                 case "extensions" -> {
                     parser.nextToken();

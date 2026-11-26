@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
+import com.powsybl.cgmes.conversion.Update;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -189,8 +190,11 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private static Optional<PropertyBag> getBusBreakerSvVoltage(Terminal terminal, Context context) {
-        // busBreakerId is always a topologicalNode
-        return getSvVoltage(terminal.getBusBreakerView().getBus().getId(), context);
+        // busBreaker busId is always a topologicalNode.
+        // In IIDM, the busId may have been replaced,
+        // We want to get its original cgmes id for updates
+        String cgmesId = Update.cgmesId(terminal.getBusBreakerView().getBus());
+        return getSvVoltage(cgmesId, context);
     }
 
     private static void updateNodeBreakerBus(Bus bus, Context context) {
@@ -203,7 +207,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private static void updateVoltageMagnitudeAndAngle(PropertyBag svVoltage, Bus bus, Context context) {
-        double v = svVoltage.asDouble(CgmesNames.VOLTAGE);
+        double v = svVoltage.asDouble(CgmesNames.V);
         double angle = svVoltage.asDouble(CgmesNames.ANGLE);
         if (valid(v, angle)) {
             bus.setV(v).setAngle(angle);
