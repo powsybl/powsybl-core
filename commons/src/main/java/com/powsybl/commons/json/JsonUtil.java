@@ -755,6 +755,13 @@ public final class JsonUtil {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 
+    /**
+     * Convert a potentially null string value into the corresponding enum value, or null if the string is null.
+     * @param value the value to convert, or null
+     * @param enumClass the class of the enum to convert to
+     * @return the corresponding enum value, or null if the string is null
+     * @param <T> the type of the enum
+     */
     public static <T extends Enum<T>> T readNullableEnumValue(String value, Class<T> enumClass) {
         return value == null ? null : T.valueOf(enumClass, value);
     }
