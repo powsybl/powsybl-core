@@ -13,6 +13,10 @@ import com.powsybl.iidm.network.DcSwitchKind;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.stream.Stream;
+
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -35,6 +39,13 @@ public class DcSwitchSerDe extends AbstractSimpleIdentifiableSerDe<DcSwitch, DcS
         context.getWriter().writeBooleanAttribute("open", dcSwitch.isOpen());
         double r = dcSwitch.getR();
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(getRootElementName(), "r", r, 0.0, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_17, context);
+    }
+
+    @Override
+    public void writeVariantState(DcSwitch dcSwitch, Network network, NetworkSerializerContext context, String variantId) {
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.of(
+                NetworkSerDe.TrackedAttribute.ofBoolean("open", dcSwitch::isOpen)
+        ));
     }
 
     @Override

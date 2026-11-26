@@ -14,11 +14,13 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * Abstract class for serializing/deserializing shunt compensator
@@ -121,6 +123,20 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         writeRegulationAttributes(rootElementName, sc, context);
         writeNodeOrBus(null, sc.getTerminal(), context);
         writePowerAttributes(sc, context);
+    }
+
+    @Override
+    public void writeVariantState(ShuntCompensator shuntCompensator, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="sectionCount" use="required" type="xs:int"/>
+         <xs:attribute name="solvedSectionCount" type="xs:int"/>
+         <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+         */
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt(SECTION_COUNT, shuntCompensator::getSectionCount));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt("solvedSectionCount", shuntCompensator::getSolvedSectionCount));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_V, shuntCompensator::getLocalTargetV));
+        writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }
 
     private static void assertModelCompatibility(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {

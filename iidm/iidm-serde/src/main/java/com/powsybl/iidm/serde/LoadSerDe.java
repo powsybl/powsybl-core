@@ -13,8 +13,10 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  *
@@ -51,6 +53,18 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
             IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, MODEL, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_10, context);
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> writeModel(model, context));
         });
+    }
+
+    @Override
+    public void writeVariantState(Load load, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="p0" use="required" type="xs:double"/>
+         <xs:attribute name="q0" use="required" type="xs:double"/>
+         */
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.concat(
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble("p0", load::getP0)),
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble("q0", load::getQ0))
+        ));
     }
 
     private void writeModel(LoadModel model, NetworkSerializerContext context) {

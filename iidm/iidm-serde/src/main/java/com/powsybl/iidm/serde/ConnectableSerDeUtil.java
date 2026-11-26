@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 
@@ -238,6 +239,13 @@ public final class ConnectableSerDeUtil {
         String numSuffix = dcTerminalNumSuffix(t);
         writer.writeDoubleAttribute("dcP" + numSuffix, t.getP());
         writer.writeDoubleAttribute("dcI" + numSuffix, t.getI());
+    }
+
+    public static Stream<NetworkSerDe.TrackedAttribute<Double>> getTrackedAttributePI(DcTerminal t) {
+        String numSuffix = dcTerminalNumSuffix(t);
+        return Stream.of(
+            NetworkSerDe.TrackedAttribute.ofDouble("dcP" + numSuffix, t::getP),
+            NetworkSerDe.TrackedAttribute.ofDouble("dcI" + numSuffix, t::getI));
     }
 
     public static void readPI(DcTerminal t, TreeDataReader reader) {

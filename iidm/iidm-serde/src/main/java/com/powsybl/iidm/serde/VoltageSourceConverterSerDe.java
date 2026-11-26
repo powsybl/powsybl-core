@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageSourceConverter;
-import com.powsybl.iidm.network.VoltageSourceConverterAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils.VoltageRegulationData;
@@ -18,7 +16,9 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeReactivePowerSetpoint;
 import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeVoltageSetpoint;
 
@@ -56,6 +56,17 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
         ReactiveLimitsSerDe.INSTANCE.write(vsc, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context,
             () -> VoltageRegulationSerDe.writeVoltageRegulation(vsc.getVoltageRegulation(), context));
+    }
+
+    @Override
+    public void writeVariantState(VoltageSourceConverter vsc, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+         <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
+         */
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.concat(
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_V, vsc::getLocalTargetV)),
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_Q, vsc::getLocalTargetQ))));
     }
 
     @Override

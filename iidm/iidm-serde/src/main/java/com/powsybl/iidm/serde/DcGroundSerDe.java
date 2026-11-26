@@ -9,8 +9,10 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readPI;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writePI;
+import java.util.stream.Stream;
+
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -33,6 +35,14 @@ public class DcGroundSerDe extends AbstractSimpleIdentifiableSerDe<DcGround, DcG
         context.getWriter().writeDoubleAttribute("r", dcGround.getR());
         context.getWriter().writeBooleanAttribute("connected", dcTerminal.isConnected());
         writePI(dcTerminal, context.getWriter());
+    }
+
+    @Override
+    public void writeVariantState(final DcGround dcGround, Network network, NetworkSerializerContext context, String variantId) {
+        DcTerminal dcTerminal = dcGround.getDcTerminal();
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.concat(
+                        Stream.of(NetworkSerDe.TrackedAttribute.ofBoolean("connected", dcTerminal::isConnected)),
+                        getTrackedAttributePI(dcTerminal)));
     }
 
     @Override

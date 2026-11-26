@@ -12,8 +12,11 @@ import com.powsybl.iidm.network.DcLineAdder;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Network;
 
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readPI;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writePI;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -40,6 +43,27 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         context.getWriter().writeBooleanAttribute("connected2", dcTerminal2.isConnected());
         writePI(dcTerminal1, context.getWriter());
         writePI(dcTerminal2, context.getWriter());
+    }
+
+    @Override
+    public void writeVariantState(DcLine dcLine, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="connected1" use="required" type="xs:boolean"/>
+         <xs:attribute name="connected2" use="required" type="xs:boolean"/>
+         <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+         <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+         <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+         <xs:attribute name="dcI2" use="optional" type="xs:double"/>
+         **/
+
+        DcTerminal dcTerminal1 = dcLine.getDcTerminal1();
+        DcTerminal dcTerminal2 = dcLine.getDcTerminal2();
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofBoolean("connected1", dcTerminal1::isConnected));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofBoolean("connected2", dcTerminal1::isConnected));
+        trackedAttributes.addAll(getTrackedAttributePI(dcTerminal1).toList());
+        trackedAttributes.addAll(getTrackedAttributePI(dcTerminal2).toList());
+        writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }
 
     @Override

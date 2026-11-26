@@ -7,15 +7,17 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.BatteryAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.jspecify.annotations.NonNull;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE;
@@ -65,6 +67,20 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     protected void writeSubElements(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         ReactiveLimitsSerDe.INSTANCE.write(b, context);
         VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context);
+    }
+
+    @Override
+    public void writeVariantState(Battery battery, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="targetP" use="required" type="xs:double"/>
+         <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+         <xs:attribute name="localTargetQ" use="required" type="xs:double"/>
+         **/
+        List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("targetP", battery::getTargetP));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetQ", battery::getLocalTargetQ));
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble("localTargetV", battery::getLocalTargetV));
+        writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }
 
     @Override

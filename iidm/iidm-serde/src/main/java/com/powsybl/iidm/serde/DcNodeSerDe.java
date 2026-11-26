@@ -9,6 +9,9 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.stream.Stream;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -27,6 +30,13 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
     protected void writeRootElementAttributes(final DcNode dcNode, final Network parent, final NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("nominalV", dcNode.getNominalV());
         context.getWriter().writeDoubleAttribute("v", dcNode.getV());
+    }
+
+    @Override
+    public void writeVariantState(final DcNode dcNode, Network network, NetworkSerializerContext context, String variantId) {
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.of(
+                NetworkSerDe.TrackedAttribute.ofDouble("v", dcNode::getV)
+        ));
     }
 
     @Override

@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.removed.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.extensions.VoltagePerReactivePowerControlSerDe;
@@ -19,8 +17,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -114,6 +114,17 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                 IidmVersion.V_1_1, context, () -> TerminalRefSerDe.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL)));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context,
             () -> VoltageRegulationSerDe.writeVoltageRegulation(svc.getVoltageRegulation(), context));
+    }
+
+    @Override
+    public void writeVariantState(StaticVarCompensator svc, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+         <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
+         */
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.concat(
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_V, svc::getLocalTargetV)),
+                Stream.of(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_Q, svc::getLocalTargetQ))));
     }
 
     @Override

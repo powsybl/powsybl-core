@@ -75,6 +75,11 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     }
 
     @Override
+    public void writeVariantState(TwoWindingsTransformer identifiable, Network network, NetworkSerializerContext context, String variantId) {
+        /** FIXME use the method from ThreeWindingsTransformerSerDe when the function is completed */
+    }
+
+    @Override
     protected TwoWindingsTransformerAdder createAdder(Substation s) {
         return s.newTwoWindingsTransformer();
     }

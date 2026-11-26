@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.OptionalDouble;
+import java.util.stream.Stream;
+
+import static com.powsybl.iidm.serde.NetworkSerDe.writeVariantDiff;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -41,6 +44,16 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     protected void writeSubElements(final Area area, final Network parent, final NetworkSerializerContext context) {
         writeVoltageLevels(area, context);
         AreaBoundarySerDe.INSTANCE.write(area, context);
+    }
+
+    @Override
+    public void writeVariantState(Area area, Network network, NetworkSerializerContext context, String variantId) {
+        /**
+         <xs:attribute name="interchangeTarget" use="optional" type="xs:double"/>
+         */
+        writeVariantDiff(network, variantId, context, getRootElementName(), Stream.of(
+                NetworkSerDe.TrackedAttribute.ofDouble("interchangeTarget", area.getInterchangeTarget()::getAsDouble)
+        ));
     }
 
     private void writeVoltageLevels(Area area, NetworkSerializerContext context) {
