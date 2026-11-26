@@ -17,6 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.findTapChangerId;
@@ -107,15 +108,28 @@ public class RegulatingControlMapping {
         // Retrieve the ConductingEquipment's RegulatingControl id
         Connectable<?> connectable = (Connectable<?>) holder;
         String regulatingControlId = connectable.getProperty(PROPERTY_REGULATING_CONTROL);
+
+        // Set the voltage regulation for this connectable
+        setRegulatingControl(connectable, holder, regulatingControlId, "");
+
+        // StaticVarCompensator may use its own regulation data as alternative
+        if (connectable instanceof StaticVarCompensator svc
+            && context.config().getUseSvcRegulationDataAsAlternative()
+            && (regulatingControlId == null || !regulatingTerminalMapped(svc))) {
+            double targetV = Double.parseDouble(svc.getProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT));
+            if (targetV > 0.0) {
+                svc.setLocalTargetV(targetV);
+                svc.getVoltageRegulation().setRegulating(true);
+            }
+        }
+    }
+
+    private void setRegulatingControl(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String regulatingControlId, String end) {
+        // Check if a regulating control has been defined
         if (regulatingControlId == null) {
             return;
         }
 
-        // Set the voltage regulation for this connectable
-        setRegulatingControl(connectable, holder, regulatingControlId, "");
-    }
-
-    private void setRegulatingControl(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String regulatingControlId, String end) {
         // Retrieve the stored EQ RegulatingControl
         RegulatingControl regulatingControl = cachedRegulatingControls.get(regulatingControlId);
         if (regulatingControl == null) {
@@ -134,42 +148,46 @@ public class RegulatingControlMapping {
     }
 
     private void setRegulatingControlVoltage(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId) {
-        // Retrieve the IIDM regulated terminal.
-        // In case it corresponds to the connectable's only terminal, don't set it.
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-                .mapForVoltageControl(terminalId, context)
-                .orElse(holder.getTerminal());
-        if (!(connectable instanceof TwoWindingsTransformer)
-            && !(connectable instanceof ThreeWindingsTransformer)
-            && regulatingTerminal.getConnectable().getId().equals(connectable.getId())) {
-            regulatingTerminal = null;
+        // Retrieve the IIDM regulated terminal
+        Optional<Terminal> regulatingTerminal = RegulatingTerminalMapper
+            .mapForVoltageControl(terminalId, context);
+        Terminal mappedRegulatingTerminal = null;
+        if (regulatingTerminal.isEmpty()) {
+            context.invalid(connectable.getId(), String.format("Regulation terminal %s is not mapped or mapped to a switch", terminalId));
+            ((PropertiesHolder) holder).setProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL, terminalId);
+        } else {
+            mappedRegulatingTerminal = regulatingTerminal.get();
+            if (!(holder instanceof TapChanger) && mappedRegulatingTerminal.getConnectable().getId().equals(connectable.getId())) {
+                mappedRegulatingTerminal = null;
+            }
         }
 
         // Create the voltage regulation
         holder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(regulatingTerminal)
+            .withTerminal(mappedRegulatingTerminal)
             .withRegulating(false)
             .build();
     }
 
     private void setRegulatingControlReactivePower(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId, String end) {
-        // Retrieve the IIDM regulated terminal. It must be mapped.
-        RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
-                .mapForFlowControl(terminalId, context)
-                .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(null, 1));
-        if (mappedRegulatingTerminal.getTerminal() == null) {
-            context.ignored(connectable.getId(), String.format("Regulation terminal %s is not mapped or mapped to a switch", terminalId));
-            return;
+        // Retrieve the IIDM regulated terminal
+        Optional<RegulatingTerminalMapper.TerminalAndSign> regulatingTerminal = RegulatingTerminalMapper
+                .mapForFlowControl(terminalId, context);
+        Terminal mappedRegulatingTerminal = null;
+        if (regulatingTerminal.isEmpty()) {
+            context.invalid(connectable.getId(), String.format("Regulation terminal %s is not mapped or mapped to a switch", terminalId));
+            ((PropertiesHolder) holder).setProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL, terminalId);
+        } else {
+            mappedRegulatingTerminal = regulatingTerminal.get().getTerminal();
+            // Store the terminal sign returned by the terminal mapping for later use during update of the targetValue.
+            connectable.setProperty(getTerminalSignPropertyName(end), String.valueOf(regulatingTerminal.get().getSign()));
         }
-
-        // Store the terminal sign returned by the terminal mapping for later use during update of the targetValue.
-        connectable.setProperty(getTerminalSignPropertyName(end), String.valueOf(mappedRegulatingTerminal.getSign()));
 
         // Create the voltage regulation
         holder.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
-            .withTerminal(mappedRegulatingTerminal.getTerminal())
+            .withTerminal(mappedRegulatingTerminal)
             .withRegulating(false)
             .build();
     }
@@ -228,6 +246,13 @@ public class RegulatingControlMapping {
      */
     public static boolean checkControlMode(String mode, String kind) {
         return mode != null && mode.toLowerCase(Locale.ROOT).endsWith(kind);
+    }
+
+    /**
+     * Check if the regulating terminal has been mapped for that regulation holder.
+     */
+    public static boolean regulatingTerminalMapped(PropertiesHolder holder) {
+        return !holder.hasProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL);
     }
 
     /**
