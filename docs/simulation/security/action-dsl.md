@@ -1,6 +1,10 @@
 # Action DSL
 The action DSL is a domain-specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](index.md#operator-strategies). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
 
+```{warning}
+Groovy scripts are executed without any sandbox. Only use scripts from trusted sources. See [Groovy scripts security](../../user/groovy-security.md).
+```
+
 ## Contingencies
 The contingencies are defined in the same way described in the [contingency DSL](contingency-dsl.md). Are supported:
 - N-1 contingencies that trigger a single piece of equipment at a time

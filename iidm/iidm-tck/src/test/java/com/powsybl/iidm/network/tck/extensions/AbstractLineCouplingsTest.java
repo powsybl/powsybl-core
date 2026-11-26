@@ -51,7 +51,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testSameLine() {
+    public void testSameLine() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -68,7 +68,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testNullLine() {
+    public void testNullLine() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -92,7 +92,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testDuplicateCoupling() {
+    public void testDuplicateCoupling() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -116,7 +116,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testFindSymmetric() {
+    public void testFindSymmetric() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -137,7 +137,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testRemoveByLines() {
+    public void testRemoveByLines() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -161,7 +161,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testRemoveByMutualCoupling() {
+    public void testRemoveByMutualCoupling() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -182,7 +182,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testSetters() {
+    public void testSetters() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(LineCouplingsAdder.class).add();
 
@@ -214,7 +214,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testInvalidLineSegment() {
+    public void testInvalidLineSegment() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> new LineSegment(0.6, 0.4));
         assertEquals("Invalid line segment: start: 0.6, end: 0.4.", exception.getMessage());
 
@@ -223,7 +223,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testInvalidRAndX() {
+    public void testInvalidRAndX() {
         Network network = EurostagTutorialExample1Factory.create();
         Line l1 = network.getLine("NHV1_NHV2_1");
         Line l2 = network.getLine("NHV1_NHV2_2");
@@ -241,7 +241,7 @@ public abstract class AbstractLineCouplingsTest {
     }
 
     @Test
-    void testListener() {
+    public void testListener() {
         Network network = EurostagTutorialExample1Factory.create();
         Line l1 = network.getLine("NHV1_NHV2_1");
         Line l2 = network.getLine("NHV1_NHV2_2");

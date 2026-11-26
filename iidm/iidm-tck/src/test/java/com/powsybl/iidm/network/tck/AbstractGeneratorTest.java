@@ -442,7 +442,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMultiVariants() {
+    public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
@@ -482,7 +482,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testRemoveVoltageRegulationInMultiVariant() {
+    public void testRemoveVoltageRegulationInMultiVariant() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
@@ -508,7 +508,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMonoVariant() {
+    public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createGenerator("testMonoVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
             15.0, 40.0, true, 2.0);
@@ -526,7 +526,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void invalidLocalTargetVAdder() {
+    public void invalidLocalTargetVAdder() {
         // GIVEN
         double targetV = -10.0;
         GeneratorAdder generatorAdder = voltageLevel.newGenerator()
@@ -544,7 +544,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void invalidLocalTargetV() {
+    public void invalidLocalTargetV() {
         // GIVEN
         Terminal remoteTerminal = network.getGenerator("CB").getTerminal();
         double targetV = -17.6;
@@ -572,7 +572,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void equivalentGenerator() {
+    public void equivalentGenerator() {
         Generator generator = createGeneratorAdder("testGenerator", EnergySource.OTHER, 20.0, 10., 2.0,
             15.0, 40.0, true, 2.0)
             .setEquivalent(true)
@@ -581,7 +581,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         Terminal remoteTerminal = network.getGenerator("CB").getTerminal();
         double localTargetQ = 40.0;
         double remoteTargetQGeneratorSignConvention = 10.0;
