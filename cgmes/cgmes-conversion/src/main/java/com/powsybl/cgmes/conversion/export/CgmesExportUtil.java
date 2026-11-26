@@ -531,6 +531,8 @@ public final class CgmesExportUtil {
         RegulationMode regulationMode = voltageRegulation.getMode();
         if (regulationMode == null) {
             if (!voltageRegulation.isRegulating()) {
+                // When regulating is false, the mode can be null. This must not block the export.
+                // The mode is exported as "Voltage" since it is available for every equipment.
                 return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             } else {
                 throw new IllegalStateException("Unexpected regulation mode: null");

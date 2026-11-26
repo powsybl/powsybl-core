@@ -742,6 +742,8 @@ public final class EquipmentExport {
             if (svc.getVoltageRegulation() != null) {
                 regulationMode = svc.getVoltageRegulation().getMode();
                 if (regulationMode == null && !svc.getVoltageRegulation().isRegulating()) {
+                    // When the mode is absent but the SVC is not regulating, the mode is set to "Voltage".
+                    // This is done to be consistent with what is done in CgmesExportUtil.getRegulatingControlMode(...).
                     regulationMode = RegulationMode.VOLTAGE;
                 }
                 slope = svc.getVoltageRegulation().getSlope();
