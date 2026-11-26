@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
+         xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+  <md:FullModel rdf:about="urn:uuid:4f0b0a10-0000-4000-8000-000000000001">
+    <md:Model.created>2026-11-19T10:00:00Z</md:Model.created>
+    <md:Model.scenarioTime>2026-11-19T10:00:00Z</md:Model.scenarioTime>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.description>cim 16 generator</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://www.example.com/EnergyTeam</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+  </md:FullModel>
+
+  <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+    <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+  </cim:GeographicalRegion>
+  <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+    <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+  </cim:SubGeographicalRegion>
+  <cim:Substation rdf:ID="_Substation1">
+    <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+  </cim:Substation>
+  <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+    <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+  </cim:BaseVoltage>
+  <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+    <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+  </cim:VoltageLevel>
+
+  <cim:SynchronousMachine rdf:ID="_SynchronousMachine">
+    <cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_SynchronousMachine-RegulatingControl" />
+    <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+    <cim:SynchronousMachine.r0>0</cim:SynchronousMachine.r0>
+    <cim:SynchronousMachine.r2>0</cim:SynchronousMachine.r2>
+    <cim:SynchronousMachine.satDirectSubtransX>0</cim:SynchronousMachine.satDirectSubtransX>
+    <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+    <cim:SynchronousMachine.x0>0</cim:SynchronousMachine.x0>
+    <cim:SynchronousMachine.x2>0</cim:SynchronousMachine.x2>
+    <cim:RotatingMachine.GeneratingUnit rdf:resource="#_SynchronousMachine-GeneratingUnit" />
+  </cim:SynchronousMachine>
+  <cim:Terminal rdf:ID="_SynchronousMachine_T">
+    <cim:IdentifiedObject.name>SynchronousMachine_T</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SynchronousMachine" />
+  </cim:Terminal>
+
+  <cim:RegulatingControl rdf:ID="_SynchronousMachine-RegulatingControl">
+    <cim:IdentifiedObject.name>SynchronousMachine-RegulatingControl</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_SynchronousMachine_T" />
+  </cim:RegulatingControl>
+  <cim:ThermalGeneratingUnit rdf:ID="_SynchronousMachine-GeneratingUnit">
+    <cim:IdentifiedObject.name>SynchronousMachine-GeneratingUnit</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+    <cim:GeneratingUnit.maxOperatingP>240</cim:GeneratingUnit.maxOperatingP>
+    <cim:GeneratingUnit.minOperatingP>120</cim:GeneratingUnit.minOperatingP>
+    <cim:GeneratingUnit.initialP>140</cim:GeneratingUnit.initialP>
+  </cim:ThermalGeneratingUnit>
+
+  <cim:BusbarSection rdf:ID="_BusbarSection">
+    <cim:IdentifiedObject.name>BusbarSection</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+  </cim:BusbarSection>
+
+  <cim:Terminal rdf:ID="_BusbarSection_T">
+    <cim:IdentifiedObject.name>BusbarSection_T</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BusbarSection"/>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+  </cim:Terminal>
+</rdf:RDF>
