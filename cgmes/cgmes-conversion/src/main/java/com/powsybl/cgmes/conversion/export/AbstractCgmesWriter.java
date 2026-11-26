@@ -106,14 +106,14 @@ public abstract class AbstractCgmesWriter {
     /**
      * Format the given boolean to a String value.
      */
-    public String format(boolean value) {
+    public static String format(boolean value) {
         return String.valueOf(value);
     }
 
     /**
      * Format the given int to a String value.
      */
-    public String format(int value) {
+    public static String format(int value) {
         //TODO move the method from CgmesExportUtil here when other writers inheriting AbstractCgmesWriter will be created
         return CgmesExportUtil.format(value);
     }
@@ -121,7 +121,7 @@ public abstract class AbstractCgmesWriter {
     /**
      * Format the given double to a String value.
      */
-    public String format(double value) {
+    public static String format(double value) {
         // CGMES expects xsd:float values
         double floatValue;
         if (value > Float.MAX_VALUE) {
@@ -144,7 +144,7 @@ public abstract class AbstractCgmesWriter {
     /**
      * Make sure the given double is not NaN. Return the default value if that is the case.
      */
-    public double fixValue(double value, double defaultValue) {
+    public static double fixValue(double value, double defaultValue) {
         return Double.isNaN(value) ? defaultValue : value;
     }
 
