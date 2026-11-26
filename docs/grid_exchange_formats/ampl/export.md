@@ -68,7 +68,9 @@ This exporter adds the following information to the `ExtendedAmplExporterV3`:
   - The minimum and maximum reactive power at target active power;
   - A boolean indicating if the generator or battery is regulating and if its regulation mode is `REACTIVE_POWER_PER_ACTIVE_POWER`;
   - The slope of the reactive power per active power regulation mode.
-- In VSC converter station tables, the minimum and maximum reactive power at target active power. When the target active power (targetP) falls outside the equipment's active power range and if the reactive limits are defined by a [ReactiveCapabilityCurve](#reactive-capability-curve), the value is extrapolated using the nearest points of the curve.
+- In VSC converter station tables, the minimum and maximum reactive power at target active power. 
+
+Please note that for the three types of equipment (`Generator`, `Battery` and `VscConverterStation`), if the target active power (targetP) falls outside the range of the curve's points and if the reactive limits are defined by a [ReactiveCapabilityCurve](#reactive-capability-curve), the value is extrapolated using the nearest points of the curve.
 
 (ampl-export-options)=
 ## Options
