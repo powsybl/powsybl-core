@@ -8,6 +8,7 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.network.UcteElementId;
@@ -25,7 +26,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
     protected final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
 
     @Override
-    public void initializeNetwork(Network network) {
+    public void initializeNetwork(Network network, ReportNode reportNode) {
         //Empty implementation by default
     }
 
