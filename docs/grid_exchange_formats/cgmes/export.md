@@ -282,7 +282,7 @@ The following table gives the supported changes of each kind of identifiable:
 | Battery                               | Target active power, local target reactive power, regulation status                                     |
 | Shunt compensator                     | Section count, local target voltage, regulation status, regulation target value and target deadband     |
 | Static var compensator                | Local target reactive power and voltage, regulation status, regulation target value                     |
-| VSC converter station                 | Local target reactive power and voltage, regulation status, regulation target value and mode            |
+| VSC converter station                 | Local target reactive power and voltage, regulation target value and mode                               |
 | LCC converter station                 | Power factor                                                                                            |
 | HVDC line                             | Active power setpoint, converters mode                                                                  |
 | VSC converter (detailed DC model)     | Target active power and DC voltage, control mode, local targets, regulation target value and mode       |
@@ -290,9 +290,13 @@ The following table gives the supported changes of each kind of identifiable:
 | Two or three windings transformer     | Tap position, regulation status, regulation value or target value, and target deadband of its tap changers |
 | Boundary line                         | `p0`, `q0`, target voltage and voltage regulation status of its generation                              |
 | Area                                  | Interchange target                                                                                      |
-| Bus of a bus-breaker voltage level    | Fictitious `p0` and `q0`                                                                                |
 | Connectable                           | Connection and disconnection of its terminals and DC terminals                                          |
 | Generator, battery                    | Creation of the `ActivePowerControl` and `ReferencePriorities` extensions, participation factor, reference priority |
+
+The SSH contains the local target voltage only as the target value of a local voltage regulation.
+Thus a change of the local target voltage is supported only if the equipment has a voltage regulation in voltage mode, without a regulating terminal.
+A generator imported from an `EquivalentInjection` is an exception: its SSH data always contains its local target voltage.
+The SSH has no droop: when an `ActivePowerControl` is created, the receiver gets its participation factor, but not its droop.
 
 The other changes are unsupported, for example:
 - The creation or the removal of an identifiable.
@@ -302,6 +306,9 @@ The other changes are unsupported, for example:
 - A change of the target deadband or of the slope of a generator regulation: the SSH writes a deadband only for the discrete regulations.
 - A change of the regulation mode, except for a VSC converter: for the other equipment, the regulation mode is equipment data.
 - A change of the target active or reactive power of the generation of a boundary line.
+- A change of the local target voltage of an equipment without a voltage regulation, or with a remote voltage regulation.
+- A change of the regulation status of a VSC converter station: the SSH has no regulation status for it.
+- A change of the fictitious injection of a bus: in a network imported from CGMES, it is a new equipment.
 
 A change that IIDM does not notify is not in the recorded events, so the partial SSH does not contain it.
 

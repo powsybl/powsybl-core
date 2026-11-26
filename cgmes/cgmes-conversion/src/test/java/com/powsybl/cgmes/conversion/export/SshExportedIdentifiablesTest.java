@@ -206,6 +206,7 @@ class SshExportedIdentifiablesTest {
             }),
             supported("shunt localTargetV", fourSubstations, n -> {
                 ShuntCompensator s = n.getShuntCompensators().iterator().next();
+                regulateLocalVoltage(s, 400.0);
                 return new Change(s, () -> s.setLocalTargetV(399.0));
             }),
             supported("shunt regulating", regulatingShunt, n -> {
@@ -246,10 +247,6 @@ class SshExportedIdentifiablesTest {
             supported("VSC station localTargetV", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
                 return new Change(v, () -> v.setLocalTargetV(v.getLocalTargetV() + 1.0));
-            }),
-            supported("VSC station regulating", fourSubstations, n -> {
-                VscConverterStation v = n.getVscConverterStations().iterator().next();
-                return new Change(v, () -> v.getVoltageRegulation().setRegulating(!v.getVoltageRegulation().isRegulating()));
             }),
             supported("VSC station target value", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
@@ -302,7 +299,8 @@ class SshExportedIdentifiablesTest {
             }),
             supported("VSC converter localTargetV", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
-                return new Change(c, () -> c.setLocalTargetV(Double.isNaN(c.getLocalTargetV()) ? 400.0 : c.getLocalTargetV() + 1.0));
+                regulateLocalVoltage(c, 400.0);
+                return new Change(c, () -> c.setLocalTargetV(401.0));
             }),
             supported("VSC converter target value", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
@@ -385,14 +383,6 @@ class SshExportedIdentifiablesTest {
                 bl.getGeneration().setTargetQ(0.0);
                 return new Change(bl, () -> bl.getGeneration().setVoltageRegulationOn(false));
             }),
-            supported("bus fictitiousP0", eurostag, n -> {
-                Bus bus = n.getBusBreakerView().getBus("NGEN");
-                return new Change(bus, () -> bus.setFictitiousP0(10.0));
-            }),
-            supported("bus fictitiousQ0", eurostag, n -> {
-                Bus bus = n.getBusBreakerView().getBus("NGEN");
-                return new Change(bus, () -> bus.setFictitiousQ0(10.0));
-            }),
             supported("bus-breaker generator disconnection", eurostag, n -> {
                 Generator g = n.getGenerator("GEN");
                 return new Change(g, () -> g.getTerminal().disconnect());
@@ -426,7 +416,32 @@ class SshExportedIdentifiablesTest {
 
     static Stream<Arguments> unsupportedChanges() {
         Supplier<Network> fourSubstations = FourSubstationsNodeBreakerFactory::create;
+        Supplier<Network> eurostag = EurostagTutorialExample1Factory::create;
         return Stream.of(
+            // The SSH writes the local target voltage only as the target value of a local voltage regulation
+            unsupported("shunt localTargetV without voltage regulation", fourSubstations, n -> {
+                ShuntCompensator s = n.getShuntCompensators().iterator().next();
+                return new Change(s, () -> s.setLocalTargetV(399.0));
+            }),
+            unsupported("generator localTargetV with a remote voltage regulation", fourSubstations, n -> {
+                Generator g = n.getGenerators().iterator().next();
+                regulateRemoteVoltage(g, 400.0);
+                return new Change(g, () -> g.setLocalTargetV(399.0));
+            }),
+            // The SSH has no regulation status for a VSC converter station
+            unsupported("VSC station regulating", fourSubstations, n -> {
+                VscConverterStation v = n.getVscConverterStations().iterator().next();
+                return new Change(v, () -> v.getVoltageRegulation().setRegulating(!v.getVoltageRegulation().isRegulating()));
+            }),
+            // The fictitious injection of a bus is a new equipment in a network imported from CGMES
+            unsupported("bus fictitiousP0", eurostag, n -> {
+                Bus bus = n.getBusBreakerView().getBus("NGEN");
+                return new Change(bus, () -> bus.setFictitiousP0(10.0));
+            }),
+            unsupported("bus fictitiousQ0", eurostag, n -> {
+                Bus bus = n.getBusBreakerView().getBus("NGEN");
+                return new Change(bus, () -> bus.setFictitiousQ0(10.0));
+            }),
             unsupported("line resistance", fourSubstations, n -> {
                 Line line = n.getLines().iterator().next();
                 return new Change(line, () -> line.setR(line.getR() + 1.0));
@@ -529,6 +544,18 @@ class SshExportedIdentifiablesTest {
         change.action().run();
         network.removeListener(eventRecorder);
         return eventRecorder.getEvents();
+    }
+
+    /**
+     * Give the holder a local voltage regulation, so that its local target voltage is in the SSH.
+     */
+    private static void regulateLocalVoltage(VoltageRegulationHolder<?> holder, double localTargetV) {
+        holder.setLocalTargetV(localTargetV);
+        holder.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetDeadband(0.0)
+            .withRegulating(true)
+            .build();
     }
 
     /**
