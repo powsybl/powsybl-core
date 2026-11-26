@@ -53,6 +53,16 @@ public final class CgmesTestModels {
      */
     private static final Pattern HVDC_LINE_MAX_P = Pattern.compile("(<iidm:hvdcLine .*?) maxP=\"[^\"]*\"");
 
+    /**
+     * The state variables that the IIDM data keeps as properties, for example at the star bus of a three windings transformer.
+     */
+    private static final Pattern STATE_VARIABLE_PROPERTY = Pattern.compile("\\s*<iidm:property name=\"(v|angle)\" value=\"[^\"]*\"/>");
+
+    /**
+     * The droop of an active power control: CGMES has no droop.
+     */
+    private static final Pattern DROOP = Pattern.compile("(<apc:activePowerControl .*?) droop=\"[^\"]*\"");
+
     private CgmesTestModels() {
     }
 
@@ -142,7 +152,8 @@ public final class CgmesTestModels {
     }
 
     /**
-     * The XIIDM of the network, without the state variables and without the data that the SSH update recomputes.
+     * The XIIDM of the network, without the state variables, without the data that the SSH update recomputes,
+     * and without the data that CGMES does not contain.
      * Two networks with the same SSH data and the same equipment data have the same IIDM data.
      */
     public static String iidmData(Network network) {
@@ -151,8 +162,9 @@ public final class CgmesTestModels {
         StringBuilder data = new StringBuilder();
         for (String line : os.toString(StandardCharsets.UTF_8).split("\\R")) {
             String withoutStateVariables = STATE_VARIABLE.matcher(line).replaceAll("");
-            if (!CALCULATED_BUS.matcher(withoutStateVariables).matches()) {
-                data.append(HVDC_LINE_MAX_P.matcher(withoutStateVariables).replaceAll("$1")).append('\n');
+            if (!CALCULATED_BUS.matcher(withoutStateVariables).matches() && !STATE_VARIABLE_PROPERTY.matcher(withoutStateVariables).matches()) {
+                String withoutRecomputedData = HVDC_LINE_MAX_P.matcher(withoutStateVariables).replaceAll("$1");
+                data.append(DROOP.matcher(withoutRecomputedData).replaceAll("$1")).append('\n');
             }
         }
         return data.toString();

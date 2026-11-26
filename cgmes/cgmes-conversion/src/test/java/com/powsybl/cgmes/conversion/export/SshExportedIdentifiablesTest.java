@@ -7,7 +7,9 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.ExtensionUpdateNetworkEvent;
@@ -26,9 +28,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -412,6 +420,68 @@ class SshExportedIdentifiablesTest {
         assertFalse(events.isEmpty(), "The change gives no event");
         // A change can also give events of other identifiables: a disconnection opens a breaker
         assertTrue(SshExportedIdentifiables.fromEvents(n, events, FAIL).contains(change.identifiable()));
+    }
+
+    /**
+     * The supported changes without a round trip test, and the reason.
+     */
+    private static final Map<String, String> NO_ROUND_TRIP;
+
+    static {
+        String notKept = "the CGMES export and import of the network do not keep this equipment";
+        String importFails = "the CGMES import of the network fails";
+        String exportFails = "the CGMES export of the network fails";
+        Map<String, String> noRoundTrip = new HashMap<>();
+        for (String description : List.of("DC switch open", "battery targetP", "battery localTargetQ", "area interchangeTarget",
+                "VSC converter targetP", "VSC converter targetVdc", "VSC converter controlMode", "VSC converter localTargetQ",
+                "VSC converter localTargetV", "VSC converter target value", "VSC converter regulation mode", "VSC converter DC disconnection")) {
+            noRoundTrip.put(description, notKept);
+        }
+        for (String description : List.of("LCC converter targetP", "LCC converter targetVdc", "LCC converter controlMode")) {
+            noRoundTrip.put(description, importFails);
+        }
+        for (String description : List.of("boundary line p0", "boundary line q0", "boundary line targetV", "boundary line voltageRegulationOn")) {
+            noRoundTrip.put(description, exportFails);
+        }
+        noRoundTrip.put("generator disconnection", "the CGMES import adds a fictitious switch to a disconnected node-breaker terminal");
+        noRoundTrip.put("VSC station target value", "a CGMES model has no remote voltage regulation for a VSC converter station");
+        NO_ROUND_TRIP = Map.copyOf(noRoundTrip);
+    }
+
+    static Stream<Arguments> supportedChangesWithRoundTrip() {
+        return supportedChanges().filter(arguments -> !NO_ROUND_TRIP.containsKey((String) arguments.get()[0]));
+    }
+
+    /**
+     * The sender and the receiver load the same CGMES model. The sender records the change and exports it as a partial SSH,
+     * the receiver applies the partial SSH with the network update, and both networks must have the same IIDM data.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("supportedChangesWithRoundTrip")
+    void supportedChangeIsAppliedByTheUpdate(String description, Supplier<Network> networkSupplier, Function<Network, Change> changeBuilder)
+            throws IOException, XMLStreamException {
+        // The preparation of the change, for example a voltage regulation, is part of the CGMES model
+        Network base = networkSupplier.get();
+        changeBuilder.apply(base);
+        MemDataSource model = CgmesTestModels.cgmesFiles(base);
+        Network sender = Network.read(model);
+        Network receiver = Network.read(model);
+        Change change = changeBuilder.apply(sender);
+        // The preparation does not change the imported networks again; the receiver does not get the change
+        changeBuilder.apply(receiver);
+        Set<Identifiable<?>> changed = SshExportedIdentifiables.fromEvents(sender, recordEvents(sender, change), FAIL);
+        assertNotEquals(CgmesTestModels.iidmData(sender), CgmesTestModels.iidmData(receiver), "The change gives no difference");
+
+        MemDataSource partialSsh = new MemDataSource();
+        try (OutputStream os = partialSsh.newOutputStream("partial_SSH.xml", false)) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            SteadyStateHypothesisExport.write(sender, writer, new CgmesExportContext(sender).setSshExportedIdentifiables(changed));
+        }
+        Properties properties = new Properties();
+        properties.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        receiver.update(partialSsh, properties);
+
+        assertEquals(CgmesTestModels.iidmData(sender), CgmesTestModels.iidmData(receiver));
     }
 
     static Stream<Arguments> unsupportedChanges() {
