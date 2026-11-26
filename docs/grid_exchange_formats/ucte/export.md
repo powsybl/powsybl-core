@@ -1,7 +1,7 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF
 [format specification](format_specification.md).
 
 ## Limitations
@@ -15,9 +15,21 @@ import a UCTE-DEF file in PowSyBl, you can update some elements and then export 
 exporting to UCTE-DEF format a file imported from another format most often leads at best to incorrect file content, at
 worst to an exporter failure. Some examples are listed here after.
 
-**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your IIDM
-model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will be
-incorrect without warning.
+**Transformers Tap Changers**: UCTE-DEF describes a tap changer with a constant-step model: the taps are numbered from
+`-n` to `+n` around a neutral tap at position `0`, and the voltage (or angle) step between two consecutive taps is
+constant. IIDM tap changers have no such constraints: low and high positions can be any integer and each one is
+associated to a free value. On export, the taps are renumbered around the neutral tap (see
+[Tap numbering](#tap-numbering)), but tap steps that don't follow a constant-step model can't be represented exactly.
+In that case, the export does not fail, but the tap changer is approximated and a warning is [reported](#reporting)
+(see [Deviation from the constant-step model](#deviation-from-the-constant-step-model)).
+A tap changer with a single step can't be described by this model: it is not exported, and a warning is
+[reported](#reporting) (see [Tap numbering](#tap-numbering)).
+
+**Substation countries with the `Counter` naming strategy**: the `Counter` naming strategy builds node codes from the
+countries of the substations. With it, the export fails with a `UcteException` if a substation has no country, or a
+country not supported by UCTE-DEF (see section 1.3, "UCTE country codes", of the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf#page=6)).
+The `Default` naming strategy reads node codes from bus ids and does no such check.
 
 ## Options
 
@@ -55,14 +67,18 @@ Post-processors can:
   `##L`, `##T` and `##R` blocks.
 - define the order of the nodes inside each `##Z` block.
 
-Post-processors are applied in the given input order, first for all modifications.
+**Post-processors configuration**: Post-processors are applied in the given input order, first for all modifications.
 Once all the post-processors have modified the UCTE network, the UCTE node comparators of the post-processors are
-requested.
-They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the
-given order, each one only breaking the ties of the previous ones.
-The default natural order is always used as a final tie-break.
+requested. They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the given
+order, each one only breaking the ties of the previous ones. The default natural order is always used as a final
+tie-break.
 
-Its default value is an empty list.
+By default, the post-processors are an empty list.
+
+**Built-in post-processors**
+
+- `deenergized-branches-out-of-operation`: exports out of operation the elements left without voltage in the load flow
+  results, see [Line status](#line-status).
 
 ## From IIDM to UCTE
 
@@ -228,6 +244,21 @@ It is derived as follows:
   connected, `7` otherwise; if not, it follows the same real/equivalent convention as a line, based on its
   fictitiousness and terminal connection state.
 
+When the `deenergized-branches-out-of-operation` [post-processor](#options) is enabled, the statuses derived above are
+corrected using the load flow results of the network, that is the voltages of its buses (bus view). The network may or
+may not contain such results.
+
+When the network has load flow results:
+- an element in operation is exported out of operation (`0` to `8`, `1` to `9`, `2` to `7`) if one of its connected
+  terminals is on a bus without voltage;
+- a closed switch is exported out of operation (`2` to `7`) if its buses have no voltage;
+- all the other elements keep the status derived above.
+
+The network is considered to have no load flow results if no bus of its main connected component has a voltage. In
+that case, no status is changed and a warning is reported. Only the main connected component is checked because it is
+the one a load flow always computes. As a consequence, islands left out of the load flow (for example when only the
+main connected component is computed) have no voltage, and their elements are exported out of operation.
+
 #### Current limit
 
 - **Switch**: taken from the `currentLimit` property if it can be parsed as an integer; otherwise left undefined, and a
@@ -274,8 +305,8 @@ If the original boundary line has no generation part, its X-node is exported as 
 
 #### Tie line properties
 
-A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
-custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by
+custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although
 we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
 - If both boundary lines have the same value, it is used in the exported tie line.
@@ -313,7 +344,9 @@ If the transformer has a ratio and/or a phase tap changer, a regulation is expor
 
 #### Nominal power
 
-The nominal power is the transformer's rated apparent power `ratedS`, used as-is.<br>
+The nominal power is the transformer's rated apparent power `ratedS`, used as-is.
+Being truncated to the 5 characters of the field, the `1e-5` MVA value set by the UCTE-DEF import for a zero
+nominal power is written back as `0.000`.<br>
 If `ratedS` is undefined (`Double.NaN`), the value of the `nomimalPower` property is used instead:
 the `nomimalPower` property was set by the UCTE-DEF import in older PowSyBl versions (with a typo),
 and this is to remain retro-compatible with networks serialized with these older versions.
@@ -332,17 +365,17 @@ The table below maps every UCTE-DEF phase regulation attribute to its source in 
 | UCTE-DEF attribute       | Source in IIDM                                 | Computation                                                                                                                       |
 |--------------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | δu (%)                   | Ratio tap changer's tap steps' ρ               | Computed from the ρ of the two extreme taps, see formula in [δu formula](#δu-formula).                                            |
-| n (number of taps)       | Ratio tap changer's high tap position          | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation. |
-| n' (tap position)        | Ratio tap changer's current tap position       | Used as-is. Same assumption as above.                                                                                             |
+| n (number of taps)       | Ratio tap changer's tap positions              | Distance between the neutral tap and the furthest end of the tap range, see [Tap numbering](#tap-numbering).                      |
+| n' (tap position)        | Ratio tap changer's current tap position       | Current tap position, counted from the neutral tap, see [Tap numbering](#tap-numbering).                                          |
 | Voltage set point U (kV) | Ratio tap changer's target voltage (`targetV`) | Used as-is; left undefined if the ratio tap changer has no target voltage.                                                        |
 
 ##### δu formula
 $$
-\delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (n - 1)
+\delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (N - 1)
 $$
 
-where $n$ is the number of taps, $\rho_{min}$ the ρ of the lowest tap position and $\rho_{max}$ the ρ of the highest tap
-position.
+where $N$ is the number of steps of the IIDM tap changer, $\rho_{min}$ the ρ of the lowest tap position and $\rho_{max}$
+the ρ of the highest tap position. Note that $N$ and the exported n can differ, see [Tap numbering](#tap-numbering).
 
 #### Angle regulation
 
@@ -351,26 +384,30 @@ angle regulation.
 
 The table below maps every UCTE-DEF angle regulation attribute to its source in IIDM.
 
-| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                        |
-|-------------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| Regulation type         | Phase tap changer's tap steps' ρ           | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                              |
-| δu (%)                  | Phase tap changer's tap steps' α and/or ρ  | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
-| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ  | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.               |
-| n (number of taps)      | Phase tap changer's high tap position      | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.  |
-| n' (tap position)       | Phase tap changer's current tap position   | Used as-is. Same assumption as above.                                                                                              |
-| Regulation power P (MW) | Phase tap changer's `regulationValue`      | Opposite of `regulationValue`.                                                                                                      |
+| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                                  |
+|-------------------------|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| Regulation type         | Phase tap changer's tap steps' ρ          | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                                       |
+| δu (%)                  | Phase tap changer's tap steps' α and/or ρ | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
+| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.                         |
+| n (number of taps)      | Phase tap changer's tap positions         | Distance between the neutral tap and the furthest end of the tap range, see [Tap numbering](#tap-numbering).                                 |
+| n' (tap position)       | Phase tap changer's current tap position  | Current tap position, counted from the neutral tap, see [Tap numbering](#tap-numbering).                                                     |
+| Regulation power P (MW) | Phase tap changer's `regulationValue`     | Opposite of `regulationValue`.                                                                                                               |
 
 ##### SYMM regulation δu formula
 For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
 
 $$
-\delta u = 100 \times 2 \times \left (\tan\left (\dfrac{\alpha_{max}}{2}\right) - \tan\left (\dfrac{\alpha_{min}}{2}\right)\right) / (n - 1)
+\delta u = 100 \times 2 \times \left (\tan\left (\dfrac{\alpha_{max}}{2}\right) - \tan\left (\dfrac{\alpha_{min}}{2}\right)\right) / (N - 1)
 $$
+
+where $N$ is the number of steps of the IIDM tap changer, $\alpha_{min}$ the α of the lowest tap position and
+$\alpha_{max}$ the α of the highest tap position.
 
 ##### ASYM regulation δu formula
 
 For an `ASYM` regulation, the δu (%) and the angle are computed from the distance, in the complex plane, between the
-points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps. If the [
+points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps: the δu (%) is $100$ times this distance divided by
+$N - 1$, and the angle θ is the direction of the line joining these two points. If the [
 `ucte.export.combine-phase-angle-regulation`](#options)
 option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the ratio
 tap changer's current step.
@@ -379,11 +416,73 @@ tap changer's current step.
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
 and on side 1 in IIDM.
 
+#### Tap numbering
+
+In UCTE-DEF, the taps of a regulation are numbered from -n to +n, the neutral tap being at position `0`. The UCTE-DEF
+specification calls n the "number of taps": it is the number of taps on each side of the neutral tap, so a regulation
+has 2n + 1 taps in total. In IIDM, the tap positions range from a low to a high tap position, and the neutral tap can be
+anywhere in this range. The taps of each tap changer (ratio and phase, independently) are therefore renumbered on
+export:
+
+1. The neutral tap is found:
+   - for a ratio tap changer, it is the tap whose ρ is equal to `1`, or, if there is none, the tap whose ρ is the
+     closest to `1`;
+   - for a phase tap changer, it is the tap whose ρ is equal to `1` and α is equal to `0°`, or, if there is none, the
+     tap whose α is the closest to `0°`.
+
+   If several taps are equally close, the one closest to the middle of the tap range is chosen.
+2. All the tap positions are shifted, so that the neutral tap is at position `0`.
+3. The number of taps n is the distance between the neutral tap and the furthest end of the tap range, so that the range
+   from -n to +n covers all the IIDM taps.
+4. The tap position n' is the shifted current tap position.
+
+> ##### Examples
+> A ratio tap changer with taps from `1` to `21`:
+> - A neutral tap at position `11` and a current tap at position `14` is exported with n = `10` and n' = `3`.
+> - A neutral tap at position `8` and a current tap at position `14` would be exported with n = `13` (the distance
+    between positions `8` and `21`) and n' = `6`.
+
+When the tap range is not centered on the neutral tap, as in the second case, the UCTE-DEF range is larger than the
+IIDM one on the shorter side, and a warning is [reported](#reporting). This does not change the exported δu, nor the
+current tap position.
+
+A tap changer with a single step would be exported with n = `0`, which a UCTE-DEF reader treats as an incomplete
+regulation. Such a tap changer is therefore not exported, and a warning is [reported](#reporting).
+
+#### Deviation from the constant-step model
+
+A UCTE-DEF regulation is a constant-step model: δu (and the angle θ, for an angle regulation) is computed from the two
+extreme taps only, determining the ρ and α of every tap. Since the IIDM tap changers don't have this constraint (any
+value is possible at each tap position), the taps values can differ between the original tap changer and the exported
+UCTE-DEF tap changer.
+
+After converting a tap changer, the export compares each IIDM tap step with the value implied by the exported
+regulation. If at least one of them differs by more than $10^{-6}$, one warning is [reported](#reporting) for this tap
+changer. Since δu (%) is rounded to 4 decimals, this tolerance is increased by the effect of the rounding on each tap,
+so that the rounding alone doesn't raise a warning. The exported values are not modified. For an `ASYM` regulation with the
+[`ucte.export.combine-phase-angle-regulation`](#options) option enabled, the comparison uses the δu (%) before its
+division by the ratio tap changer's ρ.
+
+### Voltage levels without substation
+
+Voltage levels that belong to no substation (for instance those created by the CGMES importer for the junction of a
+T-line, or between line segments in series) are exported like any other voltage level.
+
+The `Counter` naming strategy needs their country, and computes it without modifying the network:
+
+- if the network holds a single country, every voltage level without substation gets it;
+- otherwise, the voltage levels are grouped by connected components, considering lines only (whatever their status;
+  tie lines and boundary lines are not considered), and a voltage level without substation gets the country of the
+  substations of its component. The export fails with a `UcteException` if the component holds substations of several
+  countries: in the European grid, cross-border connections are tie lines;
+- a component holding no substation is isolated. The export fails with a `UcteException` if one of its voltage levels
+  holds equipment (busbar sections aside). Otherwise, its voltage levels are not exported and a warning is reported.
+
 ## Reporting
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
-conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file. The
-following situations are reported:
+conversion step (voltage levels, buses and switches, boundary lines, lines, tie lines, transformers) and per exported
+file. The following situations are reported:
 
 | Situation                                                                                                    | Severity | See                                                                                         |
 |--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
@@ -395,4 +494,16 @@ following situations are reported:
 | The kept voltage target is rescaled from a remote bus with a different nominal voltage                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
+| With the `Counter` naming strategy, a voltage level has no substation and no equipment                       | `WARN`   | [Voltage levels without substation](#voltage-levels-without-substation)                     |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
+| The tap range of a tap changer is not centered on its neutral tap                                            | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| A tap changer has a single step: it is not exported                                                          | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| The tap steps of a ratio or phase tap changer differ from the exported constant-step model                   | `WARN`   | [Deviation from the constant-step model](#deviation-from-the-constant-step-model)           |
+
+**Post-processors**<br>
+One report node is also created per applied post-processor. The `deenergized-branches-out-of-operation` post-processor
+reports, under its node:
+
+- with a `WARN` severity, that the main connected component has no load flow results,
+- with an `INFO` severity, the number of de-energized elements exported out of operation, detailed per element (type
+  and UCTE id).

@@ -115,6 +115,14 @@ public final class UcteReports {
                 .add();
     }
 
+    public static void zeroTransformerNominalPower(ReportNode reportNode, String transformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.zeroTransformerNominalPower")
+                .withUntypedValue("transformerId", transformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void invalidateTransformerNominalPowerValue(ReportNode reportNode, String transformerId, double nominalPower) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.epsilonTransformerNominalPower")

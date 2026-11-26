@@ -273,18 +273,24 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
-        String type, A adder, NetworkDeserializerContext context,
-        TreeDataReader reader, ValidationLevel minimalValidationLevel) {
-        String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+            String type, A adder, NetworkDeserializerContext context,
+            TreeDataReader reader, ValidationLevel minimalValidationLevel) {
+        DetectionKind detectionKindEnum;
+        if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
+            detectionKindEnum = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
+        } else {
+            String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+            detectionKindEnum = detectionKindString != null ? DetectionKind.valueOf(detectionKindString) : null;
+        }
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
 
         DetectionKind[] kind = {DetectionKind.HIGH};
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            if (detectionKindString == null) {
+            if (detectionKindEnum == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
-            kind[0] = DetectionKind.valueOf(detectionKindString);
+            kind[0] = detectionKindEnum;
         });
         adder.setDetectionKind(kind[0]);
 
@@ -456,8 +462,11 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version, String type) {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () ->
-            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+        if (version == IidmVersion.V_1_18) {
+            writer.writeStringAttribute(DETECTION_KIND, kind.name());
+        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, version, () ->
+                writer.writeEnumAttribute(DETECTION_KIND, kind)
         );
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
             () -> {

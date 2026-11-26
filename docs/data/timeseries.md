@@ -24,7 +24,7 @@ An uncompressed JSON data chunk looks like:
 An uncompressed data chunk is modeled with a double (or String) array and an offset.
 It defines values associated to instants of the time index from `offset` to `offset + values.length`.
 
-It is possible to compress the data chunks, using, for example, the [RLE](https://fr.wikipedia.org/wiki/Run-length_encoding).
+It is possible to compress the data chunks, using, for example, the [RLE](https://en.wikipedia.org/wiki/Run-length_encoding).
 The JSON serialization of compressed data chunks looks like:
 Output:
 ```json
