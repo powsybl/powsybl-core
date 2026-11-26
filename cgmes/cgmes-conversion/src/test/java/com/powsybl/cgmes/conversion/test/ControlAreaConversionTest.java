@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Clement Philipot {@literal <clement.philipot at rte-france.com>}
@@ -25,16 +26,24 @@ class ControlAreaConversionTest extends AbstractSerDeTest {
     private static final String DIR = "/issues/control-areas/";
 
     @Test
-    void controlAreaWithTieFlows() {
-        Network network = readCgmesResources(DIR, "control_area_with_tie_flows_EQ.xml", "control_area_with_tie_flows_SSH.xml");
+    void validControlAreaTest() {
+        // CGMES network:
+        //   A ControlArea of type Interchange with 2 TieFlows
+        // IIDM network:
+        //   All EQ and SSH fields have been correctly read.
+        Network network = readCgmesResources(DIR, "valid_control_area_with_tie_flows_EQ.xml", "valid_control_area_with_tie_flows_SSH.xml");
 
+        // Check the ControlArea EQ data is correctly read
         assertEquals(1, network.getAreaCount());
         Area area = network.getArea("CONTROL_AREA_BE");
         assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, area.getAreaType());
         assertEquals("Belgium", area.getNameOrId());
         assertEquals("10BE------1", area.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElseThrow());
-        assertEquals(-205.90011555672567, area.getInterchangeTarget().getAsDouble(), 0.0);
-        assertEquals(5, area.getAreaBoundaryStream().count());
+        assertEquals(2, area.getAreaBoundaryStream().count());
+
+        // Check the ControlArea SSH data is correctly read
+        assertTrue(area.getInterchangeTarget().isPresent());
+        assertEquals(-205.0, area.getInterchangeTarget().getAsDouble(), 0.0);
     }
 
     @Test
