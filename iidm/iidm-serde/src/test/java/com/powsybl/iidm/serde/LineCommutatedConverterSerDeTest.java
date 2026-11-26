@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -25,31 +25,59 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testMinPNotSupported() {
-        Network network = createNetworkWithNonDefaultMinP();
-        Path filename = tmpDir.resolve("fail");
-        assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, filename));
-    }
-
-    @Test
-    void testMinPWithForceExport() {
-        Network network = createNetworkWithNonDefaultMinP();
-        Path filename = tmpDir.resolve("lcc-minP-force-export");
-        assertDoesNotThrow(() -> NetworkSerDe.write(network, new ExportOptions().setForceExportNetworkWithBetaFeatures(true), filename));
-    }
-
-    @Test
     void testNetworkLineCommutatedConverter() throws IOException {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network readNetwork = allFormatsRoundTripTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // active power limits survive the round trip, and are left unbounded where they were not set
+        LineCommutatedConverter lccWithoutLimits = readNetwork.getLineCommutatedConverter("lccBb1ACWithoutSolvedV");
+        assertEquals(-Double.MAX_VALUE, lccWithoutLimits.getMinP());
+        assertEquals(Double.MAX_VALUE, lccWithoutLimits.getMaxP());
+        LineCommutatedConverter lccWithBothLimits = readNetwork.getLineCommutatedConverter("lccBb2ACWithSolvedV");
+        assertEquals(-400., lccWithBothLimits.getMinP());
+        assertEquals(400., lccWithBothLimits.getMaxP());
+        LineCommutatedConverter lccWithMaxPOnly = readNetwork.getLineCommutatedConverter("lccNb2ACWithPartiallySolvedV");
+        assertEquals(-Double.MAX_VALUE, lccWithMaxPOnly.getMinP());
+        assertEquals(350., lccWithMaxPOnly.getMaxP());
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
 
         // Note: we do not test here failing for all versions < 1.15: LineCommutatedConverter cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.
+    }
+
+    @Test
+    void testMinPBetaExportBeforeIidm119() {
+        Network network = createBaseNetwork(); // contains a LineCommutatedConverter with minP = -400.
+
+        // minP and maxP were a beta feature, without serialization, in all the versions supporting
+        // LineCommutatedConverter before 1.19 (1.15 to 1.18)
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> checkBetaExport(network, version));
+    }
+
+    private void checkBetaExport(Network network, IidmVersion version) {
+        // without forcing the beta export, the export fails
+        ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+        Path failPath = tmpDir.resolve("fail");
+        NotImplementedException e = assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, options, failPath));
+        assertEquals("lineCommutatedConverter 'lccBb2ACWithSolvedV': minP serialization is not supported in IIDM "
+                + version.toString(".") + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
+                + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
+                + " or ExportOptions.setForceExportNetworkWithBetaFeatures", e.getMessage());
+
+        // forcing the beta export ignores minP and maxP
+        options.setForceExportNetworkWithBetaFeatures(true);
+        Path path = tmpDir.resolve("lcc-force-export-" + version.toString("_") + ".xiidm");
+        NetworkSerDe.write(network, options, path);
+
+        Network readNetwork = NetworkSerDe.validateAndRead(path);
+        for (LineCommutatedConverter lcc : readNetwork.getLineCommutatedConverters()) {
+            assertEquals(-Double.MAX_VALUE, lcc.getMinP());
+            assertEquals(Double.MAX_VALUE, lcc.getMaxP());
+        }
     }
 
     private static Network createBaseNetwork() {
@@ -154,6 +182,8 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(2.0)
                 .setSwitchingLoss(0.2)
                 .setResistiveLoss(2e-6)
+                .setMinP(-400.)
+                .setMaxP(400.)
                 .add();
         lcc2.getDcTerminal1().setP(-100.).setI(-200.);
         lcc2.getDcTerminal2().setP(0.4).setI(200.);
@@ -184,6 +214,7 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(3.0)
                 .setSwitchingLoss(0.3)
                 .setResistiveLoss(3e-6)
+                .setMaxP(350.) // minP left unbounded
                 .add();
 
         lcc3.getTerminal1().getBusView().getBus().setV(402.).setAngle(12.3);
@@ -192,28 +223,6 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
         lcc3.getTerminal1().setP(-105.); // no Q
         lcc3.getTerminal2().orElseThrow().setQ(-200.8); // no P
 
-        return network;
-    }
-
-    private static Network createNetworkWithNonDefaultMinP() {
-        Network network = Network.create("lineCommutatedConverterTest", "code");
-        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
-        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
-        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
-        Substation s = network.newSubstation().setId("S").add();
-        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
-        vl.getBusBreakerView().newBus().setId("bus").add();
-        vl.newLineCommutatedConverter()
-                .setId("lcc")
-                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
-                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
-                .setConnectableBus1("bus")
-                .setReactiveModel(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR)
-                .setPowerFactor(0.92)
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setTargetVdc(500.)
-                .setMinP(-100.)
-                .add();
         return network;
     }
 

@@ -115,9 +115,19 @@ public class LimitViolationFilter {
 
         return violations.stream()
                 .filter(violation -> accept(violation.getLimitType()))
-                .filter(violation -> accept(LimitViolationHelper.getNominalVoltage(violation, network)))
-                .filter(violation -> accept(LimitViolationHelper.getCountry(violation, network).orElse(null)))
+                .filter(violation -> LimitViolationHelper.getVoltageLevel(violation, network)
+                        .map(voltageLevel -> accept(voltageLevel.getNominalV())
+                                && accept(LimitViolationHelper.getCountry(voltageLevel).orElse(null)))
+                        .orElseGet(this::acceptWithoutVoltageLevel))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * A violation without voltage level cannot be filtered on its base voltage or its country:
+     * it is kept only if the filter checks neither of them.
+     */
+    private boolean acceptWithoutVoltageLevel() {
+        return minBaseVoltage <= 0 && countries == null;
     }
 
     private boolean accept(Country country) {

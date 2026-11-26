@@ -34,7 +34,6 @@ class LimitViolationBuilderTest {
         builder.limit(1500);
         Assertions.assertThatNullPointerException().isThrownBy(builder::build);
         builder.value(2000);
-        Assertions.assertThatNullPointerException().isThrownBy(builder::build);
         builder.side1()
                 .build();
     }

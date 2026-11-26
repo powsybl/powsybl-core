@@ -13,8 +13,10 @@ import com.powsybl.security.LimitViolationsResult;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -202,4 +204,27 @@ class LimitViolationsResultEquivalenceTest {
         assertFalse(resultEquivalence.equivalent(result1, result2));
     }
 
+    @Test
+    void equivalentWithViolationsWithoutOperationalLimitsGroup() {
+        // Compatibility with limit violations in detailed DC networks: DC node and DC line violations have no
+        // operational limits group
+        LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.INSTANCE);
+        LimitViolationsResult result1 = new LimitViolationsResult(new ArrayList<>(List.of(
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.),
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200.))));
+
+        LimitViolationsResult similarResult = new LimitViolationsResult(new ArrayList<>(List.of(
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200.),
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.05))));
+        assertTrue(resultEquivalence.equivalent(result1, similarResult));
+
+        LimitViolationsResult differentResult = new LimitViolationsResult(new ArrayList<>(List.of(
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1210.),
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.))));
+        assertFalse(resultEquivalence.equivalent(result1, differentResult));
+    }
+
+    private static LimitViolation dcViolation(String subjectId, LimitViolationType type, double limit, double value) {
+        return new LimitViolation(subjectId, null, null, type, null, Integer.MAX_VALUE, limit, 1.0, value, null, null);
+    }
 }

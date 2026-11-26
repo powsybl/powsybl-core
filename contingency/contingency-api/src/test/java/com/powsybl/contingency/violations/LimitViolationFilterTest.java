@@ -14,6 +14,7 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,14 +23,20 @@ import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LimitViolationFilterTest {
+
+    private static final String DC_LINE = "dcLinePos";
 
     private FileSystem fileSystem;
 
@@ -180,5 +187,73 @@ class LimitViolationFilterTest {
         assertEquals(baseVoltage, LimitViolationHelper.getNominalVoltage(violation, network), 0.0);
         assertEquals(country, LimitViolationHelper.getCountry(violation, network).orElse(null));
         assertEquals(voltageLevelId, LimitViolationHelper.getVoltageLevelId(violation, network));
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Detailed DC violations
+    // ----------------------------------------------------------------------------------------------------------------
+
+    @Test
+    void detailedDcNodeAndLineViolationsHaveNoVoltageLevel() {
+        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+
+        for (LimitViolation violation : List.of(createDcNodeViolation(), createDcLineViolation())) {
+            assertNull(LimitViolationHelper.getVoltageLevelId(violation, network));
+            assertNull(LimitViolationHelper.getVoltageLevelId(violation, network, true));
+            assertTrue(Double.isNaN(LimitViolationHelper.getNominalVoltage(violation, network)));
+            assertEquals(Optional.empty(), LimitViolationHelper.getCountry(violation, network));
+        }
+    }
+
+    @Test
+    void applyMinBaseVoltageOnDetailedDcViolations() {
+        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+        List<LimitViolation> violations = createDetailedDcViolations();
+        List<String> all = List.of(DC_LINE, DcDetailedNetworkFactory.DC_NODE_FR_POS);
+
+        // The default filter and an explicit 0 kV threshold keep every detailed DC violation
+        assertEquals(all, subjects(new LimitViolationFilter().apply(violations, network)));
+        assertEquals(all, subjects(new LimitViolationFilter().setMinBaseVoltage(0.0).apply(violations, network)));
+
+        // Any threshold strictly greater than 0 removes the DC node and DC line violations
+        assertEquals(List.of(), subjects(new LimitViolationFilter().setMinBaseVoltage(1e-6).apply(violations, network)));
+    }
+
+    @Test
+    void applyCountriesOnDetailedDcViolations() {
+        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+        List<LimitViolation> violations = createDetailedDcViolations();
+
+        // Any explicit set of countries, empty or not, removes the DC node and DC line violations
+        assertEquals(List.of(), subjects(new LimitViolationFilter().setCountries(Set.of()).apply(violations, network)));
+        assertEquals(List.of(), subjects(new LimitViolationFilter().setCountries(EnumSet.of(Country.FR)).apply(violations, network)));
+    }
+
+    private static LimitViolation createDcNodeViolation() {
+        return LimitViolation.builder()
+            .subject(DcDetailedNetworkFactory.DC_NODE_FR_POS)
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .operationalLimitsGroupId(null)
+            .limit(525.0)
+            .value(530.0)
+            .build();
+    }
+
+    private static LimitViolation createDcLineViolation() {
+        return LimitViolation.builder()
+            .subject(DC_LINE)
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId(null)
+            .limit(1000.0)
+            .value(-1200.0)
+            .build();
+    }
+
+    private static List<LimitViolation> createDetailedDcViolations() {
+        return List.of(createDcNodeViolation(), createDcLineViolation());
+    }
+
+    private static List<String> subjects(List<LimitViolation> violations) {
+        return violations.stream().map(LimitViolation::getSubjectId).sorted().toList();
     }
 }
