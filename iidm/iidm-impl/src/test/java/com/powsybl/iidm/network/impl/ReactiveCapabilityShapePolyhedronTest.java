@@ -73,7 +73,7 @@ class ReactiveCapabilityShapePolyhedronTest {
 
     @Test
     void testIsInsideWithPlaneConstraintsOnly() {
-        // Plane: Q ≤ 5  (alpha=0,beta=0)
+        // Plane: Q ≤ 5  (coeffU=0,coeffP=0)
         ReactiveCapabilityShapePlane p1 = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).lessOrEqual(5.0);
         // Plane: Q ≥ -5
         ReactiveCapabilityShapePlane p2 = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).greaterOrEqual(-5.0);
@@ -111,7 +111,7 @@ class ReactiveCapabilityShapePolyhedronTest {
     }
 
     @Test
-    void testIsInsideWithMixedPlaneTypesAlphaBetaEffect() {
+    void testIsInsideWithMixedPlaneTypesCoeffUCoeffPEffect() {
         // plane1: Q + 1.0*U + 0.0*P ≤ 3  -> Q ≤ 3 - U
         ReactiveCapabilityShapePlane plane1 = ReactiveCapabilityShapePlaneImpl.build(1.0, 0.0).lessOrEqual(3.0);
         // plane2: Q + 0.0*U + 2.0*P ≥ -4 -> Q ≥ -4 - 2P

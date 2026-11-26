@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
@@ -110,43 +111,53 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         addAliasesAndProperties(g);
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
+        setVoltageRegulation(g);
 
-        addSpecificProperties(g, p);
+        addSpecificProperties(g);
     }
 
-    private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
+    private void setVoltageRegulation(Generator g) {
+        // If EquivalentInjection.regulationCapability is true, then it has the capability to regulate the local voltage.
+        if ("true".equals(p.getLocal(CgmesNames.REGULATION_CAPABILITY))) {
+            g.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        }
+    }
+
+    private static void addSpecificProperties(Generator generator) {
         generator.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
-        generator.setProperty(PROPERTY_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
     }
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
-
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
+        generator.setTargetP(getTargetP(updatedPowerFlow, generator, context));
+        generator.setLocalTargetQ(getTargetQ(updatedPowerFlow, generator, context));
+
+        // If the VoltageRegulation is null, the EquivalentInjection has no regulation capability.
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            return;
+        }
 
         double defaultTargetV = getDefaultTargetV(generator, context);
         double targetV = findTargetV(cgmesData, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED);
+
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
         boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
-        double targetQ = getTargetQ(updatedPowerFlow, generator, context);
-        generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setLocalTargetQ(targetQ)
-                .setLocalTargetV(targetV);
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (regulatingOn) {
-            if (voltageRegulation == null) {
-                generator.newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(regulationCapability && isValidTargetV(targetV))
-                    .build();
-            } else {
-                voltageRegulation.setRegulating(regulationCapability && isValidTargetV(targetV));
-            }
-        } else if (voltageRegulation != null) {
+        // TargetV must be valid before the regulation is turned on,
+        // and the regulation must be turned off before assigning potentially invalid regulation values,
+        // to ensure consistency with the applied checks
+        if (regulatingOn && isValidTargetV(targetV)) {
+            generator.setLocalTargetV(targetV);
+            voltageRegulation.setRegulating(true);
+        } else {
             voltageRegulation.setRegulating(false);
+            generator.setLocalTargetV(targetV);
         }
     }
 
@@ -190,7 +201,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
             boundaryLine.getGeneration().setTargetP(0.0);
             boundaryLine.getGeneration().setTargetQ(0.0);
-            setRegulation(boundaryLine, targetV, false);
+            setRegulation(boundaryLine.getGeneration(), targetV, false);
         }
         boundaryLine.setP0(0.0);
         boundaryLine.setQ0(0.0);
@@ -211,18 +222,19 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             boundaryLine.setQ0(0.0);
             boundaryLine.getGeneration().setTargetP(getTargetP(updatedPowerFlow, boundaryLine.getGeneration(), context));
             boundaryLine.getGeneration().setTargetQ(getTargetQ(updatedPowerFlow, boundaryLine.getGeneration(), context));
-            setRegulation(boundaryLine, targetV, regulatingOn && isValidTargetV(targetV));
+            setRegulation(boundaryLine.getGeneration(), targetV, regulatingOn && isValidTargetV(targetV));
         } else {
             boundaryLine.setP0(getTargetP(updatedPowerFlow, boundaryLine, context));
             boundaryLine.setQ0(getTargetQ(updatedPowerFlow, boundaryLine, context));
         }
     }
 
-    private static void setRegulation(BoundaryLine boundaryLine, double targetV, boolean regulatingOn) {
+    private static void setRegulation(BoundaryLine.Generation generation, double targetV, boolean regulatingOn) {
+        Objects.requireNonNull(generation);
         if (regulatingOn) {
-            boundaryLine.getGeneration().setTargetV(targetV).setVoltageRegulationOn(true);
+            generation.setTargetV(targetV).setVoltageRegulationOn(true);
         } else {
-            boundaryLine.getGeneration().setVoltageRegulationOn(false).setTargetV(targetV);
+            generation.setVoltageRegulationOn(false).setTargetV(targetV);
         }
     }
 

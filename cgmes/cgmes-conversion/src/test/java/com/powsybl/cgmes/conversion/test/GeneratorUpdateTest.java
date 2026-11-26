@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +33,7 @@ class GeneratorUpdateTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml");
-        assertEquals(3, network.getGeneratorCount());
+        assertEquals(5, network.getGeneratorCount());
 
         assertEq(network);
     }
@@ -43,7 +41,7 @@ class GeneratorUpdateTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
-        assertEquals(3, network.getGeneratorCount());
+        assertEquals(5, network.getGeneratorCount());
 
         assertFirstSsh(network);
     }
@@ -51,7 +49,7 @@ class GeneratorUpdateTest {
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml");
-        assertEquals(3, network.getGeneratorCount());
+        assertEquals(5, network.getGeneratorCount());
 
         assertEq(network);
 
@@ -64,12 +62,20 @@ class GeneratorUpdateTest {
         assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "generator_SV.xml");
         assertFlowsAfterSv(network);
+
+        // Partial SSH: the synchronous machine has no referencePriority and no operatingMode, the external network
+        // injection has no controlEnabled and no referencePriority; the attributes that are present must still be applied
+        readCgmesResources(network, DIR, "generator_partial_SSH.xml");
+        assertEquals(170.0, network.getGenerator("SynchronousMachine").getTargetP(), 0.0);
+        assertEquals(-10.0, network.getGenerator("SynchronousMachine").getLocalTargetQ(), 0.0);
+        assertEquals(-20.0, network.getGenerator("ExternalNetworkInjection").getTargetP(), 0.0);
+        assertEquals(-10.0, network.getGenerator("ExternalNetworkInjection").getLocalTargetQ(), 0.0);
     }
 
     @Test
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml", "generator_SV.xml");
-        assertEquals(3, network.getGeneratorCount());
+        assertEquals(5, network.getGeneratorCount());
         assertFirstSsh(network);
         assertFlowsAfterSv(network);
 
@@ -100,21 +106,30 @@ class GeneratorUpdateTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getGenerator("SynchronousMachine"));
-        assertEq(network.getGenerator("ExternalNetworkInjection"));
-        assertEq(network.getGenerator("EquivalentInjection"));
+        assertEq(network.getGenerator("SynchronousMachine"), true);
+        assertEq(network.getGenerator("ExternalNetworkInjection"), false);
+        assertEq(network.getGenerator("EquivalentInjection"), false);
+        assertEq(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), false);
+        assertEq(network.getGenerator("EquivalentInjectionWithRegulationCapability"), true);
+
+        assertNotNull(network.getGenerator("SynchronousMachine").getProperty(PROPERTY_MODE));
+        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getProperty(PROPERTY_MODE));
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getGenerator("SynchronousMachine"), 160.0, 0.0, 405.0, RegulationMode.VOLTAGE, 0.0, 0);
-        assertSsh(network.getGenerator("ExternalNetworkInjection"), -0.0, -0.0, Double.NaN, null, 0.0, 0);
-        assertSsh(network.getGenerator("EquivalentInjection"), -184.0, 0.0, Double.NaN, RegulationMode.REACTIVE_POWER, 0.0, 0);
+        assertSsh(network.getGenerator("SynchronousMachine"), 160.0, 0.0, 405.0, RegulationMode.VOLTAGE, true, 0.0, 0);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -0.0, -0.0, Double.NaN, null, false, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjection"), -184.0, 0.0, Double.NaN, RegulationMode.REACTIVE_POWER, false, 0.0, 0);
+        assertSsh(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), 50.0, 10.0, Double.NaN, null, false, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjectionWithRegulationCapability"), -30.0, -10.0, 402.0, RegulationMode.VOLTAGE, true, 0.0, 0);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getGenerator("SynchronousMachine"), 165.0, -5.0, 410.0, RegulationMode.VOLTAGE, 0.9, 1);
-        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, null, 0.0, 2);
-        assertSsh(network.getGenerator("EquivalentInjection"), -174.0, -5.0, Double.NaN, RegulationMode.REACTIVE_POWER, 0.0, 0);
+        assertSsh(network.getGenerator("SynchronousMachine"), 165.0, -5.0, 410.0, RegulationMode.VOLTAGE, true, 0.9, 1);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, null, false, 0.0, 2);
+        assertSsh(network.getGenerator("EquivalentInjection"), -174.0, -5.0, Double.NaN, RegulationMode.REACTIVE_POWER, false, 0.0, 0);
+        assertSsh(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), 55.0, 15.0, Double.NaN, null, false, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjectionWithRegulationCapability"), -35.0, -15.0, 0.0, RegulationMode.VOLTAGE, false, 0.0, 0);
     }
 
     private static void assertFlowsBeforeSv(Network network) {
@@ -139,21 +154,21 @@ class GeneratorUpdateTest {
         assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), equivalentInjectionP, equivalentInjectionQ);
     }
 
-    private static void assertEq(Generator generator) {
+    private static void assertEq(Generator generator, boolean regulationCapability) {
         assertNotNull(generator);
         assertTrue(Double.isNaN(generator.getTargetP()));
         assertTrue(Double.isNaN(generator.getLocalTargetQ()));
         assertTrue(Double.isNaN(generator.getLocalTargetV()));
         assertNotNull(generator.getRegulatingTerminal());
+        assertFalse(generator.isRegulating());
 
-        String originalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
-        if (originalClass.equals(CgmesNames.SYNCHRONOUS_MACHINE)) {
+        assertEquals(regulationCapability, generator.getVoltageRegulation() != null);
+        if (generator.getProperty(PROPERTY_MODE) != null) {
             assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
-            assertNotNull(generator.getProperty(PROPERTY_MODE));
         }
     }
 
-    private static void assertSsh(Generator generator, double targetP, double targetQ, double targetV, RegulationMode regulationMode, double normalPF, int referencePriority) {
+    private static void assertSsh(Generator generator, double targetP, double targetQ, double targetV, RegulationMode regulationMode, boolean isRegulating, double normalPF, int referencePriority) {
         assertNotNull(generator);
         double tol = 0.0000001;
         assertEquals(targetP, generator.getTargetP(), tol);
@@ -171,6 +186,7 @@ class GeneratorUpdateTest {
         } else {
             assertNull(generator.getVoltageRegulation());
         }
+        assertEquals(isRegulating, generator.isRegulating());
 
         ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);
         if (activePowerControl != null) {

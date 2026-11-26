@@ -29,6 +29,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         implements ActivePowerControl<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivePowerControlImpl.class);
+    private static final String MIN_TARGET_P = "minTargetP";
+    private static final String MAX_TARGET_P = "maxTargetP";
     private final TBooleanArrayList participate;
 
     private final TDoubleArrayList droop;
@@ -53,6 +55,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
                                   double minTargetP,
                                   double maxTargetP) {
         super(component);
+        checkTargetPLimit(minTargetP, MIN_TARGET_P, component);
+        checkTargetPLimit(maxTargetP, MAX_TARGET_P, component);
+        checkLimitOrder(minTargetP, maxTargetP);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);
         this.droop = new TDoubleArrayList(variantArraySize);
@@ -60,16 +65,13 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         this.minTargetP = new TDoubleArrayList(variantArraySize);
         this.maxTargetP = new TDoubleArrayList(variantArraySize);
         this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
-        double checkedMinTargetP = checkTargetPLimit(minTargetP, "minTargetP", component);
-        double checkedMaxTargetP = checkTargetPLimit(maxTargetP, "maxTargetP", component);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
             this.participationFactor.add(participationFactor);
-            this.minTargetP.add(checkedMinTargetP);
-            this.maxTargetP.add(checkedMaxTargetP);
+            this.minTargetP.add(minTargetP);
+            this.maxTargetP.add(maxTargetP);
         }
-        checkLimitOrder(minTargetP, maxTargetP);
     }
 
     record PLimits(double minP, double maxP) { }
@@ -98,7 +100,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         return value;
     }
 
-    private double checkTargetPLimit(double targetPLimit, String name, T injection) {
+    private void checkTargetPLimit(double targetPLimit, String name, T injection) {
         PLimits pLimits = getPLimits(injection);
 
         if (!Double.isNaN(targetPLimit) && (targetPLimit < pLimits.minP || targetPLimit > pLimits.maxP)) {
@@ -107,11 +109,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
                     targetPLimit,
                     injection.getId()));
         }
-
-        return targetPLimit;
     }
 
-    private void checkLimitOrder(double minTargetP, double maxTargetP) {
+    private static void checkLimitOrder(double minTargetP, double maxTargetP) {
         if (!Double.isNaN(minTargetP) && !Double.isNaN(maxTargetP)
                 && minTargetP > maxTargetP) {
             throw new PowsyblException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
@@ -127,9 +127,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         boolean oldParticipate = this.participate.get(variantIndex);
         if (oldParticipate != participate) {
             this.participate.set(variantIndex, participate);
-            NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
-            String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
-            network.getListeners().notifyExtensionUpdate(this, "participate", variantId, oldParticipate, participate);
+            notifyUpdate("participate", oldParticipate, participate);
         }
     }
 
@@ -140,11 +138,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     public void setDroop(double droop) {
         int variantIndex = getVariantIndex();
         double oldDroop = this.droop.get(variantIndex);
-        if (oldDroop != droop) {
+        if (Double.compare(oldDroop, droop) != 0) {
             this.droop.set(variantIndex, droop);
-            NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
-            String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
-            network.getListeners().notifyExtensionUpdate(this, "droop", variantId, oldDroop, droop);
+            notifyUpdate("droop", oldDroop, droop);
         }
     }
 
@@ -153,7 +149,18 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public void setParticipationFactor(double participationFactor) {
-        this.participationFactor.set(getVariantIndex(), participationFactor);
+        int variantIndex = getVariantIndex();
+        double oldParticipationFactor = this.participationFactor.get(variantIndex);
+        if (Double.compare(oldParticipationFactor, participationFactor) != 0) {
+            this.participationFactor.set(variantIndex, participationFactor);
+            notifyUpdate("participationFactor", oldParticipationFactor, participationFactor);
+        }
+    }
+
+    private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
+        String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
+        network.getListeners().notifyExtensionUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -193,8 +200,14 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void setMinTargetP(double minTargetP) {
-        checkLimitOrder(minTargetP, maxTargetP.get(getVariantIndex()));
-        this.minTargetP.set(getVariantIndex(), checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
+        int variantIndex = getVariantIndex();
+        checkTargetPLimit(minTargetP, MIN_TARGET_P, getExtendable());
+        checkLimitOrder(minTargetP, maxTargetP.get(variantIndex));
+        double oldMinTargetP = this.minTargetP.get(variantIndex);
+        if (Double.compare(oldMinTargetP, minTargetP) != 0) {
+            this.minTargetP.set(variantIndex, minTargetP);
+            notifyUpdate(MIN_TARGET_P, oldMinTargetP, minTargetP);
+        }
     }
 
     @Override
@@ -205,7 +218,13 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void setMaxTargetP(double maxTargetP) {
-        checkLimitOrder(minTargetP.get(getVariantIndex()), maxTargetP);
-        this.maxTargetP.set(getVariantIndex(), checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
+        int variantIndex = getVariantIndex();
+        checkTargetPLimit(maxTargetP, MAX_TARGET_P, getExtendable());
+        checkLimitOrder(minTargetP.get(variantIndex), maxTargetP);
+        double oldMaxTargetP = this.maxTargetP.get(variantIndex);
+        if (Double.compare(oldMaxTargetP, maxTargetP) != 0) {
+            this.maxTargetP.set(variantIndex, maxTargetP);
+            notifyUpdate(MAX_TARGET_P, oldMaxTargetP, maxTargetP);
+        }
     }
 }

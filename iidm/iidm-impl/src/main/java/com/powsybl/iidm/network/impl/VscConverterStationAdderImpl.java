@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibilityForGeneratorConvention;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -98,7 +98,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
         // Backward compatibility
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
-            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
+            createVoltageRegulationBackwardCompatibilityForGeneratorConvention(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
         } else {
             // In the case of a vsc converter station with old setters and newVoltageRegulation method used
             // the old local attributes will be set without overriding the local attributes if already set

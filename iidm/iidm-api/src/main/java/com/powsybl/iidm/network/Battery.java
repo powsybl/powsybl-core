@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
@@ -128,6 +129,35 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     Battery setTargetQ(double targetQ);
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    double getLocalTargetQ();
+
+    /**
+     * Retrieves the regulating target reactive power.
+     * If the Battery is regulating in {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER},
+     * this is equal to the slope (tan phi) times the target active power.
+     * <p>Otherwise:</p>
+     * {@inheritDoc}
+     */
+    @Override
+    default double getRegulatingTargetQ() {
+        if (isWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)) {
+            return getVoltageRegulation().getSlope() * getTargetP();
+        }
+        return VoltageRegulationHolder.super.getRegulatingTargetQ();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    Battery setLocalTargetQ(double targetQ);
 
     /**
      * Get the minimal active power in MW.

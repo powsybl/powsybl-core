@@ -189,4 +189,19 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     VoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the load sign convention.</p>
+     */
+    @Override
+    double getLocalTargetQ();
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the load sign convention.</p>
+     */
+    @Override
+    VoltageSourceConverter setLocalTargetQ(double targetQ);
+
 }

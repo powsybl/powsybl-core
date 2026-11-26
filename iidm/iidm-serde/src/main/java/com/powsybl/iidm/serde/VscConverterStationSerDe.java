@@ -112,7 +112,7 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
                     if (regulationMode == RegulationMode.VOLTAGE) {
                         VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
                     } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
-                        VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
+                        VoltageRegulationSerDe.storeExtraProperties(vsc, -vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
                     }
                 });
             }
@@ -141,6 +141,10 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
     protected void readSubElements(String id, VscConverterStationAdder adder, List<Consumer<VscConverterStation>> toApply, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
+                    ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(toApply, context);
+                }
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(toApply, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
                 case REGULATING_TERMINAL -> {

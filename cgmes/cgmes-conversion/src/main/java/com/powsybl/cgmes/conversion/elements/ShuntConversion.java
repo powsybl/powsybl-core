@@ -133,13 +133,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         if (voltageRegulation == null) {
             return;
         }
-        voltageRegulation.setRegulating(regulatingOn);
-        if (shuntCompensator.hasRegulatingTerminal()) {
-            voltageRegulation.setTargetValue(targetV);
-        } else {
-            shuntCompensator.setLocalTargetV(targetV);
-        }
-        voltageRegulation.setTargetDeadband(targetDeadband);
+        setVoltageRegulation(shuntCompensator, targetV, targetDeadband, regulatingOn);
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {

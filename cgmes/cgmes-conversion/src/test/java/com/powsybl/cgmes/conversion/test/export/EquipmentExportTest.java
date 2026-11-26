@@ -606,6 +606,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testExportEquivalentInjectionRegulationCapability() throws IOException {
+        // Regulation of the equivalent injection with regulation capability is switched off by the second SSH
+        Network network = readCgmesResources("/update/generator/", "generator_EQ.xml");
+        readCgmesResources(network, "/update/generator/", "generator_SSH.xml");
+        readCgmesResources(network, "/update/generator/", "generator_SSH_1.xml");
+
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("false", getRegulationCapability(eqFile, "EquivalentInjection"));
+        assertEquals("true", getRegulationCapability(eqFile, "EquivalentInjectionWithRegulationCapability"));
+    }
+
+    private static String getRegulationCapability(String eqFile, String equivalentInjectionId) {
+        return getAttribute(getElement(eqFile, CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId), "EquivalentInjection.regulationCapability");
+    }
+
+    @Test
     void testExportEquivalentInjectionBaseVoltage() throws IOException {
         // Ensure equivalent injections outside boundaries are exported with a reference to a base voltage
 
@@ -1080,6 +1096,16 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
 
+            // RTC local without mode (not regulating): must not throw, but be exported as voltage
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false).setMode(null);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+
+            // RTC with VOLTAGE regulation but no terminal (as created by the IEEE CDF importer): controlled at its own end
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setMode(RegulationMode.VOLTAGE)
+                    .setTerminal(null, Double.NaN);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
             // RTC local with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1190,6 +1216,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, svcRcId, localTerminalId, "voltage");
+            network.getStaticVarCompensator("SVC2").getVoltageRegulation().setRegulating(false).setMode(null); // null mode only when regulating is false
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, svcRcId, localTerminalId, "voltage");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
@@ -1241,6 +1270,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, shuntRcId, localTerminalId, "voltage");
             testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network.getShuntCompensator("SHUNT").getVoltageRegulation().setRegulating(false).setMode(null);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, shuntRcId, localTerminalId, "voltage");
 
             network = ShuntTestCaseFactory.createDisabledLocalLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1336,6 +1369,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, rcID, remoteTerminalId, "reactivePower");
 
+            // Generator with null mode (regulating is false)
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false).setMode(null);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, rcID, remoteTerminalId, "voltage");
+
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1414,7 +1452,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMaxP(100.0)
                 .setTargetP(25.0)
                 .setLocalTargetQ(10.0)
-                .setCondenser(true)
+                .setCondenserCapability(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();

@@ -35,6 +35,7 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.getSignToUseLoadSignConvention;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -98,6 +99,9 @@ public final class SteadyStateHypothesisExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+                // We keep this check to ensure that xiidm files generated with version up to V7.4.0,
+                // in which zero-impedance branches were imported as switches,
+                // continue to be exported to CGMES as before. This code can be removed in the future.
                 if (!isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
                     writeSwitch(sw, cimNamespace, writer, context);
                 }
@@ -118,7 +122,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static boolean isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(String switchType) {
-        return "ACLineSegment".equals(switchType) || "EquivalentBranch".equals(switchType) || "SeriesCompensator".equals(switchType);
+        return CgmesNames.AC_LINE_SEGMENT.equals(switchType) || CgmesNames.EQUIVALENT_BRANCH.equals(switchType) || CgmesNames.SERIES_COMPENSATOR.equals(switchType);
     }
 
     private static boolean isConnected(Switch sw, String switchType) {
@@ -410,7 +414,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Battery || i instanceof Generator gen && gen.isCondenser());
+        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Battery || i instanceof Generator gen && gen.hasCondenserCapability());
         return obtainOperatingMode(targetP, i, calculatedKind);
     }
 
@@ -532,11 +536,13 @@ public final class SteadyStateHypothesisExport {
             String targetValueUnitMultiplier;
             String mode = getRegulatingControlMode(voltageRegulation);
             if (REGULATING_CONTROL_REACTIVE_POWER.equals(mode)) {
-                // Generator are in generator sign convention in IIDM and load sign convention in CGMES
+                // The returned targetQ use the sign convention of the regulation holder
                 targetValue = regulationHolder.getRegulatingTargetQ();
-                if (regulationHolder instanceof Generator) {
-                    targetValue = -targetValue;
-                }
+                // Generator, Battery and VscConverterStation are in generator sign convention in IIDM
+                // and load sign convention in CGMES
+                // We need to negate the target value to convert it to load sign convention for CGMES
+                int signToUseLoadConvention = getSignToUseLoadSignConvention(regulationHolder);
+                targetValue = signToUseLoadConvention * targetValue;
                 targetValueUnitMultiplier = "M";
             } else if (REGULATING_CONTROL_VOLTAGE.equals(mode)) {
                 targetValue = regulationHolder.getRegulatingTargetV();
@@ -819,7 +825,7 @@ public final class SteadyStateHypothesisExport {
 
         String acdcConverterDcTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation2(), ALIAS_DC_TERMINAL1);
         writeDCTerminal(acdcConverterDcTerminal2, ACDC_CONVERTER_DC_TERMINAL, true, cimNamespace, writer, context);
-        String acdcConverterDcTerminal2G = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation1(), ALIAS_DC_TERMINAL2);
+        String acdcConverterDcTerminal2G = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation2(), ALIAS_DC_TERMINAL2);
         writeDCTerminal(acdcConverterDcTerminal2G, ACDC_CONVERTER_DC_TERMINAL, true, cimNamespace, writer, context);
 
         String dcTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(line, ALIAS_DC_TERMINAL1);
