@@ -24,6 +24,18 @@ import static com.powsybl.ampl.converter.AmplConstants.MAX_Q_TARGET_P;
 import static com.powsybl.ampl.converter.AmplConstants.MIN_Q_TARGET_P;
 
 /**
+ * AMPL columns exporter for version {@link AmplExportVersion#V1_4} of the AMPL export format.
+ * <p>
+ * Extends {@link ExtendedAmplExporterV3} by adding the following columns:
+ * <ul>
+ *     <li>generators and batteries: minimum and maximum reactive power at target P, whether
+ *     the reactive power per active power regulation is in use ({@code Q/P in use}) and its
+ *     slope ({@code Q/P slope}, {@code NaN} when not in use);</li>
+ *     <li>VSC converter stations: minimum and maximum reactive power at target P.</li>
+ * </ul>
+ * For reactive capability curves, the reactive limits at target P are computed with extrapolation
+ * beyond the curve bounds.
+ *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class ExtendedAmplExporterV4 extends ExtendedAmplExporterV3 {

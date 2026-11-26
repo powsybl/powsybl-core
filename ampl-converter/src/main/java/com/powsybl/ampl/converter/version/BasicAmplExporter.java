@@ -43,6 +43,16 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private final int actionNum;
     private HashMap<String, HvdcLine> hvdcLinesMap;
 
+    /**
+     * Creates a basic AMPL columns exporter.
+     *
+     * @param config       the AMPL export configuration
+     * @param network      the network to export
+     * @param mapper       the mapper between network element ids and AMPL numbers
+     * @param variantIndex the index of the exported variant
+     * @param faultNum     the fault number written in the exported files
+     * @param actionNum    the action number written in the exported files
+     */
     public BasicAmplExporter(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
                              int variantIndex, int faultNum, int actionNum) {
 
@@ -470,6 +480,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to an HVDC line row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param hvdcLine        the exported HVDC line
+     */
     public void addAdditionalCellsHvdcLine(TableFormatterHelper formatterHelper,
                                            HvdcLine hvdcLine) {
         // Nothing to do here
@@ -508,6 +524,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to an LCC converter station row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param lccStation      the exported LCC converter station
+     */
     public void addAdditionalCellsLccConverterStation(TableFormatterHelper formatterHelper,
                                                       LccConverterStation lccStation) {
         // Nothing to do here
@@ -562,6 +584,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to a VSC converter station row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param vscStation      the exported VSC converter station
+     */
     public void addAdditionalCellsVscConverterStation(TableFormatterHelper formatterHelper, VscConverterStation vscStation) {
         // Nothing to do here
     }
@@ -674,6 +702,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
     }
 
+    /**
+     * Hook to add version-specific cells to a bus row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param b               the exported bus
+     */
     public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
         // Nothing to do here
     }
@@ -712,6 +746,14 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to the row of a three windings transformer middle bus.
+     * Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param twt             the three windings transformer
+     * @param middleCcNum     the connected component number of the middle bus
+     */
     public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
                                                                              ThreeWindingsTransformer twt,
                                                                              int middleCcNum) {
@@ -754,6 +796,14 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to the row of a boundary line middle bus.
+     * Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param dl              the boundary line
+     * @param middleCcNum     the connected component number of the middle bus
+     */
     public void addAdditionalCellsBoundaryLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
                                                           int middleCcNum) {
         // Nothing to do here
@@ -786,6 +836,14 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to the row of a tie line middle bus.
+     * Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param tieLine         the tie line
+     * @param xNodeCcNum      the connected component number of the middle bus
+     */
     public void addAdditionalCellsTieLineMiddleBuses(TableFormatterHelper formatterHelper, TieLine tieLine,
                                                      int xNodeCcNum) {
         // Nothing to do here
@@ -1364,6 +1422,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to a generator row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param gen             the exported generator
+     */
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
         // Nothing to do here
     }
@@ -1409,6 +1473,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to a battery row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param battery         the exported battery
+     */
     public void addAdditionalCellsBattery(TableFormatterHelper formatterHelper, Battery battery) {
         // Nothing to do here
     }
@@ -1456,6 +1526,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to a static VAR compensator row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param svc             the exported static VAR compensator
+     */
     public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
                                                        StaticVarCompensator svc) {
         // Nothing to do here
@@ -1492,6 +1568,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to the row of the fictitious voltage level of a boundary line.
+     * Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param dl              the boundary line
+     */
     public void addAdditionalCellsBoundaryLineVoltageLevel(TableFormatterHelper formatterHelper,
                                                            BoundaryLine dl) {
         // Nothing to do here
@@ -1530,6 +1613,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
+    /**
+     * Hook to add version-specific cells to the row of the fictitious voltage level of a three windings
+     * transformer. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param twt             the three windings transformer
+     */
     public void addAdditionalCellsThreeWindingsTransformerVoltageLevel(TableFormatterHelper formatterHelper,
                                                                        ThreeWindingsTransformer twt) {
         // Nothing to do here
@@ -1560,6 +1650,15 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
     }
 
+    /**
+     * Hook to add version-specific cells to a ratio tap changer step row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param id              the id of the tap changer table
+     * @param zb2             the base impedance on side 2
+     * @param reactance       the reactance of the transformer
+     * @param rtc             the ratio tap changer
+     */
     public void addAdditionalCellsRatioTapChangerStep(TableFormatterHelper formatterHelper,
                                                       String id, double zb2, double reactance,
                                                       RatioTapChanger rtc) {
@@ -1591,6 +1690,15 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
     }
 
+    /**
+     * Hook to add version-specific cells to a phase tap changer step row. Does nothing in the basic version.
+     *
+     * @param formatterHelper the helper collecting the cells of the row
+     * @param id              the id of the tap changer table
+     * @param zb2             the base impedance on side 2
+     * @param reactance       the reactance of the transformer
+     * @param ptc             the phase tap changer
+     */
     public void addAdditionalCellsPhaseTapChangerStep(TableFormatterHelper formatterHelper,
                                                       String id, double zb2, double reactance,
                                                       PhaseTapChanger ptc) {
@@ -1648,26 +1756,44 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         return Double.NaN;
     }
 
+    /**
+     * @return the AMPL export configuration
+     */
     public AmplExportConfig getConfig() {
         return config;
     }
 
+    /**
+     * @return the exported network
+     */
     public Network getNetwork() {
         return network;
     }
 
+    /**
+     * @return the mapper between network element ids and AMPL numbers
+     */
     public StringToIntMapper<AmplSubset> getMapper() {
         return mapper;
     }
 
+    /**
+     * @return the index of the exported variant
+     */
     public int getVariantIndex() {
         return variantIndex;
     }
 
+    /**
+     * @return the fault number written in the exported files
+     */
     public int getFaultNum() {
         return faultNum;
     }
 
+    /**
+     * @return the action number written in the exported files
+     */
     public int getActionNum() {
         return actionNum;
     }
