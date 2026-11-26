@@ -9,7 +9,11 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.violations.LimitViolation;
@@ -22,10 +26,27 @@ import java.util.List;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
+public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> implements ContextualDeserializer {
+
+    private final transient JsonDeserializer<Object> limitViolationsDeserializer;
+    private final transient JsonDeserializer<Object> actionsTakenDeserializer;
 
     public LimitViolationResultDeserializer() {
+        this(null, null);
+    }
+
+    public LimitViolationResultDeserializer(JsonDeserializer<Object> limitViolationsDeserializer, JsonDeserializer<Object> actionsTakenDeserializer) {
         super(LimitViolationsResult.class);
+        this.limitViolationsDeserializer = limitViolationsDeserializer;
+        this.actionsTakenDeserializer = actionsTakenDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new LimitViolationResultDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, LimitViolation.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     @Override
@@ -42,12 +63,12 @@ public class LimitViolationResultDeserializer extends StdDeserializer<LimitViola
 
                 case "limitViolations":
                     parser.nextToken();
-                    limitViolations = JsonUtil.readList(deserializationContext, parser, LimitViolation.class);
+                    limitViolations = JsonUtil.readList(limitViolationsDeserializer, deserializationContext, parser, LimitViolation.class);
                     break;
 
                 case "actionsTaken":
                     parser.nextToken();
-                    actionsTaken = JsonUtil.readList(deserializationContext, parser, String.class);
+                    actionsTaken = JsonUtil.readList(actionsTakenDeserializer, deserializationContext, parser, String.class);
                     break;
 
                 default:
