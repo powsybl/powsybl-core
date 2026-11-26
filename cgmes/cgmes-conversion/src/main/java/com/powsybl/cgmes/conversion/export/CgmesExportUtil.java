@@ -64,8 +64,8 @@ public final class CgmesExportUtil {
 
     private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)_?[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
     private static final Pattern URN_UUID_PATTERN = Pattern.compile("(?i)urn:uuid:[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
-    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
-    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)_?[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)_?[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
     private static double fixValue(double value, double defaultValue) {
         return Double.isNaN(value) ? defaultValue : value;
@@ -474,16 +474,16 @@ public final class CgmesExportUtil {
         if (i instanceof Battery battery) {
             return obtainSynchronousMachineKind(battery, battery.getMinP(), battery.getMaxP(), obtainCurve(battery), true);
         } else if (i instanceof Generator generator) {
-            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.isCondenser());
+            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.hasCondenserCapability());
         }
         throw new IllegalStateException("Unexpected machine kind: " + i.getClass().getName());
     }
 
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
-    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean hasCondenserCapability) {
         String kind = i.getProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, isCondenser);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, hasCondenserCapability);
         if (kind == null) {
             return calculatedKind;
         } else if (calculatedKind.contains(kind)) {
@@ -494,12 +494,12 @@ public final class CgmesExportUtil {
         }
     }
 
-    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean hasCondenserCapability) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (!isCondenser) {
+        if (!hasCondenserCapability) {
             kind = getKindNotCondenser(min, max);
         } else {
             kind = getKindCondenser(min, max);
@@ -527,6 +527,14 @@ public final class CgmesExportUtil {
         return "generatorOrMotor";
     }
 
+    /**
+     * Determines the CGMES regulating control mode kind corresponding to the given voltage regulation.
+     *
+     * @param voltageRegulation the IIDM voltage regulation containing the regulation mode to convert
+     * @return the CGMES {@code RegulatingControlModeKind} string representation (e.g. {@code "RegulatingControlModeKind.voltage"}
+     *         or {@code "RegulatingControlModeKind.reactivePower"})
+     * @throws IllegalStateException if the regulation mode is {@code null} or unsupported
+     */
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         if (regulationMode == null) {
@@ -539,8 +547,8 @@ public final class CgmesExportUtil {
             }
         }
         return switch (regulationMode) {
+            case REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
             case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-            case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
         };
     }
 

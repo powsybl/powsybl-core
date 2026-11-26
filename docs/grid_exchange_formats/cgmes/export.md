@@ -220,6 +220,9 @@ The following sections describe in detail how each supported PowSyBl network mod
 
 PowSyBl [`Battery`](../../grid_model/network_subnetwork.md#battery) is exported as `SynchronousMachine` with `HydroGeneratingUnit`.
 
+As a `Battery` has no rated apparent power in IIDM, the `RotatingMachine.ratedS` is always computed from its active and reactive power limits,
+as explained in the generator section. See [rated apparent power](#rated-apparent-power-eq).
+
 <span style="color: red">TODO details</span>
 
 (cgmes-busbar-section-export)=
@@ -303,6 +306,18 @@ Specific `VoltageSourceConverter` attributes:
 
 PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
 
+#### Rated apparent power (EQ)
+
+The `RotatingMachine.ratedS` is exported in the EQ profile from the IIDM `RatedS` of the generator.
+As this field is mandatory and must be greater than zero, if the generator does not have a `RatedS` (as well as for batteries, which never have one),
+a default value is computed from its active power limits and its [reactive limits](../../grid_model/additional.md#reactive-limits).
+This default value is the maximum of the following values:
+- the absolute values of the minimum and the maximum active power limits, $|minP|$ and $|maxP|$,
+- if the reactive limits are of kind `MIN_MAX`, the absolute values of the minimum and the maximum reactive power limits, $|minQ|$ and $|maxQ|$,
+- if the reactive limits are a reactive capability curve, for each point $(P, minQ, maxQ)$ of the curve:
+  - the absolute values $|P|$, $|minQ|$ and $|maxQ|$,
+  - the apparent powers $\sqrt{P^2 + minQ^2}$ and $\sqrt{P^2 + maxQ^2}$.
+
 #### Regulating control
 
 If the network comes from a CIM-CGMES model and a generator initially has a `RegulatingControl`, it will still have one at export.
@@ -317,13 +332,13 @@ with the `enabled` activated and the generator attribute `voltageRegulatorOn` se
 #### SynchronousMachine type (EQ) and operatingMode (SSH)
 
 The `SynchronousMachine.type` is exported in the EQ profile depending on the [reactive limits](../../grid_model/additional.md#reactive-limits) of the
-generator or battery and its capacity to behave like a condenser (a battery can behave like a condenser but does not have the flag `isCondenser` so we consider it as `true`):
-- if the flag `isCondenser` is `true`:
+generator or battery and its capacity to behave like a condenser (a battery can behave like a condenser but does not have the flag `hasCondenserCapability` so we consider it as `true`):
+- if the flag `hasCondenserCapability` is `true`:
   - if the minimum and the maximum active power limit are positive, then the generator or battery will be exported as `generatorOrCondenser`,
   - if the minimum and the maximum active power limit are negative, then the generator or battery will be exported as `motorOrCondenser`,
   - if the minimum and the maximum active power limit are both equal to zero, then the generator or battery will be exported as `condenser`,
   - otherwise, the generator or battery will be exported as `generatorOrCondenserOrMotor`.
-- if the flag `isCondenser` is `false`:
+- if the flag `hasCondenserCapability` is `false`:
   - if the minimum active power limit is positive, then the generator or battery will be exported as `generator`,
   - if the maximum active power limit is negative, then the generator or battery will be exported as `motor`,
   - otherwise, the generator will be exported as `generatorOrMotor`.

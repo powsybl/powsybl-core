@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteRegulation;
 import com.powsybl.ucte.network.io.UcteReader;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
@@ -323,6 +325,61 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testSingleStepTapChangers() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        String rtcId = "0BBBBB5  0AAAAA2  1";
+        String asymId = "HDDDDD2  HCCCCC1  1";
+        String symmId = "ZABCD221 ZEFGH221 1";
+        network.getTwoWindingsTransformer(rtcId).newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .setLoadTapChangingCapabilities(false)
+                .beginStep().setRho(1.0).endStep()
+                .add();
+        network.getTwoWindingsTransformer(asymId).newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep().setRho(1.0).setAlpha(0.0).endStep()
+                .add();
+        network.getTwoWindingsTransformer(symmId).newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep().setRho(1.0).setAlpha(0.0).endStep()
+                .add();
+
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, new Properties(), dataSource, reportNode);
+
+        UcteNetwork ucteNetwork;
+        try (InputStream is = dataSource.newInputStream(null, "uct")) {
+            ucteNetwork = new UcteReader().read(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)), ReportNode.NO_OP);
+        }
+        for (UcteRegulation regulation : ucteNetwork.getRegulations()) {
+            String id = regulation.getTransfoId().toString();
+            assertNotEquals(rtcId, id);
+            assertNotEquals(symmId, id);
+            if (id.equals(asymId)) {
+                assertNotNull(regulation.getPhaseRegulation());
+                assertNull(regulation.getAngleRegulation());
+            }
+        }
+        assertTrue(UcteExporterReportTest.checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         0BBBBB5  0AAAAA2  1 [ratio tap changer] - tap changer with a single step not exported
+                         HDDDDD2  HCCCCC1  1 [phase tap changer] - tap changer with a single step not exported
+                         ZABCD221 ZEFGH221 1 [phase tap changer] - tap changer with a single step not exported
+                   Network exported to file .uct
+                """, reportNode));
+    }
+
+    @Test
     void testNominalPowerExport() {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         // Transformer 1: nominal power from ratedS
@@ -345,12 +402,84 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testNominalPowerRoundTrip() throws IOException {
+        testExporter(loadNetworkFromResourceFile("/nominalPower.uct"), "/expectedExportNominalPower.uct");
+    }
+
+    @Test
     void roundTripOfCombineRtcAndPtc() throws IOException {
         Properties parameters = new Properties();
         parameters.put("ucte.import.combine-phase-angle-regulation", "true");
         parameters.put("ucte.export.combine-phase-angle-regulation", "true");
         Network network = loadNetworkFromResourceFile("/expectedExport5.uct", parameters);
         testExporter(network, "/expectedExport5.uct", parameters);
+    }
+
+    /**
+     * Several loads or generators on a bus are aggregated into one node: loads, generation and finite limits are
+     * summed, a "no limit" or out of bounds limit is left undefined, and mixed power plant types give type F.
+     * Disconnected loads and generators are not aggregated. See
+     * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases.
+     */
+    @Test
+    void testExportMultipleInjectionsAggregation() {
+        Network network = UcteExporterTestNetworks.createWithMultipleInjections();
+
+        assertTxtEquals("""
+                ##C 2007.05.01
+                Generated by powsybl, <export date>
+                Case date: 2026-01-01T00:00+01:00
+                ##N
+                ##ZFR
+                FCASE171              0 0        15.0000 3.00000 0.00000 0.00000
+                FCASE271              0 0        0.00000 0.00000 -150.00 -8.0000 -15.000 -300.00 70.0000 -70.000                               F
+                FCASE371              0 0        0.00000 0.00000 -200.00 0.00000 -0.0000 -400.00 220.000 -220.00                               F
+                FCASE471              0 0        0.00000 0.00000 -20.000 0.00000 -3.0000                                                       F
+                FCASE571              0 0        0.00000 0.00000 -20.000 0.00000 -3.0000                                                       F
+                FCASE671              0 0        0.00000 0.00000 -20.000 0.00000 -0.0000                                                       F
+                FCASE771              0 0        0.00000 0.00000 -20.000 0.00000 -0.0000 -200.00                                               F
+                FCASE871              0 0        0.00000 0.00000 -20.000 0.00000 -0.0000 -200.00                                               H
+                FCASE971              0 0        10.0000 2.00000 -100.00 0.00000 -0.0000 -200.00                                               H
+                FREMOT11              0 0        1.00000 1.00000 0.00000 0.00000
+                ##L
+                ##T
+                ##R
+                """, exportToString(new UcteExporter(), network));
+    }
+
+    /**
+     * The voltage reference of a node with several generators: local targets are preferred over rescaled remote
+     * ones, themselves preferred over targets of non-regulating generators, then the target of the generator with
+     * the largest targetP is kept (smallest id on ties). A generator whose regulated terminal is disconnected provides
+     * no voltage reference, and a node without voltage reference is exported as PQ. See {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases.
+     */
+    @Test
+    void testExportMultipleGeneratorsVoltageReference() {
+        Network network = UcteExporterTestNetworks.createWithMultipleVoltageTargets();
+
+        assertTxtEquals("""
+                ##C 2007.05.01
+                Generated by powsybl, <export date>
+                Case date: 2026-01-01T00:00+01:00
+                ##N
+                ##ZFR
+                FCASE171              0 2 23.000 0.00000 0.00000 -300.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE271              0 2 22.000 0.00000 0.00000 -200.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE371              0 2 22.500 1.00000 1.00000 -100.00 0.00000 -0.0000 -1000.0                                               F
+                FCASE471              0 2 22.381 0.00000 0.00000 -100.00 0.00000 -0.0000 -1000.0                                               F
+                FCASE571              0 2 22.000 0.00000 0.00000 -510.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE671              0 0 23.000 0.00000 0.00000 -30.000 0.00000 -0.0000 -200.00                                               F
+                FCASE771              0 2 22.000 0.00000 0.00000 -510.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE871              0 2 22.381 0.00000 0.00000 -510.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE971              0 0        0.00000 0.00000 -10.000 0.00000 -0.0000 -100.00                                               F
+                FCASEA71              0 2 22.500 0.00000 0.00000 -100.00 0.00000 -0.0000 -1000.0                                               F
+                FCASEB71              0 0        0.00000 0.00000 -100.00 0.00000 -0.0000 -1000.0                                               F
+                FCASEC71              0 2 23.000 0.00000 0.00000 -110.00 0.00000 -0.0000 -1100.0                                               F
+                FREMOT11              0 0        1.00000 1.00000 0.00000 0.00000
+                ##L
+                ##T
+                ##R
+                """, exportToString(new UcteExporter(), network));
     }
 
     private static String exportWithPostProcessors(String postProcessors, ReportNode reportNode) throws IOException {
@@ -533,5 +662,77 @@ class UcteExporterTest extends AbstractSerDeTest {
         UcteExporter exporter = new UcteExporter();
         PowsyblException e = assertThrows(PowsyblException.class, () -> exporter.export(network, parameters, dataSource));
         assertEquals("UCTE export post-processor 'unknown' not found", e.getMessage());
+    }
+
+    /**
+     * Tap changers are renumbered around their neutral tap, and their range is extended to stay symmetric. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void testExportTapChangers() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        assertTxtEquals("""
+                ##C 2007.05.01
+                Generated by powsybl, <export date>
+                Case date: 2026-01-01T00:00+01:00
+                ##N
+                ##ZFR
+                FADEVI11              0 0        0.00000 0.00000 0.00000 0.00000
+                FADEVI12              0 0        0.00000 0.00000 0.00000 0.00000
+                FALINE11              0 0        0.00000 0.00000 0.00000 0.00000
+                FALINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                FAROUN11              0 0        0.00000 0.00000 0.00000 0.00000
+                FAROUN12              0 0        0.00000 0.00000 0.00000 0.00000
+                FPCLOS11              0 0        0.00000 0.00000 0.00000 0.00000
+                FPCLOS12              0 0        0.00000 0.00000 0.00000 0.00000
+                FPTIEB11              0 0        0.00000 0.00000 0.00000 0.00000
+                FPTIEB12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRDEVI11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRDEVI12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLINE11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLOWX11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLOWX12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRROUN11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRROUN12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRSHAP11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRSHAP12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRTIEB11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRTIEB12              0 0        0.00000 0.00000 0.00000 0.00000
+                FSDEVI11              0 0        0.00000 0.00000 0.00000 0.00000
+                FSDEVI12              0 0        0.00000 0.00000 0.00000 0.00000
+                FSLINE11              0 0        0.00000 0.00000 0.00000 0.00000
+                FSLINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                ##L
+                ##T
+                FADEVI11 FADEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FALINE11 FALINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FAROUN11 FAROUN12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FPCLOS11 FPCLOS12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FPTIEB11 FPTIEB12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRDEVI11 FRDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRLINE11 FRLINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRLOWX11 FRLOWX12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRROUN11 FRROUN12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRSHAP11 FRSHAP12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRTIEB11 FRTIEB12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FSDEVI11 FSDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FSLINE11 FSLINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                ##R
+                FADEVI11 FADEVI12 1                    25.00 60.00  2   0       ASYM
+                FALINE11 FALINE12 1                    25.00 60.00  1   0       ASYM
+                FAROUN11 FAROUN12 1                    1.234 60.00 10   0       ASYM
+                FPCLOS11 FPCLOS12 1                    -0.87 90.00  3  -1       SYMM
+                FPTIEB11 FPTIEB12 1                    10.08 -119.  2   0       ASYM
+                FRDEVI11 FRDEVI12 1 2.000  2   0
+                FRLINE11 FRLINE12 1 2.000  2   0
+                FRLOWX11 FRLOWX12 1 2.000  3   0
+                FRROUN11 FRROUN12 1 1.234 10   0
+                FRSHAP11 FRSHAP12 1 -5.05  3  -1
+                FRTIEB11 FRTIEB12 1 -10.0  1   0
+                FSDEVI11 FSDEVI12 1                    146.6 90.00  1   0       SYMM
+                FSLINE11 FSLINE12 1                    200.0 90.00  1   0       SYMM
+                """, exportToString(new UcteExporter(), network));
     }
 }
