@@ -153,6 +153,41 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
+     * Checks the entries reported for tap changers that don't fit the UCTE-DEF model: tap range extended to be centered
+     * on the neutral tap, and tap steps deviating from the constant-step model. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void testTapChangerReports() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 0 positions, high side spans 1)
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 1 positions, high side spans 3)
+                         FRDEVI11 FRDEVI12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
+                         FPCLOS11 FPCLOS12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPTIEB11 FPTIEB12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FSDEVI11 FSDEVI12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FADEVI11 FADEVI12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
      * Checks the entries reported when several generators or loads are aggregated on a bus. See
      * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases: only the out of bounds aggregated
      * maxP ({@code CASE6}) and the mixed power plant types ({@code CASE7}) are reported, a disconnected generator of
