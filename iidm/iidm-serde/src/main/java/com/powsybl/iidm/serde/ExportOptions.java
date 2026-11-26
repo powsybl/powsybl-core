@@ -85,9 +85,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private boolean withAutomationSystems = true;
 
     /**
-     * List of variant id to export, no variant are exported by default
+     * List of variant ids to export. No variant is exported by default.
      */
     private Collection<String> exportedVariants = Collections.emptyList();
+
     public ExportOptions() {
     }
 
