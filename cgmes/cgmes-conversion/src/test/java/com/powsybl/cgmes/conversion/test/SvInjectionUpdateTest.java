@@ -76,24 +76,24 @@ class SvInjectionUpdateTest {
     @Test
     void removeAllPropertiesAndAliasesTest() {
         Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
-        assertOnlyOriginalClassPropertyAndNoAliases(network, false);
+        assertOnlyOriginalClassPropertyAndNoAliases(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
-        assertPropertiesAndAliasesEmpty(network, true);
+        assertPropertiesAndAliasesEmpty(network);
     }
 
-    private static void assertOnlyOriginalClassPropertyAndNoAliases(Network network, boolean expected) {
-        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+    private static void assertOnlyOriginalClassPropertyAndNoAliases(Network network) {
+        assertFalse(network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
         assertTrue(network.getLoadStream().allMatch(load -> load.getPropertyNames().size() == 1 && load.getPropertyNames().contains(PROPERTY_CGMES_ORIGINAL_CLASS)));
         assertTrue(network.getLoadStream().allMatch(load -> load.getAliases().isEmpty()));
     }
 
-    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
-        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+    private static void assertPropertiesAndAliasesEmpty(Network network) {
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
         assertTrue(network.getLoadStream().allMatch(load -> load.getPropertyNames().isEmpty()));
