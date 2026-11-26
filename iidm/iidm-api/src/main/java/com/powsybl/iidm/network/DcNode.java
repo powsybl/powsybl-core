@@ -74,7 +74,7 @@ package com.powsybl.iidm.network;
  * <p>
  * The voltage limits bound the magnitude of the voltage returned by {@link #getV()}. The DC Node is within its
  * limits when {@code LowVoltageLimit < |V| < HighVoltageLimit}, an undefined
- * limit imposing no bound. The limits must be positive or zero, and
+ * limit imposing no bound. The limits must be positive, zero or NaN (undefined), and
  * {@code LowVoltageLimit <= HighVoltageLimit}.
  * </p>
  *

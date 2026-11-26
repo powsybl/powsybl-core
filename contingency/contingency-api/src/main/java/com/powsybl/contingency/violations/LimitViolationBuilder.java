@@ -138,7 +138,7 @@ public class LimitViolationBuilder {
 
     /**
      * @param side The side of the equipment where the violation occurred. Must not be {@code null}: to build a violation
-     *             without side, do not call this method.
+     *             without side, do not call any {@code side()} method (by default a violation doesn't have a side).
      * @return this {@link LimitViolationBuilder}
      */
     public LimitViolationBuilder side(ThreeSides side) {
@@ -148,7 +148,7 @@ public class LimitViolationBuilder {
 
     /**
      * @param side The side of the equipment where the violation occurred. Must not be {@code null}: to build a violation
-     *             without side, do not call this method.
+     *             without side, do not call any {@code side()} method (by default a violation doesn't have a side).
      * @return this {@link LimitViolationBuilder}
      */
     public LimitViolationBuilder side(TwoSides side) {
