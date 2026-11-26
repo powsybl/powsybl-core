@@ -856,15 +856,60 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Resolves, eagerly, the deserializer of a nested type. The three {@code build*Deserializer} methods are meant to be
+     * called from {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}.
+     * <p>Since the resolution is transitive (nested deserializers are themselves contextual), the whole deserializer tree
+     * is built when the root deserializer is contextualized, i.e. <b>before</b> any JSON content is read. Consequently:
+     * <ul>
+     *     <li>nothing read from the {@link DeserializationContext} (attributes such as a source version) can be used in
+     *     {@code createContextual} or in constructors: it is not set yet. Version-dependent logic must stay in
+     *     {@code deserialize};</li>
+     *     <li>the deserializers must be stateless: they are shared by every {@code deserialize} call;</li>
+     *     <li>the type graph must not contain cycles, otherwise the resolution does not terminate;</li>
+     *     <li>a missing or failing nested deserializer is reported when the root type is first used, not when the field
+     *     is reached.</li>
+     * </ul>
+     */
     public static JsonDeserializer<Object> buildValueDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
         return ctxt.findContextualValueDeserializer(ctxt.constructType(valueClass), property);
     }
 
+    /**
+     * Resolves, eagerly, the deserializer of a nested type. The three {@code build*Deserializer} methods are meant to be
+     * called from {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}.
+     * <p>Since the resolution is transitive (nested deserializers are themselves contextual), the whole deserializer tree
+     * is built when the root deserializer is contextualized, i.e. <b>before</b> any JSON content is read. Consequently:
+     * <ul>
+     *     <li>nothing read from the {@link DeserializationContext} (attributes such as a source version) can be used in
+     *     {@code createContextual} or in constructors: it is not set yet. Version-dependent logic must stay in
+     *     {@code deserialize};</li>
+     *     <li>the deserializers must be stateless: they are shared by every {@code deserialize} call;</li>
+     *     <li>the type graph must not contain cycles, otherwise the resolution does not terminate;</li>
+     *     <li>a missing or failing nested deserializer is reported when the root type is first used, not when the field
+     *     is reached.</li>
+     * </ul>
+     */
     public static JsonDeserializer<Object> buildListDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
         JavaType type = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, valueClass);
         return ctxt.findContextualValueDeserializer(type, property);
     }
 
+    /**
+     * Resolves, eagerly, the deserializer of a nested type. The three {@code build*Deserializer} methods are meant to be
+     * called from {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}.
+     * <p>Since the resolution is transitive (nested deserializers are themselves contextual), the whole deserializer tree
+     * is built when the root deserializer is contextualized, i.e. <b>before</b> any JSON content is read. Consequently:
+     * <ul>
+     *     <li>nothing read from the {@link DeserializationContext} (attributes such as a source version) can be used in
+     *     {@code createContextual} or in constructors: it is not set yet. Version-dependent logic must stay in
+     *     {@code deserialize};</li>
+     *     <li>the deserializers must be stateless: they are shared by every {@code deserialize} call;</li>
+     *     <li>the type graph must not contain cycles, otherwise the resolution does not terminate;</li>
+     *     <li>a missing or failing nested deserializer is reported when the root type is first used, not when the field
+     *     is reached.</li>
+     * </ul>
+     */
     public static JsonDeserializer<Object> buildSetDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
         JavaType type = ctxt.getTypeFactory().constructCollectionType(HashSet.class, valueClass);
         return ctxt.findContextualValueDeserializer(type, property);
