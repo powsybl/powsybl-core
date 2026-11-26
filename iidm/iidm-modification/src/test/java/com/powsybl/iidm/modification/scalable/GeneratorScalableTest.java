@@ -53,6 +53,18 @@ class GeneratorScalableTest {
     }
 
     @Test
+    void testIdAndBoundsAreAccessible() {
+        GeneratorScalable bounded = Scalable.onGenerator("g2", -10., 120);
+        assertEquals("g2", bounded.getId());
+        assertEquals(-10., bounded.getMinValue());
+        assertEquals(120., bounded.getMaxValue());
+
+        GeneratorScalable unbounded = Scalable.onGenerator("g1");
+        assertEquals(-Double.MAX_VALUE, unbounded.getMinValue());
+        assertEquals(Double.MAX_VALUE, unbounded.getMaxValue());
+    }
+
+    @Test
     void testInitialValue() {
         //In this network case, initialValue is always giving 0 because of getTerminal()
         assertEquals(0.0, g1.initialValue(network), 0.0);
