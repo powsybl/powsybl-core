@@ -718,11 +718,11 @@ public final class NetworkSerDe {
     }
 
     private static List<String> resolveExportedVariants(Network network, NetworkSerializerContext context) {
-        List<String> result = new ArrayList<>() { };
         Collection<String> exportedVariants = context.getOptions().getExportedVariants();
         if (exportedVariants.isEmpty()) {
-            return result;
+            return new ArrayList<>();
         }
+        List<String> result = new ArrayList<>(exportedVariants.size()) { };
         IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, "variant", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
         if (context.getOptions().isSorted()) {
             exportedVariants = exportedVariants.stream()
