@@ -97,11 +97,11 @@ public class ClasspathRuntimeConfigProvider implements RuntimeConfigProvider {
         ranked.sort(Comparator.comparingInt(RankedRepository::priority).reversed()
                 .thenComparing(RankedRepository::url));
         LOGGER.info("Runtime configuration read from class path resources, in decreasing order of precedence: {}",
-                ranked.stream().map(RankedRepository::url).toList());
+                ranked.stream().map(RankedRepository::source).toList());
 
         // Done here, while the resources are still separate: once stacked, an overlap between two jars is invisible.
         RuntimeConfigRepositories.warnOverlappingProperties(
-                ranked.stream().map(RankedRepository::url).toList(),
+                ranked.stream().map(RankedRepository::source).toList(),
                 ranked.stream().map(r -> (ModuleConfigRepository) new WithoutReservedModule(r.repository())).toList());
 
         ModuleConfigRepository stacked = new StackedModuleConfigRepository(
@@ -123,21 +123,41 @@ public class ClasspathRuntimeConfigProvider implements RuntimeConfigProvider {
      * file of the user stays an error, handled by {@link YamlModuleConfigRepository}.
      */
     private static Optional<RankedRepository> read(URL url) {
+        String source = describe(url);
         try (Reader reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
             ModuleConfigRepository repository = new YamlModuleConfigRepository(reader, FileSystems.getDefault());
             if (repository.getModuleNames().isEmpty()) {
-                LOGGER.info("Runtime configuration resource {} defines no module, ignoring it", url);
+                LOGGER.info("Runtime configuration resource of {} defines no module, ignoring it", source);
                 return Optional.empty();
             }
-            return Optional.of(new RankedRepository(url.toString(), readPriority(repository), repository));
+            return Optional.of(new RankedRepository(url.toString(), source, readPriority(repository), repository));
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to read the runtime configuration resource " + url, e);
+            throw new UncheckedIOException("Failed to read the runtime configuration resource of " + source, e);
         } catch (Exception e) {
             // Catches a malformed structure (PowsyblException from YamlModuleConfigRepository), a YAML
             // syntax error (SnakeYAML's YAMLException) and an invalid priority, so that whichever jar carries the broken
             // resource is named in the failure, not just the "classpath" provider as a whole.
-            throw new ConfigurationException("Failed to parse the runtime configuration resource " + url, e);
+            throw new ConfigurationException("Failed to parse the runtime configuration resource of " + source, e);
         }
+    }
+
+    /**
+     * Names the class path entry (jar file or directory) holding a resource, for logs and error messages:
+     * the full URL would expose the file system layout of the host. For instance
+     * {@code jar:file:/opt/app/lib/corp-config-1.0.jar!/com/powsybl/config/config.yml} gives
+     * {@code corp-config-1.0.jar}, and a jar nested in a Spring Boot archive gives the nested jar.
+     */
+    static String describe(URL url) {
+        String entry = url.toString();
+        if (entry.endsWith(RESOURCE_PATH)) {
+            entry = entry.substring(0, entry.length() - RESOURCE_PATH.length());
+        }
+        int end = entry.length();
+        while (end > 0 && (entry.charAt(end - 1) == '/' || entry.charAt(end - 1) == '!')) {
+            end--;
+        }
+        String name = entry.substring(entry.lastIndexOf('/', end - 1) + 1, end);
+        return name.isEmpty() ? RESOURCE_PATH : name;
     }
 
     private static int readPriority(ModuleConfigRepository repository) {
@@ -165,6 +185,9 @@ public class ClasspathRuntimeConfigProvider implements RuntimeConfigProvider {
         }
     }
 
-    private record RankedRepository(String url, int priority, ModuleConfigRepository repository) {
+    /**
+     * {@code url} orders resources of equal priority deterministically, {@code source} names the resource in messages.
+     */
+    private record RankedRepository(String url, String source, int priority, ModuleConfigRepository repository) {
     }
 }

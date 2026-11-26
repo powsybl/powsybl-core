@@ -12,12 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -130,7 +132,8 @@ class ClasspathRuntimeConfigProviderTest {
         try (URLClassLoader classLoader = new URLClassLoader(new URL[] {entry}, null)) {
             ClasspathRuntimeConfigProvider provider = new ClasspathRuntimeConfigProvider(classLoader);
             PowsyblException e = assertThrows(PowsyblException.class, provider::getModuleConfigRepository);
-            assertTrue(e.getMessage().contains(entry.toString()));
+            assertTrue(e.getMessage().contains("broken"));
+            assertFalse(e.getMessage().contains(tempDir.toString()), "the host path must not be exposed");
         }
     }
 
@@ -140,7 +143,8 @@ class ClasspathRuntimeConfigProviderTest {
         try (URLClassLoader classLoader = new URLClassLoader(new URL[] {entry}, null)) {
             ClasspathRuntimeConfigProvider provider = new ClasspathRuntimeConfigProvider(classLoader);
             PowsyblException e = assertThrows(PowsyblException.class, provider::getModuleConfigRepository);
-            assertTrue(e.getMessage().contains(entry.toString()));
+            assertTrue(e.getMessage().contains("broken"));
+            assertFalse(e.getMessage().contains(tempDir.toString()), "the host path must not be exposed");
         }
     }
 
@@ -152,7 +156,8 @@ class ClasspathRuntimeConfigProviderTest {
         try (URLClassLoader classLoader = new URLClassLoader(new URL[] {entry}, null)) {
             ClasspathRuntimeConfigProvider provider = new ClasspathRuntimeConfigProvider(classLoader);
             PowsyblException e = assertThrows(PowsyblException.class, provider::getModuleConfigRepository);
-            assertTrue(e.getMessage().contains(entry.toString()));
+            assertTrue(e.getMessage().contains("broken"));
+            assertFalse(e.getMessage().contains(tempDir.toString()), "the host path must not be exposed");
         }
     }
 
@@ -184,5 +189,15 @@ class ClasspathRuntimeConfigProviderTest {
                     .getModuleConfigRepository().orElseThrow();
             assertEquals("baz", repository.getModuleConfig("foo").orElseThrow().getStringProperty("bar"));
         }
+    }
+
+    @Test
+    void resourceIsDescribedByItsClassPathEntryOnly() throws IOException {
+        assertEquals("corp-config-1.0.jar", ClasspathRuntimeConfigProvider.describe(
+                URI.create("jar:file:/opt/app/lib/corp-config-1.0.jar!/com/powsybl/config/config.yml").toURL()));
+        assertEquals("corp-config-1.0.jar", ClasspathRuntimeConfigProvider.describe(
+                URI.create("jar:file:/opt/app/app.jar!/BOOT-INF/lib/corp-config-1.0.jar!/com/powsybl/config/config.yml").toURL()));
+        assertEquals("classes", ClasspathRuntimeConfigProvider.describe(
+                URI.create("file:/home/user/project/target/classes/com/powsybl/config/config.yml").toURL()));
     }
 }

@@ -44,6 +44,7 @@ powsybl-runtime-config:
 
 The default priority is 0 and the higher priority wins. Files of equal priority are ordered by the
 URL of their resource, so the resulting configuration never depends on the order of the class path.
+Logs and error messages name a resource by its jar file (or directory) only, not by its full path.
 The `powsybl-runtime-config` module name is reserved in `com/powsybl/config/config.yml` files: it is
 removed from the configuration and cannot be read back as an ordinary module there. A Java
 `RuntimeConfigProvider` exposing a module of that name is not filtered and is not affected by this
