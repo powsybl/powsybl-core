@@ -34,14 +34,24 @@ public class UpDownScalable extends AbstractScalable {
     }
 
     /**
-     * Scalable used when the asked variation is positive.
+     * Returns the scalable used when the asked variation is strictly positive.
+     * <p>
+     * The sign of the asked variation is read in the {@link ScalingConvention} given in the
+     * {@link ScalingParameters} of the {@code scale} call.
+     *
+     * @return the scalable used for upward variations
      */
     public Scalable getUpScalable() {
         return upScalable;
     }
 
     /**
-     * Scalable used when the asked variation is negative.
+     * Returns the scalable used when the asked variation is negative or zero.
+     * <p>
+     * The sign of the asked variation is read in the {@link ScalingConvention} given in the
+     * {@link ScalingParameters} of the {@code scale} call.
+     *
+     * @return the scalable used for downward variations
      */
     public Scalable getDownScalable() {
         return downScalable;
