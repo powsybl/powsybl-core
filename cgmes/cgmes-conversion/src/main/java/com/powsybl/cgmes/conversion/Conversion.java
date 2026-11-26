@@ -190,7 +190,11 @@ public class Conversion {
         // Convert topology
         PropertyBags nodes = context.nodeBreaker() ? cgmes.connectivityNodes() : cgmes.topologicalNodes();
         if (context.nodeBreaker()) {
-            convert(nodes, CgmesNames.CONNECTIVITY_NODE, context);
+            // IIDM nodes are allocated while converting connectivity nodes: sort them so that node numbers (and therefore
+            // bus IDs) do not depend on the order of the elements in the CGMES files
+            PropertyBags sortedNodes = new PropertyBags(nodes);
+            sortedNodes.sort(Comparator.comparing(node -> node.getId(CgmesNames.CONNECTIVITY_NODE)));
+            convert(sortedNodes, CgmesNames.CONNECTIVITY_NODE, context);
         } else {
             convert(nodes, CgmesNames.TOPOLOGICAL_NODE, context);
         }

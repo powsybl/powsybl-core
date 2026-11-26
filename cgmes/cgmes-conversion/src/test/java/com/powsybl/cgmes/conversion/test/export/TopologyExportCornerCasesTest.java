@@ -51,14 +51,14 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportDisconnectedLoadBusBreaker() {
         test(createDisconnectedLoadBBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1"},
+                new String[] {"voltageLevel1_0", "voltageLevel1_2"},
                 true);
     }
 
     @Test
     void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_3"});
     }
 
     private void test(Network network,

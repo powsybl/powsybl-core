@@ -18,6 +18,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
@@ -84,6 +85,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
+        assertSameTerminalsByBus(expected, actual);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -92,6 +94,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
+        assertSameTerminalsByBus(expected, actual);
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -108,6 +111,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
+        assertSameTerminalsByBus(expected, actual);
 
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
@@ -669,6 +673,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         Network actual = exportImportNodeBreaker(expected, dataSource);
+        assertSameTerminalsByBus(expected, actual);
 
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "SynchronousMachine"), generatorsCreatedFromOriginalClassCount(actual, "SynchronousMachine"));
         assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
@@ -687,6 +692,64 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringSubstationNumAttributes,
                 ExportXmlCompare::ignoringSubstationLookup);
         compareNetworksEQdata(expected, actual, knownDiffs);
+    }
+
+    /**
+     * The node numbers of the re-imported network depend on the ids of the exported connectivity nodes, so they are not
+     * compared. Check instead that the terminals and the switch ends are grouped in the same way, a group being made of
+     * the nodes linked by internal connections or by the fictitious switches created for disconnected terminals (that
+     * is, a connectivity node).
+     */
+    private static void assertSameTerminalsByBus(Network expected, Network actual) {
+        assertEquals(connectivityGroups(expected, actual), connectivityGroups(actual, expected));
+    }
+
+    private static Set<Set<String>> connectivityGroups(Network network, Network other) {
+        Set<Set<String>> groups = new HashSet<>();
+        for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
+            if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                continue;
+            }
+            VoltageLevel.NodeBreakerView view = voltageLevel.getNodeBreakerView();
+            Map<Integer, Integer> parents = new HashMap<>();
+            view.getInternalConnections().forEach(ic -> parents.put(root(parents, ic.getNode1()), root(parents, ic.getNode2())));
+            view.getSwitchStream()
+                    .filter(EquipmentExportTest::isCreatedForDisconnectedTerminal)
+                    .forEach(sw -> parents.put(root(parents, view.getNode1(sw.getId())), root(parents, view.getNode2(sw.getId()))));
+            Map<Integer, Set<String>> groupsByRoot = new HashMap<>();
+            voltageLevel.getConnectableStream()
+                    .filter(connectable -> other.getConnectable(connectable.getId()) != null)
+                    .forEach(connectable -> {
+                        List<? extends Terminal> terminals = connectable.getTerminals();
+                        for (int i = 0; i < terminals.size(); i++) {
+                            Terminal terminal = terminals.get(i);
+                            if (terminal.getVoltageLevel() == voltageLevel) {
+                                groupsByRoot.computeIfAbsent(root(parents, terminal.getNodeBreakerView().getNode()), k -> new TreeSet<>())
+                                        .add(connectable.getId() + "#" + i);
+                            }
+                        }
+                    });
+            view.getSwitchStream()
+                    .filter(sw -> !isCreatedForDisconnectedTerminal(sw) && other.getSwitch(sw.getId()) != null)
+                    .forEach(sw -> {
+                        groupsByRoot.computeIfAbsent(root(parents, view.getNode1(sw.getId())), k -> new TreeSet<>()).add(sw.getId() + "#1");
+                        groupsByRoot.computeIfAbsent(root(parents, view.getNode2(sw.getId())), k -> new TreeSet<>()).add(sw.getId() + "#2");
+                    });
+            groups.addAll(groupsByRoot.values());
+        }
+        return groups;
+    }
+
+    private static boolean isCreatedForDisconnectedTerminal(Switch sw) {
+        return "true".equals(sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
+    }
+
+    private static int root(Map<Integer, Integer> parents, int node) {
+        int root = node;
+        while (parents.containsKey(root) && parents.get(root) != root) {
+            root = parents.get(root);
+        }
+        return root;
     }
 
     private static long generatorsCreatedFromOriginalClassCount(Network network, String originalClass) {

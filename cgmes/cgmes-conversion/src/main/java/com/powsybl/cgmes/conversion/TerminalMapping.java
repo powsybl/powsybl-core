@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +142,10 @@ public class TerminalMapping {
     public void buildConnectivityNodeCgmesTerminalsMapping(CgmesTerminal t) {
         String connectivityNode = t.connectivityNode();
         if (connectivityNode != null) {
-            connectivityNodeTerminalsMapping.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t);
+            // Keep the terminals sorted by id: the IIDM nodes are allocated following this order
+            List<CgmesTerminal> nodeTerminals = connectivityNodeTerminalsMapping.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1));
+            int index = Collections.binarySearch(nodeTerminals, t, Comparator.comparing(CgmesTerminal::id));
+            nodeTerminals.add(index < 0 ? -index - 1 : index, t);
         }
     }
 
