@@ -174,15 +174,15 @@ public class RegulatingControlMapping {
         // Retrieve the IIDM regulated terminal
         Optional<RegulatingTerminalMapper.TerminalAndSign> regulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(terminalId, context);
+        Terminal mappedRegulatingTerminal = null;
         if (regulatingTerminal.isEmpty()) {
             context.invalid(connectable.getId(), String.format("Regulation terminal %s is not mapped or mapped to a switch", terminalId));
             ((PropertiesHolder) holder).setProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL, terminalId);
-            regulatingTerminal = Optional.of(new RegulatingTerminalMapper.TerminalAndSign(holder.getTerminal(), 1));
+        } else {
+            mappedRegulatingTerminal = regulatingTerminal.get().getTerminal();
+            // Store the terminal sign returned by the terminal mapping for later use during update of the targetValue.
+            connectable.setProperty(getTerminalSignPropertyName(end), String.valueOf(regulatingTerminal.get().getSign()));
         }
-        Terminal mappedRegulatingTerminal = regulatingTerminal.get().getTerminal();
-
-        // Store the terminal sign returned by the terminal mapping for later use during update of the targetValue.
-        connectable.setProperty(getTerminalSignPropertyName(end), String.valueOf(regulatingTerminal.get().getSign()));
 
         // Create the voltage regulation
         holder.newVoltageRegulation()
