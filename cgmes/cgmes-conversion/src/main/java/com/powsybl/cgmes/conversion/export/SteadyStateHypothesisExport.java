@@ -117,7 +117,7 @@ public final class SteadyStateHypothesisExport {
         if (!regulatingControlViews.isEmpty()) {
             // A regulating control is shared by all its holders, not only by the identifiables of the subset:
             // it is written with the views of all its holders, and only if it can express all of them
-            Map<String, List<RegulatingControlView>> allHoldersViews = regulatingControlViewsOfAllHolders(network, context);
+            Map<String, List<RegulatingControlView>> allHoldersViews = regulatingControlViewsOfAllHolders(network, regulatingControlViews.keySet(), context);
             for (String regulatingControlId : regulatingControlViews.keySet()) {
                 List<RegulatingControlView> views = allHoldersViews.get(regulatingControlId);
                 checkRegulatingControlViews(regulatingControlId, views);
@@ -127,18 +127,47 @@ public final class SteadyStateHypothesisExport {
     }
 
     /**
-     * The views of the regulating controls given by all their holders,
+     * The views of the given regulating controls, given by all their holders,
      * in the same order as the full export, so that the combined views are the same.
+     * IIDM has no index from a regulating control to its holders, so all the possible holders are visited,
+     * but a view is built only if the holder has one of the given regulating controls.
+     * The SSH objects of the holders are not built.
      */
-    private static Map<String, List<RegulatingControlView>> regulatingControlViewsOfAllHolders(Network network, CgmesExportContext context) throws XMLStreamException {
+    private static Map<String, List<RegulatingControlView>> regulatingControlViewsOfAllHolders(Network network, Set<String> regulatingControlIds,
+                                                                                            CgmesExportContext context) {
         final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
-        CgmesObjectSink ignored = cgmesObject -> {
-        };
-        exportTapChangers(network, regulatingControlViews, ignored, context);
-        exportGenerators(network, regulatingControlViews, ignored, context);
-        exportShuntCompensators(network, regulatingControlViews, ignored, context);
-        exportStaticVarCompensators(network, regulatingControlViews, ignored, context);
+        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            addTapChangerViews(twt, regulatingControlIds, regulatingControlViews, context);
+        }
+        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            addTapChangerViews(twt, regulatingControlIds, regulatingControlViews, context);
+        }
+        for (Generator g : network.getGenerators()) {
+            if (hasRegulatingControl(g)) {
+                addRegulatingControlView(g, regulatingControlIds, regulatingControlViews, context);
+            }
+        }
+        for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
+            if (!isEquivalentShunt(shuntCompensator)) {
+                addRegulatingControlView(shuntCompensator, regulatingControlIds, regulatingControlViews, context);
+            }
+        }
+        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            addRegulatingControlView(svc, regulatingControlIds, regulatingControlViews, context);
+        }
         return regulatingControlViews;
+    }
+
+    /**
+     * Add the view of the regulating control of the holder, only if it is one of the given regulating controls.
+     */
+    private static <H extends Identifiable<H> & VoltageRegulationHolder<H>> void addRegulatingControlView(H holder, Set<String> regulatingControlIds,
+                                                                                                         Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                                                                                         CgmesExportContext context) {
+        String regulatingControlId = getRegulatingControlId(holder, context);
+        if (regulatingControlIds.contains(regulatingControlId)) {
+            addRegulatingControlView(holder, regulatingControlId, regulatingControlViews, context);
+        }
     }
 
     /**
@@ -442,14 +471,70 @@ public final class SteadyStateHypothesisExport {
     private static void exportTapChangers(TwoWindingsTransformer twt, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                           CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         if (twt.hasPhaseTapChanger()) {
-            String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
-                ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
-            exportTapChanger(twt, aliasType, PHASE_TAP_CHANGER, 1, regulatingControlViews, sink, context);
+            exportTapChanger(twt, phaseTapChangerAliasType(twt), PHASE_TAP_CHANGER, 1, regulatingControlViews, sink, context);
         }
         if (twt.hasRatioTapChanger()) {
-            String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
-                ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
-            exportTapChanger(twt, aliasType, RATIO_TAP_CHANGER, 1, regulatingControlViews, sink, context);
+            exportTapChanger(twt, ratioTapChangerAliasType(twt), RATIO_TAP_CHANGER, 1, regulatingControlViews, sink, context);
+        }
+    }
+
+    private static String phaseTapChangerAliasType(TwoWindingsTransformer twt) {
+        return twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
+            ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
+    }
+
+    private static String ratioTapChangerAliasType(TwoWindingsTransformer twt) {
+        return twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
+            ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
+    }
+
+    private static void addTapChangerViews(TwoWindingsTransformer twt, Set<String> regulatingControlIds,
+                                           Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
+        if (twt.hasPhaseTapChanger()) {
+            addTapChangerView(twt, phaseTapChangerAliasType(twt), PHASE_TAP_CHANGER, 1, regulatingControlIds, regulatingControlViews, context);
+        }
+        if (twt.hasRatioTapChanger()) {
+            addTapChangerView(twt, ratioTapChangerAliasType(twt), RATIO_TAP_CHANGER, 1, regulatingControlIds, regulatingControlViews, context);
+        }
+    }
+
+    private static void addTapChangerViews(ThreeWindingsTransformer twt, Set<String> regulatingControlIds,
+                                           Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
+        for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
+            int endNumber = leg.getSide().getNum();
+            if (leg.hasPhaseTapChanger()) {
+                addTapChangerView(twt, getPhaseTapChangerAliasType(Integer.toString(endNumber)), PHASE_TAP_CHANGER, endNumber,
+                    regulatingControlIds, regulatingControlViews, context);
+            }
+            if (leg.hasRatioTapChanger()) {
+                addTapChangerView(twt, getRatioTapChangerAliasType(Integer.toString(endNumber)), RATIO_TAP_CHANGER, endNumber,
+                    regulatingControlIds, regulatingControlViews, context);
+            }
+        }
+    }
+
+    /**
+     * Add the view of the regulating control of a tap changer, only if it is one of the given regulating controls.
+     */
+    private static <C extends Connectable<C>> void addTapChangerView(C twt, String aliasType, Part part, int endNumber, Set<String> regulatingControlIds,
+                                                                     Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                                                     CgmesExportContext context) {
+        String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
+        String tapChangerControlId = getTapChangerControlId(twt, part, endNumber, cgmesTapChangerId, context);
+        if (regulatingControlIds.contains(tapChangerControlId)) {
+            addTapChangerView(getTapChanger(twt, part, endNumber), tapChangerControlId, regulatingControlViews, context);
+        }
+    }
+
+    /**
+     * Add the view of the regulating control of a tap changer, if it has one.
+     */
+    private static void addTapChangerView(TapChanger<?, ?, ?, ?> tc, String tapChangerControlId,
+                                          Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
+        if (tc instanceof RatioTapChanger rtc) {
+            addRegulatingControlView(rtc, tapChangerControlId, regulatingControlViews, context);
+        } else if (tc instanceof PhaseTapChanger ptc) {
+            addRegulatingControlView(ptc, tapChangerControlId, regulatingControlViews);
         }
     }
 
@@ -485,11 +570,7 @@ public final class SteadyStateHypothesisExport {
         CgmesRecords.TapChangerSsh s = new CgmesRecords.TapChangerSsh(type, tapChangerId, tc.isRegulating(), tc.getTapPosition());
         CgmesObject c = s.normalize(cimNamespace(context));
         sink.accept(c);
-        if (tc instanceof RatioTapChanger rtc) {
-            addRegulatingControlView(rtc, tapChangerControlId, regulatingControlViews, context);
-        } else if (tc instanceof PhaseTapChanger ptc) {
-            addRegulatingControlView(ptc, tapChangerControlId, regulatingControlViews);
-        }
+        addTapChangerView(tc, tapChangerControlId, regulatingControlViews, context);
 
         // If we are exporting equipment definitions the hidden tap changer will not be exported
         // because it has been included in the model for the only tap changer left in IIDM
@@ -523,7 +604,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void exportShuntCompensator(ShuntCompensator shuntCompensator, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
-        if ("true".equals(shuntCompensator.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
+        if (isEquivalentShunt(shuntCompensator)) {
             return;
         }
 
@@ -532,6 +613,18 @@ public final class SteadyStateHypothesisExport {
         sink.accept(c);
 
         addRegulatingControlView(shuntCompensator, getRegulatingControlId(shuntCompensator, context), regulatingControlViews, context);
+    }
+
+    private static boolean isEquivalentShunt(ShuntCompensator shuntCompensator) {
+        return "true".equals(shuntCompensator.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT));
+    }
+
+    /**
+     * True if the SSH export writes a regulating control for the generator: an EquivalentInjection has none.
+     */
+    private static boolean hasRegulatingControl(Generator g) {
+        String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+        return CgmesNames.EXTERNAL_NETWORK_INJECTION.equals(cgmesOriginalClass) || CgmesNames.SYNCHRONOUS_MACHINE.equals(cgmesOriginalClass);
     }
 
     /**
