@@ -15,3 +15,10 @@ SELECT *
         cim:Switch.open ?open .
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector cim:Jumper }
 }
+
+# query: equipmentInService
+# no filter on the type: equipment without its own SSH class is described as a generic cim:Equipment
+SELECT *
+{
+    ?Equipment cim:Equipment.inService ?inService .
+}

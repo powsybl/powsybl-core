@@ -1,0 +1,24 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:5b0f3c1e-8d2a-4f6b-9c7e-1a2b3c4d5e6f">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Out-of-service EquivalentInjections at the boundary</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:EquivalentInjection rdf:about="#_ACLineSegment-EquivalentInjection">
+        <cim:Equipment.inService>false</cim:Equipment.inService>
+        <cim:EquivalentInjection.p>284.5</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>70.5</cim:EquivalentInjection.q>
+    </cim:EquivalentInjection>
+
+    <cim:EquivalentInjection rdf:about="#_EquivalentBranch-EquivalentInjection">
+        <cim:Equipment.inService>false</cim:Equipment.inService>
+        <cim:EquivalentInjection.p>275.0</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>50.0</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>405.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+</rdf:RDF>

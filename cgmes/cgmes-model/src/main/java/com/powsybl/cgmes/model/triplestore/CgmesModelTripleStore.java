@@ -440,6 +440,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags equipmentInService() {
+        return namedQuery("equipmentInService");
+    }
+
+    @Override
     public PropertyBags acLineSegments() {
         return namedQuery("acLineSegments");
     }

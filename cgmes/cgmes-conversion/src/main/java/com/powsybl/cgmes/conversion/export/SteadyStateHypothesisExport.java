@@ -81,17 +81,105 @@ public final class SteadyStateHypothesisExport {
             writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer, context);
-            writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer, context);
+            Set<String> writtenGeneratingUnits = writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer, context);
             writeConverters(network, cimNamespace, writer, context);
             writeDCTerminals(network, cimNamespace, writer, context);
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer, context);
+            writeEquipmentInService(network, writtenGeneratingUnits, cimNamespace, writer, context);
             writeTerminals(network, cimNamespace, writer, context);
             writeControlAreas(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    /**
+     * Write the start of the SSH object of an equipment, followed by its {@code Equipment.inService} value.
+     * {@code Equipment.inService} only exists from CGMES 3 (CIM 100): it is written for CIM 100 and later, and not written
+     * for earlier versions (CGMES 2.4.15, CIM 16). The out-of-service state of an equipment is carried by its terminals
+     * and switches: {@code inService} is always {@code true}.
+     *
+     * @param className the CGMES class of the equipment
+     * @param id the CGMES id of the equipment
+     * @param cimNamespace the CIM namespace
+     * @param writer the XML writer
+     * @param context the export context
+     * @throws XMLStreamException if the writing fails
+     */
+    private static void writeStartEquipmentAbout(String className, String id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(className, id, cimNamespace, writer, context);
+        if (context.getCimVersion() >= 100) {
+            writer.writeStartElement(cimNamespace, "Equipment.inService");
+            writer.writeCharacters("true");
+            writer.writeEndElement();
+        }
+    }
+
+    /**
+     * Write a generic {@code Equipment} object with {@code inService=true} for the exported equipment that has no SSH
+     * object of its own: lines, transformers, busbar sections, boundary lines, HVDC lines, branches imported as switches,
+     * and generating units without participation factor.
+     * {@code Equipment.inService} only exists from CGMES 3 (CIM 100): nothing is written for earlier versions
+     * (CGMES 2.4.15, CIM 16).
+     *
+     * @param network the exported network
+     * @param writtenGeneratingUnits the CGMES ids of the generating units already written with their participation factor
+     * @param cimNamespace the CIM namespace
+     * @param writer the XML writer
+     * @param context the export context
+     * @throws XMLStreamException if the writing fails
+     */
+    private static void writeEquipmentInService(Network network, Set<String> writtenGeneratingUnits, String cimNamespace,
+                                                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (context.getCimVersion() < 100) {
+            return;
+        }
+        Set<String> ids = new LinkedHashSet<>();
+        for (Connectable<?> c : network.getConnectables()) {
+            if (context.isExportedEquipment(c) && (c instanceof Branch<?> || c instanceof ThreeWindingsTransformer
+                    || c instanceof BusbarSection || c instanceof BoundaryLine)) {
+                ids.add(context.getNamingStrategy().getCgmesId(c));
+            }
+        }
+        for (Switch sw : network.getSwitches()) {
+            if (context.isExportedEquipment(sw) && isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS))) {
+                ids.add(context.getNamingStrategy().getCgmesId(sw));
+            }
+        }
+        for (HvdcLine line : network.getHvdcLines()) {
+            ids.add(context.getNamingStrategy().getCgmesId(line));
+        }
+        for (Generator generator : network.getGenerators()) {
+            if (CgmesNames.SYNCHRONOUS_MACHINE.equals(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE))) {
+                addGeneratingUnitId(generator, ids, context);
+            }
+        }
+        for (Battery battery : network.getBatteries()) {
+            addGeneratingUnitId(battery, ids, context);
+        }
+        ids.removeAll(writtenGeneratingUnits);
+        for (String id : ids) {
+            writeStartEquipmentAbout("Equipment", id, cimNamespace, writer, context);
+            writer.writeEndElement();
+        }
+    }
+
+    /**
+     * Add the CGMES id of the generating unit of a machine exported as a {@code SynchronousMachine}, unless the machine
+     * is a condenser. The EQ export writes a generating unit in the same cases, with the same id, generated if the
+     * machine was not imported from CGMES.
+     *
+     * @param i the generator or battery exported as a {@code SynchronousMachine}
+     * @param ids the CGMES ids to add the generating unit id to
+     * @param context the export context
+     * @param <I> the type of the machine
+     */
+    private static <I extends ReactiveLimitsHolder & Injection<I>> void addGeneratingUnitId(I i, Set<String> ids, CgmesExportContext context) {
+        if (!OPERATING_MODE_CONDENSER.equals(obtainSynchronousMachineKind(i))) {
+            ids.add(context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT));
         }
     }
 
@@ -323,7 +411,7 @@ public final class SteadyStateHypothesisExport {
             };
             boolean controlEnabled = s.isRegulating();
 
-            CgmesExportUtil.writeStartAbout(shuntType + "ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
+            writeStartEquipmentAbout(shuntType + "ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
@@ -367,7 +455,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeExternalNetworkInjection(String id, boolean controlEnabled, double p, double q, int referencePriority,
                                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.EXTERNAL_NETWORK_INJECTION, id, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.EXTERNAL_NETWORK_INJECTION, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();
@@ -385,7 +473,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority,
                                                 String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();
@@ -457,7 +545,7 @@ public final class SteadyStateHypothesisExport {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             boolean controlEnabled = svc.isRegulating();
 
-            CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
+            writeStartEquipmentAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
@@ -631,7 +719,7 @@ public final class SteadyStateHypothesisExport {
         try {
             String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
             String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(sw.getKind());
-            CgmesExportUtil.writeStartAbout(className, context.getNamingStrategy().getCgmesId(sw), cimNamespace, writer, context);
+            writeStartEquipmentAbout(className, context.getNamingStrategy().getCgmesId(sw), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "Switch.open");
             writer.writeCharacters(Boolean.toString(sw.isOpen()));
             writer.writeEndElement();
@@ -659,7 +747,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeEquivalentInjection(String cgmesId, double p, double q, boolean regulationStatus, double regulationTarget, String cimNamespace,
                                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.EQUIVALENT_INJECTION, cgmesId, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.EQUIVALENT_INJECTION, cgmesId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -699,7 +787,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeAsynchronousMachine(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.ASYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.ASYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -723,7 +811,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.ENERGY_SOURCE, id, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.ENERGY_SOURCE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergySource.activePower");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -735,7 +823,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSshEnergyConsumer(String id, String className, double p, double q, String cimNamespace,
                                                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(className, id, cimNamespace, writer, context);
+        writeStartEquipmentAbout(className, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -855,7 +943,17 @@ public final class SteadyStateHypothesisExport {
         return p * Math.sqrt((1 - powerFactor * powerFactor) / (powerFactor * powerFactor));
     }
 
-    private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    /**
+     * Write the participation factor of the generating units of the generators and batteries that have one.
+     *
+     * @param network the exported network
+     * @param cimNamespace the CIM namespace
+     * @param writer the XML writer
+     * @param context the export context
+     * @return the CGMES ids of the generating units written
+     * @throws XMLStreamException if the writing fails
+     */
+    private static Set<String> writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Multiple generators may share the same generation unit,
         // we will choose the participation factor from the last generator that references the generating unit
         // We only consider generators and batteries that have participation factors
@@ -875,6 +973,7 @@ public final class SteadyStateHypothesisExport {
         for (GeneratingUnit gu : generatingUnits.values()) {
             writeGeneratingUnitParticipationFactor(gu, cimNamespace, writer, context);
         }
+        return generatingUnits.keySet();
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> GeneratingUnit generatingUnitForGeneratorAndBatteries(I i, CgmesExportContext context) {
@@ -894,7 +993,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeGeneratingUnitParticipationFactor(GeneratingUnit gu, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(gu.className, gu.id, cimNamespace, writer, context);
+        writeStartEquipmentAbout(gu.className, gu.id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
         writer.writeCharacters(CgmesExportUtil.format(gu.participationFactor));
         writer.writeEndElement();
@@ -970,7 +1069,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeCsConverter(String converterId, double targetPpcc, double targetUdc,
                                          double p, double q, String operatingMode, String pPccControl,
                                          String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.CS_CONVERTER, converterId, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.CS_CONVERTER, converterId, cimNamespace, writer, context);
         writeCommonAcDcConverter(targetPpcc, targetUdc, p, q, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
         writer.writeCharacters(CgmesExportUtil.format(0.0));
@@ -991,7 +1090,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeVsConverter(String converterId, double targetPpcc, double targetUdc, double targetQpcc, double targetUpcc,
                                          double p, double q, String pPccControl, String qPccControl,
                                          String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(CgmesNames.VS_CONVERTER, converterId, cimNamespace, writer, context);
+        writeStartEquipmentAbout(CgmesNames.VS_CONVERTER, converterId, cimNamespace, writer, context);
         writeCommonAcDcConverter(targetPpcc, targetUdc, p, q, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "VsConverter.droop");
         writer.writeCharacters(CgmesExportUtil.format(0.0));

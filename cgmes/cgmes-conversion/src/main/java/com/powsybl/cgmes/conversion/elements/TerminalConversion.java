@@ -8,10 +8,8 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
 
@@ -27,21 +25,37 @@ public final class TerminalConversion {
     private TerminalConversion() {
     }
 
-    public static void create(Network network, PropertyBag cgmesTerminal, Context context) {
-        String cgmesTerminalId = cgmesTerminal.getId(CgmesNames.TERMINAL);
-        boolean connected = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
+    /**
+     * Create a fictitious open switch at a CGMES terminal if it is disconnected, in node-breaker voltage levels only.
+     *
+     * @param network the network to update
+     * @param cgmesTerminalId the CGMES id of the terminal
+     * @param context the update context
+     */
+    public static void create(Network network, String cgmesTerminalId, Context context) {
+        boolean connected = context.isCgmesTerminalConnected(cgmesTerminalId).orElse(true);
         if (createFictitiousSwitch(network, cgmesTerminalId, connected, context)) {
-            create(network, cgmesTerminalId, context);
+            addFictitiousSwitch(network, cgmesTerminalId, context);
         }
     }
 
+    /**
+     * Tell whether a fictitious switch must be created at a CGMES terminal.
+     *
+     * @param network the network to update
+     * @param cgmesTerminalId the CGMES id of the terminal
+     * @param connected the connected status of the terminal
+     * @param context the update context
+     * @return {@code true} if the terminal is disconnected, has no fictitious switch yet, and the configuration allows
+     * the creation
+     */
     private static boolean createFictitiousSwitch(Network network, String cgmesTerminalId, boolean connected, Context context) {
         // Terminal id shouldn't be null
         Objects.requireNonNull(cgmesTerminalId);
 
-        // Only create if it's a disconnected terminal of a connectable that's not a busbar section.
+        // Only create if it's a disconnected terminal of a connectable that's not an in-service busbar section.
         Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
-        if (connected || identifiable == null || identifiable.getType() == IdentifiableType.BUSBAR_SECTION) {
+        if (connected || identifiable == null || isInServiceBusbarSection(identifiable, cgmesTerminalId, context)) {
             return false;
         }
 
@@ -60,7 +74,28 @@ public final class TerminalConversion {
         };
     }
 
-    private static void create(Network network, String cgmesTerminalId, Context context) {
+    /**
+     * Tell whether an IIDM object is a busbar section that is not out of service. The disconnected terminal of such a
+     * busbar section is ignored. The terminal of an out-of-service busbar section gets a fictitious switch, which detaches
+     * the busbar section from its node.
+     *
+     * @param identifiable the IIDM object holding the terminal
+     * @param cgmesTerminalId the CGMES id of the terminal
+     * @param context the update context
+     * @return {@code true} if the object is a busbar section that is not out of service
+     */
+    private static boolean isInServiceBusbarSection(Identifiable<?> identifiable, String cgmesTerminalId, Context context) {
+        return identifiable.getType() == IdentifiableType.BUSBAR_SECTION && !context.isTerminalOfOutOfServiceEquipment(cgmesTerminalId);
+    }
+
+    /**
+     * Add an open fictitious switch at a CGMES terminal of a node-breaker voltage level, which disconnects it.
+     *
+     * @param network the network to update
+     * @param cgmesTerminalId the CGMES id of the terminal
+     * @param context the update context
+     */
+    private static void addFictitiousSwitch(Network network, String cgmesTerminalId, Context context) {
         Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
         if (identifiable instanceof Switch sw) {
             if (sw.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
@@ -183,10 +218,18 @@ public final class TerminalConversion {
         return getIsTerminalConnected(sw, context).map(connected -> !connected);
     }
 
+    /**
+     * Get the connected status of the CGMES terminal of a fictitious switch created for a disconnected terminal.
+     *
+     * @param sw the fictitious switch
+     * @param context the update context
+     * @return the connected status of the terminal (see {@link Context#isCgmesTerminalConnected(String)}), or an empty
+     * optional if it is unknown
+     */
     private static Optional<Boolean> getIsTerminalConnected(Switch sw, Context context) {
         String cgmesTerminalId = sw.getProperty(PROPERTY_TERMINAL);
         return cgmesTerminalId != null
-                ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)).flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED))
+                ? context.isCgmesTerminalConnected(cgmesTerminalId)
                 : Optional.empty();
     }
 }
