@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
@@ -34,8 +36,27 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         remoteTerminal = network.getLine("NHV1_NHV2_1").getTerminal1();
     }
 
+    /**
+     * Removing a variant shrinks the per-variant arrays of the VoltageRegulation too, so that a variant cloned later
+     * reads the values of its source and not those of the removed variant that occupied its slot.
+     */
     @Test
-    void shouldUpdatePccTerminalAndVoltageRegulationTerminalWhenVoltageRegulationIsMissing() {
+    public void voltageRegulationOfARemovedVariantDoesNotLeakIntoTheNextClone() {
+        VoltageSourceConverter converter = createVoltageSourceConverter(new DataVoltageRegulationHolderCreator("vsc_variants",
+            RegulationMode.VOLTAGE, false, Double.NaN, 400.0, 10.0, Double.NaN, Double.NaN, false));
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "a");
+        variantManager.setWorkingVariant("a");
+        converter.getVoltageRegulation().setRegulating(true);
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        variantManager.removeVariant("a");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "b");
+        variantManager.setWorkingVariant("b");
+        assertFalse(converter.getVoltageRegulation().isRegulating());
+    }
+
+    @Test
+    public void shouldUpdatePccTerminalAndVoltageRegulationTerminalWhenVoltageRegulationIsMissing() {
         // GIVEN
         String vscId = "vsc_setPccTerminal";
         double localTargetQ = 10.0;
@@ -56,7 +77,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldUpdatePccTerminalWhenVoltageRegulationIsMissingAndSettingPccTerminalOnLocalTerminal() {
+    public void shouldUpdatePccTerminalWhenVoltageRegulationIsMissingAndSettingPccTerminalOnLocalTerminal() {
         // GIVEN
         String vscId = "vsc_setPccTerminal";
         double localTargetQ = 10.0;
@@ -77,7 +98,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldUpdatePccTerminalAndVoltageRegulationTerminal() {
+    public void shouldUpdatePccTerminalAndVoltageRegulationTerminal() {
         // GIVEN
         String vscId = "vsc_setPccTerminal";
         double localTargetQ = 10.0;
@@ -149,7 +170,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldThrowExceptionWhenUsingTheVoltageSourceConverterAdderWithTwoDifferentTerminals() {
+    public void shouldThrowExceptionWhenUsingTheVoltageSourceConverterAdderWithTwoDifferentTerminals() {
         // GIVEN
         Terminal line2Terminal = network.getLine("NHV1_NHV2_2").getTerminal1();
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
@@ -168,7 +189,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldSetPccTerminalAndVoltageRegulationTerminalWhenUsingTheVoltageSourceConverterAdderWithSameTerminal() {
+    public void shouldSetPccTerminalAndVoltageRegulationTerminalWhenUsingTheVoltageSourceConverterAdderWithSameTerminal() {
         // GIVEN
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
         adder.setPccTerminal(remoteTerminal);
@@ -186,7 +207,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldThrowExceptionWhenUsingTheVoltageSourceConverterAdderWithOnlyVoltageRegulationTerminal() {
+    public void shouldThrowExceptionWhenUsingTheVoltageSourceConverterAdderWithOnlyVoltageRegulationTerminal() {
         // GIVEN
         Terminal line2Terminal = network.getLine("NHV1_NHV2_2").getTerminal1();
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
@@ -204,7 +225,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldSetPccTerminalWhenUsingTheVoltageSourceConverterAdderWithOnlyPccTerminal() {
+    public void shouldSetPccTerminalWhenUsingTheVoltageSourceConverterAdderWithOnlyPccTerminal() {
         // GIVEN
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
         adder.setLocalTargetV(20);
@@ -221,7 +242,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void shouldSetPccTerminalAndVoltageRegulationTerminalWhenSettingPccTerminal() {
+    public void shouldSetPccTerminalAndVoltageRegulationTerminalWhenSettingPccTerminal() {
         // GIVEN
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
         adder.setPccTerminal(remoteTerminal);
@@ -243,7 +264,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     }
 
     @Test
-    void testNotifyUpdate() {
+    public void testNotifyUpdate() {
         String vscId = "vsc_setPccTerminal";
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(vscId,
             RegulationMode.VOLTAGE,

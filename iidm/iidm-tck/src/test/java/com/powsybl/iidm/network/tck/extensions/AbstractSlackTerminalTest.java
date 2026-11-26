@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
@@ -303,6 +304,37 @@ public abstract class AbstractSlackTerminalTest {
                 .add();
         assertNotNull(slackTerminal.getTerminal());
         gen2.remove();
+        assertNull(slackTerminal.getTerminal());
+    }
+
+    @Test
+    public void removeTerminalConnectableInMultiVariantContextTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        var load1 = network.getLoad("LD1");
+        var slackTerminal = network.getVoltageLevel(FourSubstationsNodeBreakerFactory.S1VL1)
+                .newExtension(SlackTerminalAdder.class)
+                .withTerminal(load1.getTerminal())
+                .add();
+
+        // Create 2 variants => the load terminal is used for all of them
+        final String variant1 = "variant1";
+        final String variant2 = "variant2";
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant2);
+        // Change the terminal in variant1
+        Terminal otherTerminal = network.getTwoWindingsTransformer("TWT").getTerminal1();
+        variantManager.setWorkingVariant(variant1);
+        slackTerminal.setTerminal(otherTerminal);
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+
+        // Remove load1. Its terminal is removed from the extension for all the variants referencing it
+        load1.remove();
+        assertNull(slackTerminal.getTerminal());
+        variantManager.setWorkingVariant(variant1);
+        assertNotNull(slackTerminal.getTerminal());
+        assertEquals(otherTerminal, slackTerminal.getTerminal());
+        variantManager.setWorkingVariant(variant2);
         assertNull(slackTerminal.getTerminal());
     }
 }

@@ -160,6 +160,8 @@ public abstract class AbstractShuntCompensatorTest {
         shuntLinearModel.setMaximumSectionCount(20);
         assertEquals(20, shuntCompensator.getMaximumSectionCount());
 
+        ShuntCompensatorModel shuntCompensatorModel1 = shuntCompensator.getModel();
+
         // remove
         int count = network.getShuntCompensatorCount();
         shuntCompensator.remove();
@@ -183,7 +185,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
         // Create second ShuntCompensator from same adder
         ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
-        assertNotSame(shuntCompensator.getModel(), shuntCompensator2.getModel());
+        assertNotSame(shuntCompensatorModel1, shuntCompensator2.getModel());
         assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator2.getModelType());
     }
 
@@ -582,7 +584,7 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMultiVariants() {
+    public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createLinearShunt(TEST_MULTI_VARIANT, "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
@@ -621,7 +623,7 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    void testRemoveVoltageRegulationInMultiVariant() {
+    public void testRemoveVoltageRegulationInMultiVariant() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createLinearShunt(TEST_MULTI_VARIANT, "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
@@ -646,7 +648,7 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMonoVariant() {
+    public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createLinearShunt("testMonoVariant", "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
 

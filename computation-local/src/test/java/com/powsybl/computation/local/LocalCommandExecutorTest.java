@@ -8,15 +8,18 @@
 package com.powsybl.computation.local;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -43,7 +46,7 @@ class LocalCommandExecutorTest {
     @Test
     void testWithoutTimeoutCall() {
         FakeUnixLocalCommandExecutor unixFake = new FakeUnixLocalCommandExecutor();
-        FakeUnixLocalCommandExecutor winFake = new FakeUnixLocalCommandExecutor();
+        FakeWinLocalCommandExecutor winFake = new FakeWinLocalCommandExecutor();
         try {
             unixFake.execute("program", Collections.emptyList(), mock(Path.class), mock(Path.class), mock(Path.class), Collections.emptyMap());
             winFake.execute("program", Collections.emptyList(), mock(Path.class), mock(Path.class), mock(Path.class), Collections.emptyMap());
@@ -51,4 +54,60 @@ class LocalCommandExecutorTest {
             fail();
         }
     }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testWindowsLocalCommandExecutor(@TempDir Path tempDir) throws IOException, InterruptedException {
+        WindowsLocalCommandExecutor windowsLocalCommandExecutor = new WindowsLocalCommandExecutor();
+        Path outPath = tempDir.resolve("out");
+        Path errPath = tempDir.resolve("err");
+        int exitCode;
+
+        // Built-in command
+        exitCode = windowsLocalCommandExecutor.execute("echo", 5, List.of("Hello World"), outPath, errPath, tempDir, Collections.emptyMap());
+        assertTrue(Files.readString(outPath).contains("Hello World"));
+        assertTrue(Files.readString(errPath).isEmpty());
+        assertEquals(0, exitCode);
+
+        // Executable
+        Files.delete(outPath);
+        exitCode = windowsLocalCommandExecutor.execute("whoami.exe", 5, List.of(), outPath, errPath, tempDir, Collections.emptyMap());
+        // whoami output uses the OEM code page; user/domain names may be non-ASCII
+        assertFileHasContent(outPath);
+        assertTrue(Files.readString(errPath).isEmpty());
+        assertEquals(0, exitCode);
+
+        // Batch file, and environment variable
+        Files.delete(outPath);
+        Files.writeString(tempDir.resolve("my_batch.bat"), "@echo %~1%MY_VAR% !");
+        exitCode = windowsLocalCommandExecutor.execute("my_batch.bat", 5, List.of("Hello"), outPath, errPath, tempDir, Map.of("MY_VAR", " World"));
+        assertTrue(Files.readString(outPath).contains("Hello World !"));
+        assertTrue(Files.readString(errPath).isEmpty());
+        assertEquals(0, exitCode);
+
+        // Non zero exit code
+        Files.delete(outPath);
+        Files.writeString(tempDir.resolve("my_batch_which_fails.bat"), "@exit /B 37");
+        exitCode = windowsLocalCommandExecutor.execute("my_batch_which_fails.bat", 5, List.of(), outPath, errPath, tempDir, Map.of("MY_VAR", " World"));
+        assertTrue(Files.readString(outPath).isEmpty());
+        assertTrue(Files.readString(errPath).isEmpty());
+        assertEquals(37, exitCode);
+
+        // Program not found
+        Files.delete(outPath);
+        Path nonExistentProgram = tempDir.resolve("non_existent_program.exe");
+        exitCode = windowsLocalCommandExecutor.execute(nonExistentProgram.toString(), 5, List.of(), outPath, errPath, tempDir, Map.of("MY_VAR", " World"));
+        assertTrue(Files.readString(outPath).isEmpty());
+        // cmd.exe writes its error message in the OEM code page which may not be
+        // valid UTF-8: check the byte size rather than decoding the content.
+        assertFileHasContent(errPath);
+        assertEquals(1, exitCode);
+    }
+
+    private static void assertFileHasContent(Path path) throws IOException {
+        // Checking the byte size handles any encoding. More than 3 bytes so that
+        // a lone line break ("\r\n") is not mistaken for actual content.
+        assertTrue(Files.size(path) > 3);
+    }
+
 }

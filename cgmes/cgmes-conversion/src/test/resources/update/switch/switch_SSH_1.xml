@@ -8,16 +8,6 @@
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
     </md:FullModel>
 
-    <cim:Equipment rdf:about="#_SeriesCompensator">
-        <cim:Equipment.inService>true</cim:Equipment.inService>
-    </cim:Equipment>
-    <cim:Terminal rdf:about="#_SeriesCompensator-T1">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-    <cim:Terminal rdf:about="#_SeriesCompensator-T2">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-
     <cim:Breaker rdf:about="#_Breaker">
         <cim:Equipment.inService>true</cim:Equipment.inService>
         <cim:Switch.open>true</cim:Switch.open>
@@ -27,20 +17,6 @@
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
     <cim:Terminal rdf:about="#_Breaker-T2">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-
-    <cim:Terminal rdf:about="#_EquivalentBranch-T1">
-        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-    <cim:Terminal rdf:about="#_EquivalentBranch-T2">
-        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-
-    <cim:Terminal rdf:about="#_ACLineSegment-T1">
-        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
-    </cim:Terminal>
-    <cim:Terminal rdf:about="#_ACLineSegment-T2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 
