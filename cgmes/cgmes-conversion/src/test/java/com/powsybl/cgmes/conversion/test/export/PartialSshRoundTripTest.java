@@ -167,7 +167,6 @@ class PartialSshRoundTripTest {
 
     private static void exportPartialSsh(Network network, Set<Identifiable<?>> changed, Path file) throws IOException, XMLStreamException {
         CgmesExportContext context = new CgmesExportContext(network)
-            .setPartialSshExport(true)
             .setSshExportedIdentifiables(changed);
         try (OutputStream os = Files.newOutputStream(file)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

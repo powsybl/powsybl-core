@@ -510,7 +510,6 @@ class SshExportedIdentifiablesTest {
         load.setP0(load.getP0() + 1.0);
 
         CgmesExportContext context = new CgmesExportContext(network)
-            .setPartialSshExport(true)
             .setSshExportedIdentifiables(SshExportedIdentifiables.fromEvents(network, recorder.getEvents(), FAIL));
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);

@@ -169,11 +169,10 @@ A process that has loaded the same base model can apply it with the network upda
 
 ### Export of a subset of the network
 
-To export a partial SSH file, set the partial mode and the exported identifiables in the export context:
+To export a partial SSH file, set the exported identifiables in the export context. This makes the SSH export partial:
 
 ```java
 CgmesExportContext context = new CgmesExportContext(network)
-    .setPartialSshExport(true)
     .setSshExportedIdentifiables(List.of(network.getGenerator("GEN"), network.getLoad("LOAD")));
 try (OutputStream os = Files.newOutputStream(Path.of("partial_SSH.xml"))) {
     XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
@@ -226,7 +225,7 @@ Thus, the regulating control in the partial SSH is the same as the regulating co
 - `targetDeadband` is the deadband of the discrete holders.
 
 One `RegulatingControl` has one target value and one target deadband.
-If the holders do not agree, the partial SSH can not express the IIDM network, and the export fails with an exception:
+If the holders do not agree, the partial SSH can not express the IIDM network, and the export fails with an exception before it writes the header:
 - The holders have different target values, or different units for their target values.
 - The discrete holders have different target deadbands.
 
@@ -253,7 +252,6 @@ network.removeListener(recorder);
 
 Set<Identifiable<?>> changed = SshExportedIdentifiables.fromEvents(network, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
 CgmesExportContext context = new CgmesExportContext(network)
-    .setPartialSshExport(true)
     .setSshExportedIdentifiables(changed);
 try (OutputStream os = Files.newOutputStream(Path.of("partial_SSH.xml"))) {
     XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
