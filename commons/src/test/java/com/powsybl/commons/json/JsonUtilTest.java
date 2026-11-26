@@ -10,7 +10,12 @@ package com.powsybl.commons.json;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataFormat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -100,5 +105,26 @@ class JsonUtilTest {
         assertDoesNotThrow(() -> JsonUtil.assertSupportedVersion(contextName, supportedVersion, maxSupportedVersion));
         String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s %n", contextName, unsupportedVersion, maxSupportedVersion);
         assertThrows(PowsyblException.class, () -> JsonUtil.assertSupportedVersion(contextName, unsupportedVersion, maxSupportedVersion), expectedException);
+    }
+
+    @Test
+    void readValueWithDeserializerHandlesNull() throws IOException {
+        ObjectMapper mapper = JsonUtil.createObjectMapper();
+        DefaultDeserializationContext blueprint = (DefaultDeserializationContext) mapper.getDeserializationContext();
+
+        try (JsonParser parser = mapper.getFactory().createParser("null")) {
+            DeserializationContext ctxt = blueprint.createInstance(mapper.getDeserializationConfig(), parser, null);
+            JsonDeserializer<Object> deser = JsonUtil.buildValueDeserializer(ctxt, null, TreeDataFormat.class);
+
+            parser.nextToken(); // VALUE_NULL
+            assertNull(JsonUtil.readValue(deser, ctxt, parser, TreeDataFormat.class));
+        }
+
+        // fallback path (null deserializer) should also return null
+        try (JsonParser parser = mapper.getFactory().createParser("null")) {
+            DeserializationContext ctxt = blueprint.createInstance(mapper.getDeserializationConfig(), parser, null);
+            parser.nextToken();
+            assertNull(JsonUtil.readValue(null, ctxt, parser, TreeDataFormat.class));
+        }
     }
 }

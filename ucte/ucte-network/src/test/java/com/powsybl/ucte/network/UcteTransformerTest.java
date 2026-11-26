@@ -57,6 +57,7 @@ class UcteTransformerTest extends AbstractUcteElementTest {
         UcteTransformer invalidTransformer1 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0, 0.0, 0.0, -1, null, 0.0, 0.0, 0.0, 0.0);
         invalidTransformer1.fix(ReportNode.NO_OP);
         assertEquals(0.05, invalidTransformer1.getReactance(), 0.0);
+        assertEquals(UcteValidation.NOMINAL_POWER_EPS, invalidTransformer1.getNominalPower(), 0.0);
 
         UcteTransformer invalidTransformer2 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0, -0.01, 0.0, null, null, 0.0, 0.0, 0.0, 0.0);
         invalidTransformer2.fix(ReportNode.NO_OP);

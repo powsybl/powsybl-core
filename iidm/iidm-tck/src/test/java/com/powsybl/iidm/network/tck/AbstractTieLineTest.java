@@ -449,7 +449,7 @@ public abstract class AbstractTieLineTest {
     }
 
     @Test
-    void testConnectDisconnect() {
+    public void testConnectDisconnect() {
         Network networkWithTieLine = createNetworkWithTieLine();
         TieLine tieLine = networkWithTieLine.getTieLine("TL");
 
@@ -485,7 +485,7 @@ public abstract class AbstractTieLineTest {
     }
 
     @Test
-    void testConnectDisconnectWithFictitiousBreaker() {
+    public void testConnectDisconnectWithFictitiousBreaker() {
         Network networkWithTieLine = createNetworkWithTieLine(true);
         TieLine tieLine = networkWithTieLine.getTieLine("TL");
         assertTieLineConnection(tieLine, true, true);

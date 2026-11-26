@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
@@ -296,6 +297,21 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     Generator setLocalTargetQ(double targetQ);
 
     /**
+     * Retrieves the regulating target reactive power.
+     * If the Generator is regulating in {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER},
+     * this is equal to the slope (tan phi) times the target active power.
+     * <p>Otherwise:</p>
+     * {@inheritDoc}
+     */
+    @Override
+    default double getRegulatingTargetQ() {
+        if (isWithMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)) {
+            return getVoltageRegulation().getSlope() * getTargetP();
+        }
+        return VoltageRegulationHolder.super.getRegulatingTargetQ();
+    }
+
+    /**
      * Get the rated nominal power (apparent power rating) in MVA.
      * @return the rated nominal power in MVA or NaN if not defined
      */
@@ -306,7 +322,14 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     /**
      * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
-    boolean isCondenser();
+    boolean hasCondenserCapability();
+
+    /**
+     * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     * @param hasCondenserCapability true if the generator has condenser capability, false otherwise
+     * @return this generator
+     */
+    Generator setCondenserCapability(boolean hasCondenserCapability);
 
     @Override
     default IdentifiableType getType() {

@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
@@ -23,6 +22,7 @@ import java.util.Optional;
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.findTapChangerId;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**
  * Handle mapping of RegulatingControl and TapChangerControl from the EQ profile.
@@ -138,9 +138,9 @@ public class RegulatingControlMapping {
         }
 
         // Set the regulation data
-        if (checkControlMode(regulatingControl.mode(), CgmesNames.VOLTAGE)) {
+        if (checkControlMode(regulatingControl.mode(), VOLTAGE)) {
             setRegulatingControlVoltage(connectable, holder, regulatingControl.terminal());
-        } else if (checkControlMode(regulatingControl.mode(), CgmesNames.REACTIVE_POWER)) {
+        } else if (checkControlMode(regulatingControl.mode(), REACTIVE_POWER) && !(connectable instanceof ShuntCompensator)) {
             setRegulatingControlReactivePower(connectable, holder, regulatingControl.terminal(), end);
         } else {
             context.ignored(regulatingControlId, "Unsupported RegulatingControl mode: " + regulatingControl.mode());
@@ -210,9 +210,9 @@ public class RegulatingControlMapping {
         }
 
         // Create the regulation
-        if (checkControlMode(regulatingControl.mode(), CgmesNames.ACTIVE_POWER)) {
+        if (checkControlMode(regulatingControl.mode(), ACTIVE_POWER)) {
             phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        } else if (checkControlMode(regulatingControl.mode(), CgmesNames.CURRENT_FLOW)) {
+        } else if (checkControlMode(regulatingControl.mode(), CURRENT_FLOW)) {
             phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
         } else {
             context.ignored(regulatingControlId, "Unsupported TapChangerControl mode: " + regulatingControl.mode());
@@ -227,7 +227,7 @@ public class RegulatingControlMapping {
      * Store the RegulatingControl data of the regulating conducting equipment defined in the Equipment profile.
      */
     public void storeRegulatingControl(PropertyBag p) {
-        String regulatingControlId = p.getId(CgmesNames.REGULATING_CONTROL);
+        String regulatingControlId = p.getId(REGULATING_CONTROL);
         cachedRegulatingControls.put(regulatingControlId, new RegulatingControl(p));
     }
 
@@ -261,7 +261,7 @@ public class RegulatingControlMapping {
     public record RegulatingControl(String mode, String terminal) {
 
         public RegulatingControl(PropertyBag p) {
-            this(p.get("mode").toLowerCase(Locale.ROOT), p.getId(CgmesNames.TERMINAL));
+            this(p.get("mode").toLowerCase(Locale.ROOT), p.getId(TERMINAL));
         }
     }
 }

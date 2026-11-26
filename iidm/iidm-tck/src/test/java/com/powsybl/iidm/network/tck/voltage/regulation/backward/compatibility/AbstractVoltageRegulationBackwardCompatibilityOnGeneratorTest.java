@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorTest extends AbstractVoltageRegulationBackwardCompatibilityCommon {
 
     @Test
-    void testGeneratorRemoteVoltageRegulationOff() {
+    public void testGeneratorRemoteVoltageRegulationOff() {
         // GIVEN
         double targetV = 220.0;
         GeneratorAdder adder = voltageLevel.newGenerator()
@@ -295,7 +295,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
     }
 
     @Test
-    void testNotifyUpdateOnSetTargetQ() {
+    public void testNotifyUpdateOnSetTargetQ() {
         // GIVEN
         Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
         String id = generator.getId();
@@ -316,7 +316,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
     }
 
     @Test
-    void testNotifyUpdateOnSetTargetV() {
+    public void testNotifyUpdateOnSetTargetV() {
         // GIVEN
         Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
         String id = generator.getId();
@@ -337,7 +337,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
     }
 
     @Test
-    void testNotifyUpdateOnSetTargetVAndEquivalentTargetV() {
+    public void testNotifyUpdateOnSetTargetVAndEquivalentTargetV() {
         // GIVEN
         Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
         String id = generator.getId();
@@ -366,7 +366,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
     }
 
     @Test
-    void testSetRegulatingTerminal() {
+    public void testSetRegulatingTerminal() {
         // GIVEN
         int expectedTargetQ = 10;
         Generator generatorWithRemoteReactiveRegulationOff = voltageLevel.newGenerator()
