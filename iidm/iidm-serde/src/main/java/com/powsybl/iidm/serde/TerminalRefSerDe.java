@@ -107,17 +107,7 @@ public final class TerminalRefSerDe {
     }
 
     public static Terminal resolve(String id, ThreeSides side, TerminalNumber number, Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
-        }
-        if (side != null && number != null) {
-            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
-        }
-        if (number != null) {
-            return Terminal.getTerminal(identifiable, number);
-        }
-        return Terminal.getTerminal(identifiable, side != null ? side : ThreeSides.ONE);
+        return Terminal.getTerminal(network, id, side, number);
     }
 
     private TerminalRefSerDe() {

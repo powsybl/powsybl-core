@@ -23,7 +23,7 @@ public interface Matrix {
     /**
      * Utility method for creating a single column matrix from a java array.
      *
-     * @param c a column array
+     * @param c             a column array
      * @param matrixFactory matrix factory to allow creating the matrix with different implementations.
      * @return the single column matrix
      */
@@ -40,7 +40,7 @@ public interface Matrix {
     /**
      * Utility method for creating a single row matrix from a java array.
      *
-     * @param r a row array
+     * @param r             a row array
      * @param matrixFactory matrix factory to allow creating the matrix with different implementations.
      * @return the single row matrix
      */
@@ -83,8 +83,8 @@ public interface Matrix {
         /**
          * This method is called for each element of the matrix.
          *
-         * @param i row index
-         * @param j column index
+         * @param i     row index
+         * @param j     column index
          * @param value the value at position ({@code i}, {@code j})
          */
         void onElement(int i, int j, double value);
@@ -107,8 +107,8 @@ public interface Matrix {
     /**
      * Set value at row {@code i} and column {@code j}.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to set at row {@code i} and column {@code j}
      */
     void set(int i, int j, double value);
@@ -116,8 +116,8 @@ public interface Matrix {
     /**
      * Add value at row {@code i} and column {@code j}.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to add at row {@code i} and column {@code j}
      */
     void add(int i, int j, double value);
@@ -125,8 +125,8 @@ public interface Matrix {
     /**
      * Add value at row {@code i} and column {@code j} and get an {@code #Element} to later update the element.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to add at row {@code i} and column {@code j}
      * @return an element at row {@code i} and column {@code j}
      */
@@ -135,8 +135,8 @@ public interface Matrix {
     /**
      * Add value at row {@code i} and column {@code j} and get an element index to later update the element.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to add at row {@code i} and column {@code j}
      * @return an element index corresponding to row {@code i} and column {@code j}
      */
@@ -190,7 +190,7 @@ public interface Matrix {
      * Multiply the matrix by another one and by a scalar (this*other*scalar). The resulting matrix has the same implementation as
      * this matrix.
      *
-     * @param other the other matrix
+     * @param other  the other matrix
      * @param scalar a scalar to multiply the result matrix
      * @return the result of the multiplication of this matrix by the other one
      */
@@ -211,7 +211,7 @@ public interface Matrix {
      *
      * @param other the other matrix
      * @param alpha a scalar to multiply this matrix
-     * @param beta a scalar to multiply other matrix
+     * @param beta  a scalar to multiply other matrix
      * @return the result of the addition of this matrix and the other one
      */
     Matrix add(Matrix other, double alpha, double beta);
@@ -237,7 +237,7 @@ public interface Matrix {
      * Iterate over non zero values of the {@code j} column of the matrix. At each non zero value {@link ElementHandler#onElement(int, int, double)}
      * is called.
      *
-     * @param j column index
+     * @param j       column index
      * @param handler the element handler
      */
     void iterateNonZeroValueOfColumn(int j, ElementHandler handler);
@@ -261,7 +261,6 @@ public interface Matrix {
      * return this.
      *
      * @param factory a matrix factory to create the copy.
-     *
      * @return a copy of the matrix
      */
     Matrix to(MatrixFactory factory);
@@ -270,7 +269,6 @@ public interface Matrix {
      * Copy this matrix using another implementation. This method is not allowed to return this.
      *
      * @param factory a matrix factory to create the copy.
-     *
      * @return a copy of the matrix
      */
     Matrix copy(MatrixFactory factory);
@@ -285,8 +283,8 @@ public interface Matrix {
     /**
      * Print the matrix to a stream. Row and column names are also printed to facilitate debugging.
      *
-     * @param out the stream
-     * @param rowNames row names
+     * @param out         the stream
+     * @param rowNames    row names
      * @param columnNames column names
      */
     void print(PrintStream out, List<String> rowNames, List<String> columnNames);
@@ -297,4 +295,23 @@ public interface Matrix {
      * @param out the stream
      */
     void print(PrintStream out);
+
+    /**
+     * Print the matrix to a stream including the row and the column, using the given print configuration
+     *
+     * @param out         the stream
+     * @param rowNames    the row names
+     * @param columnNames the column names
+     * @param config      the print configuration
+     */
+    void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config);
+
+    /**
+     * Print the matrix to a stream, using the given print configuration
+     *
+     * @param out       the stream
+     * @param config    the print configuration
+     */
+    void print(PrintStream out, PrintConfig config);
+
 }

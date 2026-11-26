@@ -34,6 +34,7 @@ public enum UcteCountryCode {
     GR('G', "Greece"),
     HU('M', "Hungary"),
     HR('H', "Croatia"),
+    IE('4', "Ireland"),
     IT('I', "Italy"),
     LU('1', "Luxemburg"),
     LT('6', "Lithuania"),
@@ -45,7 +46,6 @@ public enum UcteCountryCode {
     PT('P', "Portugal"),
     PL('Z', "Poland"),
     RO('R', "Romania"),
-    RU('4', "Russia"),
     SE('8', "Sweden"),
     SK('Q', "Slovakia"),
     SI('L', "Slovenia"),
@@ -91,6 +91,7 @@ public enum UcteCountryCode {
             case 'G' -> GR;
             case 'M' -> HU;
             case 'H' -> HR;
+            case '4' -> IE;
             case 'I' -> IT;
             case '1' -> LU;
             case '6' -> LT;
@@ -102,7 +103,6 @@ public enum UcteCountryCode {
             case 'P' -> PT;
             case 'Z' -> PL;
             case 'R' -> RO;
-            case '4' -> RU;
             case '8' -> SE;
             case 'Q' -> SK;
             case 'L' -> SI;
@@ -125,15 +125,32 @@ public enum UcteCountryCode {
         }
     }
 
-    public static UcteCountryCode fromVoltagelevel(VoltageLevel voltageLevel) {
-        Country country = voltageLevel.getSubstation()
-                .flatMap(Substation::getCountry)
-                .orElseThrow(() -> new UcteException("No UCTE country found for substation"));
+    /**
+     * Return the country code for {@code country} according to UCTE-DEF specification.<br>
+     * <strong>Note:</strong> Kosovo country code has changed (XK -> KS). If provided with {@code Country.XK}, the
+     * returned value is {@code UcteCountryCode.KS}.
+     *
+     * @param country a country
+     * @return the code corresponding to {@code country}
+     * @throws UcteException if the provided country isn't in UCTE
+     */
+    public static UcteCountryCode fromCountry(Country country) {
+        // Kosovo: ISO 3166 code XK, ENTSO-E code KS
+        if (country == Country.XK) {
+            return KS;
+        }
         try {
             return UcteCountryCode.valueOf(country.name());
         } catch (IllegalArgumentException e) {
             throw new UcteException(String.format("No UCTE country found for %s", country.name()));
         }
+    }
+
+    public static UcteCountryCode fromVoltagelevel(VoltageLevel voltageLevel) {
+        Country country = voltageLevel.getSubstation()
+                .flatMap(Substation::getCountry)
+                .orElseThrow(() -> new UcteException("No UCTE country found for substation"));
+        return fromCountry(country);
     }
 
 }

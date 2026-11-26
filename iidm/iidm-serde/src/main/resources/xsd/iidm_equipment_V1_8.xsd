@@ -279,7 +279,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:attribute name="p0" use="optional" type="xs:double"/>
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
-                <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
+                <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

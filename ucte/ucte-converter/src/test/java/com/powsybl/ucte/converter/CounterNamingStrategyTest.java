@@ -10,7 +10,11 @@ package com.powsybl.ucte.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
+import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +47,7 @@ class CounterNamingStrategyTest {
         assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("NGEN"));
         assertThrows(UcteException.class, () -> strategy.getUcteElementId("NHV1_NHV2_1"));
 
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         assertDoesNotThrow(() -> strategy.getUcteNodeCode("NGEN"));
         assertDoesNotThrow(() -> strategy.getUcteElementId("NHV1_NHV2_1"));
@@ -51,7 +55,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testVoltageLevelCounterNaming() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         UcteNodeCode firstBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN"));
         UcteNodeCode secondBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN2"));
@@ -69,7 +73,7 @@ class CounterNamingStrategyTest {
     @Test
     void testBasicNodeCodeGeneration() {
 
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
         Bus genbus2 = network.getBusBreakerView().getBus("NGEN2");
         Bus ucteBus = network.getBusBreakerView().getBus("F0000079");
@@ -103,7 +107,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testBranchElementIds() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         Branch<?> transformer1 = network.getBranch("NGEN_NHV1");
         Branch<?> transformer2 = network.getBranch("NHV2_NLOAD");
@@ -137,7 +141,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testSwitchElementIds() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
         Switch sw = network.getSwitch("NGEN-NGEN2");
         Switch sw2 = network.getSwitch("NGEN-NGEN3");
         Switch sw3 = network.getSwitch("NGEN-NGEN3");
@@ -168,7 +172,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testBoundaryLineElementIds() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
         BoundaryLine dl1 = network.getBoundaryLine("DL1");
         BoundaryLine dl2 = network.getBoundaryLine("DL2");
         BoundaryLine dl3 = network.getBoundaryLine("DL3");
@@ -191,7 +195,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testParallelLines() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         Branch<?> line1 = network.getBranch("NHV1_NHV2_1");
         Branch<?> line2 = network.getBranch("NHV1_NHV2_2");
@@ -211,7 +215,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testExistingUcteNodeCodes() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         Bus bus = network.getBusBreakerView().getBus("NGEN");
         UcteNodeCode firstCode = strategy.getUcteNodeCode(bus);
@@ -229,7 +233,7 @@ class CounterNamingStrategyTest {
 
     @Test
     void testNullAndInvalidIds() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         assertAll(
                 () -> assertThrows(PowsyblException.class, () -> strategy.getUcteNodeCode((String) null)),
@@ -241,10 +245,38 @@ class CounterNamingStrategyTest {
 
     @Test
     void testCountryCode() {
-        strategy.initializeNetwork(network);
+        strategy.initializeNetwork(network, ReportNode.NO_OP);
 
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
         UcteNodeCode code = strategy.getUcteNodeCode(genBus);
         assertEquals('F', code.toString().charAt(0));
+    }
+
+    @Test
+    void orphanVoltageLevels() {
+        // Two countries: the isolated orphan can't be given the single country of the network
+        network.getSubstation("P2").setCountry(Country.BE);
+        // Orphan linked to NHV1
+        String linked = UcteExporterTestNetworks.newBus(UcteExporterTestNetworks.newOrphanVoltageLevel(network, "LINKED"), "BUS_LINKED_1");
+        UcteExporterTestNetworks.newLine(network, "BR_NHV1_BUS_LINKED_1", "NHV1", linked);
+        // Isolated orphan, one bus and no equipment
+        UcteExporterTestNetworks.newBus(UcteExporterTestNetworks.newOrphanVoltageLevel(network, "ISOLATED"), "BUS_ISOLATED_1");
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testExportReportNode")
+                .build();
+
+        strategy.initializeNetwork(network, reportNode);
+
+        // The orphan linked to NHV1 gets the country of VLHV1
+        UcteNodeCode code = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("BUS_LINKED_1"));
+        assertEquals(UcteCountryCode.FR, code.getUcteCountryCode());
+        assertDoesNotThrow(() -> strategy.getUcteElementId("BR_NHV1_BUS_LINKED_1"));
+        // The isolated orphan without equipment is excluded
+        assertFalse(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VL_ISOLATED")));
+        assertTrue(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VLHV1")));
+        assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("BUS_ISOLATED_1"));
+        assertEquals("Voltage level VL_ISOLATED is connected to no substation and holds no equipment: it is not exported",
+                reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }
 }

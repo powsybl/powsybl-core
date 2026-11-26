@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -196,8 +198,20 @@ class MergeTest {
         Network network3 = createNodeBreakerWithVoltageAngleLimit("3");
         network3.setCaseDate(zonedDateTime1);
         Network networkMerged = Network.merge(network1, network2, network3);
-        assertNotEquals(zonedDateTime1, networkMerged.getCaseDate());
-        assertNotEquals(zonedDateTime2, networkMerged.getCaseDate());
+        assertFalse(zonedDateTime1.isEqual(networkMerged.getCaseDate()));
+        assertFalse(zonedDateTime2.isEqual(networkMerged.getCaseDate()));
+    }
+
+    @Test
+    void mergeNetworksWithSameCaseDateInDifferentTimeZones() {
+        ZonedDateTime utc = ZonedDateTime.of(2031, 3, 4, 5, 30, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime plusOne = ZonedDateTime.of(2031, 3, 4, 6, 30, 0, 0, ZoneOffset.ofHours(1));
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
+        network1.setCaseDate(plusOne);
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
+        network2.setCaseDate(utc);
+        Network networkMerged = Network.merge(network1, network2);
+        assertEquals(plusOne, networkMerged.getCaseDate());
     }
 
     @Test
@@ -373,10 +387,10 @@ class MergeTest {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(-500.0)
             .setMaxP(500.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setTargetP(p)
-            .setTargetV(targetV)
-            .setTargetQ(q)
+            .setLocalTargetV(targetV)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

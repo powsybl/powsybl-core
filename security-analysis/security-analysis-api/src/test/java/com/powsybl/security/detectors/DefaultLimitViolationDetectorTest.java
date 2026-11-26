@@ -38,8 +38,8 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
 
     @Override
     protected void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
-                                       LimitType limitType, double limitReduction) {
-        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(limitReduction, EnumSet.allOf(LoadingLimitType.class));
+                                       LimitType limitType, double limitScaling) {
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(limitScaling, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkLimitViolation(branch, side, currentValue, consumer, limitType);
     }
 
@@ -110,7 +110,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
-                      assertEquals(1.0f, l.getLimitReduction());
+                      assertEquals(1.0f, l.getLimitScaling());
                   });
     }
 
@@ -174,7 +174,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
-                    assertEquals(1.0f, l.getLimitReduction());
+                    assertEquals(1.0f, l.getLimitScaling());
                 });
     }
 
@@ -239,7 +239,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.TWO, l.getSide());
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
-                    assertEquals(1.0f, l.getLimitReduction());
+                    assertEquals(1.0f, l.getLimitScaling());
                 });
     }
 

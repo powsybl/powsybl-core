@@ -24,6 +24,7 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, BoundaryLineAdder, VoltageLevel> {
     private static final String GENERATION = "generation";
+    private static final String REACTIVE_LIMITS = "reactiveLimits";
     private static final String GENERATION_MAX_P = "generationMaxP";
     private static final String GENERATION_MIN_P = "generationMinP";
     private static final String GENERATION_TARGET_P = "generationTargetP";
@@ -35,14 +36,17 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     static final String ROOT_ELEMENT_NAME = "boundaryLine";
     static final String ARRAY_ELEMENT_NAME = "boundaryLines";
 
+    private static final String GENERATION_CONTEXT = ROOT_ELEMENT_NAME + "." + GENERATION;
+
     @Override
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;
     }
 
     @Override
-    protected void writeRootElementAttributes(BoundaryLine dl, VoltageLevel vl, NetworkSerializerContext context) {
-        writeRootElementAttributesInternal(INSTANCE.getRootElementName(), dl, dl::getTerminal, context);
+    protected void writeRootElementAttributes(BoundaryLine bl, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(bl, context);
+        writeRootElementAttributesInternal(INSTANCE.getRootElementName(), bl, bl::getTerminal, context);
     }
 
     static void writeRootElementAttributesInternal(String rootElementName, BoundaryLine bl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
@@ -112,6 +116,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     @Override
     protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         checkVersion(context);
+        readEquivalent(adder, context);
         readRootElementAttributesInternal(adder, voltageLevel, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
@@ -189,12 +194,16 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             }
             case CURRENT_LIMITS ->
                 readCurrentLimits(bl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> {
+                IidmSerDeUtil.assertMinimumVersion(GENERATION_CONTEXT, REACTIVE_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
+                ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(bl.getGeneration(), context);
+            }
             case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {
-                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                IidmSerDeUtil.assertMinimumVersion(GENERATION_CONTEXT, REACTIVE_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                 ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(bl.getGeneration(), context);
             }
             case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
-                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                IidmSerDeUtil.assertMinimumVersion(GENERATION_CONTEXT, REACTIVE_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                 ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(bl.getGeneration(), context);
             }
             default -> readSubElement(elementName, bl, context);

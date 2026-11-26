@@ -16,7 +16,11 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
  * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a> format.
@@ -112,15 +116,10 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
-        if (columnStart.length != columnCount + 1) {
-            throw new MatrixException("columnStart array length has to be columnCount + 1");
-        }
         columnValueCount = new int[columnCount];
         this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
-        if (rowIndices.length != values.length) {
-            throw new MatrixException("rowIndices and values arrays must have the same length");
-        }
+        checkStructure();
         fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
         currentColumn = columnCount - 1;
     }
@@ -165,6 +164,30 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
         if (columnCount < 1) {
             throw new MatrixException("column count has to be strictly positive");
+        }
+    }
+
+    /**
+     * Check that the CSC structure vectors agree with each other and with the row and column counts. The
+     * native layer (times, add, transpose, SparseLUDecomposition.init) sizes its reads from these counts,
+     * so an inconsistent structure would be an out-of-bounds access in native code. Called from the
+     * structure-vector constructor and from {@link #readObject(ObjectInputStream)}.
+     */
+    private void checkStructure() {
+        checkSize(rowCount, columnCount);
+        if (columnStart == null || columnStart.length != columnCount + 1) {
+            throw new MatrixException("columnStart array length has to be columnCount + 1");
+        }
+        if (columnValueCount == null || columnValueCount.length != columnCount) {
+            throw new MatrixException("columnValueCount array length has to be columnCount");
+        }
+        if (rowIndices == null || values == null || rowIndices.size() != values.size()) {
+            throw new MatrixException("rowIndices and values arrays must have the same length");
+        }
+        for (int start : columnStart) {
+            if (start < -1 || start > values.size()) {
+                throw new MatrixException("columnStart value " + start + " out of range [-1, " + values.size() + "]");
+            }
         }
     }
 
@@ -448,18 +471,15 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null);
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        out.println("values=" + values);
+        getFormatter(config).ifPresentOrElse(
+                decimalFormat -> out.println("values=" + formatValues(decimalFormat)),
+                () -> out.println("values=" + values));
     }
 
     @Override
@@ -522,4 +542,23 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
             throw new UncheckedIOException(e);
         }
     }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Deserialization does not go through the constructors, so the structure checks they perform have
+        // to be re-applied to the deserialized fields.
+        try {
+            checkStructure();
+        } catch (MatrixException e) {
+            throw new InvalidObjectException(e.getMessage());
+        }
+    }
+
+    public String formatValues(DecimalFormat decimalFormat) {
+        return Arrays.stream(getValues())
+                .mapToObj(decimalFormat::format)
+                .collect(Collectors.joining(", ", "{", "}"));
+    }
+
 }

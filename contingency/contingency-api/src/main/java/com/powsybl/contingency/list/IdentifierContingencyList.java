@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.ContingencyElementFactory;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 
@@ -62,8 +63,12 @@ public class IdentifierContingencyList implements ContingencyList {
                     .toList();
                 List<Contingency> contingencyList = new ArrayList<>();
                 if (identifier.isMonoElementContingencies()) {
-                    contingencyElements.forEach(contingencyElement ->
-                        contingencyList.add(new Contingency(contingencyElement.getId(), contingencyElement)));
+                    // element id may differ from the filtered identifiable (e.g. converter station -> HVDC line)
+                    contingencyElements.forEach(contingencyElement -> {
+                        Identifiable<?> identifiable = network.getIdentifiable(contingencyElement.getId());
+                        String contingencyName = identifiable != null ? identifiable.getOptionalName().orElse(null) : null;
+                        contingencyList.add(new Contingency(contingencyElement.getId(), contingencyName, contingencyElement));
+                    });
                 } else {
                     String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(contingencyElements));
                     contingencyList.add(new Contingency(contingencyId, contingencyElements));

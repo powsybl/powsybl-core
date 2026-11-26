@@ -75,12 +75,12 @@ class LimitsContainerTest {
             }
 
             @Override
-            public double getPermanentLimitReduction() {
+            public double getPermanentLimitScaling() {
                 return 0.5;
             }
 
             @Override
-            public Double getTemporaryLimitReduction(int acceptableDuration) {
+            public Double getTemporaryLimitScaling(int acceptableDuration) {
                 return acceptableDuration * 0.001;
             }
         };
@@ -92,7 +92,7 @@ class LimitsContainerTest {
         assertEquals(1050., container.getLimits().getTemporaryLimit(300).getValue(), 0.01);
         assertEquals(1000., container.getOriginalPermanentLimit(), 0.01);
         assertEquals(1400., container.getOriginalTemporaryLimit(300), 0.01);
-        assertEquals(0.5, container.getPermanentLimitReduction());
-        assertEquals(0.005, container.getTemporaryLimitReduction(5));
+        assertEquals(0.5, container.getPermanentLimitScaling());
+        assertEquals(0.005, container.getTemporaryLimitScaling(5));
     }
 }

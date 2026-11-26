@@ -7,6 +7,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
@@ -22,16 +23,16 @@ class UcteCountryCodeTest {
     void test() {
         final char[] countryCodeNodes = {
             'O', 'A', 'B', 'V', 'W', '3', 'S', 'C', 'D',
-            'K', 'E', 'F', '5', 'G', 'M', 'H', 'I', '1',
-            '6', '2', '7', 'Y', '9', 'N', 'P', 'Z', 'R',
-            '4', '8', 'Q', 'L', 'T', 'U', '0', 'J', '_', 'X',
+            'K', 'E', 'F', '5', 'G', 'M', 'H', '4', 'I',
+            '1', '6', '2', '7', 'Y', '9', 'N', 'P', 'Z',
+            'R', '8', 'Q', 'L', 'T', 'U', '0', 'J', '_', 'X',
         };
 
         final String[] prettyNames = {
             "Austria", "Albania", "Belgium", "Bulgaria", "Bosnia and Herzegovina", "Belarus", "Switzerland", "Czech Republic", "Germany",
-            "Denmark", "Spain", "France", "Great Britain", "Greece", "Hungary", "Croatia", "Italy", "Luxemburg",
-            "Lithuania", "Morocco", "Moldavia", "FYROM", "Norway", "Netherlands", "Portugal", "Poland", "Romania",
-            "Russia", "Sweden", "Slovakia", "Slovenia", "Turkey", "Ukraine", "Montenegro", "Serbia", "Kosovo", "Fictitious border node"
+            "Denmark", "Spain", "France", "Great Britain", "Greece", "Hungary", "Croatia", "Ireland", "Italy",
+            "Luxemburg", "Lithuania", "Morocco", "Moldavia", "FYROM", "Norway", "Netherlands", "Portugal", "Poland",
+            "Romania", "Sweden", "Slovakia", "Slovenia", "Turkey", "Ukraine", "Montenegro", "Serbia", "Kosovo", "Fictitious border node"
         };
 
         assertEquals(37, UcteCountryCode.values().length);
@@ -53,5 +54,23 @@ class UcteCountryCodeTest {
         assertTrue(isUcteCountryCode('A'));
         assertTrue(isUcteCountryCode('1'));
         assertFalse(isUcteCountryCode('&'));
+    }
+
+    @Test
+    void fromCountry() {
+        assertEquals(UcteCountryCode.NL, UcteCountryCode.fromCountry(Country.NL));
+        assertEquals(UcteCountryCode.BE, UcteCountryCode.fromCountry(Country.BE));
+    }
+
+    @Test
+    void fromKosovo() {
+        // ISO 3166 code XK, ENTSO-E code KS
+        assertEquals(UcteCountryCode.KS, UcteCountryCode.fromCountry(Country.XK));
+    }
+
+    @Test
+    void fromUnsupportedCountry() {
+        UcteException e = assertThrows(UcteException.class, () -> UcteCountryCode.fromCountry(Country.US));
+        assertEquals("No UCTE country found for US", e.getMessage());
     }
 }

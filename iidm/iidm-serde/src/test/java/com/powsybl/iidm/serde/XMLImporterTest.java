@@ -143,7 +143,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         assertEquals("XIIDM", importer.getFormat());
         assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
         assertEquals(List.of("xiidm", "iidm", "xml"), importer.getSupportedExtensions());
-        assertEquals(7, importer.getParameters().size());
+        assertEquals(8, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
@@ -241,6 +241,16 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
                 "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml",
                 "/importXmlReportExtensionsAndValidations.txt");
+    }
+
+    @Test
+    void importDataReportNodeValidationMixedTerminalRefTest() throws IOException {
+        // NHV2_NLOAD's tap changers reference a terminal (resolved as a deferred end task),
+        // NHV2_NLOAD_2's tap changers don't (resolved immediately while reading the network elements).
+        // Both validation warnings must be nested under "Validation warnings", whichever path resolved them.
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTapMixedTerminalRef",
+                "twoWindingsTransformerPhaseAndRatioTapMixedTerminalRef.xml",
+                "/importXmlReportValidationMixedTerminalRef.txt");
     }
 
     private void importDataAndTestReportNode(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {

@@ -802,36 +802,36 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     @ParameterizedTest
     @MethodSource("provideUtilCheckTemporaryLimitsArguments")
     public void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side,
-                                                  Collection<Double> limitReductions, LimitType type, double value,
+                                                  Collection<Double> limitScalings, LimitType type, double value,
                                                   Collection<ExpectedOverload> expected) {
-        for (double limitReduction : limitReductions) {
+        for (double limitScaling : limitScalings) {
             Collection<Overload> overloads = switch (identifiable) {
                 case Branch<?> b -> {
-                    if (limitReduction == 1) {
+                    if (limitScaling == 1) {
                         yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), new LimitsComputer.NoModificationsImpl(), value, type);
                     } else {
                         /*
-                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
-                         * the actual value to match that. The arguments to this method test both with and without limitReduction.
-                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                         * To get the same situation, we need to reduce both the limits and the value. The limits are
-                         * supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         * multiply by limitScaling because all the limits will be scaled, so we also want to scale
+                         * the actual value to match that. The arguments to this method test both with and without limitScaling.
+                         * All the cases with a limitScaling are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to scale both the limits and the value. The limits are
+                         * supposed to be scaled by checkAllTemporaryLimits, and we scale the value in the test
                          */
-                        yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReduction, value * limitReduction, type);
+                        yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitScaling, value * limitScaling, type);
                     }
                 }
                 case ThreeWindingsTransformer t -> {
-                    if (limitReduction == 1) {
+                    if (limitScaling == 1) {
                         yield LimitViolationUtils.checkAllTemporaryLimits(t, side, new LimitsComputer.NoModificationsImpl(), value, type);
                     } else {
                         /*
-                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
-                         * the actual value to match that. The arguments to this method test both with and without limitReduction.
-                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                         * To get the same situation, we need to reduce both the limits and the value. The limits are
-                         * supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         * multiply by limitScaling because all the limits will be scaled, so we also want to scale
+                         * the actual value to match that. The arguments to this method test both with and without limitScaling.
+                         * All the cases with a limitScaling are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to scale both the limits and the value. The limits are
+                         * supposed to be scaled by checkAllTemporaryLimits, and we scale the value in the test
                          */
-                        yield LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReduction, value * limitReduction, type);
+                        yield LimitViolationUtils.checkAllTemporaryLimits(t, side, limitScaling, value * limitScaling, type);
                     }
                 }
                 default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
@@ -968,21 +968,21 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideReductionValueSelectionArguments")
-    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side,
-                                                                   double limitReductionValue,
-                                                                   Collection<String> groupsToApplyLimitReduction,
-                                                                   LimitType type, double value,
-                                                                   Collection<ExpectedOverload> expected) {
+    @MethodSource("provideScalingValueSelectionArguments")
+    public void operationalLimitsGroupLimitScalingValueSelection(Identifiable<?> identifiable, ThreeSides side,
+                                                                 double limitScalingValue,
+                                                                 Collection<String> groupsToApplyLimitScaling,
+                                                                 LimitType type, double value,
+                                                                 Collection<ExpectedOverload> expected) {
         Collection<Overload> overloads = switch (identifiable) {
-            case Branch<?> b -> LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReductionValue, groupsToApplyLimitReduction, value, type);
-            case ThreeWindingsTransformer t -> LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReductionValue, groupsToApplyLimitReduction, value, type);
+            case Branch<?> b -> LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitScalingValue, groupsToApplyLimitScaling, value, type);
+            case ThreeWindingsTransformer t -> LimitViolationUtils.checkAllTemporaryLimits(t, side, limitScalingValue, groupsToApplyLimitScaling, value, type);
             default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
         };
         checkOverloads(overloads, expected);
     }
 
-    private static Stream<Arguments> provideReductionValueSelectionArguments() {
+    private static Stream<Arguments> provideScalingValueSelectionArguments() {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         //activate the usually not activated group to have 3 groups with temporary (since default doesn't have any)
@@ -1057,7 +1057,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     350,
                     45 * 60
                 )
-            )) // only reduce activated_3_1
+            )) // only scale activated_3_1
         );
     }
 

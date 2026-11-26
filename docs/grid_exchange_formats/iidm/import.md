@@ -42,6 +42,17 @@ Using this will result in a smaller in-memory network.
 
 By default, this is set to `false`, all groups are imported.
 
+**iidm.import.repair-invalid-reactive-curve-limits**<br>
+The `iidm.import.repair-invalid-reactive-curve-limits` property is an optional property that enables the IIDM importer to detect `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
+
+By default, the value is `false`.<br>
+When set to `false`, a reactive capability curve point with `minQ > maxQ` is considered invalid and the import fails with a validation error.<br>
+When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.<br>
+
+```{note}
+IIDM versions prior to 1.18 accepted invalid ordered minQ/maxQ limits. To avoid rejecting such files during import, the repair is always enabled for IIDM versions earlier than 1.18, regardless of the value of this parameter.
+```
+
 ### Deprecated properties
 
 **throwExceptionIfExtensionNotFound**<br>

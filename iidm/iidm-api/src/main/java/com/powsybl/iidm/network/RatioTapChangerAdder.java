@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -16,7 +20,8 @@ public interface RatioTapChangerAdder extends TapChangerAdder<
     RatioTapChangerAdder.StepAdder,
     RatioTapChangerStepsReplacer.StepAdder,
     RatioTapChangerStepsReplacer,
-    RatioTapChanger> {
+    RatioTapChanger>,
+    VoltageRegulationHolderAdder<RatioTapChangerAdder> {
 
     /**
      * Interface for classes responsible for building a single step when using {@link RatioTapChangerAdder}.
@@ -24,9 +29,41 @@ public interface RatioTapChangerAdder extends TapChangerAdder<
     interface StepAdder extends RatioTapChangerStepAdder<StepAdder, RatioTapChangerAdder> {
     }
 
-    RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChangerAdder setRegulationMode(RegulationMode regulationMode);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RatioTapChangerAdder setRegulationValue(double regulationValue);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RatioTapChangerAdder setTargetV(double targetV);
+
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChangerAdder setRegulating(boolean regulating);
+
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
+
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    default RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 }

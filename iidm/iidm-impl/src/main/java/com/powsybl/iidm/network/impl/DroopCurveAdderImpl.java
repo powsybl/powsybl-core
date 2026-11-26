@@ -53,6 +53,9 @@ class DroopCurveAdderImpl<O extends Validable & AcDcConverter<?>> implements Dro
             if (Double.isNaN(k)) {
                 throw new ValidationException(owner, "k is not set");
             }
+            if (k == 0.0) {
+                throw new ValidationException(owner, "k is zero");
+            }
             if (Double.isNaN(minV)) {
                 throw new ValidationException(owner, "min V is not set");
             }
@@ -76,6 +79,11 @@ class DroopCurveAdderImpl<O extends Validable & AcDcConverter<?>> implements Dro
 
     @Override
     public DroopCurve add() {
+        boolean hasPositiveK = segments.stream().anyMatch(s -> s.getK() > 0.0);
+        boolean hasNegativeK = segments.stream().anyMatch(s -> s.getK() < 0.0);
+        if (hasPositiveK && hasNegativeK) {
+            throw new ValidationException(owner, "k have inconsistent signs");
+        }
         segments.sort(Comparator.comparingDouble(DroopCurve.Segment::getMinV));
         for (int i = 0; i < segments.size() - 1; i++) {
 

@@ -13,7 +13,11 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -28,6 +32,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     int numberOfAcTerminals;
     static final double DEFAULT_POWER_FACTOR = 1.0 / Math.hypot(1.0, 0.5);  // Default power factor calculated with Q = P / 2
+    private static final Logger LOG = LoggerFactory.getLogger(AcDcConverterConversion.class);
 
     public AcDcConverterConversion(PropertyBag p, Context context) {
         super(CgmesNames.ACDC_CONVERTER, p, context);
@@ -61,7 +66,6 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         if (VS_CONVERTER.equals(p.getLocal("type"))) {
             VoltageSourceConverterAdder vscAdder = voltageLevel().newVoltageSourceConverter();
             commonAcDcConvert(vscAdder);
-            setReactivePowerControl(vscAdder);
             VoltageSourceConverter vsc = vscAdder.add();
 
             commonPostAcDcConvert(vsc);
@@ -101,9 +105,8 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private void setActivePowerControl(AcDcConverterAdder<?, ?> adder) {
-        // The default is 0 MW active power at pcc terminal.
+        // The default is P_PCC mode, without any setpoint. It should be overridden by SSH profile.
         adder.setControlMode(AcDcConverter.ControlMode.P_PCC);
-        adder.setTargetP(0.0);
 
         // If invalid, don't set the pcc terminal: IIDM will consider the default one (AcDcConverter first AC terminal).
         getValidPccTerminal().ifPresent(adder::setPccTerminal);
@@ -135,12 +138,6 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         return Optional.of(mappedPccTerminal);
     }
 
-    private void setReactivePowerControl(VoltageSourceConverterAdder adder) {
-        // The default is 0 MVar reactive power at pcc terminal.
-        adder.setReactivePowerSetpoint(0.0)
-                .setVoltageRegulatorOn(false);
-    }
-
     private void setPowerFactor(LineCommutatedConverterAdder adder) {
         adder.setPowerFactor(DEFAULT_POWER_FACTOR);
     }
@@ -168,6 +165,11 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), ALIAS_DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
         converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), ALIAS_DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
         converter.setProperty(PROPERTY_DC_CONVERTER_UNIT, p.getId("DCConverterUnit"));
+        converter.setProperty(PROPERTY_RATED_UDC, String.valueOf(p.asDouble(CgmesNames.RATED_UDC)));
+        double baseS = p.asDouble("baseS");
+        if (Double.isFinite(baseS) && baseS > 0) {
+            converter.setProperty(PROPERTY_BASE_S, String.valueOf(baseS));
+        }
     }
 
     public static void update(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
@@ -175,6 +177,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         updateActivePowerControl(converter, cgmesData, context);
         if (converter instanceof VoltageSourceConverter voltageSourceConverter) {
             updateReactivePowerControl(voltageSourceConverter, cgmesData, context);
+            updateDroopCurve(voltageSourceConverter, cgmesData);
         } else if (converter instanceof LineCommutatedConverter lineCommutatedConverter) {
             updatePowerFactor(lineCommutatedConverter, cgmesData, context);
         }
@@ -201,52 +204,109 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             controlMode = AcDcConverter.ControlMode.P_PCC;
         } else if (pPccControl != null && (pPccControl.endsWith("dcVoltage") || pPccControl.endsWith("udc"))) {
             controlMode = AcDcConverter.ControlMode.V_DC;
+        } else if (pPccControl != null && pPccControl.endsWith("pPccAndUdcDroop")) {
+            controlMode = AcDcConverter.ControlMode.DC_DROOP;
         } else {
             boolean isDefaultControlModePpcc = getDefaultValue(null, converter.getControlMode() == AcDcConverter.ControlMode.P_PCC, true, true, context);
             controlMode = isDefaultControlModePpcc ? AcDcConverter.ControlMode.P_PCC : AcDcConverter.ControlMode.V_DC;
         }
 
-        if (controlMode == AcDcConverter.ControlMode.P_PCC) {
-            double defaultTargetPpcc = getDefaultValue(null, converter.getTargetP(), 0.0, Double.NaN, context);
-            double targetPpcc = cgmesData.asDouble("targetPpcc");
-            double validTargetPpcc = isValidTargetValue(targetPpcc) ? targetPpcc : defaultTargetPpcc;
+        switch (controlMode) {
+            case AcDcConverter.ControlMode.P_PCC -> {
+                double validTargetPpcc = getValidTargetPpcc(converter, cgmesData, context);
 
-            // TargetPpcc must be valid before enabling regulation
-            converter.setTargetP(validTargetPpcc)
-                    .setControlMode(AcDcConverter.ControlMode.P_PCC)
-                    .setTargetVdc(Double.NaN);
-        } else {
-            double defaultTargetVdc = getDefaultValue(null, converter.getTargetVdc(), converter.getDcTerminal1().getDcNode().getNominalV(), Double.NaN, context);
-            double targetVdc = cgmesData.asDouble("targetUdc");
-            double validTargetVdc = isValidTargetV(targetVdc) ? targetVdc : defaultTargetVdc;
+                // TargetPpcc must be valid before enabling regulation
+                converter.setTargetP(validTargetPpcc)
+                        .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                        .setTargetVdc(Double.NaN);
+            }
+            case AcDcConverter.ControlMode.V_DC -> {
+                double validTargetVdc = getValidTargetVdc(converter, cgmesData, context);
 
-            // TargetVdc must be valid before enabling regulation
-            converter.setTargetVdc(validTargetVdc)
-                    .setControlMode(AcDcConverter.ControlMode.V_DC)
-                    .setTargetP(Double.NaN);
+                // TargetVdc must be valid before enabling regulation
+                converter.setTargetVdc(validTargetVdc)
+                        .setControlMode(AcDcConverter.ControlMode.V_DC)
+                        .setTargetP(Double.NaN);
+            }
+            case AcDcConverter.ControlMode.DC_DROOP -> {
+                double validTargetPpcc = getValidTargetPpcc(converter, cgmesData, context);
+                double validTargetVdc = getValidTargetVdc(converter, cgmesData, context);
+
+                // TargetPpcc and targetVdc must be valid before enabling regulation
+                converter.setTargetP(validTargetPpcc)
+                        .setTargetVdc(validTargetVdc)
+                        .setControlMode(AcDcConverter.ControlMode.DC_DROOP);
+            }
         }
     }
 
+    /**
+     * Helper method to get a valid targetP for the converter, either from the SSH profile or the IIDM value.
+     *
+     * @param converter The IIDM converter which requires a valid targetP. It may already have a targetP.
+     * @param cgmesData SSH data that can contain a "targetPpcc" property.
+     * @param context   CGMES import context.
+     * @return The "targetPpcc" in the SSH data if it exists and is valid, otherwise the targetP already stored in the IIDM converter and else NaN.
+     */
+    private static double getValidTargetPpcc(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
+        double defaultTargetPpcc = getDefaultValue(null, converter.getTargetP(), Double.NaN, Double.NaN, context);
+        double targetPpcc = cgmesData.asDouble("targetPpcc");
+        return isValidTargetValue(targetPpcc) ? targetPpcc : defaultTargetPpcc;
+    }
+
+    /**
+     * Helper method to get a valid targetVdc for the converter, either from the SSH profile or the IIDM value.
+     *
+     * @param converter The IIDM converter which requires a valid targetVdc. It may already have a targetVdc.
+     * @param cgmesData SSH data that can contain a "targetUdc" property.
+     * @param context   CGMES import context.
+     * @return The "targetUdc" in the SSH data if it exists and is valid, otherwise the targetVdc already stored in the IIDM converter and else NaN.
+     */
+    private static double getValidTargetVdc(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
+        double defaultTargetVdc = getDefaultValue(null, converter.getTargetVdc(), Double.NaN, Double.NaN, context);
+        double targetVdc = cgmesData.asDouble("targetUdc");
+        return isValidTargetV(targetVdc) ? targetVdc : defaultTargetVdc;
+    }
+
     private static void updateReactivePowerControl(VoltageSourceConverter vsc, PropertyBag cgmesData, Context context) {
+        double defaultLocalTargetQ = getDefaultValue(null, vsc.getLocalTargetQ(), Double.NaN, Double.NaN, context);
+        double localTargetQ = cgmesData.asDouble("q");
+        localTargetQ = Double.isNaN(localTargetQ) ? defaultLocalTargetQ : localTargetQ;
+        vsc.setLocalTargetQ(localTargetQ);
+
+        double defaultLocalTargetV = getDefaultValue(null, vsc.getLocalTargetV(), Double.NaN, Double.NaN, context);
+
         String qPccControl = cgmesData.getLocal("qPccControl");
+        boolean isRemoteRegulating = vsc.getPccTerminal() != vsc.getTerminal1();
         if (qPccControl != null && qPccControl.endsWith("voltagePcc")) {
-            double defaultVoltageSetpoint = getDefaultValue(null, vsc.getVoltageSetpoint(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);
+            double defaultVoltageSetpoint = getDefaultValue(null, vsc.getRegulatingTargetV(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);
             double voltageSetpoint = cgmesData.asDouble("targetUpcc");
             double validVoltageSetpoint = isValidTargetV(voltageSetpoint) ? voltageSetpoint : defaultVoltageSetpoint;
 
-            // VoltageSetpoint must be valid before enabling regulation
-            vsc.setVoltageSetpoint(validVoltageSetpoint)
-                    .setVoltageRegulatorOn(true)
-                    .setReactivePowerSetpoint(Double.NaN);
+            // TargetV must be valid before enabling regulation,
+            VoltageRegulationBuilder voltageRegulationBuilder = vsc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE);
+            if (isRemoteRegulating) {
+                voltageRegulationBuilder
+                    .withTerminal(vsc.getPccTerminal())
+                    .withTargetValue(validVoltageSetpoint);
+                vsc.setLocalTargetV(defaultLocalTargetV);
+            } else {
+                vsc.setLocalTargetV(validVoltageSetpoint);
+            }
+            voltageRegulationBuilder.build();
         } else if (qPccControl != null && qPccControl.endsWith("reactivePcc")) {
-            double defaultReactivePowerSetpoint = getDefaultValue(null, vsc.getReactivePowerSetpoint(), 0.0, Double.NaN, context);
+            double defaultReactivePowerSetpoint = getDefaultValue(null, vsc.getRegulatingTargetQ(), 0.0, Double.NaN, context);
             double reactivePowerSetpoint = cgmesData.asDouble("targetQpcc");
             double validReactivePowerSetpoint = isValidTargetValue(reactivePowerSetpoint) ? reactivePowerSetpoint : defaultReactivePowerSetpoint;
 
-            // ReactivePowerSetpoint must be valid before enabling regulation
-            vsc.setReactivePowerSetpoint(validReactivePowerSetpoint)
-                    .setVoltageRegulatorOn(false)
-                    .setVoltageSetpoint(Double.NaN);
+            vsc.newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                // always set the terminal in case of reactive power regulation
+                .withTerminal(vsc.getPccTerminal())
+                .withTargetValue(validReactivePowerSetpoint)
+                .build();
+            vsc.setLocalTargetV(defaultLocalTargetV);
         }
     }
 
@@ -259,4 +319,32 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         lcc.setPowerFactor(validPowerFactor);
     }
 
+    /**
+     * If the CGMES SSH data contains a finite non-zero droop coefficient, create a single segment droop curve for the converter.
+     *
+     * @param vsc       The IIDM VoltageSourceConverter
+     * @param cgmesData SSH data that can contain a "droop" property.
+     */
+    private static void updateDroopCurve(VoltageSourceConverter vsc, PropertyBag cgmesData) {
+        double droopCoefficient = cgmesData.asDouble("droop");
+        if (Double.isFinite(droopCoefficient) && droopCoefficient != 0) {
+            // Droop coefficient (k) is provided in per-unit.
+            // K (kV/MW) = k (pu) * ACDCConverter.ratedUdc / ACDCConverter.baseS
+            double ratedUdc = Double.parseDouble(vsc.getProperty(PROPERTY_RATED_UDC, "NaN"));
+            double baseS = Double.parseDouble(vsc.getProperty(PROPERTY_BASE_S, "NaN"));
+            if (Double.isFinite(ratedUdc) && Double.isFinite(baseS)) {
+                double k = droopCoefficient * ratedUdc / baseS;
+                vsc.newDroopCurve()
+                        .beginSegment()
+                        .setMinV(-ratedUdc)
+                        .setMaxV(ratedUdc)
+                        .setK(k)
+                        .endSegment()
+                        .add();
+            } else {
+                LOG.warn("The droop curve of VoltageSourceConverter {} could not be created from the SSH profile droop " +
+                        "coefficient because either 'ratedUdc' or 'baseS' was not provided in the EQ profile", vsc.getId());
+            }
+        }
+    }
 }

@@ -8,16 +8,32 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PropertiesModuleConfigRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -181,22 +197,26 @@ abstract class AbstractMatrixTest {
 
     protected String print(Matrix matrix, List<String> rowNames, List<String> columnNames) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
+        try (bos) {
             matrix.print(new PrintStream(bos), rowNames, columnNames);
-        } finally {
-            bos.close();
         }
-        return bos.toString(StandardCharsets.UTF_8.name());
+        return bos.toString(StandardCharsets.UTF_8);
     }
 
     protected String print(Matrix matrix) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
+        try (bos) {
             matrix.print(new PrintStream(bos));
-        } finally {
-            bos.close();
         }
-        return bos.toString(StandardCharsets.UTF_8.name());
+        return bos.toString(StandardCharsets.UTF_8);
+    }
+
+    protected String print(Matrix matrix, List<String> rowNames, List<String> columnNames, PrintConfig config) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (bos) {
+            matrix.print(new PrintStream(bos), rowNames, columnNames, config);
+        }
+        return bos.toString(StandardCharsets.UTF_8);
     }
 
     @Test
@@ -475,5 +495,58 @@ abstract class AbstractMatrixTest {
         assertEquals(0d, at.get(1, 0), 0d);
         assertEquals(3d, at.get(1, 1), 0d);
         assertEquals(0d, at.get(1, 2), 0d);
+    }
+
+    @Test
+    void printWhenDecimalPlacesPropertyDefined() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 4, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        matrix.set(0, 3, 1.23456);
+        String result = print(matrix);
+        assertThat(result)
+                .contains("0.33").doesNotContain("0.3333")
+                .contains("3.14").doesNotContain("3.1415").doesNotContain("3.1416")
+                .contains("2.0").doesNotContain("2.00")
+                .contains("1.235").doesNotContain("1.2345");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @MethodSource("providePrintConfigs")
+    void printWhenDecimalPlacesPropertyNotDefined(PrintConfig config) throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 3, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        String result = print(matrix, null, null, config);
+        assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
+    }
+
+    private static Stream<Arguments> providePrintConfigs() {
+        return Stream.of(
+                Arguments.of(new PrintConfig(null)), // printPlaces (null)
+                Arguments.of(PrintConfig.load(new PlatformConfig(name -> Optional.empty(), null))) //printPlaces empty (from config file)
+        );
+    }
+
+    @Test
+    void printUseDefaultFormattingWhenPropertyIsNegative() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 3, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
+            Properties prop1 = new Properties();
+            prop1.setProperty("print-decimal-places", "-1");
+            try (Writer w = Files.newBufferedWriter(cfgDir.resolve("math-matrix.properties"), StandardCharsets.UTF_8)) {
+                prop1.store(w, null);
+            }
+            PlatformConfig platformConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
+            String result = print(matrix, null, null, PrintConfig.load(platformConfig));
+            assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
+        }
     }
 }

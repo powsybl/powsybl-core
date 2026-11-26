@@ -92,7 +92,7 @@ public class LimitViolationsResultEquivalence extends Equivalence<LimitViolation
     }
 
     private boolean isSmallViolation(LimitViolation violation, boolean missingResult1) {
-        boolean smallViolation = Math.abs(violation.getValue() - (violation.getLimit() * violation.getLimitReduction())) <= threshold;
+        boolean smallViolation = Math.abs(violation.getValue() - (violation.getLimit() * violation.getLimitScaling())) <= threshold;
         comparisonWriter = missingResult1 ? comparisonWriter.write(null, violation, smallViolation) : comparisonWriter.write(violation, null, smallViolation);
         return smallViolation;
     }

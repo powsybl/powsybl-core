@@ -36,6 +36,8 @@ import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +56,8 @@ import static com.powsybl.tools.ToolConstants.TASK;
 @AutoService(Tool.class)
 public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<DynamicSecurityAnalysisExecutionInput,
         DynamicSecurityAnalysisExecutionBuilder> implements Tool {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicSecurityAnalysisTool.class);
 
     @Override
     public Command getCommand() {
@@ -105,7 +109,11 @@ public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<Dy
 
         executionInput.getContingenciesSource()
             .map(preprocessorFactory::newPreprocessor)
-            .ifPresent(p -> p.preprocess(input));
+            .ifPresent(p -> {
+                LOG.warn("Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated" +
+                        " and will be removed in a future version. Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.");
+                p.preprocess(input);
+            });
 
         return input;
     }

@@ -10,11 +10,9 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
@@ -29,6 +27,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final TreeDataReader reader;
 
     private final List<DeserializationEndTask> endTasks = new ArrayList<>();
+    private final Map<ExtraPropertiesKey, Object> extraPropertiesByIdentifiable = new HashMap<>();
     private final ImportOptions options;
 
     private final Map<String, String> extensionVersions;
@@ -60,19 +59,19 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         endTasks.add(new DeserializationEndTask(step, task));
     }
 
-    public void executeEndTasks(Network network, DeserializationEndTask.Step step, ReportNode reportNode) {
+    public void executeEndTasks(DeserializationEndTask.Step step) {
         if (!processedEndTasksSteps.add(step)) {
             // Skip if step was already processed
             return;
         }
-        Networks.executeWithReportNode(network, reportNode, () -> endTasks.stream()
+        endTasks.stream()
                 .filter(t -> t.getStep() == step
                         || step == DeserializationEndTask.Step.AFTER_EXTENSIONS &&
                             t.getStep() == DeserializationEndTask.Step.BEFORE_EXTENSIONS && !t.isProcessed()) // If no "extensions" tag was found, BEFORE_EXTENSIONS tasks were not processed.
                 .forEach(t -> {
                     t.setProcessed(true);
                     t.getTask().run();
-                }));
+                });
     }
 
     @Override
@@ -123,6 +122,44 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public String deanonymizeFromMinimumVersion(String val, IidmVersion version) {
         return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
+    }
+
+    /**
+     * <p>Define extra properties for the given identifiable and process key.</p>
+     * <p>Extra properties can be used to pass additional data required by the end tasks.</p>
+     * @param identifiable the identifiable which extra properties are used for
+     * @param processKey an additional key to indicate which operation is processed
+     * @param extraProperties the extra properties to store
+     */
+    public void setExtraProperties(Identifiable<?> identifiable, String processKey, Object extraProperties) {
+        this.extraPropertiesByIdentifiable.put(new ExtraPropertiesKey(identifiable, processKey), extraProperties);
+    }
+
+    /**
+     * <p>Get the extra properties associated to the given identifiable and process key.</p>
+     * <p>The result is cast to respect the given clazz.</p>
+     * @param identifiable the identifiable
+     * @param processKey an additional key to indicate which operation is processed
+     * @param clazz the class of the object to retrieve
+     * @return the associated extra properties
+     * @param <T> The type of the extra properties object
+     */
+    public <T> Optional<T> getExtraProperties(Identifiable<?> identifiable, String processKey, Class<T> clazz) {
+        return Optional.ofNullable(extraPropertiesByIdentifiable.get(new ExtraPropertiesKey(identifiable, processKey))).map(clazz::cast);
+    }
+
+    /**
+     * <p>Remove the extra properties associated to the given identifiable and process key.</p>
+     * @param identifiable the identifiable
+     */
+    public void removeExtraProperties(Identifiable<?> identifiable, String processKey) {
+        this.extraPropertiesByIdentifiable.remove(new ExtraPropertiesKey(identifiable, processKey));
+    }
+
+    private record ExtraPropertiesKey(String identifiableId, String processKey) {
+        ExtraPropertiesKey(Identifiable<?> identifiable, String processKey) {
+            this(identifiable.getId(), processKey);
+        }
     }
 
     private record IdentifiableIdSide(String identifiableId, ThreeSides side) { }

@@ -18,6 +18,16 @@ class GeneratorSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void isCondenserTest() throws IOException {
-        allFormatsRoundTripFromVersionedXmlFromMinVersionTest("generator.xml", IidmVersion.V_1_12);
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("generator.xml", IidmVersion.V_1_12, IidmVersion.V_1_18);
+    }
+
+    @Test
+    void hasCondenserCapabilityTest() throws IOException {
+        allFormatsRoundTripFromVersionedXmlFromMinVersionTest("generator.xml", IidmVersion.V_1_19);
+    }
+
+    @Test
+    void isEquivalentTest() throws IOException {
+        allFormatsRoundTripFromVersionedXmlFromMinVersionTest("generator.xml", IidmVersion.V_1_18);
     }
 }

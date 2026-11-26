@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>7.4.0-SNAPSHOT</version>
+        <version>7.5.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -430,6 +430,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-twopass-security-analysis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-sensitivity-analysis-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -437,6 +443,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-shortcircuit-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-state-estimation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -529,14 +541,6 @@
                 <configuration>
                     <packageName>powsybl</packageName>
                     <javaXmx>8G</javaXmx>
-                    <copyToEtc>
-                        <files>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_3.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_2.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_1.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_0.xsd</file>
-                        </files>
-                    </copyToEtc>
                 </configuration>
             </plugin>
         </plugins>
