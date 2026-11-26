@@ -91,8 +91,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "limitType":
-                    String limitTypeTextValue = parser.nextTextValue();
-                    limitType = limitTypeTextValue != null ? LimitViolationType.valueOf(limitTypeTextValue) : null;
+                    limitType = JsonUtil.readNullableEnumValue(parser.nextTextValue(), LimitViolationType.class);
                     break;
 
                 case "limitName":
@@ -132,7 +131,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "side":
-                    side = ThreeSides.valueOf(parser.nextTextValue());
+                    side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
                     break;
 
                 case "extensions":

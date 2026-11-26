@@ -66,7 +66,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> implements 
                     parser.nextToken();
                     currentMagnitude = parser.readValueAs(Double.class);
                 }
-                case "side" -> side = ThreeSides.valueOf(parser.nextTextValue());
+                case "side" -> side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }

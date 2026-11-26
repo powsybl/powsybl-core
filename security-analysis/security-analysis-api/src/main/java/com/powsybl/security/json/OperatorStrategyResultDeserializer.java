@@ -112,7 +112,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     break;
 
                 case "status":
-                    status = PostContingencyComputationStatus.valueOf(parser.nextTextValue());
+                    status = JsonUtil.readNullableEnumValue(parser.nextTextValue(), PostContingencyComputationStatus.class);
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             version, "1.3");
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",

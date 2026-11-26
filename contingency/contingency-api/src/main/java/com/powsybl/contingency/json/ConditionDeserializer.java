@@ -112,7 +112,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> implements
                 context.equipmentId = parser.nextTextValue();
                 return true;
             case "side":
-                context.side = ThreeSides.valueOf(parser.nextTextValue());
+                context.side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
                 return true;
             case "acSide":
                 parser.nextToken();
@@ -123,10 +123,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> implements
                 context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
                 return true;
             case "comparisonType":
-                context.comparisonType = AbstractThresholdCondition.ComparisonType.valueOf(parser.nextTextValue());
+                context.comparisonType = JsonUtil.readNullableEnumValue(parser.nextTextValue(), AbstractThresholdCondition.ComparisonType.class);
                 return true;
             case "variable":
-                context.variable = AbstractThresholdCondition.Variable.valueOf(parser.nextTextValue());
+                context.variable = JsonUtil.readNullableEnumValue(parser.nextTextValue(), AbstractThresholdCondition.Variable.class);
                 return true;
             default:
                 return false;

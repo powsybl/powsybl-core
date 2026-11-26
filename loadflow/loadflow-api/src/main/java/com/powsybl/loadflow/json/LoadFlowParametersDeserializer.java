@@ -67,7 +67,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "voltageInitMode":
-                    parameters.setVoltageInitMode(VoltageInitMode.valueOf(parser.nextTextValue()));
+                    parameters.setVoltageInitMode(JsonUtil.readNullableEnumValue(parser.nextTextValue(), VoltageInitMode.class));
                     break;
 
                 case "transformerVoltageControlOn":
@@ -150,7 +150,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "balanceType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.4");
-                    parameters.setBalanceType(BalanceType.valueOf(parser.nextTextValue()));
+                    parameters.setBalanceType(JsonUtil.readNullableEnumValue(parser.nextTextValue(), BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":

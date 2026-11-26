@@ -755,6 +755,10 @@ public final class JsonUtil {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 
+    public static <T extends Enum<T>> T readNullableEnumValue(String value, Class<T> enumClass) {
+        return value == null ? null : T.valueOf(enumClass, value);
+    }
+
     /**
      * Reads a value using the given deserialization context (instead of only using the parser reading method that
      * recreates a context every time).
