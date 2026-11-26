@@ -537,10 +537,18 @@ public final class CgmesExportUtil {
      */
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
+        if (regulationMode == null) {
+            if (!voltageRegulation.isRegulating()) {
+                // When regulating is false, the mode can be null. This must not block the export.
+                // The mode is exported as "Voltage" since it is available for every equipment.
+                return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            } else {
+                throw new IllegalStateException("Unexpected regulation mode: null");
+            }
+        }
         return switch (regulationMode) {
-            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
+            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
         };
     }
 
