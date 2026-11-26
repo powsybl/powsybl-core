@@ -108,6 +108,29 @@ class SteadyStateHypothesisSubsetExportTest {
     }
 
     @Test
+    void failedPartialExportWritesNothing() throws XMLStreamException {
+        Network network = Network.read(Cgmes3Catalog.smallGrid().dataSource());
+        Generator generator = network.getGenerator(SHARED_CONTROL_GENERATOR);
+        double target = generator.getRegulatingTargetV() + 1.0;
+        if (generator.getVoltageRegulation().getTerminal() != null) {
+            generator.getVoltageRegulation().setTargetValue(target);
+        } else {
+            generator.setLocalTargetV(target);
+        }
+        CgmesExportContext context = new CgmesExportContext(network)
+            .setPartialSshExport(true)
+            .setSshExportedIdentifiables(List.of(network.getShuntCompensator(SHARED_CONTROL_SHUNT)));
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
+
+        // The check of the shared regulating control fails before the header is written
+        assertThrows(PowsyblException.class, () -> SteadyStateHypothesisExport.write(network, writer, context));
+        writer.flush();
+        assertFalse(stringWriter.toString().contains("RDF"));
+        assertFalse(stringWriter.toString().contains("FullModel"));
+    }
+
+    @Test
     void sharedControlWithDifferentDeadbandsIsNotExported(@TempDir Path tmpDir) throws IOException, XMLStreamException {
         // The EQ is changed so that a second shunt also refers to the regulating control of a first shunt
         Network base = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());

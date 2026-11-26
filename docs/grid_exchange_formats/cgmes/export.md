@@ -226,7 +226,7 @@ Thus, the regulating control in the partial SSH is the same as the regulating co
 - `targetDeadband` is the deadband of the discrete holders.
 
 One `RegulatingControl` has one target value and one target deadband.
-If the holders do not agree, the partial SSH can not express the IIDM network, and the export fails with an exception:
+If the holders do not agree, the partial SSH can not express the IIDM network, and the export fails with an exception before it writes the header:
 - The holders have different target values, or different units for their target values.
 - The discrete holders have different target deadbands.
 

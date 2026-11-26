@@ -63,14 +63,19 @@ public final class SteadyStateHypothesisExport {
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         SteadyStateHypothesisWriter sshWriter = new SteadyStateHypothesisWriter(writer, context);
         try {
+            DeferredCgmesObjectSink partialObjects = null;
+            if (context.isPartialSshExport()) {
+                // A partial export collects the CGMES objects before it writes the header:
+                // it writes each object only once, and it writes nothing if an object can not be exported
+                partialObjects = new DeferredCgmesObjectSink();
+                exportIdentifiables(network, context.getSshExportedIdentifiables(), partialObjects, context);
+            }
+
             sshWriter.writeRdfRoot();
             sshWriter.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, model);
 
-            if (context.isPartialSshExport()) {
-                // A partial export collects the CGMES objects to write each one only once
-                DeferredCgmesObjectSink sink = new DeferredCgmesObjectSink();
-                exportIdentifiables(network, context.getSshExportedIdentifiables(), sink, context);
-                sink.sendAll(sshWriter::write);
+            if (partialObjects != null) {
+                partialObjects.sendAll(sshWriter::write);
             } else {
                 exportAll(network, sshWriter::write, context);
             }
