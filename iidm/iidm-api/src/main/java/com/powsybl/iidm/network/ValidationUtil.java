@@ -553,6 +553,16 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkPermanentCurrentLimit(Validable validable, double permanentCurrentLimit) {
+        if (permanentCurrentLimit < 0) {
+            throw new ValidationException(validable, "permanent current limit is < 0");
+        }
+        if (permanentCurrentLimit == 0) {
+            // log if zero, as for AC permanent limits
+            LOGGER.info("{}permanent current limit is set to 0", validable.getMessageHeader());
+        }
+    }
+
     public static void checkTopologyKind(Validable validable, TopologyKind topologyKind) {
         if (topologyKind == null) {
             throw new ValidationException(validable, "topology kind is invalid");
@@ -886,7 +896,8 @@ public final class ValidationUtil {
     /**
      * Check that the provided limit has correct values.
      * @param validable used to get the error message header in case the limit is invalid
-     * @param permanentLimit the value of the permanent limit. Must be strictly positive.
+     * @param permanentLimit the value of the permanent limit. For a HIGH detection kind, it must be positive or zero,
+     *                       and defined if temporary limits are present.
      * @param permanentLimitName the name of the permanent limit. Must be empty if the detection kind is LOW.
      * @param detectionKind the kind of the limit
      * @param temporaryLimits all the temporary limits. Each one must be higher than the permanent limit,

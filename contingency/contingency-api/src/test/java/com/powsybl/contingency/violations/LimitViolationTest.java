@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -66,5 +68,33 @@ class LimitViolationTest {
         assertEquals(expected3, limitViolation3.toString());
         assertEquals(expected4, limitViolation4.toString());
 
+    }
+
+    @Test
+    void nullSideIsAcceptedForCurrentOnly() {
+        LimitViolation currentViolation = LimitViolation.builder()
+                                                        .subject("dcLine")
+                                                        .current()
+                                                        .limit(1000.)
+                                                        .value(-1200.)
+                                                        .build();
+        assertNull(currentViolation.getSide());
+        IllegalStateException noSideException = assertThrows(IllegalStateException.class, currentViolation::getSideAsTwoSides);
+        assertEquals("Violation on 'dcLine' has no side.", noSideException.getMessage());
+
+        LimitViolationBuilder activePowerBuilder = LimitViolation.builder()
+                                                                 .subject("line")
+                                                                 .type(LimitViolationType.ACTIVE_POWER)
+                                                                 .limit(1000.)
+                                                                 .value(1200.);
+        NullPointerException activePowerException = assertThrows(NullPointerException.class, activePowerBuilder::build);
+        assertEquals("Violation side must be defined.", activePowerException.getMessage());
+        LimitViolationBuilder apparentPowerBuilder = LimitViolation.builder()
+                                                                   .subject("line")
+                                                                   .type(LimitViolationType.APPARENT_POWER)
+                                                                   .limit(1000.)
+                                                                   .value(1200.);
+        NullPointerException apparentPowerException = assertThrows(NullPointerException.class, apparentPowerBuilder::build);
+        assertEquals("Violation side must be defined.", apparentPowerException.getMessage());
     }
 }
