@@ -1,0 +1,69 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.network.extensions;
+
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.Load;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * This extension stores the loads connected between two phases of a {@link Load}.
+ * A load can carry several phase to phase components (e.g. AB, BC, CA). There can be at most one
+ * component for a given pair of phases: as the pair is unordered, (A, B) and (B, A) designate the same component.
+ *
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
+ */
+public interface PhaseToPhaseLoads extends Extension<Load> {
+
+    String NAME = "phaseToPhaseLoads";
+
+    @Override
+    default String getName() {
+        return NAME;
+    }
+
+    /**
+     * Get all the phase to phase loads in the extension.
+     * The returned list is an unmodifiable <b>live view</b> of the phase to phase loads held by this extension,
+     * not a snapshot: it cannot be modified through the list itself, but it reflects any later addition or removal.
+     * Consequently, adding or removing a phase to phase load while iterating over this list may throw a
+     * {@link java.util.ConcurrentModificationException}. To do so safely, iterate over a copy of the list.
+     * @return an unmodifiable live view of the list of phase to phase loads
+     */
+    List<PhaseToPhaseLoad> getPhaseToPhaseLoads();
+
+    /**
+     * Create a new phase to phase load adder.
+     */
+    PhaseToPhaseLoadAdder newPhaseToPhaseLoad();
+
+    /**
+     * Find the phase to phase load between two phases. The order of the phases does not matter.
+     * @param phase1 the first phase
+     * @param phase2 the second phase
+     * @return the phase to phase load if found, or empty if not
+     */
+    Optional<PhaseToPhaseLoad> findPhaseToPhaseLoad(Phase phase1, Phase phase2);
+
+    /**
+     * Remove a phase to phase load.
+     * @param phaseToPhaseLoad the phase to phase load to remove
+     * @return true if the phase to phase load has been removed, false otherwise
+     */
+    boolean removePhaseToPhaseLoad(PhaseToPhaseLoad phaseToPhaseLoad);
+
+    /**
+     * Remove the phase to phase load between two phases. The order of the phases does not matter.
+     * @param phase1 the first phase
+     * @param phase2 the second phase
+     * @return true if the phase to phase load has been removed, false otherwise
+     */
+    boolean removePhaseToPhaseLoad(Phase phase1, Phase phase2);
+}

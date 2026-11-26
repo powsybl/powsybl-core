@@ -346,7 +346,7 @@ public abstract class AbstractStaticVarCompensatorTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         Terminal remoteTerminal = network.getGenerator("G1").getTerminal();
         double localTargetQ = 40.0;
         double remoteTargetQLoadSignConvention = 10.0;

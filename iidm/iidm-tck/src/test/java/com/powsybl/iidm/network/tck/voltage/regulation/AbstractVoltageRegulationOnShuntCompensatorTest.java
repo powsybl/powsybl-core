@@ -384,7 +384,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testNotifyUpdate() {
+    public void testNotifyUpdate() {
         String shuntCompensatorId = "shuntCompensator";
         int targetDeadband = 10;
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(shuntCompensatorId,
