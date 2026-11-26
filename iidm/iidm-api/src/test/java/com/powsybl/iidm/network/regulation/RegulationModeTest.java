@@ -27,7 +27,7 @@ class RegulationModeTest {
     @Test
     void fromIndexInvalidTest() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RegulationMode.fromIndex(-1));
-        assertEquals("Unknown or unsupported regulation mode index: -1. Allowed values are: [1, 2, 3]", exception.getMessage());
+        assertEquals("Unknown or unsupported regulation mode index: -1. Allowed values are: [1, 2, 3, 4]", exception.getMessage());
     }
 
     @Test

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" id="reactivePowerPerActivePowerExport" caseDate="2018-11-08T12:33:26.208+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="substation" country="FI">
+        <iidm:voltageLevel id="voltageLevel" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NBAT"/>
+            </iidm:busBreakerTopology>
+            <iidm:battery id="battery" targetP="100.0" localTargetQ="0.0" minP="12.0" maxP="120.0" bus="NBAT" connectableBus="NBAT">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER_PER_ACTIVE_POWER" regulating="true" slope="0.3"/>
+            </iidm:battery>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

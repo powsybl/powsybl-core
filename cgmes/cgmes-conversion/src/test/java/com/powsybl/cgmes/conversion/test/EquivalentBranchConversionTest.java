@@ -16,8 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.networkModel;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -56,11 +55,13 @@ class EquivalentBranchConversionTest {
     }
 
     @Test
-    void microGridBaseCaseBEEquivalentBranchWithZeroImpedanceTest() throws IOException {
+    void microGridBaseCaseBEEquivalentBranchWithZeroImpedanceTest() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchWithZeroImpedanceInsideVoltageLevel(), config);
 
-        Switch sw = n.getSwitch("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
-        assertTrue(sw.isFictitious());
+        Line line = n.getLine("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
+        assertNotNull(line);
+        assertEquals(0.0, line.getR(), 0.0);
+        assertEquals(0.0, line.getX(), 0.0);
     }
 }
