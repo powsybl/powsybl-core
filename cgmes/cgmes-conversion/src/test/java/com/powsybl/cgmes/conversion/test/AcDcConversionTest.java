@@ -125,7 +125,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0.0003, lcc.getSwitchingLoss());
         assertEquals(0.6, lcc.getResistiveLoss());
         assertEquals(AcDcConverter.ControlMode.P_PCC, lcc.getControlMode());
-        assertEquals(0.0, lcc.getTargetP());
+        assertEquals(Double.NaN, lcc.getTargetP());
         assertEquals(Double.NaN, lcc.getTargetVdc());
         assertEquals("ACL_1", lcc.getPccTerminal().getConnectable().getId());
         assertEquals(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, lcc.getReactiveModel());
@@ -145,7 +145,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0.0006, vsc.getSwitchingLoss());
         assertEquals(1.2, vsc.getResistiveLoss());
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
-        assertEquals(0.0, vsc.getTargetP());
+        assertEquals(Double.NaN, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
         assertEquals("PT_1_2", vsc.getPccTerminal().getConnectable().getId());
         assertNull(vsc.getVoltageRegulation());
@@ -721,6 +721,24 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // Run function and check that DC node B is assigned to the first DCConverterUnit
         Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesMap = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
         assertEquals(converterUnitA, dcNodesMap.get(dnB));
+    }
+
+    /**
+     * A minimal network with one an AC bus, two DC nodes and one converter. The SSH profile sets the droop control
+     * mode with a single droop coefficient which is mapped to a droop curve of one segment.
+     */
+    @Test
+    void testDcDroopImport() {
+        Network network = readCgmesResources(IMPORT_PARAMS, DIR, "droop_converter_EQ.xml", "droop_converter_SSH.xml");
+        VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("VSC_1");
+        assertEquals(AcDcConverter.ControlMode.DC_DROOP, vsc1.getControlMode());
+
+        DroopCurve droopCurve = vsc1.getDroopCurve();
+        assertEquals(1, droopCurve.getSegments().size());
+        DroopCurve.Segment segment = droopCurve.getSegments().stream().toList().getFirst();
+        assertEquals(-350, segment.getMinV());  // Nominal DC voltage
+        assertEquals(350, segment.getMaxV());
+        assertEquals(0.175, segment.getK());  // Value stored in the CGMES SSH profile converter from pu to real unit
     }
 
     static Stream<Arguments> exportParameters() {
