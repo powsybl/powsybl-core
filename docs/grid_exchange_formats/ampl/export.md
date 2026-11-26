@@ -10,8 +10,9 @@ At the moment, there are:
 - The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
 - The `ExtendedAmplExporterV2` (associated with the `AmplExportVersion` `V1_2`) that inherits from the `ExtendedAmplExporter`.
 - The `ExtendedAmplExporterV3` (associated with the `AmplExportVersion` `V1_3`) that inherits from the `ExtendedAmplExporterV2`.
+- The `ExtendedAmplExporterV4` (associated with the `AmplExportVersion` `V1_4`) that inherits from the `ExtendedAmplExporterV3`.
 
-The default version is the `V1_3`.
+The default version is the `V1_4`.
 
 Exporters define the information written in text files and fed to AMPL regarding:
 
@@ -58,6 +59,18 @@ This exporter adds the following information to the `ExtendedAmplExporterV2` in 
 - A double containing the targetV of the battery;
 - An integer representing the bus where the regulating terminal is connected. A value of -1 means that the battery is not regulating or that its regulating terminal is not connected.
 
+
+### The `ExtendedAmplExporterV4`
+
+This exporter adds the following information to the `ExtendedAmplExporterV3`:
+
+- In generator and battery tables:
+  - The minimum and maximum reactive power at target active power;
+  - A boolean indicating if the generator or battery is regulating and if its regulation mode is `REACTIVE_POWER_PER_ACTIVE_POWER`;
+  - The slope of the reactive power per active power regulation mode.
+- In VSC converter station tables, the minimum and maximum reactive power at target active power. 
+
+Please note that for the three types of equipment (`Generator`, `Battery` and `VscConverterStation`), if the target active power (targetP) falls outside the range of the curve's points and if the reactive limits are defined by a [ReactiveCapabilityCurve](#reactive-capability-curve), the value is extrapolated using the nearest points of the curve.
 
 (ampl-export-options)=
 ## Options

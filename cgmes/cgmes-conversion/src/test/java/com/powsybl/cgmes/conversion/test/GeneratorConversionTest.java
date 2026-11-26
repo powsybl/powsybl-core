@@ -7,9 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 class GeneratorConversionTest extends AbstractSerDeTest {
+
+    private static final String DIR = "/issues/generators/";
 
     @Test
     void generatingUnitTypes() {
@@ -71,6 +76,55 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         assertFalse(network.getGenerator("sm_motor").hasCondenserCapability());
         assertTrue(network.getGenerator("sm_generator_condenser").hasCondenserCapability());
         assertTrue(network.getGenerator("sm_condenser").hasCondenserCapability());
+    }
+
+    @Test
+    void testGeneratorIncorrectActivePowerLimitsOrder() {
+        // CGMES network:
+        //   A SynchronousMachine whose GeneratingUnit minOperatingP (200.0) is greater than maxOperatingP (50.0)
+        // IIDM network:
+        //   Active power limits have been swapped and imported in the Generator minP and maxP
+        Network network = readCgmesResources(DIR, "generators_EQ.xml");
+        Generator g = network.getGenerator("SM1");
+        assertEquals(50.0, g.getMinP());
+        assertEquals(200.0, g.getMaxP());
+        assertFalse(g.hasCondenserCapability());
+    }
+
+    @Test
+    void testGeneratorRemoteReactivePowerRegulation() {
+        // CGMES network:
+        //   A SynchronousMachine in reactive power regulation mode on a distant branch
+        // IIDM network:
+        //   Regulation is correctly imported
+        Network network = readCgmesResources(DIR, "generators_EQ.xml", "generators_SSH.xml");
+        Generator g = network.getGenerator("SM1");
+        VoltageRegulation voltageRegulation = g.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertEquals(RegulationMode.REACTIVE_POWER, voltageRegulation.getMode());
+        assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(network.getLine("ACL").getId(), voltageRegulation.getTerminal().getConnectable().getId());
+        assertTrue(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    void testGeneratorEntsoeCategory() {
+        // CGMES network:
+        //   3 SynchronousMachine with their GeneratingUnit:
+        //     SM1 GeneratingUnit has no description
+        //     SM2 GeneratingUnit has an invalid entsoe category
+        //     SM3 GeneratingUnit has a valid entsoe category
+        // IIDM network:
+        //   GeneratorEntsoeCategory extension is created only for SM3
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
+        Network network = readCgmesResources(importParameters, DIR, "generators_EQ.xml", "generators_SSH.xml");
+        Generator g1 = network.getGenerator("SM1");
+        assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
+        Generator g2 = network.getGenerator("SM2");
+        assertNull(g2.getExtension(GeneratorEntsoeCategory.class));
+        Generator g3 = network.getGenerator("SM3");
+        assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
     }
 
     @Test

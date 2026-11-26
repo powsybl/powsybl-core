@@ -740,8 +740,17 @@ public final class EquipmentExport {
             String regulatingControlId = writeRegulatingControl(svc, regulatingControlsWritten, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
-            RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
-            double slope = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getSlope() : Double.NaN;
+            RegulationMode regulationMode = null;
+            double slope = Double.NaN;
+            if (svc.getVoltageRegulation() != null) {
+                regulationMode = svc.getVoltageRegulation().getMode();
+                if (regulationMode == null && !svc.getVoltageRegulation().isRegulating()) {
+                    // When the mode is absent but the SVC is not regulating, the mode is set to "Voltage".
+                    // This is done to be consistent with what is done in CgmesExportUtil.getRegulatingControlMode(...).
+                    regulationMode = RegulationMode.VOLTAGE;
+                }
+                slope = svc.getVoltageRegulation().getSlope();
+            }
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc),
                 svc.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()),

@@ -2,6 +2,10 @@
 
 The `run-script` command is used to run scripts based on PowSyBl.
 
+```{warning}
+Scripts are executed without any sandbox, with the full privileges of the user running the command. Only run scripts from trusted sources. See [Groovy scripts security](../groovy-security.md).
+```
+
 ## Usage
 ```
 $> itools run-script --help

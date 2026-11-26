@@ -84,6 +84,35 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
+     * Checks that isolated voltage levels without substation nor equipment are reported under the
+     * {@code namingStrategySetup} step when exporting with the {@code Counter} naming strategy. See
+     * {@link UcteExporterTestNetworks#createWithIsolatedOrphansWithoutEquipment()} for the network.
+     */
+    @Test
+    void testOrphanVoltageLevelNotExportedReported() {
+        Network network = UcteExporterTestNetworks.createWithIsolatedOrphansWithoutEquipment();
+        Properties parameters = new Properties();
+        parameters.put(UcteExporter.NAMING_STRATEGY, "Counter");
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, parameters, new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Setting up naming strategy
+                      Voltage level VL_EMPTY is connected to no substation and holds no equipment: it is not exported
+                      Voltage level VL_NBBBS is connected to no substation and holds no equipment: it is not exported
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
      * Checks that a transformer with no nominal power (no {@code ratedS} and no legacy property) is reported
      * when exporting the network.
      */

@@ -1,7 +1,7 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF
 [format specification](format_specification.md).
 
 ## Limitations
@@ -24,6 +24,12 @@ In that case, the export does not fail, but the tap changer is approximated and 
 (see [Deviation from the constant-step model](#deviation-from-the-constant-step-model)).
 A tap changer with a single step can't be described by this model: it is not exported, and a warning is
 [reported](#reporting) (see [Tap numbering](#tap-numbering)).
+
+**Substation countries with the `Counter` naming strategy**: the `Counter` naming strategy builds node codes from the
+countries of the substations. With it, the export fails with a `UcteException` if a substation has no country, or a
+country not supported by UCTE-DEF (see section 1.3, "UCTE country codes", of the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf#page=6)).
+The `Default` naming strategy reads node codes from bus ids and does no such check.
 
 ## Options
 
@@ -61,14 +67,18 @@ Post-processors can:
   `##L`, `##T` and `##R` blocks.
 - define the order of the nodes inside each `##Z` block.
 
-Post-processors are applied in the given input order, first for all modifications.
+**Post-processors configuration**: Post-processors are applied in the given input order, first for all modifications.
 Once all the post-processors have modified the UCTE network, the UCTE node comparators of the post-processors are
-requested.
-They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the
-given order, each one only breaking the ties of the previous ones.
-The default natural order is always used as a final tie-break.
+requested. They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the given
+order, each one only breaking the ties of the previous ones. The default natural order is always used as a final
+tie-break.
 
-Its default value is an empty list.
+By default, the post-processors are an empty list.
+
+**Built-in post-processors**
+
+- `deenergized-branches-out-of-operation`: exports out of operation the elements left without voltage in the load flow
+  results, see [Line status](#line-status).
 
 ## From IIDM to UCTE
 
@@ -234,6 +244,21 @@ It is derived as follows:
   connected, `7` otherwise; if not, it follows the same real/equivalent convention as a line, based on its
   fictitiousness and terminal connection state.
 
+When the `deenergized-branches-out-of-operation` [post-processor](#options) is enabled, the statuses derived above are
+corrected using the load flow results of the network, that is the voltages of its buses (bus view). The network may or
+may not contain such results.
+
+When the network has load flow results:
+- an element in operation is exported out of operation (`0` to `8`, `1` to `9`, `2` to `7`) if one of its connected
+  terminals is on a bus without voltage;
+- a closed switch is exported out of operation (`2` to `7`) if its buses have no voltage;
+- all the other elements keep the status derived above.
+
+The network is considered to have no load flow results if no bus of its main connected component has a voltage. In
+that case, no status is changed and a warning is reported. Only the main connected component is checked because it is
+the one a load flow always computes. As a consequence, islands left out of the load flow (for example when only the
+main connected component is computed) have no voltage, and their elements are exported out of operation.
+
 #### Current limit
 
 - **Switch**: taken from the `currentLimit` property if it can be parsed as an integer; otherwise left undefined, and a
@@ -280,8 +305,8 @@ If the original boundary line has no generation part, its X-node is exported as 
 
 #### Tie line properties
 
-A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
-custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by
+custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although
 we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
 - If both boundary lines have the same value, it is used in the exported tie line.
@@ -438,11 +463,26 @@ so that the rounding alone doesn't raise a warning. The exported values are not 
 [`ucte.export.combine-phase-angle-regulation`](#options) option enabled, the comparison uses the δu (%) before its
 division by the ratio tap changer's ρ.
 
+### Voltage levels without substation
+
+Voltage levels that belong to no substation (for instance those created by the CGMES importer for the junction of a
+T-line, or between line segments in series) are exported like any other voltage level.
+
+The `Counter` naming strategy needs their country, and computes it without modifying the network:
+
+- if the network holds a single country, every voltage level without substation gets it;
+- otherwise, the voltage levels are grouped by connected components, considering lines only (whatever their status;
+  tie lines and boundary lines are not considered), and a voltage level without substation gets the country of the
+  substations of its component. The export fails with a `UcteException` if the component holds substations of several
+  countries: in the European grid, cross-border connections are tie lines;
+- a component holding no substation is isolated. The export fails with a `UcteException` if one of its voltage levels
+  holds equipment (busbar sections aside). Otherwise, its voltage levels are not exported and a warning is reported.
+
 ## Reporting
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
-conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file. The
-following situations are reported:
+conversion step (voltage levels, buses and switches, boundary lines, lines, tie lines, transformers) and per exported
+file. The following situations are reported:
 
 | Situation                                                                                                    | Severity | See                                                                                         |
 |--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
@@ -454,7 +494,16 @@ following situations are reported:
 | The kept voltage target is rescaled from a remote bus with a different nominal voltage                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
+| With the `Counter` naming strategy, a voltage level has no substation and no equipment                       | `WARN`   | [Voltage levels without substation](#voltage-levels-without-substation)                     |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
 | The tap range of a tap changer is not centered on its neutral tap                                            | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
 | A tap changer has a single step: it is not exported                                                          | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
 | The tap steps of a ratio or phase tap changer differ from the exported constant-step model                   | `WARN`   | [Deviation from the constant-step model](#deviation-from-the-constant-step-model)           |
+
+**Post-processors**<br>
+One report node is also created per applied post-processor. The `deenergized-branches-out-of-operation` post-processor
+reports, under its node:
+
+- with a `WARN` severity, that the main connected component has no load flow results,
+- with an `INFO` severity, the number of de-energized elements exported out of operation, detailed per element (type
+  and UCTE id).
