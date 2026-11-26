@@ -7,10 +7,11 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.statement.CgmesObject;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,9 +42,10 @@ class SteadyStateHypothesisSubsetExportTest {
      */
     static Stream<Arguments> networks() {
         return Stream.of(
-            Arguments.of("CGMES MicroGrid BE", (Supplier<Network>) () -> Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource())),
-            Arguments.of("CGMES SmallGrid node-breaker", (Supplier<Network>) () -> Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource())),
-            Arguments.of("CGMES SmallGrid HVDC", (Supplier<Network>) () -> Network.read(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource())),
+            Arguments.of("CGMES import of four substations, node-breaker", (Supplier<Network>) () -> cgmesRoundTrip(FourSubstationsNodeBreakerFactory.create())),
+            Arguments.of("CGMES import of Eurostag, bus-breaker", (Supplier<Network>) () -> cgmesRoundTrip(EurostagTutorialExample1Factory.create())),
+            Arguments.of("CGMES import of a three windings transformer", (Supplier<Network>) () -> cgmesRoundTrip(ThreeWindingsTransformerNetworkFactory.create())),
+            Arguments.of("phase tap changer", (Supplier<Network>) PhaseShifterTestCaseFactory::create),
             Arguments.of("four substations, with SVC, VSC and LCC", (Supplier<Network>) FourSubstationsNodeBreakerFactory::create),
             Arguments.of("battery", (Supplier<Network>) BatteryNetworkFactory::create),
             Arguments.of("tie lines and areas", (Supplier<Network>) EurostagTutorialExample1Factory::createWithTieLinesAndAreas),
@@ -81,11 +83,13 @@ class SteadyStateHypothesisSubsetExportTest {
 
     @Test
     void subsetWithOneGeneratorExportsItsObjects() throws XMLStreamException {
-        Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+        Network network = cgmesRoundTrip(EurostagTutorialExample1Factory.create());
         Generator generator = network.getGeneratorStream()
             .filter(g -> g.hasProperty(PROPERTY_REGULATING_CONTROL))
             .findFirst()
             .orElseThrow();
+        // The generating unit has SSH data only with a participation factor
+        generator.newExtension(ActivePowerControlAdder.class).withParticipate(true).withDroop(4.0).withParticipationFactor(1.0).add();
 
         List<CgmesObject> objects = exportSubset(network, List.of(generator));
 
@@ -96,7 +100,7 @@ class SteadyStateHypothesisSubsetExportTest {
 
     @Test
     void identifiablesWithoutSshDataAreIgnored() throws XMLStreamException {
-        Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+        Network network = cgmesRoundTrip(EurostagTutorialExample1Factory.create());
         List<Identifiable<?>> withoutSshData = new ArrayList<>();
         withoutSshData.add(network);
         network.getSubstations().forEach(withoutSshData::add);
@@ -115,6 +119,15 @@ class SteadyStateHypothesisSubsetExportTest {
 
         // The fictitious load and its terminal
         assertEquals(List.of("NonConformLoad", "Terminal"), types(objects));
+    }
+
+    /**
+     * The network exported to CGMES and imported again, so that it has the CGMES properties and aliases of an import.
+     */
+    private static Network cgmesRoundTrip(Network network) {
+        MemDataSource dataSource = new MemDataSource();
+        network.write("CGMES", null, dataSource);
+        return Network.read(dataSource);
     }
 
     private static String exportFull(Network network) throws XMLStreamException {
