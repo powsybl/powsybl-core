@@ -1,4 +1,4 @@
-* Inconsistent DC terminal limits: vmax = 0.
+* Inconsistent DC terminal limits: vmax < 0.
 $$General;ID(a:40);Descr(a:40);Val(a:40)
 1;Version;5.0
 
