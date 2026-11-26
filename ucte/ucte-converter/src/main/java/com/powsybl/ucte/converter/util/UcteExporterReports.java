@@ -27,6 +27,12 @@ public final class UcteExporterReports {
     private UcteExporterReports() {
     }
 
+    public static ReportNode namingStrategySetup(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.namingStrategySetup")
+                .add();
+    }
+
     public static ReportNode networkCreation(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.networkCreation")
@@ -237,5 +243,13 @@ public final class UcteExporterReports {
             case TWO_WINDINGS_TRANSFORMER -> "core.ucte.export.deenergizedTwoWindingsTransformer";
             default -> throw new IllegalArgumentException("Unexpected element type: " + elementType);
         };
+    }
+
+    public static void orphanVoltageLevelNotExported(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.orphanVoltageLevelNotExported")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 }
