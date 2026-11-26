@@ -9,8 +9,10 @@ package com.powsybl.ucte.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 
 import java.time.ZonedDateTime;
+import java.util.stream.IntStream;
 
 /**
  * Test networks for the UCTE exporter tests.
