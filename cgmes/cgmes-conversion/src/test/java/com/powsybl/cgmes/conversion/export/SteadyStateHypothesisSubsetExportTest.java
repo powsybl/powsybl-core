@@ -15,8 +15,14 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -27,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -52,6 +59,19 @@ class SteadyStateHypothesisSubsetExportTest {
     @Test
     void partialExportOfAllIdentifiablesOfABusBreakerNetworkExportsTheSameObjects() throws XMLStreamException {
         assertPartialExportOfAllIdentifiablesExportsTheSameObjects(Network.read(CgmesConformity1Catalog.smallBusBranch().dataSource()));
+    }
+
+    static Stream<Arguments> networksWithRegulatingControls() {
+        return Stream.of(
+            Arguments.of("three windings transformer", (Supplier<Network>) ThreeWindingsTransformerNetworkFactory::create),
+            Arguments.of("phase tap changer", (Supplier<Network>) PhaseShifterTestCaseFactory::createLocalActivePowerWithTargetDeadband),
+            Arguments.of("static var compensator", (Supplier<Network>) SvcTestCaseFactory::createLocalVoltageControl));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("networksWithRegulatingControls")
+    void partialExportOfAllIdentifiablesWithRegulatingControlsExportsTheSameObjects(String description, Supplier<Network> networkSupplier) throws XMLStreamException {
+        assertPartialExportOfAllIdentifiablesExportsTheSameObjects(networkSupplier.get());
     }
 
     private static void assertPartialExportOfAllIdentifiablesExportsTheSameObjects(Network network) throws XMLStreamException {
@@ -86,6 +106,34 @@ class SteadyStateHypothesisSubsetExportTest {
 
         assertNotNull(control);
         assertEquals(byId(sshObjects(exportFull(network))).get(SHARED_CONTROL), control);
+    }
+
+    @Test
+    void controlSharedWithATapChangerIsWrittenWithTheViewsOfAllItsHolders(@TempDir Path tmpDir) throws IOException, XMLStreamException {
+        // The CGMES import accepts a generator that refers to the TapChangerControl of a ratio tap changer
+        Path dir = Files.createDirectories(tmpDir.resolve("shared"));
+        EurostagTutorialExample1Factory.create().write("CGMES", null, dir.resolve("eurostag"));
+        try (Stream<Path> files = Files.list(dir)) {
+            for (Path eqFile : files.filter(p -> p.getFileName().toString().contains("_EQ")).toList()) {
+                String eq = Files.readString(eqFile);
+                Matcher tapChangerControl = Pattern.compile("<cim:TapChangerControl rdf:ID=\"_?([^\"]+)\"").matcher(eq);
+                assertTrue(tapChangerControl.find());
+                Matcher generatorControl = Pattern.compile("(<cim:SynchronousMachine rdf:ID=\"_?[^\"]+\">.*?<cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#_?)[^\"]+(\")",
+                    Pattern.DOTALL).matcher(eq);
+                assertTrue(generatorControl.find());
+                Files.writeString(eqFile, generatorControl.replaceFirst(Matcher.quoteReplacement(
+                    generatorControl.group(1) + tapChangerControl.group(1) + generatorControl.group(2))));
+            }
+        }
+        Network network = Network.read(dir);
+        Generator generator = network.getGenerator("GEN");
+        String sharedControl = generator.getProperty(PROPERTY_REGULATING_CONTROL);
+
+        // Only the generator is exported, but its control is the TapChangerControl of the full export
+        SshObject full = byId(sshObjects(exportFull(network))).get(sharedControl);
+        SshObject partial = byId(sshObjects(exportPartial(network, List.of(generator)))).get(sharedControl);
+        assertEquals("TapChangerControl", full.className());
+        assertEquals(full, partial);
     }
 
     @Test
