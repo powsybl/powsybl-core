@@ -747,11 +747,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     /**
-     * Hook to add version-specific cells to the row of a three windings transformer middle bus.
+     * Hook to add version-specific cells to the row of a three-winding transformer middle bus.
      * Does nothing in the basic version.
      *
      * @param formatterHelper the helper collecting the cells of the row
-     * @param twt             the three windings transformer
+     * @param twt             the three-winding transformer
      * @param middleCcNum     the connected component number of the middle bus
      */
     public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
@@ -1614,11 +1614,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     /**
-     * Hook to add version-specific cells to the row of the fictitious voltage level of a three windings
+     * Hook to add version-specific cells to the row of the fictitious voltage level of a three-winding
      * transformer. Does nothing in the basic version.
      *
      * @param formatterHelper the helper collecting the cells of the row
-     * @param twt             the three windings transformer
+     * @param twt             the three-winding transformer
      */
     public void addAdditionalCellsThreeWindingsTransformerVoltageLevel(TableFormatterHelper formatterHelper,
                                                                        ThreeWindingsTransformer twt) {
