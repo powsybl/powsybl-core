@@ -8,9 +8,9 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.extensions.Phase;
 import com.powsybl.iidm.network.extensions.PhaseToPhaseLoad;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
 
@@ -22,8 +22,8 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
     private final PhaseToPhaseLoadsImpl parent;
     private final Phase phase1;
     private final Phase phase2;
-    private final TDoubleArrayList p;
-    private final TDoubleArrayList q;
+    private final ExtendedDoubleArrayList p;
+    private final ExtendedDoubleArrayList q;
     private boolean removed = false;
 
     PhaseToPhaseLoadImpl(PhaseToPhaseLoadsImpl parent, Phase phase1, Phase phase2, double p, double q) {
@@ -33,12 +33,8 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
         checkValue(p, "p");
         checkValue(q, "q");
         int variantArraySize = parent.getVariantArraySize();
-        this.p = new TDoubleArrayList(variantArraySize);
-        this.q = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.p.add(p);
-            this.q.add(q);
-        }
+        this.p = new ExtendedDoubleArrayList(variantArraySize, p);
+        this.q = new ExtendedDoubleArrayList(variantArraySize, q);
     }
 
     @Override
@@ -54,7 +50,7 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
     @Override
     public double getP() {
         checkNotRemoved();
-        return p.get(parent.getCurrentVariantIndex());
+        return p.getDouble(parent.getCurrentVariantIndex());
     }
 
     @Override
@@ -68,7 +64,7 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
     @Override
     public double getQ() {
         checkNotRemoved();
-        return q.get(parent.getCurrentVariantIndex());
+        return q.getDouble(parent.getCurrentVariantIndex());
     }
 
     @Override
@@ -83,20 +79,20 @@ class PhaseToPhaseLoadImpl implements PhaseToPhaseLoad {
         p.ensureCapacity(p.size() + number);
         q.ensureCapacity(q.size() + number);
         for (int i = 0; i < number; ++i) {
-            p.add(p.get(sourceIndex));
-            q.add(q.get(sourceIndex));
+            p.add(p.getDouble(sourceIndex));
+            q.add(q.getDouble(sourceIndex));
         }
     }
 
     void reduceVariantArraySize(int number) {
-        p.remove(p.size() - number, number);
-        q.remove(q.size() - number, number);
+        p.removeElements(number);
+        q.removeElements(number);
     }
 
     void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            p.set(index, p.get(sourceIndex));
-            q.set(index, q.get(sourceIndex));
+            p.set(index, p.getDouble(sourceIndex));
+            q.set(index, q.getDouble(sourceIndex));
         }
     }
 

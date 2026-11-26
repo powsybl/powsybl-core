@@ -7,13 +7,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -55,8 +55,8 @@ class HvdcLineVariantArrayTest {
     }
 
     private static void assertSizes(HvdcLine hvdcLine, int expectedSize) throws ReflectiveOperationException {
-        assertEquals(expectedSize, ((TIntArrayList) field("convertersMode").get(hvdcLine)).size());
-        assertEquals(expectedSize, ((TDoubleArrayList) field("activePowerSetpoint").get(hvdcLine)).size());
+        assertEquals(expectedSize, ((ExtendedIntArrayList) field("convertersMode").get(hvdcLine)).size());
+        assertEquals(expectedSize, ((ExtendedDoubleArrayList) field("activePowerSetpoint").get(hvdcLine)).size());
     }
 
     private static Field field(String name) throws NoSuchFieldException {
