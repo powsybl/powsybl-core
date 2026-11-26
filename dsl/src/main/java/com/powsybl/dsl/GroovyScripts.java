@@ -18,6 +18,12 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
+ * <p><b>Security warning:</b> Groovy scripts loaded through these helpers are later evaluated as-is, without any sandbox
+ * (no {@code SecureASTCustomizer}, no class or method restriction), with the full privileges of the JVM. PowSyBl is a
+ * library: sandboxing untrusted scripts is the responsibility of the application embedding it. Only run scripts from
+ * trusted sources.
+ * See <a href="https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/groovy-security.html">Groovy scripts security</a>.
+ *
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public final class GroovyScripts {

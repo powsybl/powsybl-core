@@ -24,6 +24,12 @@ import java.time.ZonedDateTime
 import static com.powsybl.timeseries.ast.NodeCalcCacheCreator.cacheDuplicated
 
 /**
+ * <p><b>Security warning:</b> the Groovy script is evaluated as-is, without any sandbox (no {@code SecureASTCustomizer},
+ * no class or method restriction), with the full privileges of the JVM. The customizers used here only provide the DSL
+ * and interrupt checks, they are not a security mechanism. PowSyBl is a library: sandboxing untrusted scripts is the
+ * responsibility of the application embedding it. Only run scripts from trusted sources.
+ * See <a href="https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/groovy-security.html">Groovy scripts security</a>.
+ *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(CalculatedTimeSeriesDslLoader.class)

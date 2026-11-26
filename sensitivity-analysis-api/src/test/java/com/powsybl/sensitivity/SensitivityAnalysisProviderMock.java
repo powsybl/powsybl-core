@@ -16,6 +16,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,8 +43,28 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) ->
             readSensitivityFactor(resultWriter, contingencies, factorIndex, reportNode, functionId, contingencyContext));
+        resultWriter.writeStateStatus(-1, -1,
+                0, 1, LoadFlowResult.ComponentResult.Status.CONVERGED, "testStatusText");
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-            resultWriter.writeStateStatus(contingencyIndex, -1, SensitivityAnalysisResult.Status.SUCCESS);
+            int resultCase = contingencyIndex % 5;
+            switch (resultCase) {
+                case 0 ->
+                    resultWriter.writeStateStatus(contingencyIndex, -1,
+                            0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+                case 1 ->
+                    resultWriter.writeStateStatus(contingencyIndex, -1,
+                            0, 0, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, "");
+                case 2 ->
+                    resultWriter.writeStateStatus(contingencyIndex, -1,
+                            0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+                case 3 ->
+                    resultWriter.writeStateStatus(contingencyIndex, -1,
+                            0, 0, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, "");
+                case 4 ->
+                    resultWriter.writeStateStatus(contingencyIndex, -1,
+                            0, 0, LoadFlowResult.ComponentResult.Status.FAILED, "");
+                default -> throw new IllegalStateException("Unexpected value: " + resultCase);
+            }
         }
         Executor executor = computationManager.getExecutor();
         if (executor != null) {
@@ -54,6 +75,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                 }
             });
         }
+        resultWriter.computationComplete();
         if (reportNode != null) {
             reportNode.newReportNode()
                     .withMessageTemplate("testSensitivityAnalysis")
@@ -125,6 +147,8 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                     .orElseThrow();
                 resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, -1, 0.0, 0.0);
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + contingencyContext.getContextType());
         }
         if (reportNode != null) {
             reportNode.newReportNode()

@@ -8,6 +8,8 @@
 package com.powsybl.action;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +36,11 @@ public class MultipleActionsAction extends AbstractAction {
 
     public List<Action> getActions() {
         return actions;
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        return new NetworkModificationList(actions.stream().map(Action::toModification).toList());
     }
 
     @Override

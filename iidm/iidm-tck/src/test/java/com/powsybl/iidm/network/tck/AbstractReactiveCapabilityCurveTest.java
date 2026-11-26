@@ -135,7 +135,7 @@ public abstract class AbstractReactiveCapabilityCurveTest {
     }
 
     @Test
-    void shouldCopyDataWhenCreatingReactiveCapabilityCurveFromTemplate() {
+    public void shouldCopyDataWhenCreatingReactiveCapabilityCurveFromTemplate() {
         ReactiveCapabilityCurve copiedCurve = generator.newReactiveCapabilityCurve()
                 .beginPoint()
                     .setP(1)

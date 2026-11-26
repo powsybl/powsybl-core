@@ -24,7 +24,7 @@ An uncompressed JSON data chunk looks like:
 An uncompressed data chunk is modeled with a double (or String) array and an offset.
 It defines values associated to instants of the time index from `offset` to `offset + values.length`.
 
-It is possible to compress the data chunks, using, for example, the [RLE](https://fr.wikipedia.org/wiki/Run-length_encoding).
+It is possible to compress the data chunks, using, for example, the [RLE](https://en.wikipedia.org/wiki/Run-length_encoding).
 The JSON serialization of compressed data chunks looks like:
 Output:
 ```json
@@ -112,6 +112,10 @@ Here is the list of supported vector operations:
 | `max`    | point-to-point max values between timeseries                                    | `max(ts['a'], ts['b'])` | Numerical   |
 
 In the Groovy DSL syntax, both `timeSeries['a']` and `ts['a']` are supported and are equivalent.
+
+```{warning}
+Groovy scripts are executed without any sandbox. Only use scripts from trusted sources. See [Groovy scripts security](../user/groovy-security.md).
+```
 
 To compare a time index vector to a literal date, the `time('2018-01-01T00:00:01Z')` function is available. For instance, the
 following code creates a time series of 0 and 1 values:

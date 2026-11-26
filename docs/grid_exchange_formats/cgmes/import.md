@@ -310,7 +310,7 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
-- `isCondenser` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
+- `hasCondenserCapability` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
 `generatorOrCondenser`, `motorOrCondenser`, `generatorOrMotorOrCondenser`), then the flag is set to `true`. Otherwise, it is set to `false`.
 
 <span style="color: red">TODO reactive limits</span>
@@ -449,13 +449,12 @@ and [`ConvertedT3xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgme
 
 Series compensators represent series capacitors or reactors or AC transmission lines without charging susceptance.
 
-If a `SeriesCompensator` has both its ends inside the same voltage level, it is mapped to a PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch). In this case,
-all its CGMES electrical attributes are ignored. It is considered as closed, fictitious and, if it is in a node-breaker voltage level, retained. Its `SwitchKind` is `BREAKER`.
-
-If a `SeriesCompensator` has its ends inside different voltage levels, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) with attributes as described below:
+A `SeriesCompensator` is always mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) with attributes as described below:
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G1`, `G2`, `B1` and `B2` are set to `0`
+
+Series compensators with zero impedance are supported, as the IIDM line model allows zero impedance even when both its ends are inside the same voltage level.
 
 (cgmes-static-var-compensator-import)=
 ### StaticVarCompensator
@@ -646,7 +645,7 @@ Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter
 - `SwitchingLoss` is copied from EQ `switchingLoss`.
 - `ResistiveLoss` is copied from EQ `resistiveLoss`.
 - `PccTerminal` is copied from EQ `PccTerminal`.
-- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), else it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC).
+- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC) and it is `DC_DROOP` if `pPccControl` is `pPccAndUdcDroop` (VSC only).
 - `TargetP` is copied from SSH `targetPpcc`.
 - `TargetVdc` is copied from SSH `targetUdc`.
 
@@ -659,6 +658,8 @@ Specific `VsConverter` attributes are mapped as follows:
 - `VoltageRegulatorOn` is set to `true` if SSH `qPccControl` is set to `voltagePcc`, else it is `false`.
 - `VoltageSetpoint` is copied from SSH `targetUpcc`.
 - `ReactivePowerSetpoint` is copied from SSH `targetQpcc`.
+- A single segment `DroopCurve` is created, with `k` derived from the SSH `droop` attribute. `droop` is converted from per-unit to kV/MW by using the `ratedUdc` and `baseS` attributes from the EQ profile.
+The voltage bound of the droop curve segment is [-`ratedUdc`, `ratedUdc`], but any voltage outside of this segment will use the same droop coefficient since the curve will be linearly extrapolated outside the segment. If any of these three attributes is missing, the `DroopCurve` is not created. 
 
 ## Extensions
 
