@@ -243,6 +243,16 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
                 "/importXmlReportExtensionsAndValidations.txt");
     }
 
+    @Test
+    void importDataReportNodeValidationMixedTerminalRefTest() throws IOException {
+        // NHV2_NLOAD's tap changers reference a terminal (resolved as a deferred end task),
+        // NHV2_NLOAD_2's tap changers don't (resolved immediately while reading the network elements).
+        // Both validation warnings must be nested under "Validation warnings", whichever path resolved them.
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTapMixedTerminalRef",
+                "twoWindingsTransformerPhaseAndRatioTapMixedTerminalRef.xml",
+                "/importXmlReportValidationMixedTerminalRef.txt");
+    }
+
     private void importDataAndTestReportNode(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet(getVersionDir(CURRENT_IIDM_VERSION), dataSourceFilename));
         importDataAndTestReportNode(expectedContentFilename, dataSource);
