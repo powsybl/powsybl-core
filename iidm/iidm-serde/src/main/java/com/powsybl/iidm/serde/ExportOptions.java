@@ -271,13 +271,28 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return voltageLevelTopologyLevel.get(voltageLevelId);
     }
 
-    public boolean isSorted() {
-        return sorted;
+    public void addExportedVariant(String variantId) {
+        if(this.exportedVariants.isEmpty()) {
+            this.exportedVariants = new HashSet<>();
+        }
+        exportedVariants.add(variantId);
+    }
+
+    public void addExportedVariant(Collection<String> variantIds) {
+        if(this.exportedVariants.isEmpty()) {
+            this.exportedVariants = new HashSet<>();
+        }
+        exportedVariants.addAll(variantIds);
     }
 
     public Collection<String> getExportedVariants() {
         return exportedVariants;
     }
+    
+    public boolean isSorted() {
+        return sorted;
+    }
+
 
     public ExportOptions setSorted(boolean sorted) {
         this.sorted = sorted;
