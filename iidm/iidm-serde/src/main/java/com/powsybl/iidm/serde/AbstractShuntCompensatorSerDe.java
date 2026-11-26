@@ -134,7 +134,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
          */
         List<NetworkSerDe.TrackedAttribute<?>> trackedAttributes = new LinkedList<>() { };
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt(SECTION_COUNT, shuntCompensator::getSectionCount));
-        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt(SECTION_COUNT, shuntCompensator::getSolvedSectionCount)); //FIXME what would be the correct name?
+        trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofInt("solvedSectionCount", shuntCompensator::getSolvedSectionCount));
         trackedAttributes.add(NetworkSerDe.TrackedAttribute.ofDouble(LOCAL_TARGET_V, shuntCompensator::getLocalTargetV));
         writeVariantDiff(network, variantId, context, getRootElementName(), trackedAttributes.stream());
     }

@@ -288,7 +288,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public Collection<String> getExportedVariants() {
         return exportedVariants;
     }
-    
+
     public boolean isSorted() {
         return sorted;
     }

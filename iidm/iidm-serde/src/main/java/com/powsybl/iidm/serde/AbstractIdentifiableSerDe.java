@@ -55,7 +55,7 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends Id
         context.addExportedEquipment(identifiable);
     }
 
-    public void writeVariantState(T identifiable, Network network, NetworkSerializerContext context, String variantId) {
+    protected void writeVariantState(T identifiable, Network network, NetworkSerializerContext context, String variantId) {
     }
 
     protected abstract A createAdder(P parent);

@@ -718,11 +718,12 @@ public final class NetworkSerDe {
     }
 
     private static List<String> resolveExportedVariants(Network network, NetworkSerializerContext context) {
-        var result = new LinkedList<String>() { };
-        var exportedVariants = context.getOptions().getExportedVariants();
+        List<String> result = new ArrayList<>() { };
+        Collection<String> exportedVariants = context.getOptions().getExportedVariants();
         if (exportedVariants.isEmpty()) {
             return result;
         }
+        IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, "variant", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
         if (context.getOptions().isSorted()) {
             exportedVariants = exportedVariants.stream()
                     .sorted()
@@ -733,7 +734,6 @@ public final class NetworkSerDe {
             if (!existingVariants.contains(variantId)) {
                 throw new PowsyblException("Can't export unknown variant" + variantId);
             }
-            IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, "variant", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
             result.add(variantId);
         }
         return result;
