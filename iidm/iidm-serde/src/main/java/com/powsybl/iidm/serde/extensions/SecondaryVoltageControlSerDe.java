@@ -30,9 +30,9 @@ public class SecondaryVoltageControlSerDe extends AbstractVersionableNetworkExte
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0("/xsd/secondaryVoltageControl_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/secondary_voltage_control/1_0",
-                new VersionNumbers(1, 0), IidmVersion.V_1_0, null),
+                new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_19),
         V_1_1("/xsd/secondaryVoltageControl_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/secondary_voltage_control/1_1",
-                new VersionNumbers(1, 1), IidmVersion.V_1_0, null);
+                new VersionNumbers(1, 1), IidmVersion.V_1_19, null);
 
         private final VersionInfo versionInfo;
 

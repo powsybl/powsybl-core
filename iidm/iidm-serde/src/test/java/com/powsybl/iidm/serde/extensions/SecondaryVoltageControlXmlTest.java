@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -125,9 +126,15 @@ class SecondaryVoltageControlXmlTest extends AbstractIidmSerDeTest {
 
         // Version 1.0 does not distinguish buses from busbar sections and does not serialize the voltage level.
         // On reading back, the flat "NLOAD" reference is resolved against the network into the bus of VLLOAD.
-        Network network2 = allFormatsRoundTripTest(network, "/secondaryVoltageControlRoundTripRef-1.0.xml", CURRENT_IIDM_VERSION,
+        Network network2 = allFormatsRoundTripTest(network, "/secondaryVoltageControlRoundTripRef.xml", IidmVersion.V_1_18,
                 new ExportOptions().addExtensionVersion(SecondaryVoltageControl.NAME, "1.0"));
 
         assertControlEquals(control, network2.getExtension(SecondaryVoltageControl.class));
+    }
+
+    @Test
+    void testBackwardsCompatibility() throws IOException {
+        // backward compatibility
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/secondaryVoltageControlRoundTripRef.xml", IidmVersion.V_1_8);
     }
 }
