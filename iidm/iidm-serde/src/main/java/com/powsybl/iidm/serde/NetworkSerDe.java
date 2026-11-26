@@ -602,7 +602,7 @@ public final class NetworkSerDe {
             return new TrackedAttribute<>(name, getter, TreeDataWriter::writeDoubleAttribute);
         }
 
-        public static TrackedAttribute<Enum> ofEnum(String name, Supplier<Enum> getter) {
+        public static <E extends Enum<E>> TrackedAttribute<E> ofEnum(String name, Supplier<E> getter) {
             return new TrackedAttribute<>(name, getter, TreeDataWriter::writeEnumAttribute);
         }
 
