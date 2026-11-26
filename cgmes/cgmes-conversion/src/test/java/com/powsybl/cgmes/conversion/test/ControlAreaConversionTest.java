@@ -47,8 +47,12 @@ class ControlAreaConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void tieFlowWithoutControlArea() {
-        Network network = readCgmesResources(DIR, "tie_flow_without_control_area_EQ.xml");
+    void invalidControlAreaTest() {
+        // CGMES network:
+        //   A invalid ControlArea of type Forecast with 1 TieFlow
+        // IIDM network:
+        //   No ControlArea is created
+        Network network = readCgmesResources(DIR, "invalid_control_area_with_tie_flow_EQ.xml");
         assertEquals(0, network.getAreaCount());
     }
 }
