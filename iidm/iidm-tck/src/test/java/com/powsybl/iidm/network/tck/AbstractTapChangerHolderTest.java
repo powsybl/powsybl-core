@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public abstract class AbstractTapChangerHolderTest {
 
     @Test
-    void shouldReuseCopiedPhaseTapChangerPropertiesFixedTapExample() {
+    public void shouldReuseCopiedPhaseTapChangerPropertiesFixedTapExample() {
         Network network = exampleNetwork();
         PhaseTapChanger existingPhaseTapChanger = network.getTwoWindingsTransformer("transformer")
                 .newPhaseTapChanger()
@@ -63,7 +63,7 @@ public abstract class AbstractTapChangerHolderTest {
     }
 
     @Test
-    void shouldReuseCopiedPhaseTapChangerPropertiesActivePowerControlExample() {
+    public void shouldReuseCopiedPhaseTapChangerPropertiesActivePowerControlExample() {
         Network network = exampleNetwork();
         PhaseTapChanger existingPhaseTapChanger = network.getTwoWindingsTransformer("transformer")
                 .newPhaseTapChanger()
@@ -106,7 +106,7 @@ public abstract class AbstractTapChangerHolderTest {
     }
 
     @Test
-    void shouldReuseCopiedRatioTapChangerProperties() {
+    public void shouldReuseCopiedRatioTapChangerProperties() {
         Network network = exampleNetwork();
         RatioTapChanger existingRatioTapChanger = network.getTwoWindingsTransformer("transformer").newRatioTapChanger()
                 .setTapPosition(1)

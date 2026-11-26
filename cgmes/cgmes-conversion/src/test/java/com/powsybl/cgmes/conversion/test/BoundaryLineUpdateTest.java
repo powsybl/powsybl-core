@@ -270,7 +270,7 @@ class BoundaryLineUpdateTest {
 
     private static boolean checkBoundaryBusVoltage(BoundaryLine boundaryLine, double v, double angle) {
         double tol = 0.0000001;
-        String voltageProperty = boundaryLine.getProperty(CgmesNames.VOLTAGE);
+        String voltageProperty = boundaryLine.getProperty(CgmesNames.V);
         String angleProperty = boundaryLine.getProperty(CgmesNames.ANGLE);
         assertEquals(v, voltageProperty != null ? Double.parseDouble(voltageProperty) : Double.NaN, tol);
         assertEquals(angle, angleProperty != null ? Double.parseDouble(angleProperty) : Double.NaN, tol);

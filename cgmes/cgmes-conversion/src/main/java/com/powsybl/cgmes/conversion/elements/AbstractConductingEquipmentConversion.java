@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesBoundaryLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.*;
@@ -383,7 +384,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
-        double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
+        double v = svVoltage.get().asDouble(CgmesNames.V, Double.NaN);
         double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
         if (!isVoltageDefined(v, angle)) {
             dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
@@ -895,6 +896,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             voltageRegulation.setRegulating(false);
             setLocalTargetVOrTargetValue(holder, targetV);
             voltageRegulation.setTargetDeadband(targetDeadband);
+        }
+    }
+
+    protected void setRegulatingControlProperty(Identifiable<?> regulatingEquipment) {
+        String regulatingControlId = p.getId(CgmesNames.REGULATING_CONTROL);
+        if (regulatingControlId != null) {
+            regulatingEquipment.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
         }
     }
 
