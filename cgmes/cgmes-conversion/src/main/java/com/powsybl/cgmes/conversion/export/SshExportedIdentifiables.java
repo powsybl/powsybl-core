@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, Elia Group (http://www.eliagroup.eu)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,11 +7,16 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,6 +156,9 @@ public final class SshExportedIdentifiables {
             // The SSH data of a connectable contains the connection state of its terminals
             return true;
         }
+        if (LOCAL_TARGET_V.equals(attribute) && identifiable instanceof VoltageRegulationHolder<?> holder && !writesLocalTargetV(holder)) {
+            return false;
+        }
         return switch (identifiable) {
             case Switch ignored -> OPEN.equals(attribute);
             case DcSwitch ignored -> OPEN.equals(attribute);
@@ -161,8 +169,8 @@ public final class SshExportedIdentifiables {
             case Battery ignored -> Set.of(TARGET_P, LOCAL_TARGET_Q, REGULATING).contains(attribute);
             case ShuntCompensator ignored -> Set.of("sectionCount", LOCAL_TARGET_V, REGULATING, TARGET_VALUE, TARGET_DEADBAND).contains(attribute);
             case StaticVarCompensator ignored -> Set.of(LOCAL_TARGET_Q, LOCAL_TARGET_V, REGULATING, TARGET_VALUE).contains(attribute);
-            // The regulation mode of a VSC converter is its qPccControl
-            case VscConverterStation ignored -> Set.of(LOCAL_TARGET_Q, LOCAL_TARGET_V, REGULATING, TARGET_VALUE, REGULATION_MODE).contains(attribute);
+            // The regulation mode of a VSC converter is its qPccControl, and the SSH has no regulation status for it
+            case VscConverterStation ignored -> Set.of(LOCAL_TARGET_Q, LOCAL_TARGET_V, TARGET_VALUE, REGULATION_MODE).contains(attribute);
             case LccConverterStation ignored -> "powerFactor".equals(attribute);
             case HvdcLine ignored -> Set.of("activePowerSetpoint", "convertersMode").contains(attribute);
             // A VsConverter of the detailed DC model has no control flag
@@ -173,10 +181,22 @@ public final class SshExportedIdentifiables {
             // The target active and reactive power of the generation of a boundary line are not written
             case BoundaryLine ignored -> Set.of(P0, Q0, "targetV", "voltageRegulationOn").contains(attribute);
             case Area ignored -> "interchangeTarget".equals(attribute);
-            // The fictitious injection of a bus of a bus-breaker voltage level
-            case Bus ignored -> Set.of("fictitiousP0", "fictitiousQ0").contains(attribute);
+            // The fictitious injection of a bus is not supported: in a network imported from CGMES it is a new equipment
             default -> false;
         };
+    }
+
+    /**
+     * True if the SSH data of the holder contains its local target voltage.
+     * The SSH writes it only as the target value of a local voltage regulation,
+     * except for an EquivalentInjection, which writes it as its regulation target.
+     */
+    private static boolean writesLocalTargetV(VoltageRegulationHolder<?> holder) {
+        if (holder instanceof Generator generator && CgmesNames.EQUIVALENT_INJECTION.equals(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS))) {
+            return true;
+        }
+        VoltageRegulation regulation = holder.getVoltageRegulation();
+        return regulation != null && regulation.getMode() == RegulationMode.VOLTAGE && regulation.getTerminal() == null;
     }
 
     private static boolean isSupportedExtension(String extensionName) {

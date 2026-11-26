@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.model.statement.CgmesObject;
 
-import static com.powsybl.cgmes.conversion.export.CgmesNormalizer.format;
+import static com.powsybl.cgmes.conversion.export.AbstractCgmesWriter.format;
 import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**

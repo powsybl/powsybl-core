@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, Elia Group (http://www.eliagroup.eu)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,8 +7,9 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.ExtensionUpdateNetworkEvent;
@@ -27,9 +28,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -59,7 +66,7 @@ class SshExportedIdentifiablesTest {
 
     @BeforeEach
     void setUp() {
-        network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        network = EurostagTutorialExample1Factory.create();
         recorder = new NetworkEventRecorder();
         network.addListener(recorder);
     }
@@ -150,7 +157,7 @@ class SshExportedIdentifiablesTest {
 
     private static Stream<Arguments> supportedInjectionChanges() {
         Supplier<Network> fourSubstations = FourSubstationsNodeBreakerFactory::create;
-        Supplier<Network> smallGrid = () -> Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        Supplier<Network> regulatingShunt = ShuntTestCaseFactory::create;
         return Stream.of(
             supported("switch open", fourSubstations, n -> {
                 Switch sw = n.getSwitches().iterator().next();
@@ -207,17 +214,18 @@ class SshExportedIdentifiablesTest {
             }),
             supported("shunt localTargetV", fourSubstations, n -> {
                 ShuntCompensator s = n.getShuntCompensators().iterator().next();
+                regulateLocalVoltage(s, 400.0);
                 return new Change(s, () -> s.setLocalTargetV(399.0));
             }),
-            supported("shunt regulating", smallGrid, n -> {
+            supported("shunt regulating", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 return new Change(s, () -> s.getVoltageRegulation().setRegulating(!s.getVoltageRegulation().isRegulating()));
             }),
-            supported("shunt target deadband", smallGrid, n -> {
+            supported("shunt target deadband", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 return new Change(s, () -> s.getVoltageRegulation().setTargetDeadband(s.getVoltageRegulation().getTargetDeadband() + 1.0));
             }),
-            supported("shunt target value", smallGrid, n -> {
+            supported("shunt target value", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 // A target value needs a terminal
                 s.getVoltageRegulation().setTerminal(s.getTerminal(), 400.0);
@@ -247,10 +255,6 @@ class SshExportedIdentifiablesTest {
             supported("VSC station localTargetV", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
                 return new Change(v, () -> v.setLocalTargetV(v.getLocalTargetV() + 1.0));
-            }),
-            supported("VSC station regulating", fourSubstations, n -> {
-                VscConverterStation v = n.getVscConverterStations().iterator().next();
-                return new Change(v, () -> v.getVoltageRegulation().setRegulating(!v.getVoltageRegulation().isRegulating()));
             }),
             supported("VSC station target value", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
@@ -303,7 +307,8 @@ class SshExportedIdentifiablesTest {
             }),
             supported("VSC converter localTargetV", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
-                return new Change(c, () -> c.setLocalTargetV(Double.isNaN(c.getLocalTargetV()) ? 400.0 : c.getLocalTargetV() + 1.0));
+                regulateLocalVoltage(c, 400.0);
+                return new Change(c, () -> c.setLocalTargetV(401.0));
             }),
             supported("VSC converter target value", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
@@ -386,14 +391,6 @@ class SshExportedIdentifiablesTest {
                 bl.getGeneration().setTargetQ(0.0);
                 return new Change(bl, () -> bl.getGeneration().setVoltageRegulationOn(false));
             }),
-            supported("bus fictitiousP0", eurostag, n -> {
-                Bus bus = n.getBusBreakerView().getBus("NGEN");
-                return new Change(bus, () -> bus.setFictitiousP0(10.0));
-            }),
-            supported("bus fictitiousQ0", eurostag, n -> {
-                Bus bus = n.getBusBreakerView().getBus("NGEN");
-                return new Change(bus, () -> bus.setFictitiousQ0(10.0));
-            }),
             supported("bus-breaker generator disconnection", eurostag, n -> {
                 Generator g = n.getGenerator("GEN");
                 return new Change(g, () -> g.getTerminal().disconnect());
@@ -425,9 +422,96 @@ class SshExportedIdentifiablesTest {
         assertTrue(SshExportedIdentifiables.fromEvents(n, events, FAIL).contains(change.identifiable()));
     }
 
+    /**
+     * The supported changes without a round trip test, and the reason.
+     */
+    private static final Map<String, String> NO_ROUND_TRIP;
+
+    static {
+        String notKept = "the CGMES export and import of the network do not keep this equipment";
+        String importFails = "the CGMES import of the network fails";
+        String exportFails = "the CGMES export of the network fails";
+        Map<String, String> noRoundTrip = new HashMap<>();
+        for (String description : List.of("DC switch open", "battery targetP", "battery localTargetQ", "area interchangeTarget",
+                "VSC converter targetP", "VSC converter targetVdc", "VSC converter controlMode", "VSC converter localTargetQ",
+                "VSC converter localTargetV", "VSC converter target value", "VSC converter regulation mode", "VSC converter DC disconnection")) {
+            noRoundTrip.put(description, notKept);
+        }
+        for (String description : List.of("LCC converter targetP", "LCC converter targetVdc", "LCC converter controlMode")) {
+            noRoundTrip.put(description, importFails);
+        }
+        for (String description : List.of("boundary line p0", "boundary line q0", "boundary line targetV", "boundary line voltageRegulationOn")) {
+            noRoundTrip.put(description, exportFails);
+        }
+        noRoundTrip.put("generator disconnection", "the CGMES import adds a fictitious switch to a disconnected node-breaker terminal");
+        noRoundTrip.put("VSC station target value", "a CGMES model has no remote voltage regulation for a VSC converter station");
+        NO_ROUND_TRIP = Map.copyOf(noRoundTrip);
+    }
+
+    static Stream<Arguments> supportedChangesWithRoundTrip() {
+        return supportedChanges().filter(arguments -> !NO_ROUND_TRIP.containsKey((String) arguments.get()[0]));
+    }
+
+    /**
+     * The sender and the receiver load the same CGMES model. The sender records the change and exports it as a partial SSH,
+     * the receiver applies the partial SSH with the network update, and both networks must have the same IIDM data.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("supportedChangesWithRoundTrip")
+    void supportedChangeIsAppliedByTheUpdate(String description, Supplier<Network> networkSupplier, Function<Network, Change> changeBuilder)
+            throws IOException, XMLStreamException {
+        // The preparation of the change, for example a voltage regulation, is part of the CGMES model
+        Network base = networkSupplier.get();
+        changeBuilder.apply(base);
+        MemDataSource model = CgmesTestModels.cgmesFiles(base);
+        Network sender = Network.read(model);
+        Network receiver = Network.read(model);
+        Change change = changeBuilder.apply(sender);
+        // The preparation does not change the imported networks again; the receiver does not get the change
+        changeBuilder.apply(receiver);
+        Set<Identifiable<?>> changed = SshExportedIdentifiables.fromEvents(sender, recordEvents(sender, change), FAIL);
+        assertNotEquals(CgmesTestModels.iidmData(sender), CgmesTestModels.iidmData(receiver), "The change gives no difference");
+
+        MemDataSource partialSsh = new MemDataSource();
+        try (OutputStream os = partialSsh.newOutputStream("partial_SSH.xml", false)) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            SteadyStateHypothesisExport.write(sender, writer, new CgmesExportContext(sender).setSshExportedIdentifiables(changed));
+        }
+        Properties properties = new Properties();
+        properties.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        receiver.update(partialSsh, properties);
+
+        assertEquals(CgmesTestModels.iidmData(sender), CgmesTestModels.iidmData(receiver));
+    }
+
     static Stream<Arguments> unsupportedChanges() {
         Supplier<Network> fourSubstations = FourSubstationsNodeBreakerFactory::create;
+        Supplier<Network> eurostag = EurostagTutorialExample1Factory::create;
         return Stream.of(
+            // The SSH writes the local target voltage only as the target value of a local voltage regulation
+            unsupported("shunt localTargetV without voltage regulation", fourSubstations, n -> {
+                ShuntCompensator s = n.getShuntCompensators().iterator().next();
+                return new Change(s, () -> s.setLocalTargetV(399.0));
+            }),
+            unsupported("generator localTargetV with a remote voltage regulation", fourSubstations, n -> {
+                Generator g = n.getGenerators().iterator().next();
+                regulateRemoteVoltage(g, 400.0);
+                return new Change(g, () -> g.setLocalTargetV(399.0));
+            }),
+            // The SSH has no regulation status for a VSC converter station
+            unsupported("VSC station regulating", fourSubstations, n -> {
+                VscConverterStation v = n.getVscConverterStations().iterator().next();
+                return new Change(v, () -> v.getVoltageRegulation().setRegulating(!v.getVoltageRegulation().isRegulating()));
+            }),
+            // The fictitious injection of a bus is a new equipment in a network imported from CGMES
+            unsupported("bus fictitiousP0", eurostag, n -> {
+                Bus bus = n.getBusBreakerView().getBus("NGEN");
+                return new Change(bus, () -> bus.setFictitiousP0(10.0));
+            }),
+            unsupported("bus fictitiousQ0", eurostag, n -> {
+                Bus bus = n.getBusBreakerView().getBus("NGEN");
+                return new Change(bus, () -> bus.setFictitiousQ0(10.0));
+            }),
             unsupported("line resistance", fourSubstations, n -> {
                 Line line = n.getLines().iterator().next();
                 return new Change(line, () -> line.setR(line.getR() + 1.0));
@@ -510,7 +594,6 @@ class SshExportedIdentifiablesTest {
         load.setP0(load.getP0() + 1.0);
 
         CgmesExportContext context = new CgmesExportContext(network)
-            .setPartialSshExport(true)
             .setSshExportedIdentifiables(SshExportedIdentifiables.fromEvents(network, recorder.getEvents(), FAIL));
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
@@ -531,6 +614,18 @@ class SshExportedIdentifiablesTest {
         change.action().run();
         network.removeListener(eventRecorder);
         return eventRecorder.getEvents();
+    }
+
+    /**
+     * Give the holder a local voltage regulation, so that its local target voltage is in the SSH.
+     */
+    private static void regulateLocalVoltage(VoltageRegulationHolder<?> holder, double localTargetV) {
+        holder.setLocalTargetV(localTargetV);
+        holder.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetDeadband(0.0)
+            .withRegulating(true)
+            .build();
     }
 
     /**
