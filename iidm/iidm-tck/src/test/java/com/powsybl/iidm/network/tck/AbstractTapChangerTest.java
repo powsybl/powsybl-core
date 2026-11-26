@@ -847,7 +847,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMultiVariants() {
+    public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
@@ -886,7 +886,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    void testRemoveVoltageRegulationInMultiVariant() {
+    public void testRemoveVoltageRegulationInMultiVariant() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
@@ -911,7 +911,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMonoVariant() {
+    public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
 
@@ -928,7 +928,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         double remoteTargetQLoadSignConvention = 10.0;
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();

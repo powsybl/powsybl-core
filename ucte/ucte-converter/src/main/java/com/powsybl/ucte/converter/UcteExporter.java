@@ -101,7 +101,7 @@ public class UcteExporter implements Exporter {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network);
+        namingStrategy.initializeNetwork(network, reportNode);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
         List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
@@ -155,7 +155,7 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
+    static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
         return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
@@ -191,16 +191,18 @@ public class UcteExporter implements Exporter {
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
 
         UcteExporterContext busesAndSwitchesContext = context.withReportNode(UcteExporterReports.busesAndSwitches(reportNode));
-        network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
-            voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
-                if (isYNode(bus)) {
-                    LOGGER.warn("Ignoring YNode {}", bus.getId());
-                } else {
-                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
-                }
-            });
-            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
-        }));
+        network.getVoltageLevelStream()
+                .filter(context.getNamingStrategy().getExportedVoltageLevels()::isExported)
+                .forEach(voltageLevel -> {
+                    voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
+                        if (isYNode(bus)) {
+                            LOGGER.warn("Ignoring YNode {}", bus.getId());
+                        } else {
+                            convertBus(ucteNetwork, bus, busesAndSwitchesContext);
+                        }
+                    });
+                    voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
+                });
 
         UcteExporterContext boundaryLinesContext = context.withReportNode(UcteExporterReports.boundaryLines(reportNode));
         network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, boundaryLinesContext));
@@ -436,14 +438,14 @@ public class UcteExporter implements Exporter {
     private static void applyGenerationToUcteNode(BoundaryLine.Generation generation, UcteNode ucteNode) {
         double generatorTargetP = generation.getTargetP();
         ucteNode.setActivePowerGeneration(getOrZero(-generatorTargetP));
-        ucteNode.setReactivePowerGeneration(getOrZero(-generation.getTargetQ()));
-        if (generation.isVoltageRegulationOn()) {
+        ucteNode.setReactivePowerGeneration(getOrZero(-generation.getLocalTargetQ()));
+        if (generation.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(generation.getTargetV());
+            ucteNode.setVoltageReference(generation.getLocalTargetV());
             double minP = generation.getMinP();
             double maxP = generation.getMaxP();
-            double minQ = generation.getReactiveLimits().getMinQ(generatorTargetP);
-            double maxQ = generation.getReactiveLimits().getMaxQ(generatorTargetP);
+            double minQ = generation.getReactiveLimits().getMinQ(generation.getTargetP());
+            double maxQ = generation.getReactiveLimits().getMaxQ(generation.getTargetP());
             setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
         }
     }

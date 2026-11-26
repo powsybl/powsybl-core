@@ -179,7 +179,7 @@ public class Conversion {
         cgmes.computedTerminals().stream()
                 .filter(t -> !CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType()))
                 .forEach(t -> context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t));
-        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
+        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().storeRegulatingControl(p));
         context.popReportNode();
 
         // Convert containers
@@ -354,7 +354,7 @@ public class Conversion {
         // Switches are updated first because the subsequent update of the terminals
         // is configurable and, if activated, may modify their state.
         // Then, the update of the terminals can overwrite the state of the switches
-        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, updateContext);
         updateSwitches(network, updateContext);
 
         updateLoads(network, cgmes, updateContext);
@@ -1081,6 +1081,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseSvcRegulationDataAsAlternative() {
+            return useSvcRegulationDataAsAlternative;
+        }
+
+        public Config setUseSvcRegulationDataAsAlternative(boolean use) {
+            useSvcRegulationDataAsAlternative = use;
+            return this;
+        }
+
         public boolean getRemovePropertiesAndAliasesAfterImport() {
             return removePropertiesAndAliasesAfterImport;
         }
@@ -1137,6 +1146,7 @@ public class Conversion {
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean useSvcRegulationDataAsAlternative = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
         private boolean silenceFrequentIssuesWarnings = false;
@@ -1190,7 +1200,6 @@ public class Conversion {
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
     public static final String PROPERTY_LINE_CONTAINER = CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId";
     public static final String PROPERTY_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + LOW_VOLTAGE_LIMIT;
-    public static final String PROPERTY_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + MODE;
     public static final String PROPERTY_NORMAL_OPEN = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_OPEN;
     public static final String PROPERTY_NORMAL_PF = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_PF;
     public static final String PROPERTY_NORMAL_SECTIONS = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_SECTIONS;
@@ -1217,6 +1226,7 @@ public class Conversion {
     public static final String PROPERTY_TERMINAL_SIGN3 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN3;
     public static final String PROPERTY_TOPOLOGICAL_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TOPOLOGICAL_NODE_BOUNDARY;
     public static final String PROPERTY_TP_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
+    public static final String PROPERTY_UNMAPPED_REGULATING_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "unmappedRegulatingTerminal";
     public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
 
     public static String getOperationalLimitPropertyName(String limitSubclass, boolean isInfiniteDuration, int duration, String tagProperty) {

@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -99,20 +97,6 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
             .setB(b1)
             .setG(g1)
             .endStep();
-    }
-
-    protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
-        if (tc != null) {
-            return context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(), tc.getRegulatingControlId(), tc.getTculControlMode());
-        }
-        return null;
-    }
-
-    protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChanger tc) {
-        if (tc != null) {
-            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc.getId(), tc.getRegulatingControlId());
-        }
-        return null;
     }
 
     @Override
@@ -419,7 +403,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 
-    private static <C extends Connectable<C>> String findTapChangerId(C tw, String propertyTag) {
+    public static <C extends Connectable<C>> String findTapChangerId(C tw, String propertyTag) {
         List<String> tcIds = tw.getAliases()
             .stream()
             .filter(alias -> isValidTapChangerIdAlias(tw, alias, tw.getAliasType(alias).orElseThrow(), propertyTag))

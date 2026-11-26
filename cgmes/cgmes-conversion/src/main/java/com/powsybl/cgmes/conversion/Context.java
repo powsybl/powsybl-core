@@ -204,7 +204,8 @@ public class Context {
     }
 
     public void buildUpdateCache() {
-        buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+        updateTerminals = cgmes.terminals();
+        buildUpdateCache(cgmesTerminals, updateTerminals, CgmesNames.TERMINAL);
         buildUpdateCache(cgmesDcTerminals, cgmes.dcTerminals(), CgmesNames.DC_TERMINAL);
         buildUpdateCache(ratioTapChangers, cgmes.ratioTapChangers(), CgmesNames.RATIO_TAP_CHANGER);
         buildUpdateCache(phaseTapChangers, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
@@ -225,6 +226,13 @@ public class Context {
 
     public PropertyBag cgmesTerminal(String id) {
         return cgmesTerminals.get(id);
+    }
+
+    /**
+     * The terminals read by {@link #buildUpdateCache()}, in query order
+     */
+    public PropertyBags updateTerminals() {
+        return updateTerminals;
     }
 
     public PropertyBag cgmesDcTerminal(String id) {
@@ -385,6 +393,7 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
 
     private final Map<String, PropertyBag> cgmesTerminals;
+    private PropertyBags updateTerminals = new PropertyBags();
     private final Map<String, PropertyBag> cgmesDcTerminals;
     private final Map<String, PropertyBag> ratioTapChangers;
     private final Map<String, PropertyBag> phaseTapChangers;

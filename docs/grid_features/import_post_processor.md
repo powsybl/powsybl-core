@@ -2,12 +2,18 @@
 The import post-processor is a feature that allows to do automatic modifications or simulations, just after a case is converted to an [IIDM](../grid_exchange_formats/iidm/index.md) network. These post-processors rely on the [plugin mechanism]() of PowSyBl meaning that they are discovered at runtime. To enable one or more post-processors, the `postprocessors` property of the `import` module must be defined in the configuration file. Note that if you configure several post-processors, they are executed in the declaration order, like a pipeline:
 <span style="color: red">TODO: insert a picture
 
-PowSyBl provides 2 different implementations of post-processors:
+PowSyBl provides the following implementations of post-processors:
+- [Geographical data import post-processor](#geographical-data-import-post-processor): to add geographical positions on a network
 - [Groovy](#groovy-post-processor): to execute a groovy script
 - [LoadFlow](#loadflow-post-processor): to run a power flow simulation
+- [Replace ids by names](#replace-ids-by-names-post-processor): to use the names of the identifiables as their ids
 
 (groovy-post-processor)=
 ## Groovy post-processor
+```{warning}
+The script is executed without any sandbox, each time a case is imported. Only use scripts from trusted sources and protect the script file against modification. See [Groovy scripts security](../user/groovy-security.md).
+```
+
 This post-processor executes a groovy script, loaded from a file. The script can access to the network and the [computation manager]() using the variables `network` and `computationManager`. To use this post-processor, add the `com.powsybl:powsybl-iidm-scripting` dependency to your classpath, and configure both `import` and `groovy-post-processor` modules:
 
 **YAML configuration:**
@@ -94,6 +100,34 @@ geo-json-importer-post-processor:
 ```
 
 The paths to the different files can be absolute paths or paths relative to the directory where your command is launched.
+
+(replace-ids-by-names-post-processor)=
+## Replace ids by names post-processor
+This post-processor applies the [replace ids by names](network_modifications/other_modifications.md#replace-ids-by-names) network modification: the id of every identifiable is replaced by its name when possible, and the original id is kept as an alias of type `original-id`.
+
+To use this post-processor, add the `com.powsybl:powsybl-iidm-modification` dependency to your classpath and enable it setting the `postProcessors` property of the `import` module. The behavior of the modification can be configured in the optional `replace-ids-by-names-default-parameters` module:
+
+**YAML configuration:**
+```yaml
+import:
+  postProcessors:
+    - replaceIdsByNames
+
+replace-ids-by-names-default-parameters:
+  suffix-with-id-if-name-is-duplicated: true
+  report-skipped-changes: false
+```
+
+**XML configuration:**
+```xml
+<import>
+    <postProcessors>replaceIdsByNames</postProcessors>
+</import>
+<replace-ids-by-names-default-parameters>
+    <suffix-with-id-if-name-is-duplicated>true</suffix-with-id-if-name-is-duplicated>
+    <report-skipped-changes>false</report-skipped-changes>
+</replace-ids-by-names-default-parameters>
+```
 
 ## Going further
 - [Create a post-processor](): Learn how to implement your own post-processor
