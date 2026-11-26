@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteRegulation;
 import com.powsybl.ucte.network.io.UcteReader;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
@@ -323,6 +325,61 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testSingleStepTapChangers() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        String rtcId = "0BBBBB5  0AAAAA2  1";
+        String asymId = "HDDDDD2  HCCCCC1  1";
+        String symmId = "ZABCD221 ZEFGH221 1";
+        network.getTwoWindingsTransformer(rtcId).newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .setLoadTapChangingCapabilities(false)
+                .beginStep().setRho(1.0).endStep()
+                .add();
+        network.getTwoWindingsTransformer(asymId).newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep().setRho(1.0).setAlpha(0.0).endStep()
+                .add();
+        network.getTwoWindingsTransformer(symmId).newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep().setRho(1.0).setAlpha(0.0).endStep()
+                .add();
+
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, new Properties(), dataSource, reportNode);
+
+        UcteNetwork ucteNetwork;
+        try (InputStream is = dataSource.newInputStream(null, "uct")) {
+            ucteNetwork = new UcteReader().read(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)), ReportNode.NO_OP);
+        }
+        for (UcteRegulation regulation : ucteNetwork.getRegulations()) {
+            String id = regulation.getTransfoId().toString();
+            assertNotEquals(rtcId, id);
+            assertNotEquals(symmId, id);
+            if (id.equals(asymId)) {
+                assertNotNull(regulation.getPhaseRegulation());
+                assertNull(regulation.getAngleRegulation());
+            }
+        }
+        assertTrue(UcteExporterReportTest.checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         0BBBBB5  0AAAAA2  1 [ratio tap changer] - tap changer with a single step not exported
+                         HDDDDD2  HCCCCC1  1 [phase tap changer] - tap changer with a single step not exported
+                         ZABCD221 ZEFGH221 1 [phase tap changer] - tap changer with a single step not exported
+                   Network exported to file .uct
+                """, reportNode));
+    }
+
+    @Test
     void testNominalPowerExport() {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         // Transformer 1: nominal power from ratedS
@@ -342,6 +399,11 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertEquals(1234.5, reimported.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS(), 1);
         assertEquals(1200.0, reimported.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS());
         assertEquals(99999, reimported.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getRatedS());
+    }
+
+    @Test
+    void testNominalPowerRoundTrip() throws IOException {
+        testExporter(loadNetworkFromResourceFile("/nominalPower.uct"), "/expectedExportNominalPower.uct");
     }
 
     @Test
@@ -600,5 +662,209 @@ class UcteExporterTest extends AbstractSerDeTest {
         UcteExporter exporter = new UcteExporter();
         PowsyblException e = assertThrows(PowsyblException.class, () -> exporter.export(network, parameters, dataSource));
         assertEquals("UCTE export post-processor 'unknown' not found", e.getMessage());
+    }
+
+    /**
+     * Tap changers are renumbered around their neutral tap, and their range is extended to stay symmetric. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void testExportTapChangers() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        assertTxtEquals("""
+                ##C 2007.05.01
+                Generated by powsybl, <export date>
+                Case date: 2026-01-01T00:00+01:00
+                ##N
+                ##ZFR
+                FADEVI11              0 0        0.00000 0.00000 0.00000 0.00000
+                FADEVI12              0 0        0.00000 0.00000 0.00000 0.00000
+                FALINE11              0 0        0.00000 0.00000 0.00000 0.00000
+                FALINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                FAROUN11              0 0        0.00000 0.00000 0.00000 0.00000
+                FAROUN12              0 0        0.00000 0.00000 0.00000 0.00000
+                FPCLOS11              0 0        0.00000 0.00000 0.00000 0.00000
+                FPCLOS12              0 0        0.00000 0.00000 0.00000 0.00000
+                FPTIEB11              0 0        0.00000 0.00000 0.00000 0.00000
+                FPTIEB12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRDEVI11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRDEVI12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLINE11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLOWX11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRLOWX12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRROUN11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRROUN12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRSHAP11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRSHAP12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRTIEB11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRTIEB12              0 0        0.00000 0.00000 0.00000 0.00000
+                FSDEVI11              0 0        0.00000 0.00000 0.00000 0.00000
+                FSDEVI12              0 0        0.00000 0.00000 0.00000 0.00000
+                FSLINE11              0 0        0.00000 0.00000 0.00000 0.00000
+                FSLINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                ##L
+                ##T
+                FADEVI11 FADEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FALINE11 FALINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FAROUN11 FAROUN12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FPCLOS11 FPCLOS12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FPTIEB11 FPTIEB12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRDEVI11 FRDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRLINE11 FRLINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRLOWX11 FRLOWX12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRROUN11 FRROUN12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRSHAP11 FRSHAP12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRTIEB11 FRTIEB12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FSDEVI11 FSDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FSLINE11 FSLINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                ##R
+                FADEVI11 FADEVI12 1                    25.00 60.00  2   0       ASYM
+                FALINE11 FALINE12 1                    25.00 60.00  1   0       ASYM
+                FAROUN11 FAROUN12 1                    1.234 60.00 10   0       ASYM
+                FPCLOS11 FPCLOS12 1                    -0.87 90.00  3  -1       SYMM
+                FPTIEB11 FPTIEB12 1                    10.08 -119.  2   0       ASYM
+                FRDEVI11 FRDEVI12 1 2.000  2   0
+                FRLINE11 FRLINE12 1 2.000  2   0
+                FRLOWX11 FRLOWX12 1 2.000  3   0
+                FRROUN11 FRROUN12 1 1.234 10   0
+                FRSHAP11 FRSHAP12 1 -5.05  3  -1
+                FRTIEB11 FRTIEB12 1 -10.0  1   0
+                FSDEVI11 FSDEVI12 1                    146.6 90.00  1   0       SYMM
+                FSLINE11 FSLINE12 1                    200.0 90.00  1   0       SYMM
+                """, exportToString(new UcteExporter(), network));
+    }
+
+    /**
+     * Voltage levels without substation, Default naming strategy: their nodes, switches and loads are exported, named
+     * after their bus ids, including the isolated one. See
+     * {@link UcteExporterTestNetworks#createWithOrphanVoltageLevelsUcteIds()} for the topologies.
+     */
+    @Test
+    void testExportOrphanVoltageLevelsDefault() {
+        Network network = UcteExporterTestNetworks.createWithOrphanVoltageLevelsUcteIds();
+
+        assertTxtEquals("""
+                ##C 2007.05.01
+                Generated by powsybl, <export date>
+                Case date: 2026-01-01T00:00+01:00
+                ##N
+                ##ZBE
+                BDDDDD11              0 0        0.00000 0.00000 0.00000 0.00000
+                ##ZNL
+                NAAAAA11              0 0        0.00000 0.00000 0.00000 0.00000
+                NBBBBB11              0 0        0.00000 0.00000 0.00000 0.00000
+                NCCCCC11              0 0        0.00000 0.00000 0.00000 0.00000
+                NEMPTY11              0 0        0.00000 0.00000 0.00000 0.00000
+                NORPHA11              0 0        42.0000 7.00000 0.00000 0.00000
+                NORPHA12              0 0        0.00000 0.00000 0.00000 0.00000
+                NSEGAA11              0 0        0.00000 0.00000 0.00000 0.00000
+                NSEGBB11              0 0        0.00000 0.00000 0.00000 0.00000
+                NSEGMT11              0 0        0.00000 0.00000 0.00000 0.00000
+                NSEGMT12              0 0        0.00000 0.00000 0.00000 0.00000
+                NTJUNC11              0 0        0.00000 0.00000 0.00000 0.00000
+                ##L
+                NAAAAA11 NORPHA11 1 0 1.0000 10.000 0.000000
+                NAAAAA11 NSEGAA11 1 0 1.0000 10.000 0.000000
+                NAAAAA11 NSEGMT11 1 0 1.0000 10.000 0.000000
+                NAAAAA11 NTJUNC11 1 0 1.0000 10.000 0.000000
+                NBBBBB11 NTJUNC11 1 0 1.0000 10.000 0.000000
+                NCCCCC11 NTJUNC11 1 0 1.0000 10.000 0.000000
+                NORPHA11 NORPHA12 1 2 0.0000 0.0000 0.000000
+                NSEGAA11 NSEGBB11 1 0 1.0000 10.000 0.000000
+                NSEGBB11 NBBBBB11 1 0 1.0000 10.000 0.000000
+                NSEGMT11 NSEGMT12 1 0 1.0000 10.000 0.000000
+                NSEGMT12 NBBBBB11 1 0 1.0000 10.000 0.000000
+                ##T
+                ##R
+                """, exportToString(new UcteExporter(), network));
+    }
+
+    /**
+     * Voltage levels without substation, Counter naming strategy: their nodes get the country of the substations they
+     * are linked to, the isolated one without equipment is not exported. See
+     * {@link UcteExporterTestNetworks#createWithOrphanVoltageLevels()} for the topologies,
+     * plus a node-breaker T-line.
+     */
+    @Test
+    void testExportOrphanVoltageLevelsCounter() {
+        Network network = UcteExporterTestNetworks.createWithOrphanVoltageLevels();
+        UcteExporterTestNetworks.addNodeBreakerTLine(network);
+
+        assertTxtEquals("""
+                ##C 2007.05.01
+                Generated by powsybl, <export date>
+                Case date: 2026-01-01T00:00+01:00
+                ##N
+                ##ZBE
+                B0000310              0 0        0.00000 0.00000 0.00000 0.00000
+                ##ZNL
+                N0000010              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000110              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000210              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000410              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000510              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000511              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000610              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000710              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000810              0 0        42.0000 7.00000 0.00000 0.00000
+                N0000811              0 0        0.00000 0.00000 0.00000 0.00000
+                N0000910              0 0        0.00000 0.00000 0.00000 0.00000
+                ##L
+                N0000010 N0000410 0 0 1.0000 10.000 0.000000
+                N0000010 N0000510 0 0 1.0000 10.000 0.000000
+                N0000010 N0000610 0 0 1.0000 10.000 0.000000
+                N0000010 N0000810 0 0 1.0000 10.000 0.000000
+                N0000010 N0000910 0 0 1.0000 10.000 0.000000
+                N0000110 N0000410 0 0 1.0000 10.000 0.000000
+                N0000110 N0000910 0 0 1.0000 10.000 0.000000
+                N0000210 N0000410 0 0 1.0000 10.000 0.000000
+                N0000210 N0000910 0 0 1.0000 10.000 0.000000
+                N0000510 N0000511 0 0 1.0000 10.000 0.000000
+                N0000511 N0000110 0 0 1.0000 10.000 0.000000
+                N0000610 N0000710 0 0 1.0000 10.000 0.000000
+                N0000710 N0000110 0 0 1.0000 10.000 0.000000
+                N0000810 N0000811 0 2 0.0000 0.0000 0.000000
+                ##T
+                ##R
+                """, exportToString(new UcteExporter(), network, counterNamingStrategy()));
+    }
+
+    /**
+     * Voltage levels without substation, Counter naming strategy: the export fails when the country of an orphan
+     * voltage level is ambiguous, or when an isolated one holds equipment.
+     */
+    @Test
+    void testExportOrphanVoltageLevelsCounterFailures() {
+        UcteExporter exporter = new UcteExporter();
+        Properties counterNamingParams = counterNamingStrategy();
+        Network acrossTwoCountries = UcteExporterTestNetworks.createWithTLine(Country.BE);
+
+        UcteException e = assertThrows(UcteException.class,
+                () -> exportToString(exporter, acrossTwoCountries, counterNamingParams),
+                "T-line connected to two countries: the junction's country is ambiguous, the export must fail");
+        assertEquals("Cannot determine the country of voltage levels [VL_TJUNC]: they are connected to " +
+                        "substations of several countries [BE, NL]", e.getMessage());
+
+        Network isolatedWithEquipment = UcteExporterTestNetworks.createWithOrphanVoltageLevels();
+        isolatedWithEquipment.getVoltageLevel("VL_EMPTY").newLoad()
+                .setId("LOAD_EMPTY").setBus("BUS_EMPTY_1").setConnectableBus("BUS_EMPTY_1").setP0(42).setQ0(7).add();
+        e = assertThrows(UcteException.class, () -> exportToString(exporter, isolatedWithEquipment, counterNamingParams),
+                "Isolated voltage level holding equipment: no country can be found and its equipment cannot " +
+                        "be dropped, the export must fail");
+        assertEquals("Voltage levels connected to no substation cannot hold equipment: VL_EMPTY [LOAD_EMPTY]",
+                e.getMessage());
+    }
+
+    /**
+     * Export parameters selecting the Counter naming strategy.
+     *
+     * @return the export parameters
+     */
+    private static Properties counterNamingStrategy() {
+        Properties parameters = new Properties();
+        parameters.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        return parameters;
     }
 }

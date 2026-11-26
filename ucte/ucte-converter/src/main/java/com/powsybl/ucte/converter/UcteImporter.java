@@ -284,14 +284,17 @@ public class UcteImporter implements Importer {
                 .setFictitious(isFictitious(ucteLine))
                 .newGeneration()
                 .setTargetP(getOrZero(-xnode.getActivePowerGeneration()))
-                .setTargetQ(getOrZero(-xnode.getReactivePowerGeneration()))
+                .setLocalTargetQ(getOrZero(-xnode.getReactivePowerGeneration()))
                 .add()
                 .add();
 
         if (xnode.isRegulatingVoltage()) {
+            dl.getGeneration().setLocalTargetV(xnode.getVoltageReference());
+            dl.getGeneration().newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .build();
             dl.getGeneration()
-                    .setTargetV(xnode.getVoltageReference())
-                    .setVoltageRegulationOn(true)
                     .setMaxP(-xnode.getMaximumPermissibleActivePowerGeneration())
                     .setMinP(-xnode.getMinimumPermissibleActivePowerGeneration());
             dl.getGeneration().newMinMaxReactiveLimits()
@@ -661,7 +664,7 @@ public class UcteImporter implements Importer {
                 .setPairingKey(ucteXnode.getCode().toString())
                 .newGeneration()
                 .setTargetP(getOrZero(-ucteXnode.getActivePowerGeneration()))
-                .setTargetQ(getOrZero(-ucteXnode.getReactivePowerGeneration()))
+                .setLocalTargetQ(getOrZero(-ucteXnode.getReactivePowerGeneration()))
                 .add()
                 .add();
         addXnodeStatusProperty(ucteXnode, yBoundaryLine);

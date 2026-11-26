@@ -9,6 +9,7 @@ package com.powsybl.ucte.converter.util;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.IdentifiableType;
 
 /**
  * Message-templated {@link ReportNode} entries reported by {@link com.powsybl.ucte.converter.UcteExporter}.
@@ -20,8 +21,16 @@ public final class UcteExporterReports {
     public static final String BUS_ID = "busId";
     public static final String GENERATOR_ID = "generatorId";
     public static final String TARGET_V = "targetV";
+    public static final String TAP_CHANGER_TYPE = "tapChangerType";
+    public static final String EQUIPMENT_ID = "equipmentId";
 
     private UcteExporterReports() {
+    }
+
+    public static ReportNode namingStrategySetup(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.namingStrategySetup")
+                .add();
     }
 
     public static ReportNode networkCreation(ReportNode reportNode) {
@@ -78,6 +87,39 @@ public final class UcteExporterReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.switchCurrentLimitMissing")
                 .withUntypedValue("switchId", switchId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void singleStepTapChangerNotExported(ReportNode reportNode, String equipmentId, String tapChangerType) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.singleStepTapChangerNotExported")
+                .withUntypedValue(EQUIPMENT_ID, equipmentId)
+                .withUntypedValue(TAP_CHANGER_TYPE, tapChangerType)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void tapChangerModelDeviation(ReportNode reportNode, String equipmentId, String tapChangerType) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.tapChangerModelDeviation")
+                .withUntypedValue(EQUIPMENT_ID, equipmentId)
+                .withUntypedValue(TAP_CHANGER_TYPE, tapChangerType)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void tapPositionRangeExtended(ReportNode reportNode,
+                                                String equipmentId,
+                                                String tapChangerType,
+                                                int lowSpan,
+                                                int highSpan) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.tapPositionRangeExtended")
+                .withUntypedValue(EQUIPMENT_ID, equipmentId)
+                .withUntypedValue(TAP_CHANGER_TYPE, tapChangerType)
+                .withUntypedValue("lowSpan", lowSpan)
+                .withUntypedValue("highSpan", highSpan)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -158,6 +200,55 @@ public final class UcteExporterReports {
                 .withMessageTemplate("core.ucte.export.nominalPowerMissing")
                 .withUntypedValue("transformerId", transformerId)
                 .withUntypedValue("nominalPowerNovalue", (int) nominalPowerNovalue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void noLoadFlowResults(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.noLoadFlowResults")
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode deenergizedElements(ReportNode reportNode, int count) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.deenergizedElements")
+                .withUntypedValue("count", count)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void deenergizedElement(ReportNode reportNode, IdentifiableType elementType, String ucteElementId) {
+        reportNode.newReportNode()
+                .withMessageTemplate(getDeenergizedElementKey(elementType))
+                .withUntypedValue("ucteElementId", ucteElementId)
+                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                .add();
+    }
+
+    /**
+     * Get the message key reporting a de-energized element of the given type.
+     *
+     * @param elementType the type of the de-energized element
+     * @return the message key for this type of element
+     * @throws IllegalArgumentException if the type is not one of the types of elements set out of operation
+     */
+    private static String getDeenergizedElementKey(IdentifiableType elementType) {
+        return switch (elementType) {
+            case BOUNDARY_LINE -> "core.ucte.export.deenergizedBoundaryLine";
+            case LINE -> "core.ucte.export.deenergizedLine";
+            case SWITCH -> "core.ucte.export.deenergizedSwitch";
+            case TIE_LINE -> "core.ucte.export.deenergizedTieLine";
+            case TWO_WINDINGS_TRANSFORMER -> "core.ucte.export.deenergizedTwoWindingsTransformer";
+            default -> throw new IllegalArgumentException("Unexpected element type: " + elementType);
+        };
+    }
+
+    public static void orphanVoltageLevelNotExported(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.orphanVoltageLevelNotExported")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

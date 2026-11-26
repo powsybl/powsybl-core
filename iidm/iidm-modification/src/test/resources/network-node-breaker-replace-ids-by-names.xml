@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" xmlns:cp="http://www.powsybl.org/schema/iidm/ext/connectable_position/1_1" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="NAME_subst" name="NAME_subst" country="FR">
+        <iidm:alias type="original-id">subst</iidm:alias>
+        <iidm:voltageLevel id="NAME_vl1" name="NAME_vl1" nominalV="380.0" topologyKind="NODE_BREAKER">
+            <iidm:alias type="original-id">vl1</iidm:alias>
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="NAME_bbs1" name="NAME_bbs1" node="0">
+                    <iidm:alias type="original-id">bbs1</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:busbarSection id="NAME_bbs2" name="NAME_bbs2" node="1">
+                    <iidm:alias type="original-id">bbs2</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:busbarSection id="NAME_bbs3" name="NAME_bbs3" node="2">
+                    <iidm:alias type="original-id">bbs3</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:busbarSection id="NAME_bbs4" name="NAME_bbs4" node="3">
+                    <iidm:alias type="original-id">bbs4</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:switch id="NAME_dsect11" name="NAME_dsect11" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="14">
+                    <iidm:alias type="original-id">dsect11</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrct11" name="NAME_dtrct11" fictitious="true" kind="BREAKER" retained="true" open="false" node1="14" node2="15">
+                    <iidm:alias type="original-id">dtrct11</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dsect12" name="NAME_dsect12" fictitious="true" kind="DISCONNECTOR" open="false" node1="15" node2="1">
+                    <iidm:alias type="original-id">dsect12</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dsect21" name="NAME_dsect21" fictitious="true" kind="DISCONNECTOR" open="false" node1="2" node2="16">
+                    <iidm:alias type="original-id">dsect21</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrct21" name="NAME_dtrct21" fictitious="true" kind="BREAKER" retained="true" open="false" node1="16" node2="17">
+                    <iidm:alias type="original-id">dtrct21</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dsect22" name="NAME_dsect22" fictitious="true" kind="DISCONNECTOR" open="false" node1="17" node2="3">
+                    <iidm:alias type="original-id">dsect22</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dload1" name="NAME_dload1" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="5">
+                    <iidm:alias type="original-id">dload1</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bload1" name="NAME_bload1" fictitious="true" kind="BREAKER" retained="true" open="false" node1="4" node2="5">
+                    <iidm:alias type="original-id">bload1</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dgen1" name="NAME_dgen1" fictitious="true" kind="DISCONNECTOR" open="false" node1="2" node2="7">
+                    <iidm:alias type="original-id">dgen1</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bgen1" name="NAME_bgen1" fictitious="true" kind="BREAKER" retained="true" open="false" node1="6" node2="7">
+                    <iidm:alias type="original-id">bgen1</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dload2" name="NAME_dload2" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="9">
+                    <iidm:alias type="original-id">dload2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bload2" name="NAME_bload2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="8" node2="9">
+                    <iidm:alias type="original-id">bload2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dgen2" name="NAME_dgen2" fictitious="true" kind="DISCONNECTOR" open="false" node1="3" node2="11">
+                    <iidm:alias type="original-id">dgen2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bgen2" name="NAME_bgen2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="10" node2="11">
+                    <iidm:alias type="original-id">bgen2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf11" name="NAME_dtrf11" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="18">
+                    <iidm:alias type="original-id">dtrf11</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf11" name="NAME_btrf11" fictitious="true" kind="BREAKER" retained="true" open="false" node1="18" node2="19">
+                    <iidm:alias type="original-id">btrf11</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf12" name="NAME_dtrf12" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="20">
+                    <iidm:alias type="original-id">dtrf12</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf12" name="NAME_btrf12" fictitious="true" kind="BREAKER" retained="true" open="false" node1="20" node2="21">
+                    <iidm:alias type="original-id">btrf12</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf13" name="NAME_dtrf13" fictitious="true" kind="DISCONNECTOR" open="false" node1="2" node2="22">
+                    <iidm:alias type="original-id">dtrf13</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf13" name="NAME_btrf13" fictitious="true" kind="BREAKER" retained="true" open="false" node1="22" node2="23">
+                    <iidm:alias type="original-id">btrf13</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf14" name="NAME_dtrf14" fictitious="true" kind="DISCONNECTOR" open="false" node1="3" node2="24">
+                    <iidm:alias type="original-id">dtrf14</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf14" name="NAME_btrf14" fictitious="true" kind="BREAKER" retained="true" open="false" node1="24" node2="25">
+                    <iidm:alias type="original-id">btrf14</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf15" name="NAME_dtrf15" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="26">
+                    <iidm:alias type="original-id">dtrf15</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf15" name="NAME_btrf15" fictitious="true" kind="BREAKER" retained="true" open="false" node1="26" node2="27">
+                    <iidm:alias type="original-id">btrf15</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf16" name="NAME_dtrf16" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="28">
+                    <iidm:alias type="original-id">dtrf16</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf16" name="NAME_btrf16" fictitious="true" kind="BREAKER" retained="true" open="false" node1="28" node2="29">
+                    <iidm:alias type="original-id">btrf16</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf17" name="NAME_dtrf17" fictitious="true" kind="DISCONNECTOR" open="false" node1="2" node2="30">
+                    <iidm:alias type="original-id">dtrf17</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf17" name="NAME_btrf17" fictitious="true" kind="BREAKER" retained="true" open="false" node1="30" node2="31">
+                    <iidm:alias type="original-id">btrf17</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf18" name="NAME_dtrf18" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="32">
+                    <iidm:alias type="original-id">dtrf18</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf18" name="NAME_btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" node1="32" node2="33">
+                    <iidm:alias type="original-id">btrf18</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dline11_2" name="NAME_dline11_2" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="34">
+                    <iidm:alias type="original-id">dline11_2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bline11_2" name="NAME_bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="34" node2="35">
+                    <iidm:alias type="original-id">bline11_2</iidm:alias>
+                </iidm:switch>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="NAME_gen1" name="NAME_gen1" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" localTargetQ="10.0" node="6">
+                <iidm:alias type="original-id">gen1</iidm:alias>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:generator id="NAME_gen2" name="NAME_gen2" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" localTargetQ="10.0" node="10">
+                <iidm:alias type="original-id">gen2</iidm:alias>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:load id="NAME_load1" name="NAME_load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4">
+                <iidm:alias type="original-id">load1</iidm:alias>
+            </iidm:load>
+            <iidm:load id="NAME_load2" name="NAME_load2" loadType="UNDEFINED" p0="10.0" q0="10.0" node="8">
+                <iidm:alias type="original-id">load2</iidm:alias>
+            </iidm:load>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="NAME_vl2" name="NAME_vl2" nominalV="225.0" topologyKind="NODE_BREAKER">
+            <iidm:alias type="original-id">vl2</iidm:alias>
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="NAME_bbs5" name="NAME_bbs5" node="0">
+                    <iidm:alias type="original-id">bbs5</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:busbarSection id="NAME_bbs6" name="NAME_bbs6" node="1">
+                    <iidm:alias type="original-id">bbs6</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:switch id="NAME_dscpl1" name="NAME_dscpl1" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="6">
+                    <iidm:alias type="original-id">dscpl1</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_ddcpl1" name="NAME_ddcpl1" fictitious="true" kind="BREAKER" retained="true" open="false" node1="6" node2="7">
+                    <iidm:alias type="original-id">ddcpl1</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dscpl2" name="NAME_dscpl2" fictitious="true" kind="DISCONNECTOR" open="false" node1="7" node2="1">
+                    <iidm:alias type="original-id">dscpl2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dload3" name="NAME_dload3" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="3">
+                    <iidm:alias type="original-id">dload3</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bload3" name="NAME_bload3" fictitious="true" kind="BREAKER" retained="true" open="false" node1="2" node2="3">
+                    <iidm:alias type="original-id">bload3</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dgen4" name="NAME_dgen4" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="5">
+                    <iidm:alias type="original-id">dgen4</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bgen4" name="NAME_bgen4" fictitious="true" kind="BREAKER" retained="true" open="false" node1="4" node2="5">
+                    <iidm:alias type="original-id">bgen4</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf21" name="NAME_dtrf21" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="8">
+                    <iidm:alias type="original-id">dtrf21</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf21" name="NAME_btrf21" fictitious="true" kind="BREAKER" retained="true" open="false" node1="8" node2="9">
+                    <iidm:alias type="original-id">btrf21</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf22" name="NAME_dtrf22" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="10">
+                    <iidm:alias type="original-id">dtrf22</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf22" name="NAME_btrf22" fictitious="true" kind="BREAKER" retained="true" open="false" node1="10" node2="11">
+                    <iidm:alias type="original-id">btrf22</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf23" name="NAME_dtrf23" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="12">
+                    <iidm:alias type="original-id">dtrf23</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf23" name="NAME_btrf23" fictitious="true" kind="BREAKER" retained="true" open="false" node1="12" node2="13">
+                    <iidm:alias type="original-id">btrf23</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf24" name="NAME_dtrf24" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="14">
+                    <iidm:alias type="original-id">dtrf24</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf24" name="NAME_btrf24" fictitious="true" kind="BREAKER" retained="true" open="false" node1="14" node2="15">
+                    <iidm:alias type="original-id">btrf24</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf26" name="NAME_dtrf26" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="16">
+                    <iidm:alias type="original-id">dtrf26</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf26" name="NAME_btrf26" fictitious="true" kind="BREAKER" retained="true" open="false" node1="16" node2="17">
+                    <iidm:alias type="original-id">btrf26</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf27" name="NAME_dtrf27" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="18">
+                    <iidm:alias type="original-id">dtrf27</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf27" name="NAME_btrf27" fictitious="true" kind="BREAKER" retained="true" open="false" node1="18" node2="19">
+                    <iidm:alias type="original-id">btrf27</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf28" name="NAME_dtrf28" fictitious="true" kind="DISCONNECTOR" open="false" node1="1" node2="20">
+                    <iidm:alias type="original-id">dtrf28</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf28" name="NAME_btrf28" fictitious="true" kind="BREAKER" retained="true" open="false" node1="20" node2="21">
+                    <iidm:alias type="original-id">btrf28</iidm:alias>
+                </iidm:switch>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="NAME_gen4" name="NAME_gen4" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" localTargetQ="10.0" node="4">
+                <iidm:alias type="original-id">gen4</iidm:alias>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:load id="NAME_load3" name="NAME_load3" loadType="UNDEFINED" p0="10.0" q0="10.0" node="2">
+                <iidm:alias type="original-id">load3</iidm:alias>
+            </iidm:load>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="NAME_vl3" name="NAME_vl3" nominalV="50.0" topologyKind="NODE_BREAKER">
+            <iidm:alias type="original-id">vl3</iidm:alias>
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="NAME_bbs7" name="NAME_bbs7" node="0">
+                    <iidm:alias type="original-id">bbs7</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:switch id="NAME_dload4" name="NAME_dload4" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="2">
+                    <iidm:alias type="original-id">dload4</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bload4" name="NAME_bload4" fictitious="true" kind="BREAKER" retained="true" open="false" node1="2" node2="1">
+                    <iidm:alias type="original-id">bload4</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf25" name="NAME_dtrf25" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="3">
+                    <iidm:alias type="original-id">dtrf25</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf25" name="NAME_btrf25" fictitious="true" kind="BREAKER" retained="true" open="false" node1="3" node2="4">
+                    <iidm:alias type="original-id">btrf25</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf36" name="NAME_dtrf36" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="5">
+                    <iidm:alias type="original-id">dtrf36</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf36" name="NAME_btrf36" fictitious="true" kind="BREAKER" retained="true" open="false" node1="5" node2="6">
+                    <iidm:alias type="original-id">btrf36</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf37" name="NAME_dtrf37" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="7">
+                    <iidm:alias type="original-id">dtrf37</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf37" name="NAME_btrf37" fictitious="true" kind="BREAKER" retained="true" open="false" node1="7" node2="8">
+                    <iidm:alias type="original-id">btrf37</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_dtrf38" name="NAME_dtrf38" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="9">
+                    <iidm:alias type="original-id">dtrf38</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_btrf38" name="NAME_btrf38" fictitious="true" kind="BREAKER" retained="true" open="false" node1="9" node2="10">
+                    <iidm:alias type="original-id">btrf38</iidm:alias>
+                </iidm:switch>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="NAME_load4" name="NAME_load4" loadType="UNDEFINED" p0="10.0" q0="10.0" node="1">
+                <iidm:alias type="original-id">load4</iidm:alias>
+            </iidm:load>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="NAME_trf1" name="NAME_trf1" r="2.0" x="14.745" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="NAME_vl1" node1="19" voltageLevelId2="NAME_vl2" node2="9">
+            <iidm:alias type="original-id">trf1</iidm:alias>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="NAME_trf2" name="NAME_trf2" r="2.0" x="14.745" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="NAME_vl1" node1="21" voltageLevelId2="NAME_vl2" node2="11">
+            <iidm:alias type="original-id">trf2</iidm:alias>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="NAME_trf3" name="NAME_trf3" r="2.0" x="14.745" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="NAME_vl1" node1="23" voltageLevelId2="NAME_vl2" node2="13">
+            <iidm:alias type="original-id">trf3</iidm:alias>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="NAME_trf4" name="NAME_trf4" r="2.0" x="14.745" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="NAME_vl1" node1="25" voltageLevelId2="NAME_vl2" node2="15">
+            <iidm:alias type="original-id">trf4</iidm:alias>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="NAME_trf5" name="NAME_trf5" r="2.0" x="14.745" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="NAME_vl1" node1="27" voltageLevelId2="NAME_vl3" node2="4">
+            <iidm:alias type="original-id">trf5</iidm:alias>
+        </iidm:twoWindingsTransformer>
+        <iidm:threeWindingsTransformer id="NAME_trf6" name="NAME_trf6" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" ratedU2="225.0" r3="0.5" x3="1.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="NAME_vl1" node1="29" voltageLevelId2="NAME_vl2" node2="17" voltageLevelId3="NAME_vl3" node3="6">
+            <iidm:alias type="original-id">trf6</iidm:alias>
+        </iidm:threeWindingsTransformer>
+        <iidm:threeWindingsTransformer id="NAME_trf7" name="NAME_trf7" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" ratedU2="225.0" r3="0.5" x3="1.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="NAME_vl1" node1="31" voltageLevelId2="NAME_vl2" node2="19" voltageLevelId3="NAME_vl3" node3="8">
+            <iidm:alias type="original-id">trf7</iidm:alias>
+        </iidm:threeWindingsTransformer>
+        <iidm:threeWindingsTransformer id="NAME_trf8" name="NAME_trf8" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" ratedU2="225.0" r3="0.5" x3="1.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="NAME_vl1" node1="33" voltageLevelId2="NAME_vl2" node2="21" voltageLevelId3="NAME_vl3" node3="10">
+            <iidm:alias type="original-id">trf8</iidm:alias>
+        </iidm:threeWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="NAME_subst2" name="NAME_subst2" country="FR">
+        <iidm:alias type="original-id">subst2</iidm:alias>
+        <iidm:voltageLevel id="NAME_vlSubst2" name="NAME_vlSubst2" nominalV="380.0" topologyKind="NODE_BREAKER">
+            <iidm:alias type="original-id">vlSubst2</iidm:alias>
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="NAME_bbs1_2" name="NAME_bbs1_2" node="0">
+                    <iidm:alias type="original-id">bbs1_2</iidm:alias>
+                </iidm:busbarSection>
+                <iidm:switch id="NAME_dline21_2" name="NAME_dline21_2" fictitious="true" kind="DISCONNECTOR" open="false" node1="0" node2="1">
+                    <iidm:alias type="original-id">dline21_2</iidm:alias>
+                </iidm:switch>
+                <iidm:switch id="NAME_bline21_2" name="NAME_bline21_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="1" node2="2">
+                    <iidm:alias type="original-id">bline21_2</iidm:alias>
+                </iidm:switch>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="NAME_line1" name="NAME_line1" r="2.0" x="14.745" g1="1.0" b1="1.0" g2="1.0" b2="1.0" voltageLevelId1="NAME_vl1" node1="35" voltageLevelId2="NAME_vlSubst2" node2="2">
+        <iidm:alias type="original-id">line1</iidm:alias>
+    </iidm:line>
+    <iidm:extension id="NAME_load4">
+        <cp:position>
+            <cp:feeder name="load4" order="0" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_load3">
+        <cp:position>
+            <cp:feeder name="load3" order="0" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_load2">
+        <cp:position>
+            <cp:feeder name="load2" order="80" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs1_2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_load1">
+        <cp:position>
+            <cp:feeder name="load1" order="0" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf8">
+        <cp:position>
+            <cp:feeder1 name="trf81" order="90" direction="TOP"/>
+            <cp:feeder2 name="trf82" order="60" direction="BOTTOM"/>
+            <cp:feeder3 name="trf83" order="40" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf5">
+        <cp:position>
+            <cp:feeder1 name="trf5" order="40" direction="TOP"/>
+            <cp:feeder2 name="trf5" order="10" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf4">
+        <cp:position>
+            <cp:feeder1 name="trf4" order="100" direction="BOTTOM"/>
+            <cp:feeder2 name="trf4" order="30" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf7">
+        <cp:position>
+            <cp:feeder1 name="trf71" order="60" direction="BOTTOM"/>
+            <cp:feeder2 name="trf72" order="40" direction="TOP"/>
+            <cp:feeder3 name="trf73" order="30" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf6">
+        <cp:position>
+            <cp:feeder1 name="trf61" order="50" direction="TOP"/>
+            <cp:feeder2 name="trf62" order="50" direction="TOP"/>
+            <cp:feeder3 name="trf63" order="20" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_line1">
+        <cp:position>
+            <cp:feeder1 name="line1" order="70" direction="TOP"/>
+            <cp:feeder2 name="line1" order="10" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf1">
+        <cp:position>
+            <cp:feeder1 name="trf1" order="10" direction="TOP"/>
+            <cp:feeder2 name="trf1" order="10" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf3">
+        <cp:position>
+            <cp:feeder1 name="trf3" order="30" direction="BOTTOM"/>
+            <cp:feeder2 name="trf3" order="80" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_trf2">
+        <cp:position>
+            <cp:feeder1 name="trf2" order="110" direction="TOP"/>
+            <cp:feeder2 name="trf2" order="70" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs7">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_gen4">
+        <cp:position>
+            <cp:feeder name="gen4" order="20" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs4">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs3">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_gen2">
+        <cp:position>
+            <cp:feeder name="gen2" order="120" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs6">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_gen1">
+        <cp:position>
+            <cp:feeder name="gen1" order="20" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs5">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="NAME_bbs1">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+</iidm:network>

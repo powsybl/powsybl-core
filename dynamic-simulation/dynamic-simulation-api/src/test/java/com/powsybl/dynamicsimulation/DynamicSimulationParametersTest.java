@@ -7,13 +7,10 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +134,7 @@ class DynamicSimulationParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dynamic-simulation-dummy-extension"));
         assertInstanceOf(DummyExtension.class, parameters.getExtension(DummyExtension.class));
     }
 
@@ -147,7 +144,7 @@ class DynamicSimulationParametersTest {
 
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
-        assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertFalse(parameters.getExtensionByName("dynamic-simulation-dummy-extension") instanceof DummyExtension);
         assertNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -156,39 +153,7 @@ class DynamicSimulationParametersTest {
         DynamicSimulationParameters parameters = DynamicSimulationParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dynamic-simulation-dummy-extension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
-    }
-
-    private static final class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {
-
-        @Override
-        public String getName() {
-            return "dummyExtension";
-        }
-    }
-
-    @AutoService(DynamicSimulationParameters.ConfigLoader.class)
-    public static class DummyLoader implements DynamicSimulationParameters.ConfigLoader<DummyExtension> {
-
-        @Override
-        public DummyExtension load(PlatformConfig platformConfig) {
-            return new DummyExtension();
-        }
-
-        @Override
-        public String getExtensionName() {
-            return "dummyExtension";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "dynamic-simulation-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
     }
 }

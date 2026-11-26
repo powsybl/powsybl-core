@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
@@ -18,7 +19,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
+import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.regulatingTerminalMapped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -48,7 +50,17 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             svc.getVoltageRegulation().setSlope(slope);
         }
 
-        context.regulatingControlMapping().forStaticVarCompensators().add(svc.getId(), p);
+        setRegulatingControlProperty(svc);
+        if (!svc.hasProperty(PROPERTY_REGULATING_CONTROL)) {
+            // VoltageRegulation is mandatory for SVC in IIDM.
+            setDefaultRegulatingControlData(svc);
+        }
+
+        // Store default target voltage for later use during update of the targetValue.
+        double defaultTargetVoltage = p.asDouble("voltageSetPoint");
+        if (!Double.isNaN(defaultTargetVoltage)) {
+            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(defaultTargetVoltage));
+        }
     }
 
     private double getB(double rating, String name) {
@@ -69,6 +81,24 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         return slope;
     }
 
+    private void setDefaultRegulatingControlData(StaticVarCompensator svc) {
+        // Create default regulation
+        String defaultRegulationMode = p.getId("controlMode");
+        if (RegulatingControlMapping.checkControlMode(defaultRegulationMode, CgmesNames.REACTIVE_POWER)) {
+            svc.newVoltageRegulation()
+                .withTerminal(svc.getTerminal())
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .build();
+        } else {
+            if (!RegulatingControlMapping.checkControlMode(defaultRegulationMode, CgmesNames.VOLTAGE)) {
+                context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
+            }
+            svc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .build();
+        }
+    }
+
     public static void update(StaticVarCompensator staticVarCompensator, PropertyBag cgmesData, Context context) {
         updateTerminals(staticVarCompensator, context, staticVarCompensator.getTerminal());
 
@@ -81,7 +111,17 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, Boolean controlEnabled, Context context) {
-        if (staticVarCompensator.getVoltageRegulation() == null) {
+        if (context.config().getUseSvcRegulationDataAsAlternative() && !regulatingTerminalMapped(staticVarCompensator)) {
+            // In case the regulation terminal couldn't be mapped and the SVC default regulation data should be used,
+            // The RegulatingControl data is ignored. Then:
+            // - If the SVC is in sVCControlMode = Voltage, the target comes from the EQ SVC voltageSetPoint
+            // (all has been done during import, nothing to do in the update)
+            // - If the SVC is in sVCControlMode = reactivePower, the target comes from the SSH SVC q,
+            // set the regulating status to true if the q is valid
+            VoltageRegulation regulation = staticVarCompensator.getVoltageRegulation();
+            if (regulation.getMode() == RegulationMode.REACTIVE_POWER && isValidTargetQ(staticVarCompensator.getLocalTargetQ())) {
+                regulation.setRegulating(true);
+            }
             return;
         }
 
@@ -95,13 +135,13 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         if (staticVarCompensator.isWithMode(RegulationMode.VOLTAGE)) {
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
-            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
+            boolean regulating = regulatingTerminalMapped(staticVarCompensator) && updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
             setVoltageRegulation(staticVarCompensator, targetV, regulating);
         } else if (staticVarCompensator.isWithMode(RegulationMode.REACTIVE_POWER)) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, context);
             int terminalSign = findTerminalSign(staticVarCompensator);
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
-            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetQ(targetQ);
+            boolean regulating = regulatingTerminalMapped(staticVarCompensator) && updatedControlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
             voltageRegulation.setTargetValue(targetQ);
             voltageRegulation.setRegulating(regulating);

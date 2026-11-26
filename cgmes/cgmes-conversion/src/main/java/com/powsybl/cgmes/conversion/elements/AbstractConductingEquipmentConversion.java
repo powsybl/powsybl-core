@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesBoundaryLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.*;
@@ -299,7 +300,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 // Flow out must be equal to the consumption seen at boundary
                 Optional<BoundaryLine.Generation> generation = Optional.ofNullable(boundaryLine.getGeneration());
                 boundaryLine.getTerminal().setP(boundaryLine.getP0() - generation.map(BoundaryLine.Generation::getTargetP).orElse(0.0));
-                boundaryLine.getTerminal().setQ(boundaryLine.getQ0() - generation.map(BoundaryLine.Generation::getTargetQ).orElse(0.0));
+                boundaryLine.getTerminal().setQ(boundaryLine.getQ0() - generation.map(BoundaryLine.Generation::getLocalTargetQ).orElse(0.0));
             } else {
                 setBoundaryLineModelSideFlow(boundaryLine, context);
             }
@@ -383,7 +384,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
-        double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
+        double v = svVoltage.get().asDouble(CgmesNames.V, Double.NaN);
         double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
         if (!isVoltageDefined(v, angle)) {
             dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
@@ -394,7 +395,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // at the node when we consider flow at line end
         Optional<BoundaryLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
         double p = dl.getP0() - generation.map(BoundaryLine.Generation::getTargetP).orElse(0.0);
-        double q = dl.getQ0() - generation.map(BoundaryLine.Generation::getTargetQ).orElse(0.0);
+        double q = dl.getQ0() - generation.map(BoundaryLine.Generation::getLocalTargetQ).orElse(0.0);
         SV svboundary = new SV(-p, -q, v, angle, TwoSides.ONE);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
@@ -898,6 +899,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             voltageRegulation.setRegulating(false);
             setLocalTargetVOrTargetValue(holder, targetV);
             voltageRegulation.setTargetDeadband(targetDeadband);
+        }
+    }
+
+    protected void setRegulatingControlProperty(Identifiable<?> regulatingEquipment) {
+        String regulatingControlId = p.getId(CgmesNames.REGULATING_CONTROL);
+        if (regulatingControlId != null) {
+            regulatingEquipment.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
         }
     }
 

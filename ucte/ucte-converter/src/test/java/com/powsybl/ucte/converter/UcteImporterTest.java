@@ -18,7 +18,9 @@ import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterConstants;
+import com.powsybl.ucte.network.UcteValidation;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -167,8 +169,8 @@ class UcteImporterTest {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         BoundaryLine dl = network.getBoundaryLine("FFFFFF13 XXXXXX14 1");
-        assertTrue(dl.getGeneration().isVoltageRegulationOn());
-        assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
+        assertTrue(dl.getGeneration().isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(409.08, dl.getGeneration().getLocalTargetV(), 0.01);
         assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);
         assertEquals(2.0, dl.getGeneration().getMaxP(), 0.01);
         assertEquals(-2.0, dl.getGeneration().getMinP(), 0.01);
@@ -357,6 +359,7 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(5000., network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
         assertTrue(Double.isNaN(network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS()));
+        assertEquals(UcteValidation.NOMINAL_POWER_EPS, network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 2").getRatedS());
     }
 
     @Test
