@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -131,5 +132,135 @@ class BusRefTest {
         BusRef busRef = new IdBasedBusRef("branchId", TwoSides.TWO);
         Optional<Bus> bus = busRef.resolve(network, TopologyLevel.BUS_BRANCH);
         assertTrue(bus.isEmpty());
+    }
+
+    @Test
+    void testTerminalBasedBusRefForInjection() throws JsonProcessingException {
+        Bus bus = mock(Bus.class);
+        Injection<?> laterInjection = mock(Injection.class);
+        Injection<?> anchorInjection = mock(Injection.class);
+        Injection<?> fictitiousInjection = mock(Injection.class);
+        when(laterInjection.getId()).thenReturn("z-load");
+        when(anchorInjection.getId()).thenReturn("a-load");
+        when(fictitiousInjection.getId()).thenReturn("0-generated");
+        when(fictitiousInjection.isFictitious()).thenReturn(true);
+
+        Terminal laterTerminal = mock(Terminal.class);
+        Terminal anchorTerminal = mock(Terminal.class);
+        Terminal fictitiousTerminal = mock(Terminal.class);
+        when(laterTerminal.getConnectable()).thenReturn(laterInjection);
+        when(anchorTerminal.getConnectable()).thenReturn(anchorInjection);
+        when(fictitiousTerminal.getConnectable()).thenReturn(fictitiousInjection);
+        doAnswer(invocation -> Stream.of(laterTerminal, fictitiousTerminal, anchorTerminal)).when(bus).getConnectedTerminalStream();
+
+        TerminalBasedBusRef busRef = TerminalBasedBusRef.of(bus).orElseThrow();
+        assertEquals(new TerminalBasedBusRef("a-load"), busRef);
+        assertEquals(new TerminalBasedBusRef("a-load").hashCode(), busRef.hashCode());
+
+        Network network = mock(Network.class);
+        doReturn(anchorInjection).when(network).getIdentifiable("a-load");
+        when(anchorInjection.getTerminal()).thenReturn(anchorTerminal);
+        Terminal.BusView busView = mock(Terminal.BusView.class);
+        when(anchorTerminal.getBusView()).thenReturn(busView);
+        when(busView.getBus()).thenReturn(bvBus);
+        Terminal.BusBreakerView busBreakerView = mock(Terminal.BusBreakerView.class);
+        when(anchorTerminal.getBusBreakerView()).thenReturn(busBreakerView);
+        when(busBreakerView.getBus()).thenReturn(bbvBus);
+        assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow());
+        assertEquals(bbvBus, busRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow());
+        when(busView.getBus()).thenReturn(null);
+        assertTrue(busRef.resolve(network, TopologyLevel.BUS_BRANCH).isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> busRef.resolve(network, TopologyLevel.NODE_BREAKER));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(busRef);
+        assertEquals("{\"@c\":\".TerminalBasedBusRef\",\"id\":\"a-load\"}", json);
+        assertEquals(busRef, objectMapper.readValue(json, BusRef.class));
+
+        when(network.getIdentifiable("missing")).thenReturn(null);
+        assertTrue(new TerminalBasedBusRef("missing").resolve(network, TopologyLevel.BUS_BRANCH).isEmpty());
+    }
+
+    @Test
+    void testTerminalBasedBusRefForBranchAndConverter() throws JsonProcessingException {
+        Network network = mock(Network.class);
+        Line branch = mock(Line.class);
+        when(branch.getId()).thenReturn("branchId");
+        Terminal branchTerminalOne = mock(Terminal.class);
+        Terminal branchTerminalTwo = mock(Terminal.class);
+        when(branchTerminalOne.getConnectable()).thenReturn(branch);
+        when(branchTerminalTwo.getConnectable()).thenReturn(branch);
+        when(branch.getSide(branchTerminalOne)).thenReturn(TwoSides.ONE);
+        when(branch.getSide(branchTerminalTwo)).thenReturn(TwoSides.TWO);
+        Bus bus = mock(Bus.class);
+        doAnswer(invocation -> Stream.of(branchTerminalTwo, branchTerminalOne)).when(bus).getConnectedTerminalStream();
+        assertEquals(new TerminalBasedBusRef("branchId", ThreeSides.ONE, null), TerminalBasedBusRef.of(bus).orElseThrow());
+        TerminalBasedBusRef branchRef = new TerminalBasedBusRef("branchId", ThreeSides.TWO, null);
+        assertEquals(new TerminalBasedBusRef("branchId", ThreeSides.TWO, null), branchRef);
+
+        doReturn(branch).when(network).getIdentifiable("branchId");
+        when(branch.getTerminal(TwoSides.TWO)).thenReturn(branchTerminalTwo);
+        Terminal.BusView branchBusView = mock(Terminal.BusView.class);
+        when(branchTerminalTwo.getBusView()).thenReturn(branchBusView);
+        when(branchBusView.getBus()).thenReturn(bvBus);
+        assertEquals(bvBus, branchRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String branchJson = objectMapper.writeValueAsString(branchRef);
+        assertEquals("{\"@c\":\".TerminalBasedBusRef\",\"id\":\"branchId\",\"side\":\"TWO\"}", branchJson);
+        assertEquals(branchRef, objectMapper.readValue(branchJson, BusRef.class));
+
+        AcDcConverter<?> converter = mock(AcDcConverter.class);
+        when(converter.getId()).thenReturn("converter");
+        Terminal converterTerminalOne = mock(Terminal.class);
+        Terminal converterTerminalTwo = mock(Terminal.class);
+        when(converterTerminalOne.getConnectable()).thenReturn(converter);
+        when(converterTerminalTwo.getConnectable()).thenReturn(converter);
+        when(converter.getTerminalNumber(converterTerminalOne)).thenReturn(TerminalNumber.ONE);
+        when(converter.getTerminalNumber(converterTerminalTwo)).thenReturn(TerminalNumber.TWO);
+        doAnswer(invocation -> Stream.of(converterTerminalTwo, converterTerminalOne)).when(bus).getConnectedTerminalStream();
+        assertEquals(new TerminalBasedBusRef("converter", null, TerminalNumber.ONE), TerminalBasedBusRef.of(bus).orElseThrow());
+        TerminalBasedBusRef converterRef = new TerminalBasedBusRef("converter", null, TerminalNumber.TWO);
+        doReturn(converter).when(network).getIdentifiable("converter");
+        when(converter.getTerminal(TerminalNumber.TWO)).thenReturn(Optional.of(converterTerminalTwo));
+        when(converterTerminalTwo.getBusView()).thenReturn(branchBusView);
+        assertEquals(bvBus, converterRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow());
+    }
+
+    @Test
+    void testTerminalBasedBusRefEligibilityAndInvalidReferences() {
+        Bus bus = mock(Bus.class);
+        BusbarSection busbar = mock(BusbarSection.class);
+        when(busbar.getId()).thenReturn("busbar");
+        Terminal busbarTerminal = mock(Terminal.class);
+        doReturn(busbar).when(busbarTerminal).getConnectable();
+        doAnswer(invocation -> Stream.of(busbarTerminal)).when(bus).getConnectedTerminalStream();
+        assertTrue(TerminalBasedBusRef.of(bus).isEmpty());
+        assertEquals(new TerminalBasedBusRef("busbar"),
+                TerminalBasedBusRef.of(bus, BusbarSection.class::isInstance).orElseThrow());
+        assertThrows(NullPointerException.class, () -> TerminalBasedBusRef.of(bus, null));
+
+        doReturn(Stream.empty()).when(bus).getConnectedTerminalStream();
+        assertTrue(TerminalBasedBusRef.of(bus).isEmpty());
+        assertThrows(PowsyblException.class, () -> new TerminalBasedBusRef("id", ThreeSides.ONE, TerminalNumber.ONE));
+
+        Network network = mock(Network.class);
+        Injection<?> injection = mock(Injection.class);
+        doReturn(injection).when(network).getIdentifiable("injection");
+        TerminalBasedBusRef busRefInjection = new TerminalBasedBusRef("injection", ThreeSides.ONE, null);
+        assertThrows(PowsyblException.class, () -> busRefInjection.resolve(network, TopologyLevel.BUS_BRANCH));
+
+        Branch<?> branch = mock(Branch.class);
+        doReturn(branch).when(network).getIdentifiable("branch");
+        TerminalBasedBusRef busRefBranch = new TerminalBasedBusRef("branch", null, TerminalNumber.ONE);
+        assertThrows(PowsyblException.class, () -> busRefBranch.resolve(network, TopologyLevel.BUS_BRANCH));
+        TerminalBasedBusRef busRefBranchThree = new TerminalBasedBusRef("branch", ThreeSides.THREE, null);
+        assertThrows(PowsyblException.class, () -> busRefBranchThree.resolve(network, TopologyLevel.BUS_BRANCH));
+
+        AcDcConverter<?> converter = mock(AcDcConverter.class);
+        doReturn(converter).when(network).getIdentifiable("converter");
+        when(converter.getTerminal(TerminalNumber.TWO)).thenReturn(Optional.empty());
+        TerminalBasedBusRef busRefConverter = new TerminalBasedBusRef("converter", null, TerminalNumber.TWO);
+        assertThrows(PowsyblException.class, () -> busRefConverter.resolve(network, TopologyLevel.BUS_BRANCH));
     }
 }

@@ -116,6 +116,10 @@ public class ConversionTester {
         return lastConvertedNetwork;
     }
 
+    public Network lastExportImportCgmesNetwork() {
+        return lastExportImportCgmesNetwork;
+    }
+
     private void testConversion(Network expected, GridModelReference gm, ComparisonConfig config, String impl)
         throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
@@ -218,6 +222,7 @@ public class ConversionTester {
 
         // Import the exported files and compare with the original network
         Network actual = i.importData(ds, new NetworkFactoryImpl(), iparams);
+        lastExportImportCgmesNetwork = actual;
         new Comparison(network, actual, config).compare();
     }
 
@@ -271,6 +276,7 @@ public class ConversionTester {
     private Consumer<String> reportConsumer;
     private boolean strictTopologyTest;
     private Network lastConvertedNetwork;
+    private Network lastExportImportCgmesNetwork;
 
     private static final Logger LOG = LoggerFactory.getLogger(ConversionTester.class);
 }

@@ -110,6 +110,26 @@ When defining the model, the user has to specify how the different pieces of equ
 - [Observability Area](extensions.md#observability-area)
 - [Slack Terminal](extensions.md#slack-terminal)
 
+### Optional terminal-based bus references
+
+Consumers that need a reference to a bus-view bus across serialization or import/export cycles can use `TerminalBasedBusRef` 
+instead of persisting `Bus.getId()`. The reference selects the lexicographically smallest eligible connected terminal identity 
+(connectable ID and, when needed, terminal side or number) and can be resolved at bus/branch or bus/breaker topology level:
+
+```java
+Optional<TerminalBasedBusRef> reference = TerminalBasedBusRef.of(bus);
+reference.ifPresent(ref -> ref.resolve(network, TopologyLevel.BUS_BRANCH));
+```
+
+By default, fictitious connectables and busbar sections are excluded because they may have importer-generated identities. 
+The overload accepting a predicate allows applications to define a different eligibility policy. A bus without an eligible 
+terminal has no reference; the factory does not fall back to `Bus.getId()`. Reference creation also requires a bus implementation that exposes its connected terminals.
+
+This reference is opt-in and does not change computed bus IDs or network serialization. Equality across imports requires the 
+same eligible terminal identities and eligibility policy to be preserved. Topology changes, removed or renamed equipment, 
+generated or changed connectable IDs, and changes to eligible bus membership can change the reference; on resolution, it 
+follows its anchor terminal and does not permanently identify a bus whose membership changes.
+
 
 (area)=
 ## Area
