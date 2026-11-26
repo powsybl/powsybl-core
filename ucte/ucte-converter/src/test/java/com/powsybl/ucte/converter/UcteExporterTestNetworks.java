@@ -774,4 +774,252 @@ public final class UcteExporterTestNetworks {
                            .setPairingKey(xnode)
                            .add();
     }
+
+    /**
+     * Voltage levels without substation ("orphans") as met in CGMES imports, with UCTE ids.
+     */
+    static Network createWithOrphanVoltageLevelsUcteIds() {
+        Network network = newNetwork();
+        String a = newSubstationBus(network, "AAAAA", Country.NL, "NAAAAA11");
+        String b = newSubstationBus(network, "BBBBB", Country.NL, "NBBBBB11");
+        String c = newSubstationBus(network, "CCCCC", Country.NL, "NCCCCC11");
+        // Not connected to anything: the network has two countries
+        newSubstationBus(network, "DDDDD", Country.BE, "BDDDDD11");
+
+        // T-line junction, linked to the three NL substations
+        String junction = newBus(newOrphanVoltageLevel(network, "TJUNC"), "NTJUNC11");
+        newLine(network, "NAAAAA11 NTJUNC11 1", a, junction);
+        newLine(network, "NBBBBB11 NTJUNC11 1", b, junction);
+        newLine(network, "NCCCCC11 NTJUNC11 1", c, junction);
+
+        // Chained line segments A - SEGMT bus 1 - SEGMT bus 2 - B, both intermediate buses in one voltage level
+        VoltageLevel segments = newOrphanVoltageLevel(network, "SEGMT");
+        String segment1 = newBus(segments, "NSEGMT11");
+        String segment2 = newBus(segments, "NSEGMT12");
+        newLine(network, "NAAAAA11 NSEGMT11 1", a, segment1);
+        newLine(network, "NSEGMT11 NSEGMT12 1", segment1, segment2);
+        newLine(network, "NSEGMT12 NBBBBB11 1", segment2, b);
+
+        // Chained line segments A - SEGAA - SEGBB - B, intermediate buses in two voltage levels
+        String segmentA = newBus(newOrphanVoltageLevel(network, "SEGAA"), "NSEGAA11");
+        String segmentB = newBus(newOrphanVoltageLevel(network, "SEGBB"), "NSEGBB11");
+        newLine(network, "NAAAAA11 NSEGAA11 1", a, segmentA);
+        newLine(network, "NSEGAA11 NSEGBB11 1", segmentA, segmentB);
+        newLine(network, "NSEGBB11 NBBBBB11 1", segmentB, b);
+
+        // Linked to A, two buses joined by a closed switch, a load on bus 1
+        VoltageLevel orphan = newOrphanVoltageLevel(network, "ORPHA");
+        String orphan1 = newBus(orphan, "NORPHA11");
+        String orphan2 = newBus(orphan, "NORPHA12");
+        orphan.getBusBreakerView().newSwitch().setId("NORPHA11 NORPHA12 1").setBus1(orphan1).setBus2(orphan2).setOpen(false).add();
+        addLoad(orphan, "LOAD_ORPHA", orphan1, 42, 7);
+        newLine(network, "NAAAAA11 NORPHA11 1", a, orphan1);
+
+        // Isolated, one bus and no equipment
+        newBus(newOrphanVoltageLevel(network, "EMPTY"), "NEMPTY11");
+        return network;
+    }
+
+    /**
+     * Voltage levels without substation ("orphans") as met in CGMES imports, with free ids.
+     */
+    static Network createWithOrphanVoltageLevels() {
+        Network network = newNetwork();
+        String a = newSubstationBus(network, "AAAAA", Country.NL, "BUS_AAAAA_1");
+        String b = newSubstationBus(network, "BBBBB", Country.NL, "BUS_BBBBB_1");
+        String c = newSubstationBus(network, "CCCCC", Country.NL, "BUS_CCCCC_1");
+        // Not connected to anything: the network has two countries
+        newSubstationBus(network, "DDDDD", Country.BE, "BUS_DDDDD_1");
+
+        // T-line junction, linked to the three NL substations
+        String junction = newBus(newOrphanVoltageLevel(network, "TJUNC"), "BUS_TJUNC_1");
+        newLine(network, "BR_BUS_AAAAA_1_BUS_TJUNC_1", a, junction);
+        newLine(network, "BR_BUS_BBBBB_1_BUS_TJUNC_1", b, junction);
+        newLine(network, "BR_BUS_CCCCC_1_BUS_TJUNC_1", c, junction);
+
+        // Chained line segments A - SEGMT bus 1 - SEGMT bus 2 - B, both intermediate buses in one voltage level
+        VoltageLevel segments = newOrphanVoltageLevel(network, "SEGMT");
+        String segment1 = newBus(segments, "BUS_SEGMT_1");
+        String segment2 = newBus(segments, "BUS_SEGMT_2");
+        newLine(network, "BR_BUS_AAAAA_1_BUS_SEGMT_1", a, segment1);
+        newLine(network, "BR_BUS_SEGMT_1_BUS_SEGMT_2", segment1, segment2);
+        newLine(network, "BR_BUS_SEGMT_2_BUS_BBBBB_1", segment2, b);
+
+        // Chained line segments A - SEGAA - SEGBB - B, intermediate buses in two voltage levels
+        String segmentA = newBus(newOrphanVoltageLevel(network, "SEGAA"), "BUS_SEGAA_1");
+        String segmentB = newBus(newOrphanVoltageLevel(network, "SEGBB"), "BUS_SEGBB_1");
+        newLine(network, "BR_BUS_AAAAA_1_BUS_SEGAA_1", a, segmentA);
+        newLine(network, "BR_BUS_SEGAA_1_BUS_SEGBB_1", segmentA, segmentB);
+        newLine(network, "BR_BUS_SEGBB_1_BUS_BBBBB_1", segmentB, b);
+
+        // Linked to A, two buses joined by a closed switch, a load on bus 1
+        VoltageLevel orphan = newOrphanVoltageLevel(network, "ORPHA");
+        String orphan1 = newBus(orphan, "BUS_ORPHA_1");
+        String orphan2 = newBus(orphan, "BUS_ORPHA_2");
+        orphan.getBusBreakerView().newSwitch().setId("BR_BUS_ORPHA_1_BUS_ORPHA_2").setBus1(orphan1).setBus2(orphan2).setOpen(false).add();
+        addLoad(orphan, "LOAD_ORPHA", orphan1, 42, 7);
+        newLine(network, "BR_BUS_AAAAA_1_BUS_ORPHA_1", a, orphan1);
+
+        // Isolated, one bus and no equipment
+        newBus(newOrphanVoltageLevel(network, "EMPTY"), "BUS_EMPTY_1");
+        return network;
+    }
+
+    /**
+     * T-line around an orphan junction, with free ids.
+     *
+     * @param countryB the country of substation B, none if null
+     */
+    static Network createWithTLine(Country countryB) {
+        Network network = newNetwork();
+        String a = newSubstationBus(network, "AAAAA", Country.NL, "BUS_AAAAA_1");
+        String b = newSubstationBus(network, "BBBBB", countryB, "BUS_BBBBB_1");
+        String c = newSubstationBus(network, "CCCCC", Country.NL, "BUS_CCCCC_1");
+        String junction = newBus(newOrphanVoltageLevel(network, "TJUNC"), "BUS_TJUNC_1");
+        newLine(network, "BR_BUS_AAAAA_1_BUS_TJUNC_1", a, junction);
+        newLine(network, "BR_BUS_BBBBB_1_BUS_TJUNC_1", b, junction);
+        newLine(network, "BR_BUS_CCCCC_1_BUS_TJUNC_1", c, junction);
+        return network;
+    }
+
+    static Network createWithSingleCountryAndUnconnectedOrphan() {
+        Network network = newNetwork();
+        newSubstationBus(network, "AAAAA", Country.NL, "BUS_AAAAA_1");
+        // Unconnected orphan holding a load
+        VoltageLevel alone = newOrphanVoltageLevel(network, "ALONE");
+        addLoad(alone, "LOAD_ALONE", newBus(alone, "BUS_ALONE_1"), 42, 7);
+        return network;
+    }
+
+    static Network createWithIsolatedOrphansHoldingEquipment() {
+        Network network = createWithTwoCountries();
+
+        // Two orphans linked to each other only, one holding a load
+        VoltageLevel isolated1 = newOrphanVoltageLevel(network, "ISOL1");
+        String i1 = newBus(isolated1, "BUS_ISOL1_1");
+        String i2 = newBus(newOrphanVoltageLevel(network, "ISOL2"), "BUS_ISOL2_1");
+        addLoad(isolated1, "LOAD_ISOL1", i1, 42, 7);
+        newLine(network, "BR_BUS_ISOL1_1_BUS_ISOL2_1", i1, i2);
+
+        // Orphan holding an unpaired boundary line
+        VoltageLevel withBoundaryLine = newOrphanVoltageLevel(network, "XORPH");
+        newBus(withBoundaryLine, "BUS_XORPH_1");
+        newBoundaryLine(withBoundaryLine, "BL_X", null);
+
+        // Orphan holding half of a tie line, the other half in substation A
+        VoltageLevel withTieLine = newOrphanVoltageLevel(network, "XTIEL");
+        newBus(withTieLine, "BUS_XTIEL_1");
+        newBoundaryLine(withTieLine, "BL_1", "XKEY");
+        newBoundaryLine(network.getVoltageLevel("VL_AAAAA"), "BL_2", "XKEY");
+        network.newTieLine().setId("TL").setBoundaryLine1("BL_1").setBoundaryLine2("BL_2").add();
+        return network;
+    }
+
+    static Network createWithIsolatedOrphansWithoutEquipment() {
+        Network network = createWithTwoCountries();
+        // Bus-breaker orphan holding one bus
+        newBus(newOrphanVoltageLevel(network, "EMPTY"), "BUS_EMPTY_1");
+        // Node-breaker orphan holding only a busbar section
+        network.newVoltageLevel()
+                .setId("VL_NBBBS")
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add()
+                .getNodeBreakerView().newBusbarSection().setId("BBS").setNode(0).add();
+        return network;
+    }
+
+    private static Network createWithTwoCountries() {
+        Network network = newNetwork();
+        String a = newSubstationBus(network, "AAAAA", Country.NL, "BUS_AAAAA_1");
+        String b = newSubstationBus(network, "BBBBB", Country.BE, "BUS_BBBBB_1");
+        newLine(network, "BR_BUS_AAAAA_1_BUS_BBBBB_1", a, b);
+        return network;
+    }
+
+    /**
+     * Add a node-breaker T-line to a network created by {@link #createWithOrphanVoltageLevels()}.
+     */
+    static void addNodeBreakerTLine(Network network) {
+        // Orphan node-breaker junction, its nodes 1, 2 and 3 linked to substations A, B and C
+        VoltageLevel junction = network.newVoltageLevel()
+                .setId("VL_NBJUN")
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        int node = 1;
+        for (String name : new String[] {"AAAAA", "BBBBB", "CCCCC"}) {
+            String bus = "BUS_" + name + "_1";
+            junction.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(node).add();
+            network.newLine()
+                    .setId("BR_NBJUN_" + name)
+                    .setVoltageLevel1("VL_" + name)
+                    .setBus1(bus)
+                    .setConnectableBus1(bus)
+                    .setVoltageLevel2("VL_NBJUN")
+                    .setNode2(node)
+                    .setR(1)
+                    .setX(10)
+                    .add();
+            node++;
+        }
+    }
+
+    private static Network newNetwork() {
+        Network network = Network.create("orphanVoltageLevels", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        return network;
+    }
+
+    /**
+     * Add substation {@code S_<name>} holding 380 kV bus-breaker voltage level {@code VL_<name>} with one bus.
+     */
+    private static String newSubstationBus(Network network, String name, Country country, String busId) {
+        SubstationAdder substationAdder = network.newSubstation().setId("S_" + name);
+        if (country != null) {
+            substationAdder.setCountry(country);
+        }
+        VoltageLevel voltageLevel = substationAdder.add().newVoltageLevel()
+                .setId("VL_" + name)
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        return newBus(voltageLevel, busId);
+    }
+
+    /**
+     * Add 380 kV bus-breaker voltage level {@code VL_<name>} without substation.
+     */
+    static VoltageLevel newOrphanVoltageLevel(Network network, String name) {
+        return network.newVoltageLevel()
+                .setId("VL_" + name)
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+    }
+
+    static String newBus(VoltageLevel voltageLevel, String busId) {
+        voltageLevel.getBusBreakerView().newBus().setId(busId).add();
+        return busId;
+    }
+
+    static Line newLine(Network network, String id, String bus1, String bus2) {
+        return network.newLine()
+                .setId(id)
+                .setVoltageLevel1(network.getBusBreakerView().getBus(bus1).getVoltageLevel().getId())
+                .setBus1(bus1)
+                .setConnectableBus1(bus1)
+                .setVoltageLevel2(network.getBusBreakerView().getBus(bus2).getVoltageLevel().getId())
+                .setBus2(bus2)
+                .setConnectableBus2(bus2)
+                .setR(1)
+                .setX(10)
+                .add();
+    }
+
+    private static void newBoundaryLine(VoltageLevel voltageLevel, String id, String pairingKey) {
+        String bus = voltageLevel.getBusBreakerView().getBuses().iterator().next().getId();
+        voltageLevel.newBoundaryLine().setId(id).setBus(bus).setConnectableBus(bus)
+                .setR(1).setX(10).setG(0).setB(0).setP0(0).setQ0(0).setPairingKey(pairingKey).add();
+    }
 }

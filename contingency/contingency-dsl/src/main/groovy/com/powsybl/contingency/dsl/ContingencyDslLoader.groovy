@@ -21,6 +21,11 @@ import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 /**
+ * <p><b>Security warning:</b> the Groovy DSL script is evaluated as-is, without any sandbox (no {@code SecureASTCustomizer},
+ * no class or method restriction), with the full privileges of the JVM. PowSyBl is a library: sandboxing untrusted
+ * scripts is the responsibility of the application embedding it. Only run scripts from trusted sources.
+ * See <a href="https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/groovy-security.html">Groovy scripts security</a>.
+ *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class ContingencyDslLoader extends DslLoader {

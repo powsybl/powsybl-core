@@ -407,7 +407,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testNotifyUpdate() {
+    public void testNotifyUpdate() {
         String batteryId = "battery";
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(batteryId,
             RegulationMode.VOLTAGE,

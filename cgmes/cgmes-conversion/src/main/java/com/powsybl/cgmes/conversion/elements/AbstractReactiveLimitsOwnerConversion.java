@@ -23,9 +23,6 @@ import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
-import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
-import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -157,18 +154,19 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
-        String mode = generator.getProperty(PROPERTY_MODE);
         // No voltageRegulation means no regulating control mapped at EQ conversion (absent, or already reported as ignored there)
         if (generator.getVoltageRegulation() == null) {
             return;
         }
 
-        if (isControlModeVoltage(mode)) {
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation.getMode() == RegulationMode.VOLTAGE) {
             updateRegulatingControlVoltage(generator, controlEnabled, context);
-        } else if (isControlModeReactivePower(mode)) {
+        } else if (voltageRegulation.getMode() == RegulationMode.REACTIVE_POWER) {
             updateRegulatingControlReactivePower(generator, controlEnabled, context);
         } else {
-            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
+            context.ignored(String.valueOf(voltageRegulation.getMode()),
+                "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
         }
     }
 

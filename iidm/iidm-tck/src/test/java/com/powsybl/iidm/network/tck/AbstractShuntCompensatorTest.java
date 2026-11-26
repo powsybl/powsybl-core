@@ -584,7 +584,7 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMultiVariants() {
+    public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createLinearShunt(TEST_MULTI_VARIANT, "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
@@ -623,7 +623,7 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    void testRemoveVoltageRegulationInMultiVariant() {
+    public void testRemoveVoltageRegulationInMultiVariant() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createLinearShunt(TEST_MULTI_VARIANT, "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
@@ -648,7 +648,7 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMonoVariant() {
+    public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createLinearShunt("testMonoVariant", "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
 
