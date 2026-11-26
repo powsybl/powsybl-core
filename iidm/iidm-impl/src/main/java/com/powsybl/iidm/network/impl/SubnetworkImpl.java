@@ -57,7 +57,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         this.ref = Objects.requireNonNull(subnetworkRef);
         this.ref.setRef(new RefObj<>(this));
         this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
-        setCaseDate(caseDate);
+        initCaseDate(caseDate);
     }
 
     @Override

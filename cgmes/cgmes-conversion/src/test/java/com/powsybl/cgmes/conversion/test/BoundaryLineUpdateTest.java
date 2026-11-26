@@ -209,10 +209,10 @@ class BoundaryLineUpdateTest {
         assertTrue(Double.isNaN(boundaryLine.getP0()));
         assertTrue(Double.isNaN(boundaryLine.getQ0()));
         if (boundaryLine.getGeneration() != null) {
-            assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetV()));
+            assertTrue(Double.isNaN(boundaryLine.getGeneration().getLocalTargetV()));
             assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetP()));
-            assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetQ()));
-            assertFalse(boundaryLine.getGeneration().isVoltageRegulationOn());
+            assertTrue(Double.isNaN(boundaryLine.getGeneration().getLocalTargetQ()));
+            assertFalse(boundaryLine.getGeneration().isRegulating());
         }
         assertNotNull(boundaryLine.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
     }
@@ -225,9 +225,9 @@ class BoundaryLineUpdateTest {
         if (withGeneration) {
             assertNotNull(boundaryLine.getGeneration());
             assertEquals(targetP, boundaryLine.getGeneration().getTargetP(), tol);
-            assertEquals(targetQ, boundaryLine.getGeneration().getTargetQ(), tol);
-            assertEquals(targetV, boundaryLine.getGeneration().getTargetV(), tol);
-            assertEquals(isRegulatingOn, boundaryLine.getGeneration().isVoltageRegulationOn());
+            assertEquals(targetQ, boundaryLine.getGeneration().getLocalTargetQ(), tol);
+            assertEquals(targetV, boundaryLine.getGeneration().getLocalTargetV(), tol);
+            assertEquals(isRegulatingOn, boundaryLine.getGeneration().isRegulating());
         } else {
             assertNull(boundaryLine.getGeneration());
         }
@@ -270,7 +270,7 @@ class BoundaryLineUpdateTest {
 
     private static boolean checkBoundaryBusVoltage(BoundaryLine boundaryLine, double v, double angle) {
         double tol = 0.0000001;
-        String voltageProperty = boundaryLine.getProperty(CgmesNames.VOLTAGE);
+        String voltageProperty = boundaryLine.getProperty(CgmesNames.V);
         String angleProperty = boundaryLine.getProperty(CgmesNames.ANGLE);
         assertEquals(v, voltageProperty != null ? Double.parseDouble(voltageProperty) : Double.NaN, tol);
         assertEquals(angle, angleProperty != null ? Double.parseDouble(angleProperty) : Double.NaN, tol);

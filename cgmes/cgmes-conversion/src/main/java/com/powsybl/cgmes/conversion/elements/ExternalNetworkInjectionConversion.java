@@ -43,7 +43,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
 
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        setRegulatingControlProperty(g);
 
         addSpecificProperties(g, p);
     }

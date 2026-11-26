@@ -25,9 +25,7 @@ import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
-import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
-import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.regulatingTerminalMapped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -159,18 +157,19 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
-        String mode = generator.getProperty(PROPERTY_MODE);
         // No voltageRegulation means no regulating control mapped at EQ conversion (absent, or already reported as ignored there)
         if (generator.getVoltageRegulation() == null) {
             return;
         }
 
-        if (isControlModeVoltage(mode)) {
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation.getMode() == RegulationMode.VOLTAGE) {
             updateRegulatingControlVoltage(generator, controlEnabled, context);
-        } else if (isControlModeReactivePower(mode)) {
+        } else if (voltageRegulation.getMode() == RegulationMode.REACTIVE_POWER) {
             updateRegulatingControlReactivePower(generator, controlEnabled, context);
         } else {
-            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
+            context.ignored(String.valueOf(voltageRegulation.getMode()),
+                "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
         }
     }
 
@@ -181,7 +180,8 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_VALID)).orElse(defaultTargetV);
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
-        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+        boolean regulatingOn = regulatingTerminalMapped(generator)
+            && cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         boolean validTargetV = isValidTargetV(targetV);
         if (!validTargetV) {
@@ -207,7 +207,8 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
 
         double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
-        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+        boolean regulatingOn = regulatingTerminalMapped(generator)
+            && cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         setReactivePowerRegulation(voltageRegulation, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));
     }
