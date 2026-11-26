@@ -8,11 +8,9 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
@@ -27,11 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -41,6 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
+import static com.powsybl.cgmes.conversion.export.CgmesTestModels.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -48,9 +43,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SteadyStateHypothesisSubsetExportTest {
 
-    private static final String SHARED_CONTROL_GENERATOR = EurostagTutorialExample1Factory.GENERATOR_ID;
-    private static final String SHARED_CONTROL_SHUNT = "SHUNT1";
-    private static final String SHARED_CONTROL_SHUNT_2 = "SHUNT2";
     private static final Pattern SSH_OBJECT = Pattern.compile("<cim:(\\w+) rdf:about=\"#_?([^\"]+)\">(.*?)</cim:\\1>", Pattern.DOTALL);
 
     @Test
@@ -191,83 +183,6 @@ class SteadyStateHypothesisSubsetExportTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, shunt));
         assertTrue(e.getMessage().contains(sharedControl(network)));
         assertTrue(e.getMessage().contains("See the section \"Shared regulating controls\""));
-    }
-
-    /**
-     * Eurostag with two shunt compensators at the bus of the generator, exported to CGMES and imported again.
-     * In the EQ, the two shunt compensators refer to the regulating control of the generator,
-     * so the generator and the shunt compensators share one regulating control.
-     */
-    private static Network withSharedControl() {
-        Network base = EurostagTutorialExample1Factory.create();
-        VoltageLevel vlgen = base.getVoltageLevel(EurostagTutorialExample1Factory.VLGEN);
-        for (String shuntId : List.of(SHARED_CONTROL_SHUNT, SHARED_CONTROL_SHUNT_2)) {
-            vlgen.newShuntCompensator()
-                .setId(shuntId)
-                .setBus(EurostagTutorialExample1Factory.NGEN)
-                .setConnectableBus(EurostagTutorialExample1Factory.NGEN)
-                .setSectionCount(1)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(true)
-                    .withTargetDeadband(0.5)
-                    .add()
-                .setLocalTargetV(24.5)
-                .newLinearModel()
-                    .setMaximumSectionCount(1)
-                    .setBPerSection(1e-5)
-                    .add()
-                .add();
-        }
-        MemDataSource dataSource = new MemDataSource();
-        base.write("CGMES", null, dataSource);
-        try {
-            String eqName = dataSource.listNames(".*_EQ.*").iterator().next();
-            String eq;
-            try (InputStream is = dataSource.newInputStream(eqName)) {
-                eq = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            }
-            Matcher generatorControl = regulatingControlReference(SHARED_CONTROL_GENERATOR).matcher(eq);
-            assertTrue(generatorControl.find());
-            String controlId = generatorControl.group(3);
-            for (String shuntId : List.of(SHARED_CONTROL_SHUNT, SHARED_CONTROL_SHUNT_2)) {
-                Matcher shuntControl = regulatingControlReference(shuntId).matcher(eq);
-                assertTrue(shuntControl.find());
-                eq = shuntControl.replaceFirst(Matcher.quoteReplacement(shuntControl.group(1) + controlId + shuntControl.group(4)));
-            }
-            try (OutputStream os = dataSource.newOutputStream(eqName, false)) {
-                os.write(eq.getBytes(StandardCharsets.UTF_8));
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        Network network = Network.read(dataSource);
-        String sharedControl = sharedControl(network);
-        assertNotNull(sharedControl);
-        assertEquals(sharedControl, network.getShuntCompensator(SHARED_CONTROL_SHUNT).getProperty(PROPERTY_REGULATING_CONTROL));
-        assertEquals(sharedControl, network.getShuntCompensator(SHARED_CONTROL_SHUNT_2).getProperty(PROPERTY_REGULATING_CONTROL));
-        return network;
-    }
-
-    /**
-     * The reference from a regulating conducting equipment of the EQ to its regulating control: group 3 is the id of the control.
-     */
-    private static Pattern regulatingControlReference(String holderId) {
-        return Pattern.compile("(<cim:(\\w+) rdf:ID=\"_?" + Pattern.quote(holderId)
-            + "\">.*?<cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#_?)([^\"]+)(\".*?</cim:\\2>)", Pattern.DOTALL);
-    }
-
-    private static String sharedControl(Network network) {
-        return network.getGenerator(SHARED_CONTROL_GENERATOR).getProperty(PROPERTY_REGULATING_CONTROL);
-    }
-
-    /**
-     * The network exported to CGMES and imported again, so that it has the CGMES properties and aliases of an import.
-     */
-    private static Network cgmesRoundTrip(Network network) {
-        MemDataSource dataSource = new MemDataSource();
-        network.write("CGMES", null, dataSource);
-        return Network.read(dataSource);
     }
 
     @Test

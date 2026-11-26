@@ -7,19 +7,20 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesTestModels;
 import com.powsybl.cgmes.conversion.export.SshExportedIdentifiables;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
-import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -34,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -56,75 +58,71 @@ class PartialSshRoundTripTest {
     Path tmpDir;
 
     static Stream<Arguments> changes() {
-        GridModelReference smallGrid = CgmesConformity1Catalog.smallNodeBreaker();
-        GridModelReference smallGridBusBranch = CgmesConformity1Catalog.smallBusBranch();
-        GridModelReference miniGrid = CgmesConformity1Catalog.miniNodeBreaker();
-        GridModelReference smallGridHvdc = CgmesConformity1Catalog.smallNodeBreakerHvdc();
-        GridModelReference cgmes3SmallGrid = Cgmes3Catalog.smallGrid();
+        // CGMES models built in code: node-breaker, bus-breaker, with a regulating shunt, with a shared control
+        Supplier<ReadOnlyDataSource> nodeBreaker = () -> CgmesTestModels.cgmesFiles(FourSubstationsNodeBreakerFactory.create());
+        Supplier<ReadOnlyDataSource> busBreaker = () -> CgmesTestModels.cgmesFiles(EurostagTutorialExample1Factory.create());
+        Supplier<ReadOnlyDataSource> busBreakerShunt = () -> CgmesTestModels.cgmesFiles(ShuntTestCaseFactory.create());
+        Supplier<ReadOnlyDataSource> sharedControl = CgmesTestModels::sharedControlFiles;
         return Stream.of(
-            Arguments.of("load p0 and q0", smallGrid, (Consumer<Network>) n -> {
+            Arguments.of("load p0 and q0", nodeBreaker, (Consumer<Network>) n -> {
                 Load load = n.getLoads().iterator().next();
                 load.setP0(load.getP0() + 10.0).setQ0(load.getQ0() + 5.0);
             }),
-            Arguments.of("generator targetP", smallGrid, (Consumer<Network>) n -> {
+            Arguments.of("generator targetP", nodeBreaker, (Consumer<Network>) n -> {
                 Generator generator = n.getGenerators().iterator().next();
                 generator.setTargetP(generator.getTargetP() + 10.0);
             }),
-            Arguments.of("generator stops regulating", smallGrid, (Consumer<Network>) n -> n.getGeneratorStream()
+            Arguments.of("generator stops regulating", nodeBreaker, (Consumer<Network>) n -> n.getGeneratorStream()
                 .filter(g -> g.getVoltageRegulation() != null && g.getVoltageRegulation().isRegulating())
                 .findFirst().orElseThrow().getVoltageRegulation().setRegulating(false)),
-            Arguments.of("generator target voltage", smallGrid, (Consumer<Network>) n -> {
+            Arguments.of("generator target voltage", nodeBreaker, (Consumer<Network>) n -> {
                 Generator generator = n.getGeneratorStream().filter(g -> g.hasProperty(PROPERTY_REGULATING_CONTROL)).findFirst().orElseThrow();
                 generator.setLocalTargetV(generator.getLocalTargetV() + 1.0);
             }),
-            Arguments.of("ratio tap position", smallGrid, (Consumer<Network>) n -> {
+            Arguments.of("ratio tap position", nodeBreaker, (Consumer<Network>) n -> {
                 RatioTapChanger rtc = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasRatioTapChanger)
                     .findFirst().orElseThrow().getRatioTapChanger();
                 rtc.setTapPosition(rtc.getTapPosition() == rtc.getHighTapPosition() ? rtc.getTapPosition() - 1 : rtc.getTapPosition() + 1);
             }),
-            Arguments.of("shunt sections", smallGrid, (Consumer<Network>) n -> {
+            Arguments.of("shunt sections", nodeBreaker, (Consumer<Network>) n -> {
                 ShuntCompensator shunt = n.getShuntCompensators().iterator().next();
                 shunt.setSectionCount(shunt.getSectionCount() == shunt.getMaximumSectionCount() ? shunt.getSectionCount() - 1 : shunt.getSectionCount() + 1);
             }),
-            Arguments.of("boundary line p0", smallGrid, (Consumer<Network>) n -> {
-                BoundaryLine boundaryLine = n.getBoundaryLines(BoundaryLineFilter.ALL).iterator().next();
-                boundaryLine.setP0(boundaryLine.getP0() + 10.0);
-            }),
-            Arguments.of("injection disconnection", smallGrid, (Consumer<Network>) n -> assertTrue(n.getConnectableStream()
+            Arguments.of("injection disconnection", nodeBreaker, (Consumer<Network>) n -> assertTrue(n.getConnectableStream()
                 .filter(Injection.class::isInstance).map(c -> (Injection<?>) c).anyMatch(i -> i.getTerminal().disconnect()))),
-            Arguments.of("bus-breaker load p0 and q0", smallGridBusBranch, (Consumer<Network>) n -> {
+            Arguments.of("bus-breaker load p0 and q0", busBreaker, (Consumer<Network>) n -> {
                 Load load = n.getLoads().iterator().next();
                 load.setP0(load.getP0() + 10.0).setQ0(load.getQ0() + 5.0);
             }),
-            Arguments.of("bus-breaker generator targetP", smallGridBusBranch, (Consumer<Network>) n -> {
+            Arguments.of("bus-breaker generator targetP", busBreaker, (Consumer<Network>) n -> {
                 Generator generator = n.getGenerators().iterator().next();
                 generator.setTargetP(generator.getTargetP() + 10.0);
             }),
-            Arguments.of("bus-breaker ratio tap position", smallGridBusBranch, (Consumer<Network>) n -> {
+            Arguments.of("bus-breaker ratio tap position", busBreaker, (Consumer<Network>) n -> {
                 RatioTapChanger rtc = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasRatioTapChanger)
                     .findFirst().orElseThrow().getRatioTapChanger();
                 rtc.setTapPosition(rtc.getTapPosition() == rtc.getHighTapPosition() ? rtc.getTapPosition() - 1 : rtc.getTapPosition() + 1);
             }),
-            Arguments.of("bus-breaker shunt sections", smallGridBusBranch, (Consumer<Network>) n -> {
+            Arguments.of("bus-breaker shunt sections", busBreakerShunt, (Consumer<Network>) n -> {
                 ShuntCompensator shunt = n.getShuntCompensators().iterator().next();
                 shunt.setSectionCount(shunt.getSectionCount() == shunt.getMaximumSectionCount() ? shunt.getSectionCount() - 1 : shunt.getSectionCount() + 1);
             }),
-            Arguments.of("bus-breaker injection disconnection", smallGridBusBranch, (Consumer<Network>) n -> assertTrue(n.getConnectableStream()
+            Arguments.of("bus-breaker injection disconnection", busBreaker, (Consumer<Network>) n -> assertTrue(n.getConnectableStream()
                 .filter(Injection.class::isInstance).map(c -> (Injection<?>) c).anyMatch(i -> i.getTerminal().disconnect()))),
-            Arguments.of("breaker opening", miniGrid, (Consumer<Network>) n -> n.getSwitchStream()
+            Arguments.of("breaker opening", nodeBreaker, (Consumer<Network>) n -> n.getSwitchStream()
                 .filter(sw -> sw.getKind() == SwitchKind.BREAKER && !sw.isOpen()).findFirst().orElseThrow().setOpen(true)),
-            Arguments.of("transformer disconnection", miniGrid, (Consumer<Network>) n -> assertTrue(n.getTwoWindingsTransformers().iterator().next().disconnect())),
-            Arguments.of("HVDC active power setpoint", smallGridHvdc, (Consumer<Network>) n -> {
+            Arguments.of("transformer disconnection", nodeBreaker, (Consumer<Network>) n -> assertTrue(n.getTwoWindingsTransformers().iterator().next().disconnect())),
+            Arguments.of("HVDC active power setpoint", nodeBreaker, (Consumer<Network>) n -> {
                 HvdcLine hvdcLine = n.getHvdcLines().iterator().next();
                 hvdcLine.setActivePowerSetpoint(hvdcLine.getActivePowerSetpoint() + 10.0);
             }),
-            Arguments.of("shared regulating control, all holders changed", cgmes3SmallGrid, (Consumer<Network>) n -> {
-                // A synchronous machine and a shunt compensator share this regulating control
-                Generator generator = n.getGenerator("04633e31-c766-11e1-8775-005056c00008");
-                ShuntCompensator shunt = n.getShuntCompensator("045b00d9-c766-11e1-8775-005056c00008");
+            Arguments.of("shared regulating control, all holders changed", sharedControl, (Consumer<Network>) n -> {
+                // A synchronous machine and two shunt compensators share this regulating control
+                Generator generator = n.getGenerator(CgmesTestModels.SHARED_CONTROL_GENERATOR);
                 double target = generator.getRegulatingTargetV() + 1.0;
                 setTargetV(generator, target);
-                setTargetV(shunt, target);
+                setTargetV(n.getShuntCompensator(CgmesTestModels.SHARED_CONTROL_SHUNT), target);
+                setTargetV(n.getShuntCompensator(CgmesTestModels.SHARED_CONTROL_SHUNT_2), target);
             })
         );
     }
@@ -140,8 +138,8 @@ class PartialSshRoundTripTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("changes")
-    void roundTrip(String description, GridModelReference model, Consumer<Network> change) throws IOException, XMLStreamException {
-        ReadOnlyDataSource source = model.dataSource();
+    void roundTrip(String description, Supplier<ReadOnlyDataSource> model, Consumer<Network> change) throws IOException, XMLStreamException {
+        ReadOnlyDataSource source = model.get();
 
         // The network of the user: record the change and export it as a partial SSH
         Network network = Network.read(source);

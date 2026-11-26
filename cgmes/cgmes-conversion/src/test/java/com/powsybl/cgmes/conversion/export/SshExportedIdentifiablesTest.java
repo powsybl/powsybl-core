@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
@@ -59,7 +58,7 @@ class SshExportedIdentifiablesTest {
 
     @BeforeEach
     void setUp() {
-        network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        network = EurostagTutorialExample1Factory.create();
         recorder = new NetworkEventRecorder();
         network.addListener(recorder);
     }
@@ -150,7 +149,7 @@ class SshExportedIdentifiablesTest {
 
     private static Stream<Arguments> supportedInjectionChanges() {
         Supplier<Network> fourSubstations = FourSubstationsNodeBreakerFactory::create;
-        Supplier<Network> smallGrid = () -> Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        Supplier<Network> regulatingShunt = ShuntTestCaseFactory::create;
         return Stream.of(
             supported("switch open", fourSubstations, n -> {
                 Switch sw = n.getSwitches().iterator().next();
@@ -209,15 +208,15 @@ class SshExportedIdentifiablesTest {
                 ShuntCompensator s = n.getShuntCompensators().iterator().next();
                 return new Change(s, () -> s.setLocalTargetV(399.0));
             }),
-            supported("shunt regulating", smallGrid, n -> {
+            supported("shunt regulating", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 return new Change(s, () -> s.getVoltageRegulation().setRegulating(!s.getVoltageRegulation().isRegulating()));
             }),
-            supported("shunt target deadband", smallGrid, n -> {
+            supported("shunt target deadband", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 return new Change(s, () -> s.getVoltageRegulation().setTargetDeadband(s.getVoltageRegulation().getTargetDeadband() + 1.0));
             }),
-            supported("shunt target value", smallGrid, n -> {
+            supported("shunt target value", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 // A target value needs a terminal
                 s.getVoltageRegulation().setTerminal(s.getTerminal(), 400.0);
