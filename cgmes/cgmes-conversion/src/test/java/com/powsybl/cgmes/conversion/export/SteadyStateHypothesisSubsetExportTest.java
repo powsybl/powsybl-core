@@ -118,7 +118,6 @@ class SteadyStateHypothesisSubsetExportTest {
             generator.setLocalTargetV(target);
         }
         CgmesExportContext context = new CgmesExportContext(network)
-            .setPartialSshExport(true)
             .setSshExportedIdentifiables(List.of(network.getShuntCompensator(SHARED_CONTROL_SHUNT)));
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
@@ -256,12 +255,16 @@ class SteadyStateHypothesisSubsetExportTest {
     }
 
     @Test
-    void fullExportIgnoresTheIdentifiables() throws XMLStreamException {
+    void exportedIdentifiablesMakeTheExportPartial() {
         Network network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
-        CgmesExportContext context = new CgmesExportContext(network)
-            .setSshExportedIdentifiables(List.of(network.getGenerators().iterator().next()));
+        CgmesExportContext context = new CgmesExportContext(network);
+        assertFalse(context.isPartialSshExport());
+        assertEquals(List.of(), context.getSshExportedIdentifiables());
 
-        assertEquals(sshObjects(exportFull(network)), sshObjects(export(network, context)));
+        Generator generator = network.getGenerators().iterator().next();
+        context.setSshExportedIdentifiables(List.of(generator));
+        assertTrue(context.isPartialSshExport());
+        assertEquals(List.of(generator), context.getSshExportedIdentifiables());
     }
 
     private static String exportFull(Network network) throws XMLStreamException {
@@ -270,7 +273,6 @@ class SteadyStateHypothesisSubsetExportTest {
 
     private static String exportPartial(Network network, Collection<? extends Identifiable<?>> identifiables) throws XMLStreamException {
         CgmesExportContext context = new CgmesExportContext(network)
-            .setPartialSshExport(true)
             .setSshExportedIdentifiables(identifiables);
         return export(network, context);
     }

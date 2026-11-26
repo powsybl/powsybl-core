@@ -85,8 +85,7 @@ public class CgmesExportContext {
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
     private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
-    private boolean partialSshExport = false;
-    private Collection<Identifiable<?>> sshExportedIdentifiables = List.of();
+    private Collection<Identifiable<?>> sshExportedIdentifiables;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
     private final Map<String, GeographicalRegionEq> regionsById = new HashMap<>();
@@ -358,25 +357,22 @@ public class CgmesExportContext {
     /**
      * If true, the SSH export only writes the SSH data of the exported identifiables.
      * If false (the default), it writes the SSH data of all the network.
+     * It is true when the exported identifiables are set.
      */
     public boolean isPartialSshExport() {
-        return partialSshExport;
-    }
-
-    public CgmesExportContext setPartialSshExport(boolean partialSshExport) {
-        this.partialSshExport = partialSshExport;
-        return this;
+        return sshExportedIdentifiables != null;
     }
 
     /**
      * The identifiables whose SSH data is exported in a partial SSH export.
+     * The collection is empty if the export is not partial.
      */
     public Collection<Identifiable<?>> getSshExportedIdentifiables() {
-        return sshExportedIdentifiables;
+        return sshExportedIdentifiables != null ? sshExportedIdentifiables : List.of();
     }
 
     /**
-     * Set the identifiables whose SSH data is exported in a partial SSH export.
+     * Set the identifiables whose SSH data is exported, and make the SSH export partial.
      * The context keeps a copy of the collection, in the same order.
      */
     public CgmesExportContext setSshExportedIdentifiables(Collection<? extends Identifiable<?>> sshExportedIdentifiables) {
