@@ -222,6 +222,19 @@
         <xs:attribute name="minQ" use="required" type="xs:double"/>
         <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="Plane">
+        <xs:attribute name="coeffU" use="required" type="xs:double"/>
+        <xs:attribute name="coeffP" use="required" type="xs:double"/>
+        <xs:attribute name="coeffQ" use="required" type="xs:double"/>
+        <xs:attribute name="rhs" use="required" type="xs:double"/>
+        <xs:attribute name="isGreaterOrEqual" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="ReactiveCapabilityShape">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="plane" minOccurs="1" maxOccurs="unbounded" type="iidm:Plane"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="ReactiveCapabilityCurve">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
@@ -261,6 +274,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -282,6 +296,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -414,9 +429,11 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:choice minOccurs="0">
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                     <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
                 <xs:attribute name="selectedOperationalLimitsGroupIds" use="optional" type="iidm:selectedOperationalLimitsGroupIds"/>
@@ -428,10 +445,9 @@
                 <xs:attribute name="b" use="optional" default="0" type="xs:double"/>
                 <xs:attribute name="generationMinP" use="optional" type="xs:double"/>
                 <xs:attribute name="generationMaxP" use="optional" type="xs:double"/>
-                <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>
                 <xs:attribute name="generationTargetP" use="optional" type="xs:double"/>
-                <xs:attribute name="generationTargetV" use="optional" type="xs:double"/>
-                <xs:attribute name="generationTargetQ" use="optional" type="xs:double"/>
+                <xs:attribute name="generationLocalTargetV" use="optional" type="xs:double"/>
+                <xs:attribute name="generationLocalTargetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="pairingKey" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
@@ -593,6 +609,8 @@
                 <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
                 <xs:attribute name="targetP" use="optional" type="xs:double"/>
                 <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
+                <xs:attribute name="minP" use="optional" type="xs:double"/>
+                <xs:attribute name="maxP" use="optional" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
@@ -629,6 +647,7 @@
             <xs:extension base="iidm:AcDcConverter">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -805,6 +824,7 @@
             <xs:extension base="iidm:HvdcConverterStation">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -881,6 +901,8 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="lowVoltageLimit" use="optional" type="xs:double"/>
+                <xs:attribute name="highVoltageLimit" use="optional" type="xs:double"/>
                 <xs:attribute name="v" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
@@ -902,6 +924,7 @@
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="permanentCurrentLimit" use="optional" type="xs:double"/>
                 <xs:attribute name="connected1" use="required" type="xs:boolean"/>
                 <xs:attribute name="connected2" use="required" type="xs:boolean"/>
                 <xs:attribute name="dcP1" use="optional" type="xs:double"/>

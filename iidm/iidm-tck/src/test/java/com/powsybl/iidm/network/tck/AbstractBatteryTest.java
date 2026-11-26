@@ -270,7 +270,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void regulationTest() {
+    public void regulationTest() {
         // GIVEN
         // WHEN
         RegulationMode regulationMode = RegulationMode.VOLTAGE;
@@ -306,7 +306,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMultiVariants() {
+    public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
@@ -345,7 +345,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void testRemoveVoltageRegulationInMultiVariant() {
+    public void testRemoveVoltageRegulationInMultiVariant() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
@@ -370,7 +370,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMonoVariant() {
+    public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createBattery("testMonoVariant", 11.0, 12, 10, 20.0);
 
@@ -387,7 +387,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         Terminal remoteTerminal = network.getGenerator("GEN").getTerminal();
         double localTargetQ = 40.0;
         double remoteTargetQGeneratorSignConvention = 10.0;

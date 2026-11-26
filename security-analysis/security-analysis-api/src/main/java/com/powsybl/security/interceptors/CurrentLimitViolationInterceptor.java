@@ -25,6 +25,10 @@ public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInt
         for (LimitViolation limitViolation : preContingencyResult.getLimitViolationsResult().getLimitViolations()) {
             if (limitViolation.getLimitType() == LimitViolationType.CURRENT) {
                 Branch branch = context.getNetwork().getBranch(limitViolation.getSubjectId());
+                if (branch == null) {
+                    // Only branches are enriched: any other subject (DC line, three-winding transformer, boundary line, ...) is skipped
+                    continue;
+                }
 
                 double preContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
                 limitViolation.addExtension(ActivePowerExtension.class, new ActivePowerExtension(preContingencyValue));
@@ -40,12 +44,23 @@ public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInt
             for (LimitViolation limitViolation : postContingencyResult.getLimitViolationsResult().getLimitViolations()) {
                 if (limitViolation.getLimitType() == LimitViolationType.CURRENT) {
                     Branch branch = context.getNetwork().getBranch(limitViolation.getSubjectId());
+                    if (branch == null) {
+                        // Only branches are enriched: any other subject (DC line, three-winding transformer, boundary line, ...) is skipped
+                        continue;
+                    }
 
                     context.getNetwork().getVariantManager().setWorkingVariant(runningContext.getInitialStateId());
-                    limitViolation.addExtension(CurrentExtension.class, new CurrentExtension(branch.getTerminal(limitViolation.getSideAsTwoSides()).getI()));
-                    double preContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
-
-                    context.getNetwork().getVariantManager().setWorkingVariant(workingStateId);
+                    double preContingencyValue;
+                    try {
+                        double preContingencyCurrent = branch.getTerminal(limitViolation.getSideAsTwoSides()).getI();
+                        // The current is undefined without load flow results in the initial variant: do not report it
+                        if (!Double.isNaN(preContingencyCurrent)) {
+                            limitViolation.addExtension(CurrentExtension.class, new CurrentExtension(preContingencyCurrent));
+                        }
+                        preContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
+                    } finally {
+                        context.getNetwork().getVariantManager().setWorkingVariant(workingStateId);
+                    }
                     double postContingencyValue = branch.getTerminal(limitViolation.getSideAsTwoSides()).getP();
 
                     limitViolation.addExtension(ActivePowerExtension.class, new ActivePowerExtension(preContingencyValue, postContingencyValue));

@@ -48,6 +48,7 @@ public final class LimitViolationDetection {
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        checkAllDetailedDcEquipment(network, currentLimitTypes, consumer);
     }
 
     /**
@@ -67,6 +68,68 @@ public final class LimitViolationDetection {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitsComputer, consumer));
         network.getThreeWindingsTransformerStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitsComputer, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        // The DC power factor is not used for detailed DC equipment, so the detection is the same after an AC LF and a DC (linearized) LF.
+        checkAllDetailedDcEquipment(network, currentLimitTypes, consumer);
+    }
+
+    /**
+     * Checks whether the values on the detailed DC equipment (DC nodes and DC lines)
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     * The active power of AC/DC converters is not checked: {@code minP} and {@code maxP} are control parameters,
+     * not operational limits.
+     *
+     * @param network           The network on which physical values must be checked.
+     * @param currentLimitTypes The current limit type to consider.
+     * @param consumer          Will be fed with possibly created limit violations.
+     */
+    public static void checkAllDetailedDcEquipment(Network network, Set<LoadingLimitType> currentLimitTypes, Consumer<LimitViolation> consumer) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(currentLimitTypes);
+        Objects.requireNonNull(consumer);
+        network.getDcNodeStream().forEach(n -> checkVoltage(n, consumer));
+        if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            network.getDcLineStream().forEach(l -> checkCurrent(l, consumer));
+        }
+    }
+
+    /**
+     * Checks the voltage magnitude of a DC node against its low and high voltage limits.
+     * Limits are never scaled, and the signed voltage is reported.
+     */
+    private static void checkVoltage(DcNode dcNode, Consumer<LimitViolation> consumer) {
+        double v = dcNode.getV();
+        if (Double.isNaN(v)) {
+            return;
+        }
+        double magnitude = Math.abs(v);
+        double lowLimit = dcNode.getLowVoltageLimit();
+        if (!Double.isNaN(lowLimit) && magnitude <= lowLimit) {
+            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.LOW_VOLTAGE, lowLimit, v));
+        }
+        double highLimit = dcNode.getHighVoltageLimit();
+        if (!Double.isNaN(highLimit) && magnitude >= highLimit) {
+            consumer.accept(createDetailedDcEquipmentViolation(dcNode, LimitViolationType.HIGH_VOLTAGE, highLimit, v));
+        }
+    }
+
+    /**
+     * Checks the current magnitude at terminal 1 of a DC line against its permanent current limit.
+     * A DC line has no shunt admittance, so checking terminal 1 is enough. The violation has no side.
+     * The limit is never scaled, and the signed current is reported.
+     */
+    private static void checkCurrent(DcLine dcLine, Consumer<LimitViolation> consumer) {
+        double i = dcLine.getDcTerminal1().getI();
+        double limit = dcLine.getPermanentCurrentLimit();
+        if (!Double.isNaN(i) && !Double.isNaN(limit) && Math.abs(i) >= limit) {
+            consumer.accept(createDetailedDcEquipmentViolation(dcLine, LimitViolationType.CURRENT, limit, i));
+        }
+    }
+
+    private static LimitViolation createDetailedDcEquipmentViolation(Identifiable<?> subject, LimitViolationType type, double limit,
+                                                                     double value) {
+        return new LimitViolation(subject.getId(), subject.getOptionalName().orElse(null), null, type, null,
+                Integer.MAX_VALUE, limit, 1.0, value, null, null);
     }
 
     private static void checkCurrent(Branch<?> branch, Set<LoadingLimitType> currentLimitTypes,

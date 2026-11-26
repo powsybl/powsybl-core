@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -26,31 +26,59 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testMaxPNotSupported() {
-        Network network = createNetworkWithNonDefaultMaxP();
-        Path filename = tmpDir.resolve("fail");
-        assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, filename));
-    }
-
-    @Test
-    void testMaxPWithForceExport() {
-        Network network = createNetworkWithNonDefaultMaxP();
-        Path filename = tmpDir.resolve("vsc-maxP-force-export");
-        assertDoesNotThrow(() -> NetworkSerDe.write(network, new ExportOptions().setForceExportNetworkWithBetaFeatures(true), filename));
-    }
-
-    @Test
     void testNetworkVoltageSourceConverter() throws IOException {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/voltageSourceConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network readNetwork = allFormatsRoundTripTest(network, "/voltageSourceConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // active power limits survive the round trip, and are left unbounded where they were not set
+        VoltageSourceConverter vscWithoutLimits = readNetwork.getVoltageSourceConverter("vscBb1ACWithoutSolvedV");
+        assertEquals(-Double.MAX_VALUE, vscWithoutLimits.getMinP());
+        assertEquals(Double.MAX_VALUE, vscWithoutLimits.getMaxP());
+        VoltageSourceConverter vscWithMaxPOnly = readNetwork.getVoltageSourceConverter("vscBb2ACWithSolvedV");
+        assertEquals(-Double.MAX_VALUE, vscWithMaxPOnly.getMinP());
+        assertEquals(400., vscWithMaxPOnly.getMaxP());
+        VoltageSourceConverter vscWithMinPOnly = readNetwork.getVoltageSourceConverter("vscNb2ACWithPartiallySolvedV");
+        assertEquals(-380., vscWithMinPOnly.getMinP());
+        assertEquals(Double.MAX_VALUE, vscWithMinPOnly.getMaxP());
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/voltageSourceConverterRoundTripRef.xml", IidmVersion.V_1_15);
 
         // Note: we do not test here failing for all versions < 1.15: VoltageSourceConverter cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.
+    }
+
+    @Test
+    void testMaxPBetaExportBeforeIidm119() {
+        Network network = createBaseNetwork(); // contains a VoltageSourceConverter with maxP = 400.
+
+        // minP and maxP were a beta feature, without serialization, in all the versions supporting
+        // VoltageSourceConverter before 1.19 (1.15 to 1.18)
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> checkBetaExport(network, version));
+    }
+
+    private void checkBetaExport(Network network, IidmVersion version) {
+        // without forcing the beta export, the export fails
+        ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+        Path failPath = tmpDir.resolve("fail");
+        NotImplementedException e = assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, options, failPath));
+        assertEquals("voltageSourceConverter 'vscBb2ACWithSolvedV': maxP serialization is not supported in IIDM "
+                + version.toString(".") + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
+                + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
+                + " or ExportOptions.setForceExportNetworkWithBetaFeatures", e.getMessage());
+
+        // forcing the beta export ignores minP and maxP
+        options.setForceExportNetworkWithBetaFeatures(true);
+        Path path = tmpDir.resolve("vsc-force-export-" + version.toString("_") + ".xiidm");
+        NetworkSerDe.write(network, options, path);
+
+        Network readNetwork = NetworkSerDe.validateAndRead(path);
+        for (VoltageSourceConverter vsc : readNetwork.getVoltageSourceConverters()) {
+            assertEquals(-Double.MAX_VALUE, vsc.getMinP());
+            assertEquals(Double.MAX_VALUE, vsc.getMaxP());
+        }
     }
 
     private static Network createBaseNetwork() {
@@ -158,6 +186,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                     .withTargetValue(387.)
                     .add()
                 .setLocalTargetQ(12.3)
+                .setMaxP(400.) // minP left unbounded
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-200.).setMaxQ(+210.).add();
         vsc2.getDcTerminal1().setP(-100.).setI(-200.);
@@ -192,6 +221,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                     .withTerminal(lineNb.getTerminal2())
                     .withTargetValue(397.)
                     .add()
+                .setMinP(-380.) // maxP left unbounded
                 .add();
         vsc3.newReactiveCapabilityCurve()
                 .beginPoint().setP(-200.).setMinQ(-190.).setMaxQ(192.).endPoint()
@@ -205,28 +235,6 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
         vsc3.getTerminal1().setP(-105.); // no Q
         vsc3.getTerminal2().orElseThrow().setQ(-200.8); // no P
 
-        return network;
-    }
-
-    private static Network createNetworkWithNonDefaultMaxP() {
-        Network network = Network.create("voltageSourceConverterTest", "code");
-        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
-        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
-        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
-        Substation s = network.newSubstation().setId("S").add();
-        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
-        vl.getBusBreakerView().newBus().setId("bus").add();
-        vl.newVoltageSourceConverter()
-                .setId("vsc")
-                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
-                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
-                .setConnectableBus1("bus")
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setTargetVdc(500.)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
-                .setLocalTargetQ(0.)
-                .setMaxP(500.)
-                .add();
         return network;
     }
 

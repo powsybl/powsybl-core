@@ -8,7 +8,11 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
@@ -30,7 +34,7 @@ import java.util.function.Supplier;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> {
+public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> implements ContextualDeserializer {
 
     private static final String CONTEXT_NAME = "OperatorStrategy";
     private static final String TAG_CONDITIONAL_ACTIONS = "Tag: conditionalActions";
@@ -38,8 +42,28 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     private static final String TAG_ACTION_IDS = "Tag: actionIds";
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
+    private final transient JsonDeserializer<Object> conditionalActionsDeserializer;
+    private final transient JsonDeserializer<Object> conditionDeserializer;
+    private final transient JsonDeserializer<Object> actionsIdsDeserializer;
+
     public OperatorStrategyDeserializer() {
+        this(null, null, null);
+    }
+
+    public OperatorStrategyDeserializer(JsonDeserializer<Object> conditionalActionsDeserializer, JsonDeserializer<Object> conditionDeserializer, JsonDeserializer<Object> actionsIdsDeserializer) {
         super(OperatorStrategy.class);
+        this.conditionalActionsDeserializer = conditionalActionsDeserializer;
+        this.conditionDeserializer = conditionDeserializer;
+        this.actionsIdsDeserializer = actionsIdsDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new OperatorStrategyDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, ConditionalActions.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, Condition.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
@@ -98,19 +122,19 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG_CONDITIONAL_ACTIONS,
                     context.version, "1.1");
-                context.stages = JsonUtil.readList(deserializationContext, parser, ConditionalActions.class);
+                context.stages = JsonUtil.readList(conditionalActionsDeserializer, deserializationContext, parser, ConditionalActions.class);
                 return true;
             case "condition":
                 parser.nextToken();
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_CONDITION,
                     context.version, "1.0");
-                context.condition = JsonUtil.readValue(deserializationContext, parser, Condition.class);
+                context.condition = JsonUtil.readValue(conditionDeserializer, deserializationContext, parser, Condition.class);
                 return true;
             case "actionIds":
                 parser.nextToken();
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_ACTION_IDS,
                     context.version, "1.0");
-                context.actionIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                context.actionIds = JsonUtil.readList(actionsIdsDeserializer, deserializationContext, parser, String.class);
                 return true;
             case "extensions":
                 parser.nextToken();

@@ -84,6 +84,35 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
+     * Checks that isolated voltage levels without substation nor equipment are reported under the
+     * {@code namingStrategySetup} step when exporting with the {@code Counter} naming strategy. See
+     * {@link UcteExporterTestNetworks#createWithIsolatedOrphansWithoutEquipment()} for the network.
+     */
+    @Test
+    void testOrphanVoltageLevelNotExportedReported() {
+        Network network = UcteExporterTestNetworks.createWithIsolatedOrphansWithoutEquipment();
+        Properties parameters = new Properties();
+        parameters.put(UcteExporter.NAMING_STRATEGY, "Counter");
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, parameters, new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Setting up naming strategy
+                      Voltage level VL_EMPTY is connected to no substation and holds no equipment: it is not exported
+                      Voltage level VL_NBBBS is connected to no substation and holds no equipment: it is not exported
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
      * Checks that a transformer with no nominal power (no {@code ratedS} and no legacy property) is reported
      * when exporting the network.
      */
@@ -148,6 +177,41 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                       Lines
                       Tie-Lines
                       Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported for tap changers that don't fit the UCTE-DEF model: tap range extended to be centered
+     * on the neutral tap, and tap steps deviating from the constant-step model. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void testTapChangerReports() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 0 positions, high side spans 1)
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 1 positions, high side spans 3)
+                         FRDEVI11 FRDEVI12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the shorter side to be centered on the neutral tap (low side spans 3 positions, high side spans 1)
+                         FPCLOS11 FPCLOS12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FPTIEB11 FPTIEB12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FSDEVI11 FSDEVI12 1 [phase tap changer (SYMM)] - differences found between original tap steps and the exported UCTE constant-step model
+                         FADEVI11 FADEVI12 1 [phase tap changer (ASYM)] - differences found between original tap steps and the exported UCTE constant-step model
                    Network exported to file .uct
                 """, rootReportNode));
     }

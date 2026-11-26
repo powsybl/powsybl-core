@@ -427,7 +427,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
 
     private static void assertStarBusVoltage(ThreeWindingsTransformer t3w) {
         double tol = 0.0000001;
-        assertEquals(401.4610086017755, Double.parseDouble(t3w.getProperty(CgmesNames.VOLTAGE)), tol);
+        assertEquals(401.4610086017755, Double.parseDouble(t3w.getProperty(CgmesNames.V)), tol);
         assertEquals(-0.7578725292783544, Double.parseDouble(t3w.getProperty(CgmesNames.ANGLE)), tol);
     }
 }

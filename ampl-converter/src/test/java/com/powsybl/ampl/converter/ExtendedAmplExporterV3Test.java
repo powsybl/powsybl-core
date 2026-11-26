@@ -25,7 +25,7 @@ class ExtendedAmplExporterV3Test extends ExtendedAmplExporterV2Test {
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
-        properties.remove("iidm.export.ampl.export-version");
+        properties.put("iidm.export.ampl.export-version", "1.3");
     }
 
     @Override
