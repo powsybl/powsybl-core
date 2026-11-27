@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkEventRecorder;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -124,6 +124,51 @@ public abstract class AbstractNetworkEventTest {
         network.setForecastDistance(60);
         assertEquals(List.of(new UpdateNetworkEvent("sim1", "caseDate", null, oldCaseDate, newCaseDate),
                              new UpdateNetworkEvent("sim1", "forecastDistance", null, 0, 60)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(gen, 1);
+        assertEquals(List.of(new ExtensionCreationNetworkEvent("GEN", "referencePriorities"),
+                        new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 0, 1)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(gen, 2);
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 1, 2)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(gen, 2);
+        assertEquals(List.of(), eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriorities<Generator> referencePriorities = gen.getExtension(ReferencePriorities.class);
+        referencePriorities.deleteReferencePriorities();
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "referencePriorities", "referencePriority", "InitialState", 2, 0)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        gen.removeExtension(ReferencePriorities.class);
+        assertEquals(List.of(new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", false),
+                        new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", true)),
+                eventRecorder.getEvents());
+
+        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("NGEN_NHV1");
+        eventRecorder.reset();
+        ReferencePriority.set(t2w, TwoSides.ONE, 1);
+        assertEquals(List.of(new ExtensionCreationNetworkEvent("NGEN_NHV1", "referencePriorities"),
+                        new ExtensionUpdateNetworkEvent("NGEN_NHV1", "referencePriorities", "referencePriority1", "InitialState", 0, 1)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(t2w, TwoSides.TWO, 1);
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("NGEN_NHV1", "referencePriorities", "referencePriority2", "InitialState", 0, 1)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        t2w.removeExtension(ReferencePriorities.class);
+        assertEquals(List.of(new ExtensionRemovalNetworkEvent("NGEN_NHV1", "referencePriorities", false),
+                        new ExtensionRemovalNetworkEvent("NGEN_NHV1", "referencePriorities", true)),
                 eventRecorder.getEvents());
     }
 }

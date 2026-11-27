@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.ReferencePriorityAdder;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.NetworkImpl;
 
 import java.util.*;
 
@@ -38,8 +39,25 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
             throw new PowsyblException(String.format("The provided terminal does not belong to the connectable %s",
                 getExtendable().getId()));
         }
-        referencePrioritiesPerVariant.get(getVariantIndex()).put(referencePriority.getTerminal(), referencePriority);
+
+        int variantIndex = getVariantIndex();
+        ReferencePriority oldReferencePriority = referencePrioritiesPerVariant.get(variantIndex).put(referencePriority.getTerminal(), referencePriority);
+        int oldPriority = oldReferencePriority != null ? oldReferencePriority.getPriority() : 0;
+        int newPriority = referencePriority.getPriority();
+
+        if (oldPriority != newPriority) {
+            NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
+            String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
+            network.getListeners().notifyExtensionUpdate(this, getNotifyAttribute(referencePriority), variantId, oldPriority, newPriority);
+        }
+
         return this;
+    }
+
+    private String getNotifyAttribute(ReferencePriority referencePriority) {
+        return getExtendable().getTerminals().size() > 1
+                ? "referencePriority" + referencePriority.getTerminal().getSide().getNum()
+                : "referencePriority";
     }
 
     @Override
@@ -54,7 +72,19 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
 
     @Override
     public void deleteReferencePriorities() {
-        referencePrioritiesPerVariant.get(getVariantIndex()).clear();
+        int variantIndex = getVariantIndex();
+        Map<Terminal, ReferencePriority> referencePriorities = referencePrioritiesPerVariant.get(variantIndex);
+
+        List<ReferencePriority> oldReferencePriorities = new ArrayList<>(referencePriorities.values());
+        referencePriorities.clear();
+
+        NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
+        String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
+        for (ReferencePriority oldReferencePriority : oldReferencePriorities) {
+            if (oldReferencePriority.getPriority() != 0) {
+                network.getListeners().notifyExtensionUpdate(this, getNotifyAttribute(oldReferencePriority), variantId, oldReferencePriority.getPriority(), 0);
+            }
+        }
     }
 
     @Override
