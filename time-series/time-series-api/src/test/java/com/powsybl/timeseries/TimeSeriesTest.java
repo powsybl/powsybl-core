@@ -503,10 +503,7 @@ class TimeSeriesTest {
             csv.append(";ts").append(i);
         }
         for (int time = 0; time < 2; time++) {
-            csv.append('\n').append(time);
-            for (int i = 0; i < timeSeriesCount; i++) {
-                csv.append(";1");
-            }
+            csv.repeat(";1", Math.max(0, timeSeriesCount));
         }
         return csv.append('\n').toString();
     }
