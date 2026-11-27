@@ -7,7 +7,7 @@
  */
 package com.powsybl.contingency;
 
-import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.test.EqualsTester;
 import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.modification.tripping.VoltageSourceConverterTripping;
 import com.powsybl.iidm.network.Network;

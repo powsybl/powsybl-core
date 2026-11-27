@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.test.EqualsTester;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
