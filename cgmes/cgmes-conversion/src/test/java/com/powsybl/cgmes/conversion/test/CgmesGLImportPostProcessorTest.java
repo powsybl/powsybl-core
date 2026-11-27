@@ -5,8 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -14,10 +16,12 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +36,7 @@ class CgmesGLImportPostProcessorTest {
     @Test
     void test() {
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        properties.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
         ReadOnlyDataSource ds = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "importGL_GL.xml"));
         Network network = Network.read(ds, properties);
 
@@ -67,9 +71,30 @@ class CgmesGLImportPostProcessorTest {
     }
 
     @Test
+    void testCgmes3() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
+        Network network = Network.read(Cgmes3Catalog.smallGrid().dataSource(), properties);
+
+        // The SmallGrid GL file only locates AC line segments
+        assertEquals(network.getLineCount(), network.getLineStream().filter(l -> l.getExtension(LinePosition.class) != null).count());
+        assertEquals(network.getBoundaryLineCount(), network.getBoundaryLineStream().filter(l -> l.getExtension(LinePosition.class) != null).count());
+
+        // Line 24-72: CIM xPosition is the longitude, yPosition the latitude, points ordered by sequence number
+        LinePosition<Line> linePosition = network.getLine("045d71d4-c766-11e1-8775-005056c00008").getExtension(LinePosition.class);
+        assertEquals(List.of(
+                new Coordinate(53.2339859008789, -4.3506064414978),
+                new Coordinate(53.2363014221191, -3.5705418586731),
+                new Coordinate(53.2378349304199, -3.05358934402466),
+                new Coordinate(53.3577919006348, -2.85458040237427),
+                new Coordinate(53.4766006469727, -2.8235068321228)),
+                linePosition.getCoordinates());
+    }
+
+    @Test
     void testUnsupportedCoordinateSystem() {
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        properties.put(CgmesImport.POST_PROCESSORS, "cgmesGLImport");
         ReadOnlyDataSource ds1 = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "unsupportedSubstationCrs_GL.xml"));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Network.read(ds1, properties));
         assertEquals("Unsupported coordinates system: urn:ogc:def:crs:OGC:2:84", e1.getMessage());

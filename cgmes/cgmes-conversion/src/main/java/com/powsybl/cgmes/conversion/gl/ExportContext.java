@@ -5,7 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
+
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Objects;
 
@@ -18,6 +22,18 @@ public class ExportContext {
     private String basename;
     private String glContext;
     private String coordinateSystemId;
+    private CgmesExportContext cgmesExportContext;
+
+    void setCgmesExportContext(CgmesExportContext cgmesExportContext) {
+        this.cgmesExportContext = Objects.requireNonNull(cgmesExportContext);
+    }
+
+    String getRdfId(Identifiable<?> identifiable) {
+        if (cgmesExportContext == null) {
+            cgmesExportContext = new CgmesExportContext(identifiable.getNetwork());
+        }
+        return CgmesExportUtil.toRdfId(cgmesExportContext.getNamingStrategy().getCgmesId(identifiable), cgmesExportContext);
+    }
 
     public String getBasename() {
         return basename;

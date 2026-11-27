@@ -5,9 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.test;
 
-import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.conversion.gl.CgmesGLExporter;
+import com.powsybl.cgmes.conversion.gl.CgmesGLUtils;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
@@ -100,7 +101,7 @@ class CgmesGLExporterTest {
         SubstationPosition substationPosition2 = new SubstationPositionImpl(substation2, SUBSTATION_2);
         substation2.addExtension(SubstationPosition.class, substationPosition2);
         Line line = network.getLine("Line");
-        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, ImmutableList.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
+        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, List.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
 
         TripleStore tripleStore = Mockito.mock(TripleStore.class);
         Mockito.when(tripleStore.add(ArgumentMatchers.anyString(), ArgumentMatchers.eq(CgmesNamespace.CIM_16_NAMESPACE),
@@ -117,7 +118,7 @@ class CgmesGLExporterTest {
         ArgumentCaptor<String> typeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<PropertyBag> propertiesCaptor = ArgumentCaptor.forClass(PropertyBag.class);
 
-        new CgmesGLExporter(network, tripleStore).exportData(dataSource);
+        new CgmesGLExporter(network, CgmesNamespace.CIM_16, tripleStore).exportData(dataSource);
 
         // check add namespace
         Mockito.verify(tripleStore, Mockito.times(3)).addNamespace(prefixCaptor.capture(), namespaceCaptor.capture());
@@ -131,15 +132,15 @@ class CgmesGLExporterTest {
         checkCoordinateSystem(contextCaptor.getAllValues().get(1), nsCaptor.getAllValues().get(1), typeCaptor.getAllValues().get(1),
                               propertiesCaptor.getAllValues().get(1), network.getId().toLowerCase());
         checkLocation(contextCaptor.getAllValues().get(2), nsCaptor.getAllValues().get(2), typeCaptor.getAllValues().get(2),
-                      propertiesCaptor.getAllValues().get(2), network.getId().toLowerCase(), "Substation1", "Substation1");
+                      propertiesCaptor.getAllValues().get(2), network.getId().toLowerCase(), "Substation1", "_Substation1");
         checkPositionPoint(contextCaptor.getAllValues().get(3), nsCaptor.getAllValues().get(3), typeCaptor.getAllValues().get(3),
                            propertiesCaptor.getAllValues().get(3), network.getId().toLowerCase(), SUBSTATION_1, -1);
         checkLocation(contextCaptor.getAllValues().get(4), nsCaptor.getAllValues().get(4), typeCaptor.getAllValues().get(4),
-                      propertiesCaptor.getAllValues().get(4), network.getId().toLowerCase(), "Substation2", "Substation2");
+                      propertiesCaptor.getAllValues().get(4), network.getId().toLowerCase(), "Substation2", "_Substation2");
         checkPositionPoint(contextCaptor.getAllValues().get(5), nsCaptor.getAllValues().get(5), typeCaptor.getAllValues().get(5),
                            propertiesCaptor.getAllValues().get(5), network.getId().toLowerCase(), SUBSTATION_2, -1);
         checkLocation(contextCaptor.getAllValues().get(6), nsCaptor.getAllValues().get(6), typeCaptor.getAllValues().get(6),
-                      propertiesCaptor.getAllValues().get(6), network.getId().toLowerCase(), "Line", "Line");
+                      propertiesCaptor.getAllValues().get(6), network.getId().toLowerCase(), "Line", "_Line");
         checkPositionPoint(contextCaptor.getAllValues().get(7), nsCaptor.getAllValues().get(7), typeCaptor.getAllValues().get(7),
                            propertiesCaptor.getAllValues().get(7), network.getId().toLowerCase(), SUBSTATION_1, 1);
         checkPositionPoint(contextCaptor.getAllValues().get(8), nsCaptor.getAllValues().get(8), typeCaptor.getAllValues().get(8),

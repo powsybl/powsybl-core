@@ -5,8 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
 
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.LinePosition;
@@ -24,20 +25,20 @@ public class LinePositionExporter extends AbstractPositionExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinePositionExporter.class);
 
-    public LinePositionExporter(TripleStore tripleStore, ExportContext context) {
-        super(tripleStore, context);
+    public LinePositionExporter(TripleStore tripleStore, ExportContext context, Cim cimModel) {
+        super(tripleStore, context, cimModel);
     }
 
     public void exportPosition(Line line) {
         Objects.requireNonNull(line);
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
-        exportPosition(line.getId(), line.getNameOrId(), linePosition);
+        exportPosition(context.getRdfId(line), line.getNameOrId(), linePosition);
     }
 
     public void exportPosition(BoundaryLine boundaryLine) {
         Objects.requireNonNull(boundaryLine);
         LinePosition<BoundaryLine> linePosition = boundaryLine.getExtension(LinePosition.class);
-        exportPosition(boundaryLine.getId(), boundaryLine.getNameOrId(), linePosition);
+        exportPosition(context.getRdfId(boundaryLine), boundaryLine.getNameOrId(), linePosition);
     }
 
     private void exportPosition(String id, String name, LinePosition<?> linePosition) {

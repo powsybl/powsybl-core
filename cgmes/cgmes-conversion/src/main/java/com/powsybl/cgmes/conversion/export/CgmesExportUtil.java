@@ -189,7 +189,14 @@ public final class CgmesExportUtil {
         writer.writeEndElement();
     }
 
-    private static String toRdfId(String id, CgmesExportContext context) {
+    /**
+     * Converts a CGMES identifier to the RDF identifier used in exported references and definitions.
+     *
+     * @param id CGMES identifier before RDF normalization
+     * @param context export context controlling identifier encoding
+     * @return the prefixed and, if enabled, encoded RDF identifier
+     */
+    public static String toRdfId(String id, CgmesExportContext context) {
         // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
         // We have to be careful with "resource" and "about" references, and apply the same conversions
         // Encode IDs to be URL compatible (prevent issues when importing)

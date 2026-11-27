@@ -5,17 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.QueryCatalog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
 
 /**
  *
@@ -45,7 +50,11 @@ public class CgmesGLImportPostProcessor implements CgmesImportPostProcessor {
     @Override
     public void process(Network network, CgmesModel cgmesModel) {
         LOG.info("Execute {} CGMES import post processor on network {}", getName(), network.getId());
-        CgmesGLModel cgmesGLModel = new CgmesGLModel(cgmesModel.tripleStore(), queryCatalog);
+        // The GL queries must use the CIM namespace of the imported files: CGMES 3 files are in CIM 100
+        Cim cim = cgmesModel instanceof CgmesModelTripleStore cgmesModelTripleStore
+                ? CgmesNamespace.getCim(cgmesModelTripleStore.getCimVersion())
+                : CIM_16;
+        CgmesGLModel cgmesGLModel = new CgmesGLModel(cgmesModel.tripleStore(), queryCatalog, cim);
         new CgmesGLImporter(network, cgmesGLModel).importGLData();
     }
 
