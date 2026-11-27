@@ -8,9 +8,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -22,11 +22,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final TDoubleArrayList targetP;
+    private final ExtendedDoubleArrayList targetP;
 
-    private final TDoubleArrayList localTargetQ;
+    private final ExtendedDoubleArrayList localTargetQ;
 
-    private final TDoubleArrayList localTargetV;
+    private final ExtendedDoubleArrayList localTargetV;
 
     private double minP;
 
@@ -47,14 +47,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.targetP = new TDoubleArrayList(variantArraySize);
-        this.localTargetQ = new TDoubleArrayList(variantArraySize);
-        this.localTargetV = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.targetP.add(targetP);
-            this.localTargetQ.add(localTargetQ);
-            this.localTargetV.add(localTargetV);
-        }
+        this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+        this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+        this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
     }
 
     /**
@@ -70,7 +65,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getTargetP() {
-        return targetP.get(getNetwork().getVariantIndex());
+        return targetP.getDouble(getNetwork().getVariantIndex());
     }
 
     /**
@@ -100,7 +95,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public double getLocalTargetQ() {
-        return localTargetQ.get(getNetwork().getVariantIndex());
+        return localTargetQ.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -190,7 +185,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getNetwork().getVariantIndex());
+        return this.localTargetV.getDouble(getNetwork().getVariantIndex());
     }
 
     /**
@@ -244,14 +239,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        targetP.ensureCapacity(targetP.size() + number);
-        localTargetQ.ensureCapacity(localTargetQ.size() + number);
-        localTargetV.ensureCapacity(localTargetV.size() + number);
-        for (int i = 0; i < number; i++) {
-            targetP.add(targetP.get(sourceIndex));
-            localTargetQ.add(localTargetQ.get(sourceIndex));
-            localTargetV.add(localTargetV.get(sourceIndex));
-        }
+        targetP.growAndFill(number, targetP.getDouble(sourceIndex));
+        localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+        localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
         if (voltageRegulation != null) {
             voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
@@ -263,9 +253,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        targetP.remove(targetP.size() - number, number);
-        localTargetQ.remove(localTargetQ.size() - number, number);
-        localTargetV.remove(localTargetV.size() - number, number);
+        targetP.removeElements(number);
+        localTargetQ.removeElements(number);
+        localTargetV.removeElements(number);
         if (voltageRegulation != null) {
             voltageRegulation.reduceVariantArraySize(number);
         }
@@ -278,9 +268,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            targetP.set(index, targetP.get(sourceIndex));
-            localTargetQ.set(index, localTargetQ.get(sourceIndex));
-            localTargetV.set(index, localTargetV.get(sourceIndex));
+            targetP.set(index, targetP.getDouble(sourceIndex));
+            localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+            localTargetV.set(index, localTargetV.getDouble(sourceIndex));
         }
         if (voltageRegulation != null) {
             voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);

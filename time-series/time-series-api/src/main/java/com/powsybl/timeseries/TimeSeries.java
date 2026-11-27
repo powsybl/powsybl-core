@@ -16,12 +16,13 @@ import com.google.common.primitives.Doubles;
 import com.google.re2j.Pattern;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.timeseries.ast.NodeCalc;
 import de.siegmar.fastcsv.reader.CsvParseException;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRecord;
 import de.siegmar.fastcsv.reader.CsvRecordHandler;
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -326,8 +327,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             return new TimeSeriesException("Unexpected data type " + dataType);
         }
 
-        private TDoubleArrayList createDoubleValues() {
-            TDoubleArrayList doubleValues = new TDoubleArrayList();
+        private DoubleArrayList createDoubleValues() {
+            ExtendedDoubleArrayList doubleValues = new ExtendedDoubleArrayList();
             if (!instants.isEmpty()) {
                 doubleValues.fill(0, instants.size(), Double.NaN);
             }
@@ -383,7 +384,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 // test double parsing, in case of error we consider it a string time series
                 if (Doubles.tryParse(token) != null) {
                     dataTypes[i - fixedColumns] = TimeSeriesDataType.DOUBLE;
-                    TDoubleArrayList doubleValues = createDoubleValues();
+                    DoubleArrayList doubleValues = createDoubleValues();
                     doubleValues.add(parseDouble(token));
                     values[i - fixedColumns] = doubleValues;
                 } else {
@@ -394,7 +395,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 }
             } else {
                 if (dataTypes[i - fixedColumns] == TimeSeriesDataType.DOUBLE) {
-                    ((TDoubleArrayList) values[i - fixedColumns]).add(parseDouble(token));
+                    ((DoubleArrayList) values[i - fixedColumns]).add(parseDouble(token));
                 } else if (dataTypes[i - fixedColumns] == TimeSeriesDataType.STRING) {
                     ((List<String>) values[i - fixedColumns]).add(checkString(token));
                 } else {
@@ -441,7 +442,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             instants.clear();
             for (int i = 0; i < dataTypes.length; i++) {
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
-                    ((TDoubleArrayList) values[i]).clear();
+                    ((DoubleArrayList) values[i]).clear();
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
                     ((List<?>) values[i]).clear();
                 } else {
@@ -469,8 +470,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 }
                 TimeSeriesMetadata metadata = new TimeSeriesMetadata(names.get(i), dataTypes[i], index);
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
-                    TDoubleArrayList doubleValues = (TDoubleArrayList) values[i];
-                    DoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, doubleValues.toArray()).tryToCompress();
+                    DoubleArrayList doubleValues = (DoubleArrayList) values[i];
+                    DoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, doubleValues.toDoubleArray()).tryToCompress();
                     timeSeriesList.add(new StoredDoubleTimeSeries(metadata, chunk));
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
                     List<String> stringValues = (List<String>) values[i];

@@ -8,8 +8,8 @@
 package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.powsybl.commons.util.trove.TDoubleArrayListHack;
-import com.powsybl.commons.util.trove.TIntArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
@@ -75,8 +75,8 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
 
     @Override
     public DoubleDataChunk tryToCompress() {
-        TDoubleArrayListHack stepValues = new TDoubleArrayListHack();
-        TIntArrayListHack stepLengths = new TIntArrayListHack();
+        ExtendedDoubleArrayList stepValues = new ExtendedDoubleArrayList();
+        ExtendedIntArrayList stepLengths = new ExtendedIntArrayList();
         int estimatedSize = getEstimatedSize();
         for (double value : values) {
             if (stepValues.isEmpty()) {
@@ -84,9 +84,9 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
                 stepLengths.add(1);
             } else {
                 int previousIndex = stepValues.size() - 1;
-                double previousValue = stepValues.getQuick(previousIndex);
+                double previousValue = stepValues.getDouble(previousIndex);
                 if (previousValue == value) {
-                    stepLengths.set(previousIndex, stepLengths.getQuick(previousIndex) + 1);
+                    stepLengths.set(previousIndex, stepLengths.getInt(previousIndex) + 1);
                 } else {
                     stepValues.add(value);
                     stepLengths.add(1);
@@ -97,7 +97,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
                 return this;
             }
         }
-        return new CompressedDoubleDataChunk(offset, values.length, stepValues.toArray(), stepLengths.toArray());
+        return new CompressedDoubleDataChunk(offset, values.length, stepValues.toDoubleArray(), stepLengths.toIntArray());
     }
 
     @Override

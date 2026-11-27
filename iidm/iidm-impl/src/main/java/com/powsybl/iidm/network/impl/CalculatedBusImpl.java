@@ -8,9 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.util.*;
 import java.util.function.Function;
@@ -31,10 +32,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, ExtendedIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
-        this.nodes = Objects.requireNonNull(nodes).toArray();
+        this.nodes = Objects.requireNonNull(nodes).toIntArray();
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 
@@ -50,7 +51,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
      * @return The first terminal with defined voltage or angle if exists, otherwise the first
      * terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
-    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, IntArrayList nodes, List<NodeTerminal> terminals) {
         if (!terminals.isEmpty()) {
             for (NodeTerminal terminal : terminals) {
                 if (hasDefinedVoltageOrAngle(terminal)) {
@@ -59,7 +60,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
             }
             return terminals.getFirst();
         }
-        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
+        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getInt(0));
     }
 
     private static boolean hasDefinedVoltageOrAngle(NodeTerminal t) {

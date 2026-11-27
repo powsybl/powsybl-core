@@ -8,10 +8,10 @@
 package com.powsybl.math.matrix;
 
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
-import com.powsybl.commons.util.trove.TDoubleArrayListHack;
-import com.powsybl.commons.util.trove.TIntArrayListHack;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -30,13 +30,14 @@ import static com.powsybl.math.matrix.PrintConfig.getFormatter;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrix extends AbstractMatrix implements Serializable {
-    private static final long serialVersionUID = -7810324161942335828L;
+    @Serial
+    private static final long serialVersionUID = 2L;
 
     // Classes allowed during deserialization
     private static final Set<Class<?>> ALLOWED_CLASSES = Set.of(SparseMatrix.class,
             int[].class, double[].class,
-            TIntArrayListHack.class, TDoubleArrayListHack.class,
-            TIntArrayList.class, TDoubleArrayList.class);
+            ExtendedIntArrayList.class, ExtendedDoubleArrayList.class,
+            IntArrayList.class, DoubleArrayList.class);
 
     /**
      * Sparse Element implementation.
@@ -55,12 +56,12 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
 
         @Override
         public void set(double value) {
-            values.setQuick(valueIndex, value);
+            values.set(valueIndex, value);
         }
 
         @Override
         public void add(double value) {
-            values.setQuick(valueIndex, values.getQuick(valueIndex) + value);
+            values.set(valueIndex, values.getDouble(valueIndex) + value);
         }
     }
 
@@ -90,12 +91,12 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
      * Row index for each of the {@link #values}.
      * Length of this vector is the number of values.
      */
-    private final TIntArrayListHack rowIndices;
+    private final ExtendedIntArrayList rowIndices;
 
     /**
      * Non zero values.
      */
-    private final TDoubleArrayListHack values;
+    private final ExtendedDoubleArrayList values;
 
     private double rgrowthThreshold = SparseLUDecomposition.DEFAULT_RGROWTH_THRESHOLD;
 
@@ -117,8 +118,8 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
         columnValueCount = new int[columnCount];
-        this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
-        this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
+        this.rowIndices = new ExtendedIntArrayList(Objects.requireNonNull(rowIndices));
+        this.values = new ExtendedDoubleArrayList(Objects.requireNonNull(values));
         checkStructure();
         fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
         currentColumn = columnCount - 1;
@@ -139,11 +140,11 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         columnValueCount = new int[columnCount];
         Arrays.fill(columnStart, -1);
         this.columnStart[columnCount] = 0;
-        rowIndices = new TIntArrayListHack(estimatedValueCount);
-        values = new TDoubleArrayListHack(estimatedValueCount);
+        rowIndices = new ExtendedIntArrayList(estimatedValueCount);
+        values = new ExtendedDoubleArrayList(estimatedValueCount);
     }
 
-    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, ExtendedDoubleArrayList values) {
         int lastNonEmptyColumn = -1;
         for (int column = 0; column < columnCount; column++) {
             if (columnStart[column] != -1) {
@@ -304,9 +305,9 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         } else {
             throw new MatrixException("Columns have to be filled in the right order");
         }
-        if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
+        if (!startNewColumn && i == rowIndices.getInt(rowIndices.size() - 1)) {
             int vi = values.size() - 1;
-            values.setQuick(vi, values.getQuick(vi) + value);
+            values.set(vi, values.getDouble(vi) + value);
         } else {
             values.add(value);
             rowIndices.add(i);
@@ -361,12 +362,12 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
 
     @Override
     public void addQuickAtIndex(int index, double value) {
-        values.setQuick(index, values.getQuick(index) + value);
+        values.set(index, values.getDouble(index) + value);
     }
 
     @Override
     public void reset() {
-        values.fill(0d);
+        values.reset();
     }
 
     @Override
@@ -391,7 +392,7 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
 
     public SparseMatrix times(SparseMatrix other, double scalar) {
         SparseMatrix result = times(other);
-        result.values.transformValues(v -> v * scalar);
+        result.values.times(scalar);
         return result;
     }
 
@@ -429,8 +430,8 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         int first = columnStart[j];
         if (first != -1) {
             for (int v = first; v < first + columnValueCount[j]; v++) {
-                int i = rowIndices.getQuick(v);
-                double value = values.getQuick(v);
+                int i = rowIndices.getInt(v);
+                double value = values.getDouble(v);
                 handler.onElement(i, j, value);
             }
         }

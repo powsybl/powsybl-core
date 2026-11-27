@@ -8,9 +8,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,11 +38,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         // attributes depending on the variant
 
-        private final TDoubleArrayList targetP;
+        private final ExtendedDoubleArrayList targetP;
 
-        private final TDoubleArrayList localTargetV;
+        private final ExtendedDoubleArrayList localTargetV;
 
-        private final TDoubleArrayList localTargetQ;
+        private final ExtendedDoubleArrayList localTargetQ;
 
         private VoltageRegulationExt voltageRegulation;
 
@@ -54,14 +54,9 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
             this.maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
 
             int variantArraySize = network.getVariantManager().getVariantArraySize();
-            this.targetP = new TDoubleArrayList(variantArraySize);
-            this.localTargetV = new TDoubleArrayList(variantArraySize);
-            this.localTargetQ = new TDoubleArrayList(variantArraySize);
-            for (int i = 0; i < variantArraySize; i++) {
-                this.targetP.add(targetP);
-                this.localTargetV.add(localTargetV);
-                this.localTargetQ.add(localTargetQ);
-            }
+            this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+            this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+            this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
             this.initialVoltageRegulation = initialVoltageRegulation;
         }
 
@@ -81,7 +76,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public double getTargetP() {
-            return targetP.get(boundaryLine.getNetwork().getVariantIndex());
+            return targetP.getDouble(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
@@ -202,7 +197,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public double getLocalTargetV() {
-            return localTargetV.get(boundaryLine.getNetwork().getVariantIndex());
+            return localTargetV.getDouble(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
@@ -225,7 +220,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public double getLocalTargetQ() {
-            return localTargetQ.get(boundaryLine.getNetwork().getVariantIndex());
+            return localTargetQ.getDouble(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
@@ -291,40 +286,31 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         }
 
         void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-            localTargetV.ensureCapacity(localTargetV.size() + number);
-            localTargetQ.ensureCapacity(localTargetQ.size() + number);
-            for (int i = 0; i < number; i++) {
-                localTargetV.add(localTargetV.get(sourceIndex));
-                localTargetQ.add(localTargetQ.get(sourceIndex));
-            }
+            targetP.growAndFill(number, targetP.getDouble(sourceIndex));
+            localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+            localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
             if (voltageRegulation != null) {
                 voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-            }
-            targetP.ensureCapacity(targetP.size() + number);
-            for (int i = 0; i < number; i++) {
-                targetP.add(targetP.get(sourceIndex));
             }
         }
 
         void reduceVariantArraySize(int number) {
-            localTargetV.remove(localTargetV.size() - number, number);
-            localTargetQ.remove(localTargetQ.size() - number, number);
+            targetP.removeElements(number);
+            localTargetQ.removeElements(number);
+            localTargetV.removeElements(number);
             if (voltageRegulation != null) {
                 voltageRegulation.reduceVariantArraySize(number);
             }
-            targetP.remove(targetP.size() - number, number);
         }
 
         void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
-            for (int index : indexes) {
-                localTargetV.set(index, localTargetV.get(sourceIndex));
-                localTargetQ.set(index, localTargetQ.get(sourceIndex));
-            }
             if (voltageRegulation != null) {
                 voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
             }
             for (int index : indexes) {
-                targetP.set(index, targetP.get(sourceIndex));
+                targetP.set(index, targetP.getDouble(sourceIndex));
+                localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+                localTargetV.set(index, localTargetV.getDouble(sourceIndex));
             }
         }
     }
@@ -347,9 +333,9 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     private final OperationalLimitsGroupsImpl operationalLimitsGroups;
     // attributes depending on the variant
 
-    private final TDoubleArrayList p0;
+    private final ExtendedDoubleArrayList p0;
 
-    private final TDoubleArrayList q0;
+    private final ExtendedDoubleArrayList q0;
 
     private final BoundaryLineBoundaryImplExt boundary;
 
@@ -358,12 +344,8 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         super(network, id, name, fictitious, equivalent);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.p0 = new TDoubleArrayList(variantArraySize);
-        this.q0 = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.p0.add(p0);
-            this.q0.add(q0);
-        }
+        this.p0 = new ExtendedDoubleArrayList(variantArraySize, p0);
+        this.q0 = new ExtendedDoubleArrayList(variantArraySize, q0);
         this.r = r;
         this.x = x;
         this.g = g;
@@ -413,7 +395,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     public double getP0() {
-        return p0.get(network.get().getVariantIndex());
+        return p0.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -429,7 +411,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     public double getQ0() {
-        return q0.get(network.get().getVariantIndex());
+        return q0.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -626,12 +608,8 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        p0.ensureCapacity(p0.size() + number);
-        q0.ensureCapacity(q0.size() + number);
-        for (int i = 0; i < number; i++) {
-            p0.add(p0.get(sourceIndex));
-            q0.add(q0.get(sourceIndex));
-        }
+        p0.growAndFill(number, p0.getDouble(sourceIndex));
+        q0.growAndFill(number, q0.getDouble(sourceIndex));
         if (generation != null) {
             generation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
@@ -640,8 +618,8 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        p0.remove(p0.size() - number, number);
-        q0.remove(q0.size() - number, number);
+        p0.removeElements(number);
+        q0.removeElements(number);
         if (generation != null) {
             generation.reduceVariantArraySize(number);
         }
@@ -657,8 +635,8 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            p0.set(index, p0.get(sourceIndex));
-            q0.set(index, q0.get(sourceIndex));
+            p0.set(index, p0.getDouble(sourceIndex));
+            q0.set(index, q0.getDouble(sourceIndex));
         }
         if (generation != null) {
             generation.allocateVariantArrayElement(indexes, sourceIndex);

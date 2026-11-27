@@ -8,11 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 
 import java.util.*;
@@ -29,7 +29,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private VoltageRegulationExt voltageRegulation;
 
     // attributes depending on the variant
-    private final TDoubleArrayList localTargetV;
+    private final ExtendedDoubleArrayList localTargetV;
 
     /* the current number of section switched on */
     private final ArrayList<Integer> sectionCount;
@@ -48,7 +48,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.solvedSectionCount = new ArrayList<>(variantArraySize);
-        this.localTargetV = new TDoubleArrayList(variantArraySize);
+        this.localTargetV = new ExtendedDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
             this.solvedSectionCount.add(checkSolvedSectionCount(solvedSectionCount, model.getMaximumSectionCount()));
@@ -83,7 +83,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getCurrentIndex());
+        return this.localTargetV.getDouble(getCurrentIndex());
     }
 
     @Override
@@ -271,11 +271,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         sectionCount.ensureCapacity(sectionCount.size() + number);
         solvedSectionCount.ensureCapacity(solvedSectionCount.size() + number);
-        localTargetV.ensureCapacity(localTargetV.size() + number);
+        localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
         for (int i = 0; i < number; i++) {
             sectionCount.add(sectionCount.get(sourceIndex));
             solvedSectionCount.add(solvedSectionCount.get(sourceIndex));
-            localTargetV.add(localTargetV.get(sourceIndex));
         }
         if (voltageRegulation != null) {
             voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
@@ -291,7 +290,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         List<Integer> solvedSectionCountTmp = new ArrayList<>(solvedSectionCount.subList(0, solvedSectionCount.size() - number));
         solvedSectionCount.clear();
         solvedSectionCount.addAll(solvedSectionCountTmp);
-        localTargetV.remove(localTargetV.size() - number, number);
+        localTargetV.removeElements(number);
         if (voltageRegulation != null) {
             voltageRegulation.reduceVariantArraySize(number);
         }
@@ -311,7 +310,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         for (int index : indexes) {
             sectionCount.set(index, sectionCount.get(sourceIndex));
             solvedSectionCount.set(index, solvedSectionCount.get(sourceIndex));
-            localTargetV.set(index, localTargetV.get(sourceIndex));
+            localTargetV.set(index, localTargetV.getDouble(sourceIndex));
         }
         if (voltageRegulation != null) {
             voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
