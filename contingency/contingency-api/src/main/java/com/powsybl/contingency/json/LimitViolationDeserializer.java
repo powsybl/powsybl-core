@@ -56,12 +56,30 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, fieldName));
     }
 
-    private static double readFloatValue(JsonParser parser, Boolean limitReductionBackwardCompat, String fieldName) {
+    private static double readLimitReductionValue(JsonParser parser, Boolean limitReductionBackwardCompat) {
         if (Boolean.FALSE.equals(limitReductionBackwardCompat)) {
-            throwInvalidFieldForVersion(fieldName);
+            throwInvalidFieldForVersion("limitReduction");
         }
         parser.nextToken();
         return parser.readValueAs(Float.class);
+    }
+
+    private static double readLimitScalingValue(JsonParser parser, Boolean limitReductionBackwardCompat) {
+        if (Boolean.TRUE.equals(limitReductionBackwardCompat)) {
+            throwInvalidFieldForVersion("limitScaling");
+        }
+        parser.nextToken();
+        return parser.readValueAs(Float.class);
+    }
+
+    private static ViolationLocation readViolationLocation(JsonParser parser, Boolean voltageLocationSupport,
+                                                           ValueDeserializer<Object> deserializer,
+                                                           DeserializationContext deserializationContext) {
+        if (Boolean.FALSE.equals(voltageLocationSupport)) {
+            throwInvalidFieldForVersion("violationLocation");
+        }
+        parser.nextToken();
+        return JsonUtil.readValue(deserializer, deserializationContext, parser, ViolationLocation.class);
     }
 
     @Override
@@ -121,11 +139,11 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 // limitReduction for retro-compatibility before V1.10 of SecurityAnalysisResult
                 case "limitScaling":
-                    limitScaling = readFloatValue(parser, limitReductionBackwardCompat, "limitScaling");
+                    limitScaling = readLimitScalingValue(parser, limitReductionBackwardCompat);
                     break;
 
                 case "limitReduction":
-                    limitScaling = readFloatValue(parser, limitReductionBackwardCompat, "limitReduction");
+                    limitScaling = readLimitReductionValue(parser, limitReductionBackwardCompat);
                     break;
 
                 case "value":
@@ -143,7 +161,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "violationLocation":
-                    violationLocation = readViolationLocation(parser, voltageLocationSupport, deserializationContext);
+                    violationLocation = readViolationLocation(parser, voltageLocationSupport, violationLocationDeserializer, deserializationContext);
                     break;
 
                 default:
@@ -155,13 +173,5 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
-    }
-
-    private ViolationLocation readViolationLocation(JsonParser parser, Boolean voltageLocationSupport, DeserializationContext deserializationContext) {
-        if (Boolean.FALSE.equals(voltageLocationSupport)) {
-            throwInvalidFieldForVersion("violationLocation");
-        }
-        parser.nextToken();
-        return JsonUtil.readValue(violationLocationDeserializer, deserializationContext, parser, ViolationLocation.class);
     }
 }
