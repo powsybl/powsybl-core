@@ -552,6 +552,7 @@ Here the list of objects capable of such regulation by authorized mode:
 | [StaticVarCompensator](./network_subnetwork.md#static-var-compensator)     | X       | X              | X                          |                                 |
 | [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X (*)          |                            |                                 |
 | [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X (*)          |                            |                                 |
+| [BoundaryLine](./network_subnetwork.md#boundary-line) (Generation)         | X       |                |                            |                                 |
 
 (*) The terminal is required
 
