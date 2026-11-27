@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -356,6 +357,20 @@ class SteadyStateHypothesisSubsetExportTest {
         assertNotEquals("previous-ssh", ids.get(0));
         assertEquals(List.of("previous-ssh"),
             Pattern.compile("Model.Supersedes rdf:resource=\"(.*?)\"").matcher(ssh).results().map(r -> r.group(1)).toList());
+    }
+
+    @Test
+    void converterStationExportsBothConvertersOfItsHvdcLine() throws XMLStreamException {
+        Network network = cgmesRoundTrip(HvdcTestNetwork.createVsc());
+        VscConverterStation inverter = network.getVscConverterStation("C1");
+        VscConverterStation rectifier = network.getVscConverterStation("C2");
+        CgmesExportContext context = new CgmesExportContext(network);
+
+        List<SshObject> partial = sshObjects(exportPartial(network, List.of(inverter)));
+
+        // The CGMES import computes the active power setpoint of the HVDC line from the data of both converters
+        Set<String> converters = ids(partial.stream().filter(o -> o.className().equals("VsConverter")).toList());
+        assertEquals(Set.of(context.getNamingStrategy().getCgmesId(inverter), context.getNamingStrategy().getCgmesId(rectifier)), converters);
     }
 
     @Test

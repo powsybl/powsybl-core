@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,14 +34,17 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.export.SshExportedIdentifiables.UnsupportedChangeBehavior.FAIL;
@@ -151,117 +155,167 @@ class SshExportedIdentifiablesTest {
         assertEquals(List.of(generator), List.copyOf(SshExportedIdentifiables.fromEvents(network, events, FAIL)));
     }
 
+    /**
+     * The supported changes without a test case, and the reason.
+     */
+    private static final Map<String, String> NO_TEST_CASE = Map.of(
+        "activePowerControl.participationFactor", "the IIDM of this branch does not record this change",
+        "referencePriorities", "IIDM does not record this change (issue 4244)",
+        "referencePriorities.referencePriority", "IIDM does not record this change (issue 4244)");
+
+    /**
+     * The supported changes of {@link SshExportedIdentifiables#capabilities()}, as type.change, or as type for the creation of an extension.
+     */
+    private static Stream<String> capabilities() {
+        return SshExportedIdentifiables.capabilities().entrySet().stream()
+            .flatMap(e -> e.getValue().stream().map(change -> change.isEmpty() ? e.getKey() : e.getKey() + "." + change));
+    }
+
+    /**
+     * The test cases of the supported changes. The name of a case is its supported change,
+     * with a detail in parentheses if the supported change has more than one case.
+     */
+    private static List<Arguments> testCases() {
+        return Stream.of(supportedInjectionChanges(), supportedOtherChanges(), supportedConnectionAndLegChanges())
+            .flatMap(Function.identity())
+            .toList();
+    }
+
+    private static String capabilityOf(Arguments testCase) {
+        String name = (String) testCase.get()[0];
+        int detail = name.indexOf(" (");
+        return detail < 0 ? name : name.substring(0, detail);
+    }
+
+    @Test
+    void eachSupportedChangeHasATestCase() {
+        Set<String> supported = capabilities().filter(c -> !NO_TEST_CASE.containsKey(c)).collect(Collectors.toCollection(TreeSet::new));
+        Set<String> tested = testCases().stream().map(SshExportedIdentifiablesTest::capabilityOf).collect(Collectors.toCollection(TreeSet::new));
+
+        assertEquals(supported, tested);
+    }
+
+    /**
+     * The test cases of the supported changes, in the order of {@link SshExportedIdentifiables#capabilities()}.
+     */
     static Stream<Arguments> supportedChanges() {
-        return Stream.concat(supportedInjectionChanges(), supportedOtherChanges());
+        Map<String, List<Arguments>> testCases = testCases().stream()
+            .collect(Collectors.groupingBy(SshExportedIdentifiablesTest::capabilityOf, LinkedHashMap::new, Collectors.toList()));
+        return capabilities().flatMap(c -> testCases.getOrDefault(c, List.of()).stream());
     }
 
     private static Stream<Arguments> supportedInjectionChanges() {
         Supplier<Network> fourSubstations = FourSubstationsNodeBreakerFactory::create;
         Supplier<Network> regulatingShunt = ShuntTestCaseFactory::create;
         return Stream.of(
-            supported("switch open", fourSubstations, n -> {
+            supported("Switch.open", fourSubstations, n -> {
                 Switch sw = n.getSwitches().iterator().next();
                 return new Change(sw, () -> sw.setOpen(!sw.isOpen()));
             }),
-            supported("DC switch open", DcDetailedNetworkFactory::createSimple2NodesDcSwitch, n -> {
+            supported("DcSwitch.open", DcDetailedNetworkFactory::createSimple2NodesDcSwitch, n -> {
                 DcSwitch sw = n.getDcSwitches().iterator().next();
                 return new Change(sw, () -> sw.setOpen(!sw.isOpen()));
             }),
-            supported("load p0", fourSubstations, n -> {
+            supported("Load.p0", fourSubstations, n -> {
                 Load load = n.getLoads().iterator().next();
                 return new Change(load, () -> load.setP0(load.getP0() + 1.0));
             }),
-            supported("load q0", fourSubstations, n -> {
+            supported("Load.q0", fourSubstations, n -> {
                 Load load = n.getLoads().iterator().next();
                 return new Change(load, () -> load.setQ0(load.getQ0() + 1.0));
             }),
-            supported("generator targetP", fourSubstations, n -> {
+            supported("Generator.targetP", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 return new Change(g, () -> g.setTargetP(g.getTargetP() + 1.0));
             }),
-            supported("generator localTargetQ", fourSubstations, n -> {
+            supported("Generator.localTargetQ", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 return new Change(g, () -> g.setLocalTargetQ(g.getLocalTargetQ() + 1.0));
             }),
-            supported("generator localTargetV", fourSubstations, n -> {
+            supported("Generator.localTargetV", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 return new Change(g, () -> g.setLocalTargetV(g.getLocalTargetV() + 1.0));
             }),
-            supported("generator regulating", fourSubstations, n -> {
+            supported("Generator.VoltageRegulation.isRegulating", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 return new Change(g, () -> g.getVoltageRegulation().setRegulating(!g.getVoltageRegulation().isRegulating()));
             }),
-            supported("generator target value", fourSubstations, n -> {
+            supported("Generator.VoltageRegulation.TargetValue", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 regulateRemoteVoltage(g, 400.0);
                 return new Change(g, () -> g.getVoltageRegulation().setTargetValue(401.0));
             }),
-            supported("generator disconnection", fourSubstations, n -> {
+            supported("Generator.connected (node-breaker)", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 return new Change(g, () -> g.getTerminal().disconnect());
             }),
-            supported("battery targetP", BatteryNetworkFactory::create, n -> {
+            supported("Battery.targetP", BatteryNetworkFactory::create, n -> {
                 Battery b = n.getBatteries().iterator().next();
                 return new Change(b, () -> b.setTargetP(b.getTargetP() + 1.0));
             }),
-            supported("battery localTargetQ", BatteryNetworkFactory::create, n -> {
+            supported("Battery.localTargetQ", BatteryNetworkFactory::create, n -> {
                 Battery b = n.getBatteries().iterator().next();
                 return new Change(b, () -> b.setLocalTargetQ(b.getLocalTargetQ() + 1.0));
             }),
-            supported("shunt sectionCount", fourSubstations, n -> {
+            supported("Battery.VoltageRegulation.isRegulating", BatteryNetworkFactory::create, n -> {
+                Battery b = n.getBatteries().iterator().next();
+                regulateLocalVoltage(b, 400.0);
+                return new Change(b, () -> b.getVoltageRegulation().setRegulating(false));
+            }),
+            supported("ShuntCompensator.sectionCount", fourSubstations, n -> {
                 ShuntCompensator s = n.getShuntCompensators().iterator().next();
                 return new Change(s, () -> s.setSectionCount(s.getSectionCount() == 0 ? 1 : 0));
             }),
-            supported("shunt localTargetV", fourSubstations, n -> {
+            supported("ShuntCompensator.localTargetV", fourSubstations, n -> {
                 ShuntCompensator s = n.getShuntCompensators().iterator().next();
                 regulateLocalVoltage(s, 400.0);
                 return new Change(s, () -> s.setLocalTargetV(399.0));
             }),
-            supported("shunt regulating", regulatingShunt, n -> {
+            supported("ShuntCompensator.VoltageRegulation.isRegulating", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 return new Change(s, () -> s.getVoltageRegulation().setRegulating(!s.getVoltageRegulation().isRegulating()));
             }),
-            supported("shunt target deadband", regulatingShunt, n -> {
+            supported("ShuntCompensator.VoltageRegulation.TargetDeadband", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 return new Change(s, () -> s.getVoltageRegulation().setTargetDeadband(s.getVoltageRegulation().getTargetDeadband() + 1.0));
             }),
-            supported("shunt target value", regulatingShunt, n -> {
+            supported("ShuntCompensator.VoltageRegulation.TargetValue", regulatingShunt, n -> {
                 ShuntCompensator s = regulatingHolder(n.getShuntCompensatorStream());
                 // A target value needs a terminal
                 s.getVoltageRegulation().setTerminal(s.getTerminal(), 400.0);
                 return new Change(s, () -> s.getVoltageRegulation().setTargetValue(401.0));
             }),
-            supported("SVC localTargetQ", fourSubstations, n -> {
+            supported("StaticVarCompensator.localTargetQ", fourSubstations, n -> {
                 StaticVarCompensator svc = n.getStaticVarCompensators().iterator().next();
                 return new Change(svc, () -> svc.setLocalTargetQ(10.0));
             }),
-            supported("SVC localTargetV", fourSubstations, n -> {
+            supported("StaticVarCompensator.localTargetV", fourSubstations, n -> {
                 StaticVarCompensator svc = n.getStaticVarCompensators().iterator().next();
                 return new Change(svc, () -> svc.setLocalTargetV(svc.getLocalTargetV() + 1.0));
             }),
-            supported("SVC regulating", fourSubstations, n -> {
+            supported("StaticVarCompensator.VoltageRegulation.isRegulating", fourSubstations, n -> {
                 StaticVarCompensator svc = n.getStaticVarCompensators().iterator().next();
                 return new Change(svc, () -> svc.getVoltageRegulation().setRegulating(!svc.getVoltageRegulation().isRegulating()));
             }),
-            supported("SVC target value", fourSubstations, n -> {
+            supported("StaticVarCompensator.VoltageRegulation.TargetValue", fourSubstations, n -> {
                 StaticVarCompensator svc = n.getStaticVarCompensators().iterator().next();
                 regulateRemoteVoltage(svc, 400.0);
                 return new Change(svc, () -> svc.getVoltageRegulation().setTargetValue(401.0));
             }),
-            supported("VSC station localTargetQ", fourSubstations, n -> {
+            supported("VscConverterStation.localTargetQ", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
                 return new Change(v, () -> v.setLocalTargetQ(v.getLocalTargetQ() + 1.0));
             }),
-            supported("VSC station localTargetV", fourSubstations, n -> {
+            supported("VscConverterStation.localTargetV", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
                 return new Change(v, () -> v.setLocalTargetV(v.getLocalTargetV() + 1.0));
             }),
-            supported("VSC station target value", fourSubstations, n -> {
+            supported("VscConverterStation.VoltageRegulation.TargetValue", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
                 regulateRemoteVoltage(v, 400.0);
                 return new Change(v, () -> v.getVoltageRegulation().setTargetValue(401.0));
             }),
-            supported("VSC station regulation mode", fourSubstations, n -> {
+            supported("VscConverterStation.VoltageRegulation.RegulationMode", fourSubstations, n -> {
                 VscConverterStation v = n.getVscConverterStations().iterator().next();
                 // A reactive power regulation needs a terminal
                 regulateRemoteVoltage(v, 400.0);
@@ -276,134 +330,258 @@ class SshExportedIdentifiablesTest {
         Supplier<Network> vsc = DcDetailedNetworkFactory::createVscSymmetricalMonopole;
         Supplier<Network> lcc = DcDetailedNetworkFactory::createLccMonopoleGroundReturn;
         return Stream.of(
-            supported("LCC station powerFactor", fourSubstations, n -> {
+            supported("LccConverterStation.powerFactor", fourSubstations, n -> {
                 LccConverterStation l = n.getLccConverterStations().iterator().next();
                 return new Change(l, () -> l.setPowerFactor(0.5f));
             }),
-            supported("HVDC line activePowerSetpoint", fourSubstations, n -> {
+            supported("HvdcLine.activePowerSetpoint", fourSubstations, n -> {
                 HvdcLine h = n.getHvdcLines().iterator().next();
                 return new Change(h, () -> h.setActivePowerSetpoint(h.getActivePowerSetpoint() + 1.0));
             }),
-            supported("HVDC line convertersMode", fourSubstations, n -> {
+            supported("HvdcLine.convertersMode", fourSubstations, n -> {
                 HvdcLine h = n.getHvdcLines().iterator().next();
                 return new Change(h, () -> h.setConvertersMode(h.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER
                     ? HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER : HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER));
             }),
-            supported("VSC converter targetP", vsc, n -> {
+            supported("VoltageSourceConverter.targetP", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 return new Change(c, () -> c.setTargetP(c.getTargetP() + 1.0));
             }),
-            supported("VSC converter targetVdc", vsc, n -> {
+            supported("VoltageSourceConverter.targetVdc", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 return new Change(c, () -> c.setTargetVdc(c.getTargetVdc() + 1.0));
             }),
-            supported("VSC converter controlMode", vsc, n -> {
+            supported("VoltageSourceConverter.controlMode", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 return new Change(c, () -> c.setControlMode(c.getControlMode() == AcDcConverter.ControlMode.P_PCC ? AcDcConverter.ControlMode.V_DC : AcDcConverter.ControlMode.P_PCC));
             }),
-            supported("VSC converter localTargetQ", vsc, n -> {
+            supported("VoltageSourceConverter.localTargetQ", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 return new Change(c, () -> c.setLocalTargetQ(c.getLocalTargetQ() + 1.0));
             }),
-            supported("VSC converter localTargetV", vsc, n -> {
+            supported("VoltageSourceConverter.localTargetV", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 regulateLocalVoltage(c, 400.0);
                 return new Change(c, () -> c.setLocalTargetV(401.0));
             }),
-            supported("VSC converter target value", vsc, n -> {
+            supported("VoltageSourceConverter.VoltageRegulation.TargetValue", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 regulateRemoteVoltage(c, 400.0);
                 return new Change(c, () -> c.getVoltageRegulation().setTargetValue(401.0));
             }),
-            supported("VSC converter regulation mode", vsc, n -> {
+            supported("VoltageSourceConverter.VoltageRegulation.RegulationMode", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 regulateRemoteVoltage(c, 400.0);
                 return new Change(c, () -> c.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER));
             }),
-            supported("VSC converter DC disconnection", vsc, n -> {
+            supported("VoltageSourceConverter.connected (DC terminal)", vsc, n -> {
                 VoltageSourceConverter c = n.getVoltageSourceConverters().iterator().next();
                 return new Change(c, () -> c.getDcTerminals().get(0).disconnect());
             }),
-            supported("LCC converter targetP", lcc, n -> {
+            supported("LineCommutatedConverter.targetP", lcc, n -> {
                 LineCommutatedConverter c = n.getLineCommutatedConverters().iterator().next();
                 return new Change(c, () -> c.setTargetP(c.getTargetP() + 1.0));
             }),
-            supported("LCC converter targetVdc", lcc, n -> {
+            supported("LineCommutatedConverter.targetVdc", lcc, n -> {
                 LineCommutatedConverter c = n.getLineCommutatedConverters().iterator().next();
                 return new Change(c, () -> c.setTargetVdc(c.getTargetVdc() + 1.0));
             }),
-            supported("LCC converter controlMode", lcc, n -> {
+            supported("LineCommutatedConverter.controlMode", lcc, n -> {
                 LineCommutatedConverter c = n.getLineCommutatedConverters().iterator().next();
                 return new Change(c, () -> c.setControlMode(c.getControlMode() == AcDcConverter.ControlMode.P_PCC ? AcDcConverter.ControlMode.V_DC : AcDcConverter.ControlMode.P_PCC));
             }),
-            supported("ratio tap position", eurostag, n -> {
+            supported("TwoWindingsTransformer.ratioTapChanger.tapPosition", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
                 return new Change(t, () -> t.getRatioTapChanger().setTapPosition(t.getRatioTapChanger().getLowTapPosition()));
             }),
-            supported("ratio tap changer regulating", eurostag, n -> {
+            supported("TwoWindingsTransformer.ratioTapChanger.VoltageRegulation.isRegulating", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
                 return new Change(t, () -> t.getRatioTapChanger().getVoltageRegulation().setRegulating(!t.getRatioTapChanger().getVoltageRegulation().isRegulating()));
             }),
-            supported("ratio tap changer target value", eurostag, n -> {
+            supported("TwoWindingsTransformer.ratioTapChanger.VoltageRegulation.TargetValue", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
                 return new Change(t, () -> t.getRatioTapChanger().getVoltageRegulation().setTargetValue(t.getRatioTapChanger().getVoltageRegulation().getTargetValue() + 1.0));
             }),
-            supported("ratio tap changer target deadband", eurostag, n -> {
+            supported("TwoWindingsTransformer.ratioTapChanger.VoltageRegulation.TargetDeadband", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
                 return new Change(t, () -> t.getRatioTapChanger().getVoltageRegulation().setTargetDeadband(1.0));
             }),
-            supported("phase tap position", fourSubstations, n -> {
+            supported("TwoWindingsTransformer.phaseTapChanger.tapPosition", fourSubstations, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasPhaseTapChanger).findFirst().orElseThrow();
                 return new Change(t, () -> t.getPhaseTapChanger().setTapPosition(t.getPhaseTapChanger().getLowTapPosition()));
             }),
-            supported("phase tap changer regulating", PhaseShifterTestCaseFactory::create, n -> {
+            supported("TwoWindingsTransformer.phaseTapChanger.regulating", PhaseShifterTestCaseFactory::create, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasPhaseTapChanger).findFirst().orElseThrow();
                 // A regulating phase tap changer needs a deadband
                 t.getPhaseTapChanger().setTargetDeadband(1.0);
                 return new Change(t, () -> t.getPhaseTapChanger().setRegulating(!t.getPhaseTapChanger().isRegulating()));
             }),
-            supported("phase tap changer regulation value", fourSubstations, n -> {
+            supported("TwoWindingsTransformer.phaseTapChanger.regulationValue", fourSubstations, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasPhaseTapChanger).findFirst().orElseThrow();
                 return new Change(t, () -> t.getPhaseTapChanger().setRegulationValue(12.0));
             }),
-            supported("phase tap changer target deadband", fourSubstations, n -> {
+            supported("TwoWindingsTransformer.phaseTapChanger.targetDeadband", fourSubstations, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasPhaseTapChanger).findFirst().orElseThrow();
                 return new Change(t, () -> t.getPhaseTapChanger().setTargetDeadband(1.0));
             }),
-            supported("three windings tap position", ThreeWindingsTransformerNetworkFactory::create, n -> {
+            supported("ThreeWindingsTransformer.ratioTapChanger.tapPosition", ThreeWindingsTransformerNetworkFactory::create, n -> {
                 ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
                 return new Change(t, () -> t.getLeg2().getRatioTapChanger().setTapPosition(t.getLeg2().getRatioTapChanger().getLowTapPosition()));
             }),
-            supported("boundary line p0", BoundaryLineNetworkFactory::createWithGeneration, n -> {
+            supported("BoundaryLine.p0", BoundaryLineNetworkFactory::createWithGeneration, n -> {
                 BoundaryLine bl = n.getBoundaryLines().iterator().next();
                 return new Change(bl, () -> bl.setP0(bl.getP0() + 1.0));
             }),
-            supported("boundary line q0", BoundaryLineNetworkFactory::createWithGeneration, n -> {
+            supported("BoundaryLine.q0", BoundaryLineNetworkFactory::createWithGeneration, n -> {
                 BoundaryLine bl = n.getBoundaryLines().iterator().next();
                 return new Change(bl, () -> bl.setQ0(bl.getQ0() + 1.0));
             }),
-            supported("boundary line targetV", BoundaryLineNetworkFactory::createWithGeneration, n -> {
+            supported("BoundaryLine.targetV", BoundaryLineNetworkFactory::createWithGeneration, n -> {
                 BoundaryLine bl = n.getBoundaryLines().iterator().next();
                 return new Change(bl, () -> bl.getGeneration().setTargetV(bl.getGeneration().getTargetV() + 1.0));
             }),
-            supported("boundary line voltageRegulationOn", BoundaryLineNetworkFactory::createWithGeneration, n -> {
+            supported("BoundaryLine.voltageRegulationOn", BoundaryLineNetworkFactory::createWithGeneration, n -> {
                 BoundaryLine bl = n.getBoundaryLines().iterator().next();
                 bl.getGeneration().setTargetQ(0.0);
                 return new Change(bl, () -> bl.getGeneration().setVoltageRegulationOn(false));
             }),
-            supported("bus-breaker generator disconnection", eurostag, n -> {
+            supported("Generator.connected (bus-breaker)", eurostag, n -> {
                 Generator g = n.getGenerator("GEN");
                 return new Change(g, () -> g.getTerminal().disconnect());
             }),
-            supported("area interchangeTarget", EurostagTutorialExample1Factory::createWithTieLinesAndAreas, n -> {
+            supported("Area.interchangeTarget", EurostagTutorialExample1Factory::createWithTieLinesAndAreas, n -> {
                 Area area = n.getAreas().iterator().next();
                 return new Change(area, () -> area.setInterchangeTarget(10.0));
             }),
-            supported("active power control creation", fourSubstations, n -> {
+            supported("activePowerControl", fourSubstations, n -> {
                 Generator g = n.getGenerators().iterator().next();
                 return new Change(g, () -> g.newExtension(ActivePowerControlAdder.class).withParticipate(true).withDroop(4.0).withParticipationFactor(1.0).add());
             })
         );
+    }
+
+    private static Stream<Arguments> supportedConnectionAndLegChanges() {
+        Supplier<Network> eurostag = EurostagTutorialExample1Factory::create;
+        Supplier<Network> threeWindings = ThreeWindingsTransformerNetworkFactory::create;
+        return Stream.of(
+            supported("BusbarSection.connected", FourSubstationsNodeBreakerFactory::create, n -> {
+                BusbarSection b = n.getBusbarSections().iterator().next();
+                return new Change(b, () -> b.getTerminal().disconnect());
+            }),
+            supported("Ground.connected", TwoVoltageLevelNetworkFactory::createWithGrounds, n -> {
+                Ground g = n.getGround("GroundBB");
+                return new Change(g, () -> g.getTerminal().disconnect());
+            }),
+            supported("Line.connected", eurostag, n -> {
+                Line l = n.getLine("NHV1_NHV2_1");
+                return new Change(l, () -> l.getTerminal1().disconnect());
+            }),
+            supported("DcLine.connected", DcDetailedNetworkFactory::createVscSymmetricalMonopole, n -> {
+                DcLine l = n.getDcLines().iterator().next();
+                return new Change(l, () -> l.getDcTerminal1().disconnect());
+            }),
+            supported("DcGround.connected", DcDetailedNetworkFactory::createLccMonopoleGroundReturn, n -> {
+                DcGround g = n.getDcGrounds().iterator().next();
+                return new Change(g, () -> g.getDcTerminal().disconnect());
+            }),
+            supported("Load.connected", eurostag, n -> {
+                Load l = n.getLoad("LOAD");
+                return new Change(l, () -> l.getTerminal().disconnect());
+            }),
+            supported("Battery.connected", BatteryNetworkFactory::create, n -> {
+                Battery b = n.getBatteries().iterator().next();
+                return new Change(b, () -> b.getTerminal().disconnect());
+            }),
+            supported("ShuntCompensator.connected", ShuntTestCaseFactory::create, n -> {
+                ShuntCompensator s = n.getShuntCompensators().iterator().next();
+                return new Change(s, () -> s.getTerminal().disconnect());
+            }),
+            supported("StaticVarCompensator.connected", SvcTestCaseFactory::create, n -> {
+                StaticVarCompensator svc = n.getStaticVarCompensators().iterator().next();
+                return new Change(svc, () -> svc.getTerminal().disconnect());
+            }),
+            supported("VscConverterStation.connected", HvdcTestNetwork::createVsc, n -> {
+                VscConverterStation v = n.getVscConverterStations().iterator().next();
+                return new Change(v, () -> v.getTerminal().disconnect());
+            }),
+            supported("LccConverterStation.connected", HvdcTestNetwork::createLcc, n -> {
+                LccConverterStation l = n.getLccConverterStations().iterator().next();
+                return new Change(l, () -> l.getTerminal().disconnect());
+            }),
+            supported("LineCommutatedConverter.connected", DcDetailedNetworkFactory::createLccMonopoleGroundReturn, n -> {
+                LineCommutatedConverter c = n.getLineCommutatedConverters().iterator().next();
+                return new Change(c, () -> c.getTerminal1().disconnect());
+            }),
+            supported("TwoWindingsTransformer.connected", eurostag, n -> {
+                TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
+                return new Change(t, () -> t.getTerminal1().disconnect());
+            }),
+            supported("ThreeWindingsTransformer.connected", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                return new Change(t, () -> t.getLeg3().getTerminal().disconnect());
+            }),
+            supported("BoundaryLine.connected", BoundaryLineNetworkFactory::createWithGeneration, n -> {
+                BoundaryLine bl = n.getBoundaryLines().iterator().next();
+                return new Change(bl, () -> bl.getTerminal().disconnect());
+            }),
+            supported("ThreeWindingsTransformer.ratioTapChanger.VoltageRegulation.isRegulating", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                VoltageRegulation regulation = t.getLeg2().getRatioTapChanger().getVoltageRegulation();
+                return new Change(t, () -> regulation.setRegulating(!regulation.isRegulating()));
+            }),
+            supported("ThreeWindingsTransformer.ratioTapChanger.VoltageRegulation.TargetValue", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                VoltageRegulation regulation = t.getLeg2().getRatioTapChanger().getVoltageRegulation();
+                return new Change(t, () -> regulation.setTargetValue(regulation.getTargetValue() + 1.0));
+            }),
+            supported("ThreeWindingsTransformer.ratioTapChanger.VoltageRegulation.TargetDeadband", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                VoltageRegulation regulation = t.getLeg2().getRatioTapChanger().getVoltageRegulation();
+                return new Change(t, () -> regulation.setTargetDeadband(1.0));
+            }),
+            supported("ThreeWindingsTransformer.phaseTapChanger.tapPosition", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                PhaseTapChanger ptc = phaseTapChangerOfLeg1(t);
+                return new Change(t, () -> ptc.setTapPosition(1));
+            }),
+            supported("ThreeWindingsTransformer.phaseTapChanger.regulating", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                PhaseTapChanger ptc = phaseTapChangerOfLeg1(t);
+                // A three windings transformer can have only one regulating tap changer
+                t.getLeg2().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
+                return new Change(t, () -> ptc.setRegulating(true));
+            }),
+            supported("ThreeWindingsTransformer.phaseTapChanger.regulationValue", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                PhaseTapChanger ptc = phaseTapChangerOfLeg1(t);
+                return new Change(t, () -> ptc.setRegulationValue(20.0));
+            }),
+            supported("ThreeWindingsTransformer.phaseTapChanger.targetDeadband", threeWindings, n -> {
+                ThreeWindingsTransformer t = n.getThreeWindingsTransformers().iterator().next();
+                PhaseTapChanger ptc = phaseTapChangerOfLeg1(t);
+                return new Change(t, () -> ptc.setTargetDeadband(2.0));
+            })
+        );
+    }
+
+    /**
+     * The phase tap changer of the first leg of a three windings transformer. The test factory has none, so it is added once.
+     */
+    private static PhaseTapChanger phaseTapChangerOfLeg1(ThreeWindingsTransformer t) {
+        ThreeWindingsTransformer.Leg leg = t.getLeg1();
+        if (!leg.hasPhaseTapChanger()) {
+            leg.newPhaseTapChanger()
+                .setTapPosition(0)
+                .setRegulationTerminal(leg.getTerminal())
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setTargetDeadband(1.0)
+                .setRegulating(false)
+                .beginStep().setAlpha(-10.0).setRho(1.0).setR(0.0).setX(0.0).setG(0.0).setB(0.0).endStep()
+                .beginStep().setAlpha(10.0).setRho(1.0).setR(0.0).setX(0.0).setG(0.0).setB(0.0).endStep()
+                .add();
+        }
+        return leg.getPhaseTapChanger();
     }
 
     private static Arguments supported(String description, Supplier<Network> network, Function<Network, Change> change) {
@@ -432,19 +610,24 @@ class SshExportedIdentifiablesTest {
         String importFails = "the CGMES import of the network fails";
         String exportFails = "the CGMES export of the network fails";
         Map<String, String> noRoundTrip = new HashMap<>();
-        for (String description : List.of("DC switch open", "battery targetP", "battery localTargetQ", "area interchangeTarget",
-                "VSC converter targetP", "VSC converter targetVdc", "VSC converter controlMode", "VSC converter localTargetQ",
-                "VSC converter localTargetV", "VSC converter target value", "VSC converter regulation mode", "VSC converter DC disconnection")) {
+        for (String description : List.of("DcSwitch.open", "Battery.targetP", "Battery.localTargetQ", "Battery.connected", "Battery.VoltageRegulation.isRegulating", "Area.interchangeTarget",
+                "VoltageSourceConverter.targetP", "VoltageSourceConverter.targetVdc", "VoltageSourceConverter.controlMode", "VoltageSourceConverter.localTargetQ",
+                "VoltageSourceConverter.localTargetV", "VoltageSourceConverter.VoltageRegulation.TargetValue", "VoltageSourceConverter.VoltageRegulation.RegulationMode",
+                "VoltageSourceConverter.connected (DC terminal)",
+                "DcLine.connected", "DcGround.connected")) {
             noRoundTrip.put(description, notKept);
         }
-        for (String description : List.of("LCC converter targetP", "LCC converter targetVdc", "LCC converter controlMode")) {
+        for (String description : List.of("LineCommutatedConverter.targetP", "LineCommutatedConverter.targetVdc", "LineCommutatedConverter.controlMode",
+                "LineCommutatedConverter.connected")) {
             noRoundTrip.put(description, importFails);
         }
-        for (String description : List.of("boundary line p0", "boundary line q0", "boundary line targetV", "boundary line voltageRegulationOn")) {
+        for (String description : List.of("BoundaryLine.p0", "BoundaryLine.q0", "BoundaryLine.targetV", "BoundaryLine.voltageRegulationOn", "BoundaryLine.connected",
+                "Ground.connected")) {
             noRoundTrip.put(description, exportFails);
         }
-        noRoundTrip.put("generator disconnection", "the CGMES import adds a fictitious switch to a disconnected node-breaker terminal");
-        noRoundTrip.put("VSC station target value", "a CGMES model has no remote voltage regulation for a VSC converter station");
+        noRoundTrip.put("Generator.connected (node-breaker)", "the CGMES import adds a fictitious switch to a disconnected node-breaker terminal");
+        noRoundTrip.put("LccConverterStation.connected", "the update of this branch reconnects a bus-breaker terminal that is missing from the SSH (issue 4245)");
+        noRoundTrip.put("VscConverterStation.VoltageRegulation.TargetValue", "a CGMES model has no remote voltage regulation for a VSC converter station");
         NO_ROUND_TRIP = Map.copyOf(noRoundTrip);
     }
 

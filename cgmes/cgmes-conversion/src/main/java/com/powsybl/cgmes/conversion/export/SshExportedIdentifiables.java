@@ -21,10 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import static java.util.Map.entry;
 
 /**
  * Build the identifiables of a partial SSH export from the events recorded on a network,
@@ -67,14 +73,91 @@ public final class SshExportedIdentifiables {
     private static final String TARGET_DEADBAND = VOLTAGE_REGULATION + "TargetDeadband";
     private static final String REGULATION_MODE = VOLTAGE_REGULATION + "RegulationMode";
 
+    /** The capability of all the connection attributes of the terminals. */
+    private static final String CONNECTED = "connected";
+
     /** The connection attributes of the terminals: connected, connected1, connected_dc1, ... */
     private static final Pattern CONNECTION = Pattern.compile("beginConnect|endConnect|beginDisconnect|endDisconnect|connected\\w*");
 
-    /** The attributes of a tap changer, reported on its transformer: ratioTapChanger.tapPosition, phaseTapChanger2.regulating, ... */
-    private static final Pattern TAP_CHANGER = Pattern.compile("(ratio|phase)TapChanger\\d?\\."
-        + "(tapPosition|regulating|regulationValue|targetDeadband|VoltageRegulation\\.(isRegulating|TargetValue|TargetDeadband))");
+    /** The leg of a tap changer of a three windings transformer: ratioTapChanger2.tapPosition, ... */
+    private static final Pattern TAP_CHANGER_LEG = Pattern.compile("^(ratio|phase)TapChanger\\d");
+
+    /** The capability of the creation of an extension. */
+    private static final String CREATION = "";
+
+    private static final String RATIO_TAP_CHANGER = "ratioTapChanger.";
+    private static final String PHASE_TAP_CHANGER = "phaseTapChanger.";
+    private static final Set<String> TRANSFORMER = Set.of(CONNECTED,
+        RATIO_TAP_CHANGER + "tapPosition", RATIO_TAP_CHANGER + REGULATING, RATIO_TAP_CHANGER + TARGET_VALUE, RATIO_TAP_CHANGER + TARGET_DEADBAND,
+        PHASE_TAP_CHANGER + "tapPosition", PHASE_TAP_CHANGER + "regulating", PHASE_TAP_CHANGER + "regulationValue", PHASE_TAP_CHANGER + "targetDeadband");
+
+    /** The attributes that the SSH data of each type of identifiable contains. */
+    private static final Map<Class<? extends Identifiable>, Set<String>> SUPPORTED_ATTRIBUTES = Map.ofEntries(
+        entry(Switch.class, Set.of(OPEN)),
+        entry(DcSwitch.class, Set.of(OPEN)),
+        entry(BusbarSection.class, Set.of(CONNECTED)),
+        entry(Ground.class, Set.of(CONNECTED)),
+        entry(Line.class, Set.of(CONNECTED)),
+        entry(DcLine.class, Set.of(CONNECTED)),
+        entry(DcGround.class, Set.of(CONNECTED)),
+        entry(Load.class, Set.of(CONNECTED, P0, Q0)),
+        // The deadband of a generator is not written: only discrete regulations have a deadband
+        entry(Generator.class, Set.of(CONNECTED, TARGET_P, LOCAL_TARGET_Q, LOCAL_TARGET_V, REGULATING, TARGET_VALUE)),
+        // A battery has no regulating control in the SSH
+        entry(Battery.class, Set.of(CONNECTED, TARGET_P, LOCAL_TARGET_Q, REGULATING)),
+        entry(ShuntCompensator.class, Set.of(CONNECTED, "sectionCount", LOCAL_TARGET_V, REGULATING, TARGET_VALUE, TARGET_DEADBAND)),
+        entry(StaticVarCompensator.class, Set.of(CONNECTED, LOCAL_TARGET_Q, LOCAL_TARGET_V, REGULATING, TARGET_VALUE)),
+        // The regulation mode of a VSC converter is its qPccControl, and the SSH has no regulation status for it
+        entry(VscConverterStation.class, Set.of(CONNECTED, LOCAL_TARGET_Q, LOCAL_TARGET_V, TARGET_VALUE, REGULATION_MODE)),
+        entry(LccConverterStation.class, Set.of(CONNECTED, "powerFactor")),
+        entry(HvdcLine.class, Set.of("activePowerSetpoint", "convertersMode")),
+        // A VsConverter of the detailed DC model has no control flag
+        entry(VoltageSourceConverter.class, Set.of(CONNECTED, TARGET_P, "targetVdc", "controlMode", LOCAL_TARGET_Q, LOCAL_TARGET_V, TARGET_VALUE, REGULATION_MODE)),
+        entry(LineCommutatedConverter.class, Set.of(CONNECTED, TARGET_P, "targetVdc", "controlMode")),
+        entry(TwoWindingsTransformer.class, TRANSFORMER),
+        entry(ThreeWindingsTransformer.class, TRANSFORMER),
+        // The target active and reactive power of the generation of a boundary line are not written
+        entry(BoundaryLine.class, Set.of(CONNECTED, P0, Q0, "targetV", "voltageRegulationOn")),
+        entry(Area.class, Set.of("interchangeTarget")));
+
+    /**
+     * The supported changes of each extension. Of the active power control, only the participation factor is written, as GeneratingUnit.normalPF.
+     */
+    private static final Map<String, Set<String>> SUPPORTED_EXTENSION_ATTRIBUTES = Map.of(
+        ActivePowerControl.NAME, Set.of(CREATION, "participationFactor"),
+        ReferencePriorities.NAME, Set.of(CREATION, "referencePriority"));
 
     private SshExportedIdentifiables() {
+    }
+
+    /**
+     * The changes that a partial SSH export can write, as a map from a type to its supported changes.
+     * <ul>
+     *     <li>The key of an identifiable is the simple name of its IIDM interface, for example {@code Generator}.
+     *     Its changes are the attributes of the events, for example {@code targetP} or {@code VoltageRegulation.TargetValue}.
+     *     The change {@code connected} contains all the connection attributes of the terminals,
+     *     and a tap changer of a three windings transformer has no leg number: {@code ratioTapChanger.tapPosition}.</li>
+     *     <li>The key of an extension is its name, for example {@code activePowerControl}.
+     *     Its changes are the attributes of the events, and the empty string for the creation of the extension.</li>
+     * </ul>
+     * A supported change can have a condition: a change of {@code localTargetV} is supported only with a local voltage regulation.
+     */
+    public static Map<String, Set<String>> capabilities() {
+        Map<String, Set<String>> capabilities = new TreeMap<>();
+        SUPPORTED_ATTRIBUTES.forEach((type, attributes) -> capabilities.put(type.getSimpleName(), Collections.unmodifiableSet(new TreeSet<>(attributes))));
+        SUPPORTED_EXTENSION_ATTRIBUTES.forEach((name, attributes) -> capabilities.put(name, Collections.unmodifiableSet(new TreeSet<>(attributes))));
+        return Collections.unmodifiableMap(capabilities);
+    }
+
+    /**
+     * The change of {@link #capabilities()} that contains the attribute of an event: {@code connected} for a connection attribute,
+     * and the attribute without the leg number for a tap changer of a three windings transformer.
+     */
+    static String capability(String attribute) {
+        if (CONNECTION.matcher(attribute).matches()) {
+            return CONNECTED;
+        }
+        return TAP_CHANGER_LEG.matcher(attribute).replaceFirst("$1TapChanger");
     }
 
     /**
@@ -129,7 +212,7 @@ public final class SshExportedIdentifiables {
         }
         boolean supported = switch (event) {
             case UpdateNetworkEvent e -> isSupportedAttribute(identifiable, e.attribute());
-            case ExtensionCreationNetworkEvent e -> isSupportedExtension(e.extensionName());
+            case ExtensionCreationNetworkEvent e -> isSupportedExtensionAttribute(e.extensionName(), CREATION);
             case ExtensionUpdateNetworkEvent e -> isSupportedExtensionAttribute(e.extensionName(), e.attribute());
             default -> false;
         };
@@ -152,38 +235,12 @@ public final class SshExportedIdentifiables {
      * True if the SSH data of the identifiable contains the value of the attribute.
      */
     private static boolean isSupportedAttribute(Identifiable<?> identifiable, String attribute) {
-        if ((identifiable instanceof Connectable<?> || identifiable instanceof DcConnectable<?>) && CONNECTION.matcher(attribute).matches()) {
-            // The SSH data of a connectable contains the connection state of its terminals
-            return true;
-        }
         if (LOCAL_TARGET_V.equals(attribute) && identifiable instanceof VoltageRegulationHolder<?> holder && !writesLocalTargetV(holder)) {
             return false;
         }
-        return switch (identifiable) {
-            case Switch ignored -> OPEN.equals(attribute);
-            case DcSwitch ignored -> OPEN.equals(attribute);
-            case Load ignored -> Set.of(P0, Q0).contains(attribute);
-            // The deadband of a generator is not written: only discrete regulations have a deadband
-            case Generator ignored -> Set.of(TARGET_P, LOCAL_TARGET_Q, LOCAL_TARGET_V, REGULATING, TARGET_VALUE).contains(attribute);
-            // A battery has no regulating control in the SSH
-            case Battery ignored -> Set.of(TARGET_P, LOCAL_TARGET_Q, REGULATING).contains(attribute);
-            case ShuntCompensator ignored -> Set.of("sectionCount", LOCAL_TARGET_V, REGULATING, TARGET_VALUE, TARGET_DEADBAND).contains(attribute);
-            case StaticVarCompensator ignored -> Set.of(LOCAL_TARGET_Q, LOCAL_TARGET_V, REGULATING, TARGET_VALUE).contains(attribute);
-            // The regulation mode of a VSC converter is its qPccControl, and the SSH has no regulation status for it
-            case VscConverterStation ignored -> Set.of(LOCAL_TARGET_Q, LOCAL_TARGET_V, TARGET_VALUE, REGULATION_MODE).contains(attribute);
-            case LccConverterStation ignored -> "powerFactor".equals(attribute);
-            case HvdcLine ignored -> Set.of("activePowerSetpoint", "convertersMode").contains(attribute);
-            // A VsConverter of the detailed DC model has no control flag
-            case VoltageSourceConverter ignored -> Set.of(TARGET_P, "targetVdc", "controlMode", LOCAL_TARGET_Q, LOCAL_TARGET_V, TARGET_VALUE, REGULATION_MODE).contains(attribute);
-            case LineCommutatedConverter ignored -> Set.of(TARGET_P, "targetVdc", "controlMode").contains(attribute);
-            case TwoWindingsTransformer ignored -> TAP_CHANGER.matcher(attribute).matches();
-            case ThreeWindingsTransformer ignored -> TAP_CHANGER.matcher(attribute).matches();
-            // The target active and reactive power of the generation of a boundary line are not written
-            case BoundaryLine ignored -> Set.of(P0, Q0, "targetV", "voltageRegulationOn").contains(attribute);
-            case Area ignored -> "interchangeTarget".equals(attribute);
-            // The fictitious injection of a bus is not supported: in a network imported from CGMES it is a new equipment
-            default -> false;
-        };
+        String capability = capability(attribute);
+        return SUPPORTED_ATTRIBUTES.entrySet().stream()
+            .anyMatch(e -> e.getKey().isInstance(identifiable) && e.getValue().contains(capability));
     }
 
     /**
@@ -199,17 +256,11 @@ public final class SshExportedIdentifiables {
         return regulation != null && regulation.getMode() == RegulationMode.VOLTAGE && regulation.getTerminal() == null;
     }
 
-    private static boolean isSupportedExtension(String extensionName) {
-        return ActivePowerControl.NAME.equals(extensionName) || ReferencePriorities.NAME.equals(extensionName);
-    }
-
     /**
-     * True if the SSH data contains the value of the extension attribute.
-     * Of the active power control, only the participation factor is written, as GeneratingUnit.normalPF.
+     * True if the SSH data contains the value of the extension attribute, or the extension if the attribute is {@link #CREATION}.
      */
     private static boolean isSupportedExtensionAttribute(String extensionName, String attribute) {
-        return ActivePowerControl.NAME.equals(extensionName) && "participationFactor".equals(attribute)
-            || ReferencePriorities.NAME.equals(extensionName);
+        return SUPPORTED_EXTENSION_ATTRIBUTES.getOrDefault(extensionName, Set.of()).contains(attribute);
     }
 
     private static void unsupported(NetworkEvent event, String reason, UnsupportedChangeBehavior behavior) {
