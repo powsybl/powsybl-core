@@ -293,6 +293,10 @@ The following table gives the supported changes of each kind of identifiable:
 | Connectable                           | Connection and disconnection of its terminals and DC terminals                                          |
 | Generator, battery                    | Creation of the `ActivePowerControl` and `ReferencePriorities` extensions, participation factor, reference priority |
 
+`SshExportedIdentifiables.capabilities()` gives the same supported changes as a map, for a tool that must read them.
+The key is the name of an IIDM type, for example `Generator`, or the name of an extension.
+The value is the set of the attributes of the events, for example `targetP`, and `connected` for all the connection attributes of the terminals.
+
 The SSH contains the local target voltage only as the target value of a local voltage regulation.
 Thus a change of the local target voltage is supported only if the equipment has a voltage regulation in voltage mode, without a regulating terminal.
 A generator imported from an `EquivalentInjection` is an exception: its SSH data always contains its local target voltage.
