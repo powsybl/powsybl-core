@@ -144,7 +144,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     public void setParticipationFactor(double participationFactor) {
         int variantIndex = getVariantIndex();
-        double oldParticipationFactor = this.participationFactor.get(variantIndex);
+        double oldParticipationFactor = this.participationFactor.getDouble(variantIndex);
         if (Double.compare(oldParticipationFactor, participationFactor) != 0) {
             this.participationFactor.set(variantIndex, participationFactor);
             notifyUpdate("participationFactor", oldParticipationFactor, participationFactor);
