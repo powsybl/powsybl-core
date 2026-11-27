@@ -525,10 +525,12 @@ class TimeSeriesTest {
         Map<Integer, List<TimeSeries>> timeSeries = TimeSeries.parseCsv(createWideCsv(99), config);
         assertEquals(99, timeSeries.get(TimeSeries.DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES).size());
 
-        assertThatCode(() -> TimeSeries.parseCsv(createWideCsv(100), config))
+        String csvWithOneExtraColumn = createWideCsv(100);
+        assertThatCode(() -> TimeSeries.parseCsv(csvWithOneExtraColumn, config))
                 .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
                 .isInstanceOf(TimeSeriesException.class);
-        assertThatCode(() -> TimeSeries.parseCsv(createWideCsv(149), config))
+        String csvWithManyExtraColumns = createWideCsv(149);
+        assertThatCode(() -> TimeSeries.parseCsv(csvWithManyExtraColumns, config))
                 .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
                 .isInstanceOf(TimeSeriesException.class);
     }
