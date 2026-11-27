@@ -68,4 +68,14 @@ public class DefaultNetworkReducerObserver implements NetworkReducerObserver {
     public void hvdcLineRemoved(HvdcLine hvdcLine) {
         // Nothing to do
     }
+
+    @Override
+    public void terminalPSubstituted(Terminal terminal) {
+        // Nothing to do
+    }
+
+    @Override
+    public void terminalQSubstituted(Terminal terminal) {
+        // Nothing to do
+    }
 }

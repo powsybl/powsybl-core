@@ -326,6 +326,34 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         adder.add();
     }
 
+    private double checkP(Terminal terminal) {
+        if (!terminal.isConnected()) {
+            return 0.0;
+        }
+        if (Double.isNaN(terminal.getP())) {
+            String connectableId = terminal.getConnectable().getId();
+            String voltageLevelId = terminal.getVoltageLevel().getId();
+            LOGGER.warn("The active power of '{}' ({}) is undefined -> set to 0.0", connectableId, voltageLevelId);
+            observers.forEach(o -> o.terminalPSubstituted(terminal));
+            return 0.0;
+        }
+        return terminal.getP();
+    }
+
+    private double checkQ(Terminal terminal) {
+        if (!terminal.isConnected()) {
+            return 0.0;
+        }
+        if (Double.isNaN(terminal.getQ())) {
+            String connectableId = terminal.getConnectable().getId();
+            String voltageLevelId = terminal.getVoltageLevel().getId();
+            LOGGER.warn("The reactive power of '{}' ({}) is undefined -> set to 0.0", connectableId, voltageLevelId);
+            observers.forEach(o -> o.terminalQSubstituted(terminal));
+            return 0.0;
+        }
+        return terminal.getQ();
+    }
+
     private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
@@ -335,31 +363,5 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             }
             adder.setConnectableBus(terminal.getBusBreakerView().getConnectableBus().getId());
         }
-    }
-
-    private static double checkP(Terminal terminal) {
-        if (!terminal.isConnected()) {
-            return 0.0;
-        }
-        if (Double.isNaN(terminal.getP())) {
-            String connectableId = terminal.getConnectable().getId();
-            String voltageLevelId = terminal.getVoltageLevel().getId();
-            LOGGER.warn("The active power of '{}' ({}) is undefined -> set to 0.0", connectableId, voltageLevelId);
-            return 0.0;
-        }
-        return terminal.getP();
-    }
-
-    private static double checkQ(Terminal terminal) {
-        if (!terminal.isConnected()) {
-            return 0.0;
-        }
-        if (Double.isNaN(terminal.getQ())) {
-            String connectableId = terminal.getConnectable().getId();
-            String voltageLevelId = terminal.getVoltageLevel().getId();
-            LOGGER.warn("The reactive power of '{}' ({}) is undefined -> set to 0.0", connectableId, voltageLevelId);
-            return 0.0;
-        }
-        return terminal.getQ();
     }
 }
