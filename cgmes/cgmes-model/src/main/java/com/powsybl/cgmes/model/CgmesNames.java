@@ -202,6 +202,8 @@ public final class CgmesNames {
     public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
     public static final String P_TOLERANCE = "pTolerance";
 
+    public static final String REFERENCE_PRIORITY = "referencePriority";
+
     private CgmesNames() {
     }
 }
