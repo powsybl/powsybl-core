@@ -94,11 +94,8 @@ public class PowsyblWriter extends RDFXMLWriter {
         String value = uri.toString();
         String prefix = namespaceTable.get(uri.getNamespace());
         if (uri.getNamespace().equals("urn:uuid:")) {
-            if ("FullModel".equals(objLocalName)) {
-                attName = "about";
-            } else {
-                value = "_" + uri.getLocalName();
-            }
+            // Keep the full IRI so that references written by writeResource still resolve
+            attName = "about";
         }
         if ("data".equals(prefix)) {
             if (ctxt.contains("_SSH_")
