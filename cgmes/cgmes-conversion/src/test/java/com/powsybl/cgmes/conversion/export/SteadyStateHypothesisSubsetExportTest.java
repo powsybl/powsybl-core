@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
@@ -96,6 +97,20 @@ class SteadyStateHypothesisSubsetExportTest {
         // The generator, its terminal, its regulating control and its generating unit
         assertEquals(List.of("GeneratingUnit", "RegulatingControl", "SynchronousMachine", "Terminal"), types(objects));
         assertTrue(objects.stream().anyMatch(o -> o.subject().equals(generator.getId())));
+    }
+
+    @Test
+    void converterStationExportsBothConvertersOfItsHvdcLine() throws XMLStreamException {
+        Network network = cgmesRoundTrip(HvdcTestNetwork.createVsc());
+        VscConverterStation inverter = network.getVscConverterStation("C1");
+        VscConverterStation rectifier = network.getVscConverterStation("C2");
+        CgmesExportContext context = new CgmesExportContext(network);
+
+        List<CgmesObject> objects = exportSubset(network, List.of(inverter));
+
+        // The CGMES import computes the active power setpoint of the HVDC line from the data of both converters
+        Set<String> converters = objects.stream().filter(o -> o.type().equals("VsConverter")).map(CgmesObject::subject).collect(Collectors.toSet());
+        assertEquals(Set.of(context.getNamingStrategy().getCgmesId(inverter), context.getNamingStrategy().getCgmesId(rectifier)), converters);
     }
 
     @Test

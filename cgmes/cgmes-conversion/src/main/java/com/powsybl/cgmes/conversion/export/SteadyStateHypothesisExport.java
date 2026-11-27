@@ -128,7 +128,14 @@ public final class SteadyStateHypothesisExport {
                 exportIdentifiable(tieLine.getBoundaryLine1(), regulatingControlViews, sink, context);
                 exportIdentifiable(tieLine.getBoundaryLine2(), regulatingControlViews, sink, context);
             }
-            case HvdcConverterStation<?> converterStation -> exportConverterStation(converterStation, sink, context);
+            case HvdcConverterStation<?> converterStation -> {
+                // The CGMES import computes the HVDC line from both converters, so a converter station exports both
+                exportConverterStation(converterStation, sink, context);
+                Optional<? extends HvdcConverterStation<?>> otherConverterStation = converterStation.getOtherConverterStation();
+                if (otherConverterStation.isPresent()) {
+                    exportConverterStation(otherConverterStation.get(), sink, context);
+                }
+            }
             case HvdcLine hvdcLine -> {
                 exportConverterStation(hvdcLine.getConverterStation1(), sink, context);
                 exportConverterStation(hvdcLine.getConverterStation2(), sink, context);
