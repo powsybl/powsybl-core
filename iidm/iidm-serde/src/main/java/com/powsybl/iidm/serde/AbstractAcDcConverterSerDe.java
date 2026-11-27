@@ -26,6 +26,9 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
  */
 abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends AcDcConverterAdder<T, A>> extends AbstractComplexIdentifiableSerDe<T, A, VoltageLevel> {
 
+    private static final String MIN_P = "minP";
+    private static final String MAX_P = "maxP";
+
     private static final String ATTR_CONTROL_MODE = "controlMode";
     static final String PCC_TERMINAL = "pccTerminal";
 
@@ -94,18 +97,35 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             context.getWriter().writeEnumAttribute(ATTR_CONTROL_MODE, converter.getControlMode()));
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
-        if (converter.getMinP() != -Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
-            throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': minP serialization is not yet supported. " +
-                "To force the export of the network and ignore this value, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                "or ExportOptions.setForceExportNetworkWithBetaFeatures");
-        }
-        if (converter.getMaxP() != Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
-            throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': maxP serialization is not yet supported. " +
-                "To force the export of the network and ignore this value, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                "or ExportOptions.setForceExportNetworkWithBetaFeatures");
-        }
+
+        writeActivePowerBound(converter, MIN_P, converter.getMinP(), -Double.MAX_VALUE, context);
+        writeActivePowerBound(converter, MAX_P, converter.getMaxP(), Double.MAX_VALUE, context);
 
         writeNodeOrBus(converter, context);
+    }
+
+    private void writeActivePowerBound(T converter, String attributeName, double value, double defaultValue,
+                                       NetworkSerializerContext context) {
+        if (value == defaultValue) {
+            return;
+        }
+        IidmVersion version = context.getVersion();
+        if (version.compareTo(IidmVersion.V_1_15) >= 0 && version.compareTo(IidmVersion.V_1_19) < 0) {
+            // Before IIDM 1.19, minP and maxP were a beta feature without serialization, whatever the IIDM version
+            // supporting AC/DC converters (1.15 to 1.18): keep the beta behavior.
+            // Before IIDM 1.15, AC/DC converters are not supported: the version incompatibility behavior applies.
+            if (!context.getOptions().isForceExportNetworkWithBetaFeatures()) {
+                throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': " + attributeName
+                    + " serialization is not supported in IIDM " + version.toString(".")
+                    + ". Use IIDM 1.19 or later, or force the export of the network and ignore this value"
+                    + " by using either the config parameter iidm.export.xml.force-export-network-with-beta-features"
+                    + " or ExportOptions.setForceExportNetworkWithBetaFeatures");
+            }
+            return;
+        }
+        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(true, getRootElementName(), attributeName,
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context,
+                () -> context.getWriter().writeDoubleAttribute(attributeName, value));
     }
 
     protected void writeRootElementPqiAttributes(final T converter, final NetworkSerializerContext context) {
@@ -138,6 +158,14 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             controlMode.set(context.getReader().readEnumAttribute(ATTR_CONTROL_MODE, AcDcConverter.ControlMode.class)));
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetVdc = context.getReader().readDoubleAttribute("targetVdc");
+
+        // unbounded active power as default value for IIDM version < 1.19 and for converters declaring no limit
+        double minP = -Double.MAX_VALUE;
+        double maxP = Double.MAX_VALUE;
+        if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
+            minP = context.getReader().readDoubleAttribute(MIN_P, -Double.MAX_VALUE);
+            maxP = context.getReader().readDoubleAttribute(MAX_P, Double.MAX_VALUE);
+        }
         adder
             .setDcNode1(dcNode1Id)
             .setDcConnected1(dcConnected1)
@@ -148,7 +176,9 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             .setTargetVdc(targetVdc)
             .setIdleLoss(idleLoss)
             .setSwitchingLoss(switchingLoss)
-            .setResistiveLoss(resistiveLoss);
+            .setResistiveLoss(resistiveLoss)
+            .setMinP(minP)
+            .setMaxP(maxP);
         readNodeOrBus(adder, voltageLevel.getTopologyKind(), context);
     }
 

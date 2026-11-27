@@ -523,10 +523,7 @@ WHERE {
         cim:TransformerEnd.endNumber ?endNumber ;
         cim:PowerTransformerEnd.PowerTransformer ?PowerTransformer .
     OPTIONAL {
-        ?RatioTapChanger cim:TapChanger.TapChangerControl ?TapChangerControl .
-        OPTIONAL {
-             ?RatioTapChanger cim:RatioTapChanger.tculControlMode ?tculControlMode
-        }
+        ?RatioTapChanger cim:TapChanger.TapChangerControl ?TapChangerControl
     }
     OPTIONAL {
         ?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable

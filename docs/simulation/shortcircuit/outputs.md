@@ -72,7 +72,7 @@ The attributes of `FortescueFeederResuts` are:
 | current       | `FortescueValue` | A    | yes      | -             | Current magnitudes and angles on the three phases of the feeder participating to the short-circuit current at the fault point |
 | side          | ThreeSides       | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                                     |
 
-Note: For results on branches, the side can be retrieved as a `TwoSides` object by using the method `getSideAsTwoSides`.
+Note: For results on AC branches, the side can be retrieved as a `TwoSides` object by using the method `getSideAsTwoSides`. This does not work for equipment without _sides_, even DC branches.
 
 **LimitViolations**
 

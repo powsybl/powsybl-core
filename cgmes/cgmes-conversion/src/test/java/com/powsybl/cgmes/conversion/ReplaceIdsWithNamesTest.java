@@ -67,6 +67,66 @@ class ReplaceIdsWithNamesTest {
     }
 
     @Test
+    void testImportRenameUpdateLoads() {
+        // A minimal network with loads
+        Network n = Network.read(new ResourceDataSource("update_load_eq",
+                new ResourceSet("/update/load/", "load_EQ.xml")));
+        Load l = n.getLoad("EnergyConsumer");
+        l.setName("LOAD_NAME");
+        Load a = n.getLoad("AsynchronousMachine");
+        a.setName("ASYNC_MACHINE_NAME");
+
+        // Rename the identifiers before calling the update
+        new ReplaceIdsByNames().apply(n);
+
+        // We can use either the original identifiers or the name, to locate the elements again
+        assertNotNull(n.getLoad("EnergyConsumer"));
+        assertNotNull(n.getLoad("AsynchronousMachine"));
+        assertNotNull(n.getLoad("LOAD_NAME"));
+        assertNotNull(n.getLoad("ASYNC_MACHINE_NAME"));
+
+        // Update the network after being renamed, using SSH data with the original identifiers
+        n.update(new ResourceDataSource("update_load_ssh",
+                new ResourceSet("/update/load/", "load_SSH.xml")));
+
+        // Check that values coming from SSH have been put in the elements of the network
+        double epsilon = 0.001;
+        assertEquals(10.0, l.getP0(), epsilon);
+        assertEquals(5.0, l.getQ0(), epsilon);
+        assertEquals(200.0, a.getP0(), epsilon);
+        assertEquals(50.0, a.getQ0(), epsilon);
+    }
+
+    @Test
+    void testImportRenameUpdateVoltages() {
+        // A minimal bus/breaker network
+        Network n = Network.read(new ResourceDataSource("bus_breaker_eq_tp",
+                new ResourceSet("/update/voltage/", "bus_breaker_EQ.xml", "bus_breaker_TP.xml")));
+        Load l = n.getLoad("EnergyConsumer");
+        l.setName("LOAD_NAME");
+        Bus b = n.getBusBreakerView().getBus("TopologicalNode1");
+        // This bus already has BUS1_NAME in the input TP
+
+        // Rename the identifiers before calling the update
+        new ReplaceIdsByNames().apply(n);
+
+        // We can use either the original identifiers or the name, to locate the elements again
+        assertNotNull(n.getLoad("EnergyConsumer"));
+        assertNotNull(n.getLoad("LOAD_NAME"));
+        assertNotNull(n.getBusBreakerView().getBus("TopologicalNode1"));
+        assertNotNull(n.getBusBreakerView().getBus("BUS1_NAME"));
+
+        // Update the network after being renamed, using SV data with the original identifiers
+        n.update(new ResourceDataSource("bus_breaker_sv",
+                new ResourceSet("/update/voltage/", "bus_breaker_SV.xml")));
+
+        // Check that values coming from SV have been put in the elements of the network
+        double epsilon = 0.001;
+        assertEquals(412.0, b.getV(), epsilon);
+        assertEquals(-6.7, b.getAngle(), epsilon);
+    }
+
+    @Test
     @Disabled("slow test using a big network")
     void testSvedala() {
         testReplaceIdsByNames(Cgmes3Catalog.svedala().dataSource());

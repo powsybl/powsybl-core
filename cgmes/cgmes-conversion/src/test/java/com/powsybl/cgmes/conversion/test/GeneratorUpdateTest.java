@@ -11,13 +11,13 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -97,6 +97,47 @@ class GeneratorUpdateTest {
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
+    @Test
+    void usePreviousStatusWhenTerminalIsMissingFromSshTest() {
+        Network network = readCgmesResources(DIR, "generator_cim_16_EQ.xml", "generator_cim_16_TP.xml", "generator_cim_16_SSH.xml");
+        Generator generator = network.getGenerator("SynchronousMachine");
+        assertNotNull(generator);
+        assertTrue(generator.getTerminal().isConnected());
+
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "generator_cim_16_TP.xml", "../empty_SSH.xml");
+
+        assertFalse(generator.getTerminal().isConnected());
+    }
+
+    @Test
+    void zeroReferencePriorityIsLostTest() {
+        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
+
+        assertReferencePriority(network.getGenerator("SynchronousMachine"), 0, false);
+        assertReferencePriority(network.getGenerator("ExternalNetworkInjection"), 0, false);
+
+        ReferencePriority.set(network.getGenerator("SynchronousMachine"), 1);
+        ReferencePriority.set(network.getGenerator("ExternalNetworkInjection"), 1);
+
+        assertReferencePriority(network.getGenerator("SynchronousMachine"), 1, true);
+        assertReferencePriority(network.getGenerator("ExternalNetworkInjection"), 1, true);
+
+        readCgmesResources(network, DIR, "generator_SSH.xml");
+
+        assertReferencePriority(network.getGenerator("SynchronousMachine"), 0, true);
+        assertReferencePriority(network.getGenerator("ExternalNetworkInjection"), 0, true);
+    }
+
+    private static void assertReferencePriority(Generator generator, int referencePriority, boolean isExtensionCreated) {
+        assertEquals(isExtensionCreated, generator.getExtension(ReferencePriorities.class) != null);
+        assertEquals(referencePriority, ReferencePriority.get(generator));
+    }
+
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
@@ -112,8 +153,8 @@ class GeneratorUpdateTest {
         assertEq(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), false);
         assertEq(network.getGenerator("EquivalentInjectionWithRegulationCapability"), true);
 
-        assertNotNull(network.getGenerator("SynchronousMachine").getProperty(PROPERTY_MODE));
-        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getProperty(PROPERTY_MODE));
+        assertNotNull(network.getGenerator("SynchronousMachine").getVoltageRegulation());
+        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getVoltageRegulation());
     }
 
     private static void assertFirstSsh(Network network) {
@@ -163,7 +204,7 @@ class GeneratorUpdateTest {
         assertFalse(generator.isRegulating());
 
         assertEquals(regulationCapability, generator.getVoltageRegulation() != null);
-        if (generator.getProperty(PROPERTY_MODE) != null) {
+        if (generator.getVoltageRegulation() != null) {
             assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         }
     }

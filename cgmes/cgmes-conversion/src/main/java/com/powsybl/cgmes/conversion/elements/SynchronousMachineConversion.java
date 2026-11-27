@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Arrays;
@@ -61,8 +61,9 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
         convertGenerator(g);
+        convertQPercent(g);
 
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        setRegulatingControlProperty(g);
         addSpecificProperties(g, p);
     }
 
@@ -80,6 +81,16 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             g.setProperty(PROPERTY_GENERATING_UNIT, generatingUnit);
         }
         addGeneratingUnitProperties(g, p);
+    }
+
+    private void convertQPercent(Generator g) {
+        // add qPercent as an extension
+        double qPercent = p.asDouble("qPercent");
+        if (!Double.isNaN(qPercent)) {
+            g.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
+        }
     }
 
     private static void addGeneratingUnitProperties(Generator generator, PropertyBag p) {
@@ -126,11 +137,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
-
-        int referencePriority = cgmesData.asInt("referencePriority", 0);
-        if (referencePriority > 0) {
-            ReferencePriority.set(generator, referencePriority);
-        }
+        updateReferencePriority(generator, cgmesData, context);
 
         double targetP = getDefaultValue(getInitialP(generator), generator.getTargetP(), 0.0, 0.0, context);
         double targetQ = getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
