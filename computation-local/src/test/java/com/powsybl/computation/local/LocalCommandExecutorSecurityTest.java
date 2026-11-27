@@ -170,16 +170,9 @@ class LocalCommandExecutorSecurityTest {
     }
 
     @Test
-    @EnabledOnOs(OS.WINDOWS)
-    void testCommandInjectionViaProgramNameOnWindows() {
+    void testCommandInjectionViaProgramNameDisallowedCharactersOnWindows() {
         WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
         IllegalArgumentException ex;
-        // invalid path
-        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd /c", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Map.of()));
-        assertEquals("Program path is invalid", ex.getMessage());
-        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("echo:", 5, List.of("Hello world"), outFile, errFile, tempDir, Map.of()));
-        assertEquals("Program path is invalid", ex.getMessage());
-
         // Disallowed characters
         ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("echo & type nul > %s & echo ", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Map.of()));
         assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
@@ -199,6 +192,19 @@ class LocalCommandExecutorSecurityTest {
         assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
         ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd!", 5, List.of(), outFile, errFile, tempDir, Map.of()));
         assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testCommandInjectionViaProgramNameInvalidPathOnWindows() {
+        WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
+        IllegalArgumentException ex;
+        // invalid path
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd /c", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path is invalid", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("echo:", 5, List.of("Hello world"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path is invalid", ex.getMessage());
+
     }
 
     @Test
