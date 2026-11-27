@@ -18,6 +18,9 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
 
     private static final String[] NULL_ARRAY = new String[] {null};
 
+    private final ArrayCache<String[]> arrayCache = new ArrayCache<>(String[]::clone);
+    private final ArrayCache<String[]> compactArrayCache = new ArrayCache<>(String[]::clone);
+
     public StringTimeSeries(TimeSeriesMetadata metadata, StringDataChunk... chunks) {
         super(metadata, chunks);
     }
@@ -48,20 +51,24 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
     }
 
     public String[] toArray() {
-        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, metadata.getIndex().getPointCount());
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
-        return buffer.toArray();
+        return arrayCache.get(() -> {
+            CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, metadata.getIndex().getPointCount());
+            chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
+            return buffer.toArray();
+        });
     }
 
     public String[] toCompactArray() {
         if (chunks.isEmpty()) {
             return new String[0];
         }
-        int minOffset = getMinOffset();
-        int compactLength = getMaxChunkEnd() - minOffset;
-        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, compactLength);
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
-        return buffer.toArray();
+        return compactArrayCache.get(() -> {
+            int minOffset = getMinOffset();
+            int compactLength = getMaxChunkEnd() - minOffset;
+            CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, compactLength);
+            chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+            return buffer.toArray();
+        });
     }
 
     public String get(int index) {
@@ -72,4 +79,9 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return new StringTimeSeriesValues(toCompactArray(), getMinOffset());
     }
 
+    @Override
+    protected void invalidateArrays() {
+        arrayCache.invalidate();
+        compactArrayCache.invalidate();
+    }
 }
