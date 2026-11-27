@@ -22,6 +22,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.regulatingTerminalMapped;
+
 /**
  * ThreeWindingsTransformer Cgmes Conversion
  * <p>
@@ -205,19 +207,19 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         updateTerminals(t3w, context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
 
         boolean isAllowedToRegulatePtc1 = true;
-        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.ONE, context, isAllowedToRegulatePtc1));
+        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.ONE, context, regulatingTerminalMapped(ptc)));
         boolean isAllowedToRegulateRtc1 = checkOnlyOneEnabled(isAllowedToRegulatePtc1, t3w.getLeg1().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.ONE, context, isAllowedToRegulateRtc1));
+        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.ONE, context, isAllowedToRegulateRtc1 && regulatingTerminalMapped(rtc)));
 
         boolean isAllowedToRegulatePtc2 = checkOnlyOneEnabled(isAllowedToRegulateRtc1, t3w.getLeg1().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.TWO, context, isAllowedToRegulatePtc2));
+        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.TWO, context, isAllowedToRegulatePtc2 && regulatingTerminalMapped(ptc)));
         boolean isAllowedToRegulateRtc2 = checkOnlyOneEnabled(isAllowedToRegulatePtc2, t3w.getLeg2().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.TWO, context, isAllowedToRegulateRtc2));
+        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.TWO, context, isAllowedToRegulateRtc2 && regulatingTerminalMapped(rtc)));
 
         boolean isAllowedToRegulatePtc3 = checkOnlyOneEnabled(isAllowedToRegulateRtc2, t3w.getLeg2().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.THREE, context, isAllowedToRegulatePtc3));
+        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.THREE, context, isAllowedToRegulatePtc3 && regulatingTerminalMapped(ptc)));
         boolean isAllowedToRegulateRtc3 = checkOnlyOneEnabled(isAllowedToRegulatePtc3, t3w.getLeg3().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.THREE, context, isAllowedToRegulateRtc3));
+        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.THREE, context, isAllowedToRegulateRtc3 && regulatingTerminalMapped(rtc)));
 
         Stream.of(t3w.getLeg1(), t3w.getLeg2(), t3w.getLeg3())
                 .map(FlowsLimitsHolder::getOperationalLimitsGroups)

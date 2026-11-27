@@ -96,6 +96,23 @@ class GeneratorUpdateTest {
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
+    @Test
+    void usePreviousStatusWhenTerminalIsMissingFromSshTest() {
+        Network network = readCgmesResources(DIR, "generator_cim_16_EQ.xml", "generator_cim_16_TP.xml", "generator_cim_16_SSH.xml");
+        Generator generator = network.getGenerator("SynchronousMachine");
+        assertNotNull(generator);
+        assertTrue(generator.getTerminal().isConnected());
+
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "generator_cim_16_TP.xml", "../empty_SSH.xml");
+
+        assertFalse(generator.getTerminal().isConnected());
+    }
+
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));

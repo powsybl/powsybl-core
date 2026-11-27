@@ -300,7 +300,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 // Flow out must be equal to the consumption seen at boundary
                 Optional<BoundaryLine.Generation> generation = Optional.ofNullable(boundaryLine.getGeneration());
                 boundaryLine.getTerminal().setP(boundaryLine.getP0() - generation.map(BoundaryLine.Generation::getTargetP).orElse(0.0));
-                boundaryLine.getTerminal().setQ(boundaryLine.getQ0() - generation.map(BoundaryLine.Generation::getTargetQ).orElse(0.0));
+                boundaryLine.getTerminal().setQ(boundaryLine.getQ0() - generation.map(BoundaryLine.Generation::getLocalTargetQ).orElse(0.0));
             } else {
                 setBoundaryLineModelSideFlow(boundaryLine, context);
             }
@@ -395,7 +395,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // at the node when we consider flow at line end
         Optional<BoundaryLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
         double p = dl.getP0() - generation.map(BoundaryLine.Generation::getTargetP).orElse(0.0);
-        double q = dl.getQ0() - generation.map(BoundaryLine.Generation::getTargetQ).orElse(0.0);
+        double q = dl.getQ0() - generation.map(BoundaryLine.Generation::getLocalTargetQ).orElse(0.0);
         SV svboundary = new SV(-p, -q, v, angle, TwoSides.ONE);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
@@ -527,12 +527,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
         PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
-            updateTerminal(cgmesTerminals.get(k), ts[k]);
+            updateTerminal(cgmesTerminals.get(k), ts[k], context);
         }
     }
 
-    private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal) {
-        boolean connectedInUpdate = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
+    private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
+        Boolean connected = cgmesTerminal.asBoolean(CgmesNames.CONNECTED).orElse(null);
+        boolean defaultConnected = getDefaultValue(null, terminal.isConnected(), true, true, context);
+        boolean connectedInUpdate = connected != null ? connected : defaultConnected;
+
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
             if (!terminal.isConnected() && connectedInUpdate) {
                 terminal.connect();

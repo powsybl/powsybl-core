@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_SECTIONS;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.regulatingTerminalMapped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -79,7 +80,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         updateTerminals(shuntCompensator, context, shuntCompensator.getTerminal());
         updateSections(shuntCompensator, cgmesData, context);
 
-        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
+        Boolean controlEnabled = regulatingTerminalMapped(shuntCompensator)
+            && Boolean.TRUE.equals(cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null));
         updateRegulatingControl(shuntCompensator, controlEnabled, context);
     }
 
