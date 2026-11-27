@@ -219,7 +219,7 @@ class TieLineUpdateTest {
 
     private static void assertBoundaryBusVoltage(BoundaryLine boundaryLine, double v, double angle) {
         double tol = 0.0000001;
-        double vActual = boundaryLine.getProperty(CgmesNames.VOLTAGE) != null ? Double.parseDouble(boundaryLine.getProperty(CgmesNames.VOLTAGE)) : Double.NaN;
+        double vActual = boundaryLine.getProperty(CgmesNames.V) != null ? Double.parseDouble(boundaryLine.getProperty(CgmesNames.V)) : Double.NaN;
         double angleActual = boundaryLine.getProperty(CgmesNames.ANGLE) != null ? Double.parseDouble(boundaryLine.getProperty(CgmesNames.ANGLE)) : Double.NaN;
         assertEquals(v, vActual, tol);
         assertEquals(angle, angleActual, tol);
