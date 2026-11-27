@@ -12,6 +12,7 @@ import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -244,8 +245,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     protected static void updateReferencePriority(Generator generator, PropertyBag cgmesData, Context context) {
-        Integer referencePriority = cgmesData.containsKey(CgmesNames.REFERENCE_PRIORITY) ? cgmesData.asInt(CgmesNames.REFERENCE_PRIORITY) : null;
-        int defaultReferencePriority = getDefaultValue(null, ReferencePriority.get(generator), 0, 0, context);
-        ReferencePriority.set(generator, referencePriority != null ? referencePriority : defaultReferencePriority);
+        int referencePriority = cgmesData.containsKey(CgmesNames.REFERENCE_PRIORITY)
+                ? cgmesData.asInt(CgmesNames.REFERENCE_PRIORITY)
+                : getDefaultValue(null, ReferencePriority.get(generator), 0, 0, context);
+
+        // 0 is the default, so there is no need to create the extension if it does not exist
+        if (referencePriority == 0 && generator.getExtension(ReferencePriorities.class) == null) {
+            return;
+        }
+        ReferencePriority.set(generator, referencePriority);
     }
 }

@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
@@ -117,19 +118,24 @@ class GeneratorUpdateTest {
     void zeroReferencePriorityIsLostTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
 
-        assertEquals(0, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
-        assertEquals(0, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
+        assertReferencePriority(network.getGenerator("SynchronousMachine"), 0, false);
+        assertReferencePriority(network.getGenerator("ExternalNetworkInjection"), 0, false);
 
         ReferencePriority.set(network.getGenerator("SynchronousMachine"), 1);
         ReferencePriority.set(network.getGenerator("ExternalNetworkInjection"), 1);
 
-        assertEquals(1, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
-        assertEquals(1, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
+        assertReferencePriority(network.getGenerator("SynchronousMachine"), 1, true);
+        assertReferencePriority(network.getGenerator("ExternalNetworkInjection"), 1, true);
 
         readCgmesResources(network, DIR, "generator_SSH.xml");
 
-        assertEquals(0, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
-        assertEquals(0, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
+        assertReferencePriority(network.getGenerator("SynchronousMachine"), 0, true);
+        assertReferencePriority(network.getGenerator("ExternalNetworkInjection"), 0, true);
+    }
+
+    private static void assertReferencePriority(Generator generator, int referencePriority, boolean isExtensionCreated) {
+        assertEquals(isExtensionCreated, generator.getExtension(ReferencePriorities.class) != null);
+        assertEquals(referencePriority, ReferencePriority.get(generator));
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
