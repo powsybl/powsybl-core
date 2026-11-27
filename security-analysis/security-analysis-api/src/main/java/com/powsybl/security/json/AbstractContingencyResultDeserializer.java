@@ -13,6 +13,7 @@ import com.powsybl.security.results.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -25,11 +26,11 @@ import java.util.List;
  */
 public abstract class AbstractContingencyResultDeserializer<T extends AbstractContingencyResult> extends StdDeserializer<T> {
 
-    protected final transient ValueDeserializer<Object> limitViolationsResultDeserializer;
-    protected final transient ValueDeserializer<Object> networkResultDeserializer;
-    protected final transient ValueDeserializer<Object> busResultDeserializer;
-    protected final transient ValueDeserializer<Object> branchResultDeserializer;
-    protected final transient ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
+    protected final ValueDeserializer<Object> limitViolationsResultDeserializer;
+    protected final ValueDeserializer<Object> networkResultDeserializer;
+    protected final ValueDeserializer<Object> busResultDeserializer;
+    protected final ValueDeserializer<Object> branchResultDeserializer;
+    protected final ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
 
     protected AbstractContingencyResultDeserializer(Class<T> vc) {
         this(vc, null, null, null, null, null);
@@ -56,7 +57,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
                                                   ValueDeserializer<Object> threeWindingsTransformerResultDeserializer);
 
     @Override
-    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return create(JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
             JsonUtil.buildValueDeserializer(ctxt, property, NetworkResult.class),
             JsonUtil.buildValueDeserializer(ctxt, property, BusResult.class),

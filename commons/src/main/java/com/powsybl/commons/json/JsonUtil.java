@@ -131,16 +131,12 @@ public final class JsonUtil {
     /**
      * Deep copies an object through a JSON round trip. Fields or extensions that the mapper cannot serialize are lost.
      */
-    public static <T> T copyThroughJson(T object, Supplier<T> emptyObjectSupplier, ObjectMapper objectMapper) {
+    public static <T> T copyThroughJson(T object, Supplier<T> emptyObjectSupplier, JsonMapper jsonMapper) {
         Objects.requireNonNull(object);
         Objects.requireNonNull(emptyObjectSupplier);
-        Objects.requireNonNull(objectMapper);
-        try {
-            byte[] bytes = objectMapper.writeValueAsBytes(object);
-            return objectMapper.readerForUpdating(emptyObjectSupplier.get()).readValue(bytes);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        Objects.requireNonNull(jsonMapper);
+        byte[] bytes = jsonMapper.writeValueAsBytes(object);
+        return jsonMapper.readerForUpdating(emptyObjectSupplier.get()).readValue(bytes);
     }
 
     public static JsonFactory createJsonFactory() {
@@ -770,17 +766,13 @@ public final class JsonUtil {
      * @return the value of the parsed JSON
      * @param <T> casting type for the value returned by the deserializer
      */
-    public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
-        try {
-            if (parser.currentToken() == JsonToken.VALUE_NULL) {
-                return valueDeserializer != null ? (T) valueDeserializer.getNullValue(context) : null;
-            }
-            return valueDeserializer != null ?
-                (T) valueDeserializer.deserialize(parser, context) :
-                readValue(context, parser, typeClass);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    public static <T> T readValue(ValueDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
+        if (parser.currentToken() == JsonToken.VALUE_NULL) {
+            return valueDeserializer != null ? (T) valueDeserializer.getNullValue(context) : null;
         }
+        return valueDeserializer != null ?
+            (T) valueDeserializer.deserialize(parser, context) :
+            readValue(context, parser, typeClass);
     }
 
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
@@ -796,14 +788,10 @@ public final class JsonUtil {
      * @return the list of the parsed JSON
      * @param <T> casting type for the elements of the list returned by the deserializer
      */
-    public static <T> List<T> readList(JsonDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
-        try {
-            return listDeserializer != null ?
-                (List<T>) listDeserializer.deserialize(parser, context) :
-                readList(context, parser, typeClass);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public static <T> List<T> readList(ValueDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
+        return listDeserializer != null ?
+            (List<T>) listDeserializer.deserialize(parser, context) :
+            readList(context, parser, typeClass);
     }
 
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {

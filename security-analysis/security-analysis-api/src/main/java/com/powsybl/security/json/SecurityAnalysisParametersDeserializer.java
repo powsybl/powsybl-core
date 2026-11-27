@@ -33,8 +33,8 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
     private static final String TAG = "Tag: ";
 
-    private final transient ValueDeserializer<Object> increasedViolationsParametersDeserializer;
-    private final transient ValueDeserializer<Object> modifiedElementsParametersDeserializer;
+    private final ValueDeserializer<Object> increasedViolationsParametersDeserializer;
+    private final ValueDeserializer<Object> modifiedElementsParametersDeserializer;
 
     SecurityAnalysisParametersDeserializer() {
         this(null, null);

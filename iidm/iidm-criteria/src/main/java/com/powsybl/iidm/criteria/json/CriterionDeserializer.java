@@ -36,11 +36,11 @@ import java.util.List;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class CriterionDeserializer extends StdDeserializer<Criterion> implements ContextualDeserializer {
+public class CriterionDeserializer extends StdDeserializer<Criterion> {
 
-    private final transient ValueDeserializer<Object> voltageDeserializer;
-    private final transient ValueDeserializer<Object> countryDeserializer;
-    private final transient ValueDeserializer<Object> propertyDeserializer;
+    private final ValueDeserializer<Object> voltageDeserializer;
+    private final ValueDeserializer<Object> countryDeserializer;
+    private final ValueDeserializer<Object> propertyDeserializer;
 
     public CriterionDeserializer() {
         this(null, null, null);

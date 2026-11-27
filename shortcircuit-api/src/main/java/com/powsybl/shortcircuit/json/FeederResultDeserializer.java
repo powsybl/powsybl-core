@@ -27,7 +27,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
-    private final transient ValueDeserializer<Object> fortescueDeserializer;
+    private final ValueDeserializer<Object> fortescueDeserializer;
 
     FeederResultDeserializer() {
         this(null);

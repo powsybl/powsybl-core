@@ -33,7 +33,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
     private static final String TAG = "Tag: ";
 
-    private final transient ValueDeserializer<Object> voltageRangeDeserializer;
+    private final ValueDeserializer<Object> voltageRangeDeserializer;
 
     public ShortCircuitParametersDeserializer() {
         this(null);

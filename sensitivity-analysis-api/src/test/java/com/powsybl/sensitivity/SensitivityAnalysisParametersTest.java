@@ -404,16 +404,17 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void writeToFailingStream() {
+    void writeToFailingStream() throws IOException {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
-        OutputStream failingStream = new OutputStream() {
+        try (OutputStream failingStream = new OutputStream() {
             @Override
             public void write(int b) throws IOException {
                 throw new IOException("write failure");
             }
-        };
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, failingStream));
-        assertEquals("write failure", e.getCause().getMessage());
+        }) {
+            JacksonException e = assertThrows(JacksonException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, failingStream));
+            assertEquals("write failure", e.getCause().getMessage());
+        }
     }
 
     @Test

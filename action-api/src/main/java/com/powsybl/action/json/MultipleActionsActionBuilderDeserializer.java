@@ -24,7 +24,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder> {
 
-    private final transient ValueDeserializer<Object> actionsBuilderDeserializer;
+    private final ValueDeserializer<Object> actionsBuilderDeserializer;
 
     public MultipleActionsActionBuilderDeserializer() {
         this(null);

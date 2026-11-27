@@ -30,7 +30,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
 
     private static final String CONTEXT_NAME = "identifierContingencyList";
 
-    private final transient ValueDeserializer<Object> identifiersDeserializer;
+    private final ValueDeserializer<Object> identifiersDeserializer;
 
     public IdentifierContingencyListDeserializer() {
         this(null);

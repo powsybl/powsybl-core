@@ -24,7 +24,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
-    private final transient ValueDeserializer<Object> typeDeserializer;
+    private final ValueDeserializer<Object> typeDeserializer;
 
     public ContingencyElementDeserializer() {
         this(null);

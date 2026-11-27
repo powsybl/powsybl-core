@@ -51,11 +51,11 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    private final transient ValueDeserializer<Object> networkMetadataDeserializer;
-    private final transient ValueDeserializer<Object> limitViolationsResultDeserializer;
-    private final transient ValueDeserializer<Object> postContingencyResultsDeserializer;
-    private final transient ValueDeserializer<Object> preContingencyResultDeserializer;
-    private final transient ValueDeserializer<Object> operatorStrategyResultsDeserializer;
+    private final ValueDeserializer<Object> networkMetadataDeserializer;
+    private final ValueDeserializer<Object> limitViolationsResultDeserializer;
+    private final ValueDeserializer<Object> postContingencyResultsDeserializer;
+    private final ValueDeserializer<Object> preContingencyResultDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyResultsDeserializer;
 
     public SecurityAnalysisResultDeserializer() {
         this(null, null, null, null, null);

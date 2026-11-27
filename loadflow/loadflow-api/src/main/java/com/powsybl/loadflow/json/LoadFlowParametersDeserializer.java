@@ -36,7 +36,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
     private static final String CONTEXT_NAME = "LoadFlowParameters";
     private static final String TAGS = "Tag: ";
 
-    private final transient ValueDeserializer<Object> countriesDeserializer;
+    private final ValueDeserializer<Object> countriesDeserializer;
 
     LoadFlowParametersDeserializer() {
         this(null);

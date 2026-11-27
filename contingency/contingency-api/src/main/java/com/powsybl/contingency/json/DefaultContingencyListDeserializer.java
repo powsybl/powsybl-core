@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> {
 
-    private final transient ValueDeserializer<Object> contingenciesDeserializer;
+    private final ValueDeserializer<Object> contingenciesDeserializer;
 
     public DefaultContingencyListDeserializer() {
         this(null);

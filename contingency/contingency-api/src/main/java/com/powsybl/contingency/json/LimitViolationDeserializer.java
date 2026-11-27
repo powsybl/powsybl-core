@@ -41,7 +41,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     public static final String LIMIT_REDUCTION_BACKWARD_COMPAT = "limitReductionBackwardCompat";
     private static final String CONTEXT_NAME = "limit-violation";
 
-    private final transient ValueDeserializer<Object> violationLocationDeserializer;
+    private final ValueDeserializer<Object> violationLocationDeserializer;
 
     public LimitViolationDeserializer() {
         this(null);

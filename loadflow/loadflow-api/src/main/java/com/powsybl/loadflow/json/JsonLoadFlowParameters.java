@@ -106,7 +106,7 @@ public final class JsonLoadFlowParameters {
     }
 
     public static LoadFlowParameters copy(LoadFlowParameters parameters) {
-        return JsonUtil.copyThroughJson(parameters, LoadFlowParameters::new, createObjectMapper());
+        return JsonUtil.copyThroughJson(parameters, LoadFlowParameters::new, createJsonMapper());
     }
 
     private static JsonMapper createJsonMapper() {

@@ -28,9 +28,9 @@ import java.util.List;
  */
 public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
 
-    private final transient ValueDeserializer<Object> branchResultDeserializer;
-    private final transient ValueDeserializer<Object> busResultDeserializer;
-    private final transient ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
+    private final ValueDeserializer<Object> branchResultDeserializer;
+    private final ValueDeserializer<Object> busResultDeserializer;
+    private final ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
 
     public NetworkResultDeserializer() {
         this(null, null, null);

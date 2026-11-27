@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.core.util.ByteArrayBuilder;
 
 import java.util.*;
 

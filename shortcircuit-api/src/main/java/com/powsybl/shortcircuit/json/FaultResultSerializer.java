@@ -64,10 +64,10 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (result.getVoltage() != null) {
             serializationContext.defaultSerializeProperty("voltage", result.getVoltage(), jsonGenerator);
         }
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "equivalentR", result.getEquivalentR());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "equivalentX", result.getEquivalentX());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "equivalentRZero", result.getEquivalentRZero());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "equivalentXZero", result.getEquivalentXZero());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "equivalentR", result.getEquivalentR());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "equivalentX", result.getEquivalentX());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "equivalentRZero", result.getEquivalentRZero());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "equivalentXZero", result.getEquivalentXZero());
     }
 
     private void magnitudeResultSerialization(FaultResult faultResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
@@ -81,8 +81,8 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (!Double.isNaN(magnitudeFaultResult.getVoltage())) {
             serializationContext.defaultSerializeProperty("voltageMagnitude", magnitudeFaultResult.getVoltage(), jsonGenerator);
         }
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "equivalentR", magnitudeFaultResult.getEquivalentR());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "equivalentX", magnitudeFaultResult.getEquivalentX());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "equivalentR", magnitudeFaultResult.getEquivalentR());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "equivalentX", magnitudeFaultResult.getEquivalentX());
     }
 
 }

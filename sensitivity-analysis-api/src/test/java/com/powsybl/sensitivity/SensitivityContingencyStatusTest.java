@@ -7,11 +7,12 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 class SensitivityContingencyStatusTest {
 
-    private final JsonFactory factory = new JsonFactory();
+    private final JsonMapper mapper = JsonUtil.createJsonMapper();
 
     @Test
     void parseStateStatusContingencyOnly() throws Exception {
@@ -38,7 +39,7 @@ class SensitivityContingencyStatusTest {
               ]
             }
             """;
-        try (JsonParser parser = factory.createParser(json)) {
+        try (JsonParser parser = mapper.createParser(json)) {
             parser.nextToken();
             SensitivityStateStatus stateStatus =
                     SensitivityStateStatusJsonDeserializer.parseJson(parser, "1.3");
@@ -64,7 +65,7 @@ class SensitivityContingencyStatusTest {
               ]
             }
             """;
-        try (JsonParser parser = factory.createParser(json)) {
+        try (JsonParser parser = mapper.createParser(json)) {
             parser.nextToken();
             SensitivityStateStatus stateStatus =
                     SensitivityStateStatusJsonDeserializer.parseJson(parser, "1.3");
@@ -94,7 +95,7 @@ class SensitivityContingencyStatusTest {
               ]
             }
             """;
-        try (JsonParser parser = factory.createParser(json)) {
+        try (JsonParser parser = mapper.createParser(json)) {
             parser.nextToken();
             SensitivityStateStatus stateStatus =
                     SensitivityStateStatusJsonDeserializer.parseJson(parser, "1.3");

@@ -27,7 +27,7 @@ import static com.powsybl.contingency.json.OperatorStrategyDeserializer.SOURCE_V
  */
 public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> {
 
-    private final transient ValueDeserializer<Object> operatorStrategyDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyDeserializer;
 
     public OperatorStrategyListDeserializer() {
         this(null);

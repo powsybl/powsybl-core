@@ -7,6 +7,7 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.json.ContingencyJsonModule;
@@ -58,7 +59,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkSerDe.write(network, fileSystem.getPath("network.xiidm"));
 
-        jsonMapper = JsonMapper.builder()
+        jsonMapper = JsonUtil.createJsonMapperBuilder()
             .addModule(new SensitivityJsonModule())
             .addModule(new ContingencyJsonModule())
             .build();
@@ -125,7 +126,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         List<Map<String, Object>> status;
         Object computationComplete;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            Map<String, List<Object>> map = jsonMapper.readValue(reader, new TypeReference<>() { });
+            Map<String, Object> map = jsonMapper.readValue(reader, new TypeReference<>() { });
             values = jsonMapper.convertValue(map.get("sensitivityValues"), new TypeReference<>() { });
             status = jsonMapper.convertValue(map.get("stateStatus"), new TypeReference<>() { });
             computationComplete = map.get("computationComplete");

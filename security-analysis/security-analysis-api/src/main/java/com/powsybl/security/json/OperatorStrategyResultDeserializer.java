@@ -34,10 +34,10 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
 
     private static final String CONTEXT_NAME = "OperatorStrategyResult";
 
-    private final transient ValueDeserializer<Object> operatorStrategyDeserializer;
-    private final transient ValueDeserializer<Object> limitViolationsResultDeserializer;
-    private final transient ValueDeserializer<Object> networkResultDeserializer;
-    private final transient ValueDeserializer<Object> conditionalActionsResultDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyDeserializer;
+    private final ValueDeserializer<Object> limitViolationsResultDeserializer;
+    private final ValueDeserializer<Object> networkResultDeserializer;
+    private final ValueDeserializer<Object> conditionalActionsResultDeserializer;
 
     public OperatorStrategyResultDeserializer() {
         this(null, null, null, null);

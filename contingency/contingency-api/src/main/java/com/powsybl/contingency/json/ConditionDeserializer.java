@@ -29,8 +29,8 @@ import java.util.Set;
  */
 public class ConditionDeserializer extends StdDeserializer<Condition> {
 
-    private final transient ValueDeserializer<Object> violationIdsDeserializer;
-    private final transient ValueDeserializer<Object> conditionFiltersDeserializer;
+    private final ValueDeserializer<Object> violationIdsDeserializer;
+    private final ValueDeserializer<Object> conditionFiltersDeserializer;
 
     private static final class ParsingContext {
         String type;
@@ -111,7 +111,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 context.equipmentId = parser.nextStringValue();
                 return true;
             case "side":
-                context.side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
+                context.side = JsonUtil.readNullableEnumValue(parser.nextStringValue(), ThreeSides.class);
                 return true;
             case "acSide":
                 parser.nextToken();
@@ -122,10 +122,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
                 return true;
             case "comparisonType":
-                context.comparisonType = JsonUtil.readNullableEnumValue(parser.nextTextValue(), AbstractThresholdCondition.ComparisonType.class);
+                context.comparisonType = JsonUtil.readNullableEnumValue(parser.nextStringValue(), AbstractThresholdCondition.ComparisonType.class);
                 return true;
             case "variable":
-                context.variable = JsonUtil.readNullableEnumValue(parser.nextTextValue(), AbstractThresholdCondition.Variable.class);
+                context.variable = JsonUtil.readNullableEnumValue(parser.nextStringValue(), AbstractThresholdCondition.Variable.class);
                 return true;
             default:
                 return false;

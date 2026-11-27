@@ -15,6 +15,7 @@ import com.powsybl.iidm.criteria.RegexCriterion;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -28,8 +29,8 @@ import java.util.List;
 public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T extends AbstractEquipmentCriterionContingencyList>
     extends StdDeserializer<T> {
 
-    protected final transient ValueDeserializer<Object> criterionDeserializer;
-    protected final transient ValueDeserializer<Object> propertyCriteriaDeserializer;
+    protected final ValueDeserializer<Object> criterionDeserializer;
+    protected final ValueDeserializer<Object> propertyCriteriaDeserializer;
 
     protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c) {
         this(c, null, null);
@@ -47,7 +48,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                                                 ValueDeserializer<Object> propertyCriteriaDeserializer);
 
     @Override
-    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return create(JsonUtil.buildValueDeserializer(ctxt, property, Criterion.class),
             JsonUtil.buildListDeserializer(ctxt, property, Criterion.class));
     }

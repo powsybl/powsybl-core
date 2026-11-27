@@ -129,7 +129,7 @@ public final class JsonSecurityAnalysisParameters {
     }
 
     public static SecurityAnalysisParameters copy(SecurityAnalysisParameters parameters) {
-        return JsonUtil.copyThroughJson(parameters, SecurityAnalysisParameters::new, createObjectMapper());
+        return JsonUtil.copyThroughJson(parameters, SecurityAnalysisParameters::new, createJsonMapper());
     }
 
     private static JsonMapper createJsonMapper() {

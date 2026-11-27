@@ -41,9 +41,9 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     private static final String TAG_ACTION_IDS = "Tag: actionIds";
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    private final transient ValueDeserializer<Object> conditionalActionsDeserializer;
-    private final transient ValueDeserializer<Object> conditionDeserializer;
-    private final transient ValueDeserializer<Object> actionsIdsDeserializer;
+    private final ValueDeserializer<Object> conditionalActionsDeserializer;
+    private final ValueDeserializer<Object> conditionDeserializer;
+    private final ValueDeserializer<Object> actionsIdsDeserializer;
 
     public OperatorStrategyDeserializer() {
         this(null, null, null);

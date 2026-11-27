@@ -37,7 +37,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
-    private final transient ValueDeserializer<Object> elementDeserializer;
+    private final ValueDeserializer<Object> elementDeserializer;
 
     public ContingencyDeserializer() {
         this(null);

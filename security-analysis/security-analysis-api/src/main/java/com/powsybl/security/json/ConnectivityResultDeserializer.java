@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
 
-    private final transient ValueDeserializer<Object> disconnectedElementsDeserializer;
+    private final ValueDeserializer<Object> disconnectedElementsDeserializer;
 
     public ConnectivityResultDeserializer() {
         this(null);

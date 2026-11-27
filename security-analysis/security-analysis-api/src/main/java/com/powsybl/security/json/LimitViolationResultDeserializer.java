@@ -27,8 +27,8 @@ import java.util.List;
  */
 public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
 
-    private final transient ValueDeserializer<Object> limitViolationsDeserializer;
-    private final transient ValueDeserializer<Object> actionsTakenDeserializer;
+    private final ValueDeserializer<Object> limitViolationsDeserializer;
+    private final ValueDeserializer<Object> actionsTakenDeserializer;
 
     public LimitViolationResultDeserializer() {
         this(null, null);

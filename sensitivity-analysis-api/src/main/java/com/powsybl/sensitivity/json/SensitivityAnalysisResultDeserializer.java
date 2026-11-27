@@ -32,11 +32,11 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    private final transient ValueDeserializer<Object> factorsDeserializer;
-    private final transient ValueDeserializer<Object> sensitivityValuesDeserializer;
-    private final transient ValueDeserializer<Object> stateStatusDeserializer;
-    private final transient ValueDeserializer<Object> contingencyIdsDeserializer;
-    private final transient ValueDeserializer<Object> operatorStrategyIdsDeserializer;
+    private final ValueDeserializer<Object> factorsDeserializer;
+    private final ValueDeserializer<Object> sensitivityValuesDeserializer;
+    private final ValueDeserializer<Object> stateStatusDeserializer;
+    private final ValueDeserializer<Object> contingencyIdsDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyIdsDeserializer;
 
     protected SensitivityAnalysisResultDeserializer() {
         this(null, null, null, null, null);

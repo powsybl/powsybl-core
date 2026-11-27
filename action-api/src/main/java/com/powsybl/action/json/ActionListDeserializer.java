@@ -30,11 +30,11 @@ import java.util.Map;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class ActionListDeserializer extends StdDeserializer<ActionList> implements ContextualDeserializer {
+public class ActionListDeserializer extends StdDeserializer<ActionList> {
 
     public static final String VERSION = "version";
 
-    private final transient ValueDeserializer<Object> actionBuilderDeserializer;
+    private final ValueDeserializer<Object> actionBuilderDeserializer;
 
     public ActionListDeserializer() {
         this(null);
