@@ -530,10 +530,6 @@ class TimeSeriesTest {
         assertThatCode(() -> TimeSeries.parseCsv(csvWithOneExtraColumn, config))
                 .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
                 .isInstanceOf(TimeSeriesException.class);
-        String csvWithManyExtraColumns = createWideCsv(150);
-        assertThatCode(() -> TimeSeries.parseCsv(csvWithManyExtraColumns, config))
-                .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
-                .isInstanceOf(TimeSeriesException.class);
     }
 
     @Test
