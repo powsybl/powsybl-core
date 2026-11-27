@@ -38,6 +38,8 @@ public final class AmplConstants {
     public static final String MAX_Q_MAX_P = "maxQmaxP (MVar)";
     public static final String MAX_Q0 = "maxQ0 (MVar)";
     public static final String MAX_Q_MIN_P = "maxQminP (MVar)";
+    public static final String MIN_Q_TARGET_P = "minQTargetP (MVar)";
+    public static final String MAX_Q_TARGET_P = "maxQTargetP (MVar)";
     public static final String NUM = "num";
     public static final String BUS = "bus";
     public static final String P0 = "p0 (MW)";

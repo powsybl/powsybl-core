@@ -4,7 +4,7 @@ This module is used to extract a portion of a network on an area of interest def
 
 ## Define an area of interest
 
-The network reduction is relying on a `NetworkPredicate` instance, to define an area of interest (i.e., a list of equipments to keep in the network after the reduction). 
+The network reduction is relying on a `NetworkPredicate` instance, to define an area of interest (i.e., a list of equipments to keep in the network after the reduction).
 The equipments outside this area are removed, and the lines, transformers and HVDC lines connecting voltage levels inside and outside this area will be replaced by injections (loads or boundary lines, depending on the implementation).
 
 
@@ -110,8 +110,8 @@ However, the operational limits and extensions from the original branch are not 
 
 ##### Replacements by boundary lines
 
-The boundary line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the boundary line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle). 
-The conductance and susceptance are set to the $G_1$ and $B_1$ or to $G_2$ and $B_2$, depending on which side is kept in the network. 
+The boundary line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the boundary line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle).
+The conductance and susceptance are set to the $G_1$ and $B_1$ or to $G_2$ and $B_2$, depending on which side is kept in the network.
 
 The $P_0$ and $Q_0$ are set to the $P$ and $Q$ of the corresponding terminal, depending on which side is kept in the network. If the line is disconnected, $P_0$ and $Q_0$ are set to `NaN`.
 The connectivity information (node or bus depending on the voltage level topology) is kept.
@@ -187,6 +187,10 @@ reducer.reduce(network);
 ```
 
 ### Groovy scripting
+```{warning}
+Groovy scripts are executed without any sandbox. Only use scripts from trusted sources. See [Groovy scripts security](../user/groovy-security.md).
+```
+
 This example shows how to do a network reduction, using the [run-script](../user/itools/run-script.md) command.
 
 First, we need a groovy script to do the reduction:

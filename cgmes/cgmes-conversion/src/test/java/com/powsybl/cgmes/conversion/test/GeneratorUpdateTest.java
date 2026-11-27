@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -62,6 +61,14 @@ class GeneratorUpdateTest {
         assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "generator_SV.xml");
         assertFlowsAfterSv(network);
+
+        // Partial SSH: the synchronous machine has no referencePriority and no operatingMode, the external network
+        // injection has no controlEnabled and no referencePriority; the attributes that are present must still be applied
+        readCgmesResources(network, DIR, "generator_partial_SSH.xml");
+        assertEquals(170.0, network.getGenerator("SynchronousMachine").getTargetP(), 0.0);
+        assertEquals(-10.0, network.getGenerator("SynchronousMachine").getLocalTargetQ(), 0.0);
+        assertEquals(-20.0, network.getGenerator("ExternalNetworkInjection").getTargetP(), 0.0);
+        assertEquals(-10.0, network.getGenerator("ExternalNetworkInjection").getLocalTargetQ(), 0.0);
     }
 
     @Test
@@ -89,6 +96,23 @@ class GeneratorUpdateTest {
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
+    @Test
+    void usePreviousStatusWhenTerminalIsMissingFromSshTest() {
+        Network network = readCgmesResources(DIR, "generator_cim_16_EQ.xml", "generator_cim_16_TP.xml", "generator_cim_16_SSH.xml");
+        Generator generator = network.getGenerator("SynchronousMachine");
+        assertNotNull(generator);
+        assertTrue(generator.getTerminal().isConnected());
+
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "generator_cim_16_TP.xml", "../empty_SSH.xml");
+
+        assertFalse(generator.getTerminal().isConnected());
+    }
+
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
@@ -104,8 +128,8 @@ class GeneratorUpdateTest {
         assertEq(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), false);
         assertEq(network.getGenerator("EquivalentInjectionWithRegulationCapability"), true);
 
-        assertNotNull(network.getGenerator("SynchronousMachine").getProperty(PROPERTY_MODE));
-        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getProperty(PROPERTY_MODE));
+        assertNotNull(network.getGenerator("SynchronousMachine").getVoltageRegulation());
+        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getVoltageRegulation());
     }
 
     private static void assertFirstSsh(Network network) {
@@ -155,7 +179,7 @@ class GeneratorUpdateTest {
         assertFalse(generator.isRegulating());
 
         assertEquals(regulationCapability, generator.getVoltageRegulation() != null);
-        if (generator.getProperty(PROPERTY_MODE) != null) {
+        if (generator.getVoltageRegulation() != null) {
             assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         }
     }

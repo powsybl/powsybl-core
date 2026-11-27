@@ -174,19 +174,19 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Characteristics**
 
-| Attribute           | Unit | Description                                                                        |
-|---------------------|------|------------------------------------------------------------------------------------|
-| $MinP$              | MW   | Minimum generator active power output                                              |
-| $MaxP$              | MW   | Maximum generator active power output                                              |
-| $ReactiveLimits$    | MVar | Operational limits of the generator (P/Q/V diagram)                                |
-| $RatedS$            | MVA  | The rated nominal power                                                            |
-| $TargetP$           | MW   | The active power target                                                            |
-| $LocalTargetQ$      | MVar | The reactive power target at local terminal                                        |
-| $LocalTargetV$      | kV   | The voltage target at local terminal                                               |
-| $EnergySource$      |      | The energy source harnessed to turn the generator                                  |
-| $IsCondenser$       |      | True if the generator may behave as a condenser                                    |
-| $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                       |
-| $Equivalent$        | -    | Indicates if the generator is an equivalent, from a network reduction for instance | 
+| Attribute                | Unit | Description                                                                        |
+|--------------------------|------|------------------------------------------------------------------------------------|
+| $MinP$                   | MW   | Minimum generator active power output                                              |
+| $MaxP$                   | MW   | Maximum generator active power output                                              |
+| $ReactiveLimits$         | MVar | Operational limits of the generator (P/Q/V diagram)                                |
+| $RatedS$                 | MVA  | The rated nominal power                                                            |
+| $TargetP$                | MW   | The active power target                                                            |
+| $LocalTargetQ$           | MVar | The reactive power target at local terminal                                        |
+| $LocalTargetV$           | kV   | The voltage target at local terminal                                               |
+| $EnergySource$           |      | The energy source harnessed to turn the generator                                  |
+| $HasCondenserCapability$ |      | True if the generator may behave as a condenser                                    |
+| $VoltageRegulation$      |      | See [Voltage Regulation](./additional.md#voltage-regulation)                       |
+| $Equivalent$             | -    | Indicates if the generator is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -194,7 +194,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 - [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
 - `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 - Target values for generators (`TargetP` and `LocalTargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `LocalTargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The diagram above shows the sign convention of these quantities with an example.
-- The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
+- The `HasCondenserCapability` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 - The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
 - The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 
@@ -335,7 +335,9 @@ A network may be connected to other networks for which a full description is not
 ![Boundary line model](img/boundary-line.svg){width="50%" align=center class="only-light"}
 ![Boundary line model](img/dark_mode/boundary-line.svg){width="50%" align=center class="only-dark"}
 
-A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the boundary line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the boundary line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the boundary line follows the classical generator sign convention.
+A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the boundary line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the boundary line, and no target value is set on the voltage regulation (the local target voltage and target reactive power are used instead).
+The voltage regulation of the generation part is a local voltage regulation, and its only allowed mode is `VOLTAGE`.
+Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the boundary line follows the classical generator sign convention.
 
 Resulting flows at the boundary line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
@@ -934,12 +936,18 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 
 **Characteristics**
 
-| Attribute  | Unit | Description                          |
-|------------|------|--------------------------------------|
-| $NominalV$ | kV   | The nominal voltage, always positive |
+| Attribute          | Unit | Description                          |
+|--------------------|------|--------------------------------------|
+| $NominalV$         | kV   | The nominal voltage, always positive |
+| $LowVoltageLimit$  | kV   | The low voltage limit                |
+| $HighVoltageLimit$ | kV   | The high voltage limit               |
 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
+
+The optional voltage limits bound the magnitude of the voltage, whatever the polarity of the DC node: a DC node is within its
+limits when $LowVoltageLimit < |V| < HighVoltageLimit$, an undefined limit imposing no bound. $LowVoltageLimit$ and $HighVoltageLimit$ must be non-negative,
+and $LowVoltageLimit$ must be less than or equal to $HighVoltageLimit$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -954,13 +962,16 @@ A DC Line has two DC Terminals.
 
 **Characteristics**
 
-| Attribute | Unit     | Description                            |
-|-----------|----------|----------------------------------------|
-| $R$       | $\Omega$ | The series resistance, always positive |
+| Attribute               | Unit     | Description                            |
+|-------------------------|----------|----------------------------------------|
+| $R$                     | $\Omega$ | The series resistance, always positive |
+| $PermanentCurrentLimit$ | A        | The permanent current limit            |
 
 **Specifications**
 
 The $R$ value can't be negative, because this is a detailed model, it is a direct physical representation, not an equivalent model.
+
+The optional $PermanentCurrentLimit$ value must be non-negative. A DC Line is within its limit when $|I| < PermanentCurrentLimit$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -1087,12 +1098,10 @@ at a given DC voltage is the one which verifies:
 $V_{DC} \in [V_{min}, V_{max})$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 A droop curve must be invertible. This implies that all the droop coefficients $k$ must be non-zero and with the same sign.
 
-`MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
-same load sign convention as `TargetP`.
+`MinP` and `MaxP` are control parameters of the converter: they bound the active power that its control can reach at the
+Point of Common Coupling, using the same load sign convention as `TargetP`.
 
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
-
-`MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -1160,10 +1169,11 @@ DC equipment connectivity may be modified in two ways:
 - By changing the `open` attribute of a `DcSwitch`.
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
-- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
+- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node, or when a DC Node is an end of a closed DC switch with non-zero resistance.
 - DC Nodes linked by a closed DC switch are considered part of the same DC Bus when the resistance of the DcSwitch is zero, otherwise they are in distinct buses.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
-- DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
+- DC Nodes at the ends of a closed DC switch with non-zero resistance always form DC Buses, even without any connected DC Terminal: such a switch carries current like a DC Line, so a voltage is needed at both ends.
+- Other DC Nodes without any connected DC Terminal do not form a DC Bus.
 
 DC Buses linked together via DC Lines, AC/DC Converters and/or closed DC switches are part of the same *DC Component* (also called *DC Island*).
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a

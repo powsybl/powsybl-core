@@ -224,21 +224,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBEWithTieFlow() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_with_tie_flow/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-With-Tie-Flow",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SSH),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_with_tie_flow_mapped_to_equivalent_injection/";
@@ -454,20 +439,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseBEFixedMinPMaxP() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_fixed_minP_maxP/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-fixed-minP-maxP",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseCaseBEIncorrectDate() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_incorrect_date_and_version/";
@@ -475,20 +446,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 null,
                 new ResourceSet(baseModified,
                         MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEReactivePowerGen() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_reactive_power_gen/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-reactive-power-gen",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
                         MICRO_GRID_BE_TP,
                         MICRO_GRID_BE_SV,
                         MICRO_GRID_BE_SSH),
@@ -908,22 +865,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         MINI_GRID_BD_TP));
     }
 
-    public static GridModelReferenceResources smallBusBranchTieFlowsWithoutControlArea() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/SmallGrid/TieFlow_missing_controlArea";
-        return new GridModelReferenceResources(
-                "SmallGrid-BusBranch-TieFlow-missing-ca",
-                null,
-                new ResourceSet(SMALL_GRID_BUS_BRANCH_BASE, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
-                        SMALL_GRID_SSH,
-                        "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
-                        SMALL_GRID_SV,
-                        SMALL_GRID_TP),
-                new ResourceSet(base, SMALL_GRID_EQ),
-                new ResourceSet(SMALL_GRID_BUS_BRANCH_BD_BASE, SMALL_GRID_BD_EQ,
-                        SMALL_GRID_BD_TP));
-    }
-
     public static GridModelReferenceResources smallBusBranchWithSvInjection() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/SmallGrid/WithSvInjection";
@@ -949,21 +890,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(MICRO_GRID_BE_BASE,
                         MICRO_GRID_BE_SV,
                         MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReference microGridBaseCaseAssembledEntsoeCategory() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_Assembled_v2_gu_description_entsoe_category/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-Assembled-Entsoe-Category",
-                null,
-                new ResourceSet(base,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_NL_EQ),
-                new ResourceSet(MICRO_GRID_ASSEMBLED_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_NL_TP),
                 microGridBaseCaseBoundaries());
     }
 

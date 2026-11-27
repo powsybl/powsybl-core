@@ -741,6 +741,12 @@ public class CgmesImport implements Importer {
                                 p,
                                 USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
                                 defaultValueConfig))
+                .setUseSvcRegulationDataAsAlternative(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_SVC_REGULATION_DATA_AS_ALTERNATIVE_PARAMETER,
+                                defaultValueConfig))
                 .setRemovePropertiesAndAliasesAfterImport(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -835,6 +841,7 @@ public class CgmesImport implements Importer {
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT = "iidm.import.cgmes.cgm-with-subnetworks-thread-count";
     public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
     public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
+    public static final String USE_SVC_REGULATION_DATA_AS_ALTERNATIVE = "iidm.import.cgmes.use-svc-regulation-data-as-alternative";
     public static final String REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT = "iidm.import.cgmes.remove-properties-and-aliases-after-import";
     public static final String USE_DETAILED_DC_MODEL = "iidm.import.cgmes.use-detailed-dc-model";
     public static final String SILENCE_FREQUENT_ISSUES_WARNINGS = "iidm.import.cgmes.silence-frequent-issues-warnings";
@@ -963,6 +970,12 @@ public class CgmesImport implements Importer {
             "Use previous values (from a previous update) during the current update",
             Boolean.FALSE);
 
+    private static final Parameter USE_SVC_REGULATION_DATA_AS_ALTERNATIVE_PARAMETER = new Parameter(
+        USE_SVC_REGULATION_DATA_AS_ALTERNATIVE,
+        ParameterType.BOOLEAN,
+        "Use StaticVarCompensator regulation data from equipment profile if RegulatingControl data are faulty",
+        Boolean.FALSE);
+
     private static final Parameter REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER = new Parameter(
             REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT,
             ParameterType.BOOLEAN,
@@ -1003,6 +1016,7 @@ public class CgmesImport implements Importer {
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
             CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
             USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
+            USE_SVC_REGULATION_DATA_AS_ALTERNATIVE_PARAMETER,
             REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
             USE_DETAILED_DC_MODEL_PARAMETER,
             SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER);

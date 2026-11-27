@@ -638,7 +638,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void createSelectedOperationalLimitsGroupWhenMissing(LimitType limitType) {
+    public void createSelectedOperationalLimitsGroupWhenMissing(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -691,7 +691,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void addEmptySelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
+    public void addEmptySelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -714,7 +714,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void addEmptyDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
+    public void addEmptyDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)

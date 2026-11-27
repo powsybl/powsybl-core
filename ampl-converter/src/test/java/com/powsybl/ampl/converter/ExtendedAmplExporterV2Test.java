@@ -60,8 +60,12 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_batteries", getBatteriesTestRefFileName());
     }
 
+    String getIsCondenserTestRefFileName() {
+        return "inputs/extended_exporter_v2/eurostag-tutorial-example1-generators-is-condenser.txt";
+    }
+
     @Test
-    void testIsCondenserExportGenerators() throws IOException {
+    void testHasCondenserCapabilityExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN3")
@@ -76,13 +80,12 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
                     .add()
                 .setTargetP(607.0)
                 .setLocalTargetQ(301.0)
-                .setCondenser(true)
+                .setCondenserCapability(true)
                 .add();
 
         exporter.export(network, properties, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_generators",
-                "inputs/extended_exporter_v2/eurostag-tutorial-example1-generators-is-condenser.txt");
+        assertEqualsToRef(dataSource, "_network_generators", getIsCondenserTestRefFileName());
     }
 
     @Test
@@ -98,6 +101,10 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/extended_exporter_v2/lcc-load-target-q-test-case.txt");
     }
 
+    String getVscTestRefFileName() {
+        return "inputs/vsc-test-case.txt";
+    }
+
     @Test
     void testHvdcNoAcEmulation() throws IOException {
         Network network = HvdcTestNetwork.createVsc();
@@ -105,7 +112,7 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         exporter.export(network, properties, dataSource);
 
         // Check that export is the same as for basic AMPL exporter
-        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", getVscTestRefFileName());
 
         // Check hvdc line has null parameter for ac emulation
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/extended_exporter_v2/hvdc-vsc-test-case.txt");
@@ -123,7 +130,7 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         exporter.export(network, properties, dataSource);
 
         // Check that export is the same as for basic AMPL exporter
-        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
+        assertEqualsToRef(dataSource, "_network_vsc_converter_stations", getVscTestRefFileName());
 
         // Check ac emulation parameters of the hvdc line
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/extended_exporter_v2/hvdc-ac-emul-vsc-test-case.txt");

@@ -36,6 +36,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DetailedHvdcConverter.class);
 
+    // PowerFactory expresses the absence of a limit with values of at least this magnitude
+    private static final double NO_LIMIT = 9999;
+
     private final DcGridData gridData;
 
     // Small record that directly transcribes the DC data from the PowerFactory data
@@ -345,12 +348,45 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network  where to add the node.
      */
     private static void addDcNode(DataObject terminal, Network network) {
-        network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(terminal.getFloatAttributeValue("uknom")).add();
-
         double uknom = terminal.getFloatAttributeValue("uknom");
+        DcNodeAdder dcNodeAdder = network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(uknom);
+        setVoltageLimits(dcNodeAdder, terminal, uknom);
+        dcNodeAdder.add();
+
         double unknom = terminal.getFloatAttributeValue("unknom");
         if (uknom != unknom) {
             throw new PowerFactoryException("ElmTerm " + terminal.getId() + " is part of a DC subgrid but its uknom and unknom are different.");
+        }
+    }
+
+    /**
+     * Set the voltage limits of the DC node from the steady-state voltage limits of the terminal.
+     * A limit is left undefined (NaN) if its attribute is missing.
+     * @param dcNodeAdder adder of the DC node.
+     * @param terminal terminal in the DGS file.
+     * @param uknom nominal voltage (kV) of the terminal.
+     * @throws PowerFactoryException if vmin or vmax is negative,
+     * or vmin is greater than vmax when both are set.
+     */
+    private static void setVoltageLimits(DcNodeAdder dcNodeAdder, DataObject terminal, double uknom) {
+        double vmin = terminal.findFloatAttributeValue("vmin").orElse(Float.NaN); // pu
+        double vmax = terminal.findFloatAttributeValue("vmax").orElse(Float.NaN); // pu
+        if (vmin < 0) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmin (" + (float) vmin + ").");
+        }
+        if (vmax < 0) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmax (" + (float) vmax + ").");
+        }
+        boolean vminSet = !Double.isNaN(vmin);
+        boolean vmaxSet = !Double.isNaN(vmax);
+        if (vminSet && vmaxSet && vmin > vmax) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has vmin (" + (float) vmin + ") greater than vmax (" + (float) vmax + ").");
+        }
+        if (vminSet) {
+            dcNodeAdder.setLowVoltageLimit(vmin * uknom);
+        }
+        if (vmaxSet) {
+            dcNodeAdder.setHighVoltageLimit(vmax * uknom);
         }
     }
 
@@ -395,7 +431,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 .setId(idInNetworkString(line))
                 .setDcNode1(dcNodesIds.getFirst())
                 .setDcNode2(dcNodesIds.getLast())
-                .setR(lineResistance).add();
+                .setR(lineResistance)
+                .setPermanentCurrentLimit(getPermanentCurrentLimit(line))
+                .add();
     }
 
     /**
@@ -408,7 +446,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      */
     private static double getLineResistance(DataObject line) {
         double lineLength = line.getFloatAttributeValue("dline"); // km
-        int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
+        int numberOfParallelLines = getNumberOfParallelLines(line);
 
         DataObject lineType = line.getObjectAttributeValue(TYP_ID).resolve().orElseThrow(() -> new PowerFactoryException("Missing line type referenced by DC line " + line.getId() + "."));
 
@@ -422,6 +460,37 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         return rline * lineLength / numberOfParallelLines; // Ohm
     }
 
+    /**
+     * Compute the permanent current limit of the line from its maximum permissible current per circuit.
+     *
+     * @param line DC line in the DGS file.
+     * @return permanent current limit (A) of the line, or NaN if Imaxlim is missing or denotes the absence of a limit.
+     * @throws PowerFactoryException if Imaxlim is negative.
+     */
+    private static double getPermanentCurrentLimit(DataObject line) {
+        double maxCurrentPerCircuit = line.findFloatAttributeValue("Imaxlim").orElse(Float.NaN); // kA
+        if (Double.isNaN(maxCurrentPerCircuit) || maxCurrentPerCircuit >= NO_LIMIT) {
+            return Double.NaN;
+        }
+        if (maxCurrentPerCircuit < 0) {
+            throw new PowerFactoryException("ElmLne " + line.getId() + " has negative Imaxlim (" + (float) maxCurrentPerCircuit + ").");
+        }
+        return 1000 * maxCurrentPerCircuit * getNumberOfParallelLines(line); // A
+    }
+
+    /**
+     * @param line line in the DGS file.
+     * @return number of parallel circuits of the line, 1 if nlnum is missing.
+     * @throws PowerFactoryException if nlnum is present and not strictly positive.
+     */
+    private static int getNumberOfParallelLines(DataObject line) {
+        int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
+        if (numberOfParallelLines <= 0) {
+            throw new PowerFactoryException("ElmLne " + line.getId() + " has non-positive nlnum (" + numberOfParallelLines + ").");
+        }
+        return numberOfParallelLines;
+    }
+
     private record PowerFactoryAcDcConverterParameters(int iAcdc,
                                                        double uSetVoltageDcPu,
                                                        double unomDc,
@@ -429,6 +498,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                                                        double uNom,
                                                        double qsetp,
                                                        double psetp,
+                                                       double pMinUc,
+                                                       double pMaxUc,
                                                        double pnold,
                                                        double swtLossFactor,
                                                        double resLossFactor) {
@@ -445,6 +516,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double qsetp = elmVsc.findFloatAttributeValue("qsetp").orElse(Float.NaN); // Reactive power in Mvar
         double psetp = elmVsc.findFloatAttributeValue("psetp").orElse(Float.NaN);
 
+        // Active power limits in MW, with the PowerFactory sign convention
+        double pMinUc = elmVsc.findFloatAttributeValue("Pmin_uc").orElse(Float.NaN);
+        double pMaxUc = elmVsc.findFloatAttributeValue("Pmax_uc").orElse(Float.NaN);
+
         // Loss model
         double pnold = elmVsc.findFloatAttributeValue("Pnold").orElse(0.0F); // No-load losses in kW
         double swtLossFactor = elmVsc.findFloatAttributeValue("swtLossFactor").orElse(0.0F); // Switching loss factor in kW/A
@@ -457,6 +532,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 uNom, // kV
                 qsetp, // MVar
                 psetp, // MW
+                pMinUc, // MW
+                pMaxUc, // MW
                 pnold, // kW (warning !)
                 swtLossFactor, // kW / A (warning !)
                 resLossFactor); // Ohm
@@ -545,9 +622,34 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
         }
         converterAdder.setTargetP(-pfParams.psetp);
+        setActivePowerLimits(converterAdder, elmVsc, pfParams.pMinUc, pfParams.pMaxUc);
 
         addVoltageRegulation(converterAdder, acVoltageRegulation, voltageSetPointAc, targetQ);
         converterAdder.add();
+    }
+
+    /**
+     * Set the active power limits of the converter from the PowerFactory limits.
+     * As for the setpoint, the sign is changed, so the bounds are swapped.
+     * A bound is left to its default value if its PowerFactory limit is missing or denotes the absence of a limit.
+     * @param converterAdder adder of the converter.
+     * @param elmVsc converter in the DGS file.
+     * @param pMinUc minimum active power in MW, PowerFactory sign convention (NaN if missing).
+     * @param pMaxUc maximum active power in MW, PowerFactory sign convention (NaN if missing).
+     * @throws PowerFactoryException if both limits are set and pMinUc is greater than pMaxUc.
+     */
+    private static void setActivePowerLimits(VoltageSourceConverterAdder converterAdder, DataObject elmVsc, double pMinUc, double pMaxUc) {
+        boolean pMinSet = pMinUc > -NO_LIMIT; // false if NaN
+        boolean pMaxSet = pMaxUc < NO_LIMIT; // false if NaN
+        if (pMinSet && pMaxSet && pMinUc > pMaxUc) {
+            throw new PowerFactoryException("ElmVsc " + elmVsc.getId() + " has Pmin_uc (" + (float) pMinUc + ") greater than Pmax_uc (" + (float) pMaxUc + ").");
+        }
+        if (pMaxSet) {
+            converterAdder.setMinP(-pMaxUc);
+        }
+        if (pMinSet) {
+            converterAdder.setMaxP(-pMinUc);
+        }
     }
 
     private static void addVoltageRegulation(VoltageSourceConverterAdder converterAdder, boolean acVoltageRegulation, double voltageSetPointAc, double targetQ) {

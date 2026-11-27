@@ -9,12 +9,12 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 /**
@@ -33,7 +33,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         super(phaseTapChanger, context);
         this.type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE);
         // To optimise comparisons with valid types
-        this.typeLowerCase = this.type.toLowerCase();
+        this.typeLowerCase = this.type == null ? null : this.type.toLowerCase(Locale.ROOT);
         this.tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         this.xtx = xtx;
     }
@@ -58,9 +58,9 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
 
     @Override
     protected void addRegulationData() {
-        String regulatingControlId = RegulatingControlMappingForTransformers.getRegulatingControlId(p);
+        String regulatingControlId = p.getId(CgmesNames.TAP_CHANGER_CONTROL);
         tapChanger.setId(p.getId(CgmesNames.PHASE_TAP_CHANGER))
-                .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
+                .setRegulating(regulatingControlId != null)
                 .setRegulatingControlId(regulatingControlId)
                 .setTapChangerControlEnabled(p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
     }

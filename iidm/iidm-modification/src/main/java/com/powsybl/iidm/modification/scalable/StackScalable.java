@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.scalable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,8 +41,8 @@ public class StackScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    Collection<Scalable> getScalables() {
-        return scalables;
+    public List<Scalable> getScalables() {
+        return Collections.unmodifiableList(scalables);
     }
 
     @Override
