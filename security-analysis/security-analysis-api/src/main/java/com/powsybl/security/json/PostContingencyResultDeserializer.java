@@ -7,9 +7,6 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.PostContingencyComputationStatus;
@@ -17,8 +14,11 @@ import com.powsybl.security.results.ChangedPhaseTapChanger;
 import com.powsybl.security.results.ConnectivityResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -36,11 +36,11 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         super(PostContingencyResult.class);
     }
 
-    public PostContingencyResultDeserializer(JsonDeserializer<Object> limitViolationsResultDeserializer,
-                                             JsonDeserializer<Object> networkResultDeserializer,
-                                             JsonDeserializer<Object> busResultDeserializer,
-                                             JsonDeserializer<Object> branchResultDeserializer,
-                                             JsonDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+    public PostContingencyResultDeserializer(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                             ValueDeserializer<Object> networkResultDeserializer,
+                                             ValueDeserializer<Object> busResultDeserializer,
+                                             ValueDeserializer<Object> branchResultDeserializer,
+                                             ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
         super(PostContingencyResult.class,
             limitViolationsResultDeserializer,
             networkResultDeserializer,
@@ -50,11 +50,11 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
     }
 
     @Override
-    protected PostContingencyResultDeserializer create(JsonDeserializer<Object> limitViolationsResultDeserializer,
-                                         JsonDeserializer<Object> networkResultDeserializer,
-                                         JsonDeserializer<Object> busResultDeserializer,
-                                         JsonDeserializer<Object> branchResultDeserializer,
-                                         JsonDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+    protected PostContingencyResultDeserializer create(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                         ValueDeserializer<Object> networkResultDeserializer,
+                                         ValueDeserializer<Object> busResultDeserializer,
+                                         ValueDeserializer<Object> branchResultDeserializer,
+                                         ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
         return new PostContingencyResultDeserializer(
             limitViolationsResultDeserializer,
             networkResultDeserializer,
@@ -71,7 +71,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
     }
 
     @Override
-    public PostContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public PostContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version when version is not specified
             version = SecurityAnalysisResultSerializer.VERSION;
@@ -103,11 +103,11 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
     }
 
     private boolean parsePostContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
-                                                ParsingContext parsingContext, String finalVersion,
-                                                AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
-                                                String name) throws IOException {
+                                               ParsingContext parsingContext, String finalVersion,
+                                               AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
+                                               String name) throws JacksonException {
         boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext,
-                finalVersion, CONTEXT_NAME);
+            finalVersion, CONTEXT_NAME);
         if (found) {
             return true;
         }

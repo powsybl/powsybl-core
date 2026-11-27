@@ -7,12 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.AbstractTapChangerRegulationActionBuilder;
 import com.powsybl.iidm.network.ThreeSides;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -23,16 +22,16 @@ public abstract class AbstractTapChangerRegulationActionBuilderDeserializer<T ex
         super(vc);
     }
 
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name) throws JacksonException {
         switch (name) {
             case "id":
-                builder.withId(jsonParser.nextTextValue());
+                builder.withId(jsonParser.nextStringValue());
                 return true;
             case "transformerId":
-                builder.withTransformerId(jsonParser.nextTextValue());
+                builder.withTransformerId(jsonParser.nextStringValue());
                 return true;
             case "side":
-                builder.withSide(ThreeSides.valueOf(jsonParser.nextTextValue()));
+                builder.withSide(ThreeSides.valueOf(jsonParser.nextStringValue()));
                 return true;
             case "regulating":
                 jsonParser.nextToken();

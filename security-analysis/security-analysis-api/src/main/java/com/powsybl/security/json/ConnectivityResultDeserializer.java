@@ -7,44 +7,43 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.ConnectivityResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> implements ContextualDeserializer {
+public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
 
-    private final transient JsonDeserializer<Object> disconnectedElementsDeserializer;
+    private final ValueDeserializer<Object> disconnectedElementsDeserializer;
 
     public ConnectivityResultDeserializer() {
         this(null);
     }
 
-    public ConnectivityResultDeserializer(JsonDeserializer<Object> disconnectedElementsDeserializer) {
+    public ConnectivityResultDeserializer(ValueDeserializer<Object> disconnectedElementsDeserializer) {
         super(ConnectivityResult.class);
         this.disconnectedElementsDeserializer = disconnectedElementsDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new ConnectivityResultDeserializer(JsonUtil.buildSetDeserializer(ctxt, property, String.class));
     }
 
     @Override
-    public ConnectivityResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ConnectivityResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
 
         int createdSynchronousComponentCount = 0;
         int createdConnectedComponentCount = 0;

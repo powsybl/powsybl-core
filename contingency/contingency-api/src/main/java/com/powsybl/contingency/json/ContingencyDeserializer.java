@@ -7,14 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -22,8 +14,15 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -33,31 +32,30 @@ import java.util.function.Supplier;
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class ContingencyDeserializer extends StdDeserializer<Contingency>
-    implements ContextualDeserializer {
+public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
-    private final transient JsonDeserializer<Object> elementDeserializer;
+    private final ValueDeserializer<Object> elementDeserializer;
 
     public ContingencyDeserializer() {
         this(null);
     }
 
-    public ContingencyDeserializer(JsonDeserializer<Object> elementDeserializer) {
+    public ContingencyDeserializer(ValueDeserializer<Object> elementDeserializer) {
         super(Contingency.class);
         this.elementDeserializer = elementDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
-                                                BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext deserializationContext,
+                                                BeanProperty property) throws DatabindException {
         return new ContingencyDeserializer(JsonUtil.buildListDeserializer(deserializationContext, property, ContingencyElement.class));
     }
 
     @Override
-    public Contingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public Contingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String id = null;
         String name = null;
         List<ContingencyElement> elements = Collections.emptyList();
@@ -66,8 +64,8 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency>
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "id" -> id = parser.nextTextValue();
-                case "name" -> name = parser.nextTextValue();
+                case "id" -> id = parser.nextStringValue();
+                case "name" -> name = parser.nextStringValue();
                 case "elements" -> {
                     parser.nextToken();
                     elements = JsonUtil.readList(elementDeserializer, deserializationContext, parser, ContingencyElement.class);

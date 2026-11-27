@@ -7,14 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -25,8 +17,15 @@ import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.iidm.network.ThreeSides;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,32 +33,62 @@ import java.util.function.Supplier;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> implements ContextualDeserializer {
+public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
-    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
     public static final String VIOLATION_LOCATION_SUPPORT = "violationLocationSupport";
     public static final String LIMIT_REDUCTION_BACKWARD_COMPAT = "limitReductionBackwardCompat";
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
     private static final String CONTEXT_NAME = "limit-violation";
 
-    private final transient JsonDeserializer<Object> violationLocationDeserializer;
+    private final ValueDeserializer<Object> violationLocationDeserializer;
 
     public LimitViolationDeserializer() {
         this(null);
     }
 
-    public LimitViolationDeserializer(JsonDeserializer<Object> violationLocationDeserializer) {
+    public LimitViolationDeserializer(ValueDeserializer<Object> violationLocationDeserializer) {
         super(LimitViolation.class);
         this.violationLocationDeserializer = violationLocationDeserializer;
     }
 
+    private static void throwInvalidFieldForVersion(String fieldName) {
+        throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, fieldName));
+    }
+
+    private static double readLimitReductionValue(JsonParser parser, Boolean limitReductionBackwardCompat) {
+        if (Boolean.FALSE.equals(limitReductionBackwardCompat)) {
+            throwInvalidFieldForVersion("limitReduction");
+        }
+        parser.nextToken();
+        return parser.readValueAs(Float.class);
+    }
+
+    private static double readLimitScalingValue(JsonParser parser, Boolean limitReductionBackwardCompat) {
+        if (Boolean.TRUE.equals(limitReductionBackwardCompat)) {
+            throwInvalidFieldForVersion("limitScaling");
+        }
+        parser.nextToken();
+        return parser.readValueAs(Float.class);
+    }
+
+    private static ViolationLocation readViolationLocation(JsonParser parser, Boolean voltageLocationSupport,
+                                                           ValueDeserializer<Object> deserializer,
+                                                           DeserializationContext deserializationContext) {
+        if (Boolean.FALSE.equals(voltageLocationSupport)) {
+            throwInvalidFieldForVersion("violationLocation");
+        }
+        parser.nextToken();
+        return JsonUtil.readValue(deserializer, deserializationContext, parser, ViolationLocation.class);
+    }
+
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new LimitViolationDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, ViolationLocation.class));
     }
 
     @Override
-    public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         Boolean voltageLocationSupport = (Boolean) deserializationContext.getAttribute(VIOLATION_LOCATION_SUPPORT);
         Boolean limitReductionBackwardCompat = (Boolean) deserializationContext.getAttribute(LIMIT_REDUCTION_BACKWARD_COMPAT);
         String subjectId = null;
@@ -79,23 +108,23 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "subjectId":
-                    subjectId = parser.nextTextValue();
+                    subjectId = parser.nextStringValue();
                     break;
 
                 case "subjectName":
-                    subjectName = parser.nextTextValue();
+                    subjectName = parser.nextStringValue();
                     break;
 
                 case "operationalLimitsGroupId":
-                    operationalLimitsGroupId = parser.nextTextValue();
+                    operationalLimitsGroupId = parser.nextStringValue();
                     break;
 
                 case "limitType":
-                    limitType = JsonUtil.readNullableEnumValue(parser.nextTextValue(), LimitViolationType.class);
+                    limitType = JsonUtil.readNullableEnumValue(parser.nextStringValue(), LimitViolationType.class);
                     break;
 
                 case "limitName":
-                    limitName = parser.nextTextValue();
+                    limitName = parser.nextStringValue();
                     break;
 
                 case "acceptableDuration":
@@ -110,19 +139,11 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 // limitReduction for retro-compatibility before V1.10 of SecurityAnalysisResult
                 case "limitScaling":
-                    if (Boolean.TRUE.equals(limitReductionBackwardCompat)) {
-                        throwInvalidFieldForVersion("limitScaling");
-                    }
-                    parser.nextToken();
-                    limitScaling = parser.readValueAs(Float.class);
+                    limitScaling = readLimitScalingValue(parser, limitReductionBackwardCompat);
                     break;
 
                 case "limitReduction":
-                    if (Boolean.FALSE.equals(limitReductionBackwardCompat)) {
-                        throwInvalidFieldForVersion("limitReduction");
-                    }
-                    parser.nextToken();
-                    limitScaling = parser.readValueAs(Float.class);
+                    limitScaling = readLimitReductionValue(parser, limitReductionBackwardCompat);
                     break;
 
                 case "value":
@@ -131,7 +152,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "side":
-                    side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
+                    side = JsonUtil.readNullableEnumValue(parser.nextStringValue(), ThreeSides.class);
                     break;
 
                 case "extensions":
@@ -140,12 +161,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "violationLocation":
-                    if (Boolean.FALSE.equals(voltageLocationSupport)) {
-                        throwInvalidFieldForVersion("violationLocation");
-                    }
-
-                    parser.nextToken();
-                    violationLocation = JsonUtil.readValue(violationLocationDeserializer, deserializationContext, parser, ViolationLocation.class);
+                    violationLocation = readViolationLocation(parser, voltageLocationSupport, violationLocationDeserializer, deserializationContext);
                     break;
 
                 default:
@@ -157,9 +173,5 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
-    }
-
-    private static void throwInvalidFieldForVersion(String fieldName) {
-        throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, fieldName));
     }
 }

@@ -7,21 +7,21 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.results.*;
+import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.OperatorStrategyResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,23 +30,23 @@ import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURC
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class OperatorStrategyResultDeserializer extends StdDeserializer<OperatorStrategyResult> implements ContextualDeserializer {
+public class OperatorStrategyResultDeserializer extends StdDeserializer<OperatorStrategyResult> {
 
     private static final String CONTEXT_NAME = "OperatorStrategyResult";
 
-    private final transient JsonDeserializer<Object> operatorStrategyDeserializer;
-    private final transient JsonDeserializer<Object> limitViolationsResultDeserializer;
-    private final transient JsonDeserializer<Object> networkResultDeserializer;
-    private final transient JsonDeserializer<Object> conditionalActionsResultDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyDeserializer;
+    private final ValueDeserializer<Object> limitViolationsResultDeserializer;
+    private final ValueDeserializer<Object> networkResultDeserializer;
+    private final ValueDeserializer<Object> conditionalActionsResultDeserializer;
 
     public OperatorStrategyResultDeserializer() {
         this(null, null, null, null);
     }
 
-    public OperatorStrategyResultDeserializer(JsonDeserializer<Object> operatorStrategyDeserializer,
-                                              JsonDeserializer<Object> limitViolationsResultDeserializer,
-                                              JsonDeserializer<Object> networkResultDeserializer,
-                                              JsonDeserializer<Object> conditionalActionsResultDeserializer) {
+    public OperatorStrategyResultDeserializer(ValueDeserializer<Object> operatorStrategyDeserializer,
+                                              ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                              ValueDeserializer<Object> networkResultDeserializer,
+                                              ValueDeserializer<Object> conditionalActionsResultDeserializer) {
         super(OperatorStrategyResult.class);
         this.operatorStrategyDeserializer = operatorStrategyDeserializer;
         this.limitViolationsResultDeserializer = limitViolationsResultDeserializer;
@@ -55,7 +55,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new OperatorStrategyResultDeserializer(
             JsonUtil.buildValueDeserializer(ctxt, property, OperatorStrategy.class),
             JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
@@ -65,7 +65,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
     }
 
     @Override
-    public OperatorStrategyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         OperatorStrategy operatorStrategy = null;
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
@@ -112,7 +112,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     break;
 
                 case "status":
-                    status = JsonUtil.readNullableEnumValue(parser.nextTextValue(), PostContingencyComputationStatus.class);
+                    status = JsonUtil.readNullableEnumValue(parser.nextStringValue(), PostContingencyComputationStatus.class);
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             version, "1.3");
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
@@ -126,7 +126,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                             version, "1.6");
                     break;
                 default:
-                    throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
+                    throw DatabindException.from(parser, "Unexpected field: " + parser.currentName());
             }
         }
         Objects.requireNonNull(operatorStrategy);

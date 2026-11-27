@@ -7,14 +7,13 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.LineCriterion;
 import com.powsybl.iidm.criteria.TwoCountriesCriterion;
 import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * <p>Deserializer for {@link LineCriterion} objects.</p>
@@ -26,7 +25,7 @@ public class LineCriterionDeserializer extends AbstractNetworkElementCriterionDe
     }
 
     @Override
-    public LineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = fillParsingContext(parser, deserializationContext,
                 LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE);
         return new LineCriterion(parsingContext.name,

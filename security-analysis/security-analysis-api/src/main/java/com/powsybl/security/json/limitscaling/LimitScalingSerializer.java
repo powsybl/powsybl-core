@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json.limitscaling;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.limitscaling.LimitScaling;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
@@ -24,24 +23,24 @@ public class LimitScalingSerializer extends StdSerializer<LimitScaling> {
     }
 
     @Override
-    public void serialize(LimitScaling limitScaling, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitScaling limitScaling, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("value", limitScaling.getValue());
-        jsonGenerator.writeStringField("limitType", limitScaling.getLimitType().name());
-        jsonGenerator.writeBooleanField("monitoringOnly", limitScaling.isMonitoringOnly());
+        jsonGenerator.writeNumberProperty("value", limitScaling.getValue());
+        jsonGenerator.writeStringProperty("limitType", limitScaling.getLimitType().name());
+        jsonGenerator.writeBooleanProperty("monitoringOnly", limitScaling.isMonitoringOnly());
 
-        serializerProvider.defaultSerializeField("contingencyContext",
+        serializationContext.defaultSerializeProperty("contingencyContext",
                 limitScaling.getContingencyContext(), jsonGenerator);
         if (!limitScaling.getNetworkElementCriteria().isEmpty()) {
-            serializerProvider.defaultSerializeField("equipmentCriteria",
+            serializationContext.defaultSerializeProperty("equipmentCriteria",
                     limitScaling.getNetworkElementCriteria(), jsonGenerator);
         }
         if (!limitScaling.getDurationCriteria().isEmpty()) {
-            serializerProvider.defaultSerializeField("durationCriteria",
+            serializationContext.defaultSerializeProperty("durationCriteria",
                     limitScaling.getDurationCriteria(), jsonGenerator);
         }
         if (!limitScaling.getOperationalLimitsGroupIdsSelection().isEmpty()) {
-            serializerProvider.defaultSerializeField("operationalLimitsGroupIdsSelection",
+            serializationContext.defaultSerializeProperty("operationalLimitsGroupIdsSelection",
                 limitScaling.getOperationalLimitsGroupIdsSelection(), jsonGenerator);
         }
 

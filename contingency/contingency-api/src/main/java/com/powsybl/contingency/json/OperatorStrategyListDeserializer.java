@@ -7,18 +7,17 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.OperatorStrategyList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 
 import static com.powsybl.contingency.json.OperatorStrategyDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -26,15 +25,15 @@ import static com.powsybl.contingency.json.OperatorStrategyDeserializer.SOURCE_V
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> implements ContextualDeserializer {
+public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> {
 
-    private final transient JsonDeserializer<Object> operatorStrategyDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyDeserializer;
 
     public OperatorStrategyListDeserializer() {
         this(null);
     }
 
-    public OperatorStrategyListDeserializer(JsonDeserializer<Object> operatorStrategyDeserializer) {
+    public OperatorStrategyListDeserializer(ValueDeserializer<Object> operatorStrategyDeserializer) {
         super(OperatorStrategyList.class);
         this.operatorStrategyDeserializer = operatorStrategyDeserializer;
     }
@@ -45,17 +44,17 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new OperatorStrategyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, OperatorStrategy.class));
     }
 
     @Override
-    public OperatorStrategyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (parser.currentName()) {
                 case "version":
-                    context.version = parser.nextTextValue();
+                    context.version = parser.nextStringValue();
                     JsonUtil.setSourceVersion(deserializationContext, context.version, SOURCE_VERSION_ATTRIBUTE);
                     return true;
                 case "operatorStrategies":
@@ -67,7 +66,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
             }
         });
         if (context.version == null) {
-            throw new JsonMappingException(parser, "version is missing");
+            throw DatabindException.from(parser, "version is missing");
         }
         return new OperatorStrategyList(context.operatorStrategies);
     }

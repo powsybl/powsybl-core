@@ -7,21 +7,11 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.list.ContingencyList;
-import com.powsybl.contingency.list.DefaultContingencyList;
-import com.powsybl.contingency.list.HvdcLineCriterionContingencyList;
-import com.powsybl.contingency.list.IdentifierContingencyList;
-import com.powsybl.contingency.list.InjectionCriterionContingencyList;
-import com.powsybl.contingency.list.LineCriterionContingencyList;
-import com.powsybl.contingency.list.ListOfContingencyLists;
-import com.powsybl.contingency.list.ThreeWindingsTransformerCriterionContingencyList;
-import com.powsybl.contingency.list.TieLineCriterionContingencyList;
-import com.powsybl.contingency.list.TwoWindingsTransformerCriterionContingencyList;
-
-import java.io.IOException;
+import com.powsybl.contingency.list.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * Deserializer for {@link ContingencyList} and its implementations.
@@ -31,7 +21,7 @@ import java.io.IOException;
  * {@link ListOfContingencyLists}). An exception is thrown if the type is unknown or missing.
  * <p>
  * <b>This deserializer is not discovered automatically</b>: it is not attached to {@link ContingencyList}
- * through annotations, so it must be registered on the {@link com.fasterxml.jackson.databind.ObjectMapper}
+ * through annotations, so it must be registered on the {@link tools.jackson.databind.json.JsonMapper}
  * before deserializing a {@link ContingencyList}. Without it, Jackson cannot resolve the concrete
  * implementation to instantiate. The simplest way is to register {@link ContingencyJsonModule}, which
  * registers this deserializer along with the other contingency (de)serializers, e.g.:
@@ -51,11 +41,11 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
     }
 
     @Override
-    public ContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         parser.nextToken();
         while (parser.currentName() != null) {
             if ("type".equals(parser.currentName())) {
-                switch (parser.nextTextValue()) {
+                switch (parser.nextStringValue()) {
                     case "default" -> {
                         return (DefaultContingencyList) deserializationContext.findRootValueDeserializer(
                                 deserializationContext.constructType(DefaultContingencyList.class))

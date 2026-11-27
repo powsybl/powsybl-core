@@ -7,19 +7,21 @@
  */
 package com.powsybl.loadflow.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
 import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -29,34 +31,34 @@ import static com.powsybl.loadflow.json.JsonLoadFlowParameters.*;
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> implements ContextualDeserializer {
+public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 
     private static final String CONTEXT_NAME = "LoadFlowParameters";
     private static final String TAGS = "Tag: ";
 
-    private final transient JsonDeserializer<Object> countriesDeserializer;
+    private final ValueDeserializer<Object> countriesDeserializer;
 
     LoadFlowParametersDeserializer() {
         this(null);
     }
 
-    LoadFlowParametersDeserializer(JsonDeserializer<Object> countriesDeserializer) {
+    LoadFlowParametersDeserializer(ValueDeserializer<Object> countriesDeserializer) {
         super(LoadFlowParameters.class);
         this.countriesDeserializer = countriesDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty beanProperty) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty beanProperty) throws DatabindException {
         return new LoadFlowParametersDeserializer(JsonUtil.buildSetDeserializer(ctxt, beanProperty, Country.class));
     }
 
     @Override
-    public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         return deserialize(parser, deserializationContext, new LoadFlowParameters());
     }
 
     @Override
-    public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, LoadFlowParameters parameters) throws IOException {
+    public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, LoadFlowParameters parameters) throws JacksonException {
         String version = null;
         List<Extension<LoadFlowParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -67,7 +69,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "voltageInitMode":
-                    parameters.setVoltageInitMode(JsonUtil.readNullableEnumValue(parser.nextTextValue(), VoltageInitMode.class));
+                    parameters.setVoltageInitMode(JsonUtil.readNullableEnumValue(parser.nextStringValue(), VoltageInitMode.class));
                     break;
 
                 case "transformerVoltageControlOn":
@@ -150,7 +152,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "balanceType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.4");
-                    parameters.setBalanceType(JsonUtil.readNullableEnumValue(parser.nextTextValue(), BalanceType.class));
+                    parameters.setBalanceType(JsonUtil.readNullableEnumValue(parser.nextStringValue(), BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
@@ -169,12 +171,12 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "connectedComponentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
-                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.fromString(parser.nextTextValue()));
+                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.fromString(parser.nextStringValue()));
                     break;
 
                 case "componentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
-                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.fromString(parser.nextTextValue()));
+                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.fromString(parser.nextStringValue()));
                     break;
 
                 case "hvdcAcEmulation":

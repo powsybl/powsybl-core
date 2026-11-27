@@ -7,20 +7,19 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.security.SecurityAnalysisParameters;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,27 +28,27 @@ import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtens
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> implements ContextualDeserializer {
+public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
     private static final String TAG = "Tag: ";
 
-    private final transient JsonDeserializer<Object> increasedViolationsParametersDeserializer;
-    private final transient JsonDeserializer<Object> modifiedElementsParametersDeserializer;
+    private final ValueDeserializer<Object> increasedViolationsParametersDeserializer;
+    private final ValueDeserializer<Object> modifiedElementsParametersDeserializer;
 
     SecurityAnalysisParametersDeserializer() {
         this(null, null);
     }
 
-    SecurityAnalysisParametersDeserializer(JsonDeserializer<Object> increasedViolationsParametersDeserializer,
-                                           JsonDeserializer<Object> modifiedElementsParametersDeserializer) {
+    SecurityAnalysisParametersDeserializer(ValueDeserializer<Object> increasedViolationsParametersDeserializer,
+                                           ValueDeserializer<Object> modifiedElementsParametersDeserializer) {
         super(SecurityAnalysisParameters.class);
         this.increasedViolationsParametersDeserializer = increasedViolationsParametersDeserializer;
         this.modifiedElementsParametersDeserializer = modifiedElementsParametersDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new SecurityAnalysisParametersDeserializer(
             JsonUtil.buildValueDeserializer(ctxt, property, SecurityAnalysisParameters.IncreasedViolationsParameters.class),
             JsonUtil.buildValueDeserializer(ctxt, property, SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class)
@@ -57,12 +56,12 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
     }
 
     @Override
-    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         return deserialize(parser, deserializationContext, new SecurityAnalysisParameters());
     }
 
     @Override
-    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws IOException {
+    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws JacksonException {
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {

@@ -7,9 +7,6 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
@@ -20,6 +17,10 @@ import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.io.Util;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import org.apache.commons.lang3.ArrayUtils;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -112,7 +113,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
                 return getPsseCaseIdentification(jsonNode, context);
             }
             JsonFactory jsonFactory = new JsonFactory();
-            try (JsonParser parser = jsonFactory.createParser(reader.getBufferedReader())) {
+            try (JsonParser parser = jsonFactory.createParser(ObjectReadContext.empty(), reader.getBufferedReader())) {
                 JsonNode jsonNode = readJsonNode(parser);
                 return getPsseCaseIdentification(jsonNode, context);
             }

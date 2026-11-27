@@ -7,39 +7,38 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.BranchResult;
 import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> implements ContextualDeserializer {
+public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
 
-    private final transient JsonDeserializer<Object> branchResultDeserializer;
-    private final transient JsonDeserializer<Object> busResultDeserializer;
-    private final transient JsonDeserializer<Object> threeWindingsTransformerResultDeserializer;
+    private final ValueDeserializer<Object> branchResultDeserializer;
+    private final ValueDeserializer<Object> busResultDeserializer;
+    private final ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
 
     public NetworkResultDeserializer() {
         this(null, null, null);
     }
 
-    public NetworkResultDeserializer(JsonDeserializer<Object> branchResultDeserializer,
-                                     JsonDeserializer<Object> busResultDeserializer,
-                                     JsonDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+    public NetworkResultDeserializer(ValueDeserializer<Object> branchResultDeserializer,
+                                     ValueDeserializer<Object> busResultDeserializer,
+                                     ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
         super(NetworkResult.class);
         this.branchResultDeserializer = branchResultDeserializer;
         this.busResultDeserializer = busResultDeserializer;
@@ -47,7 +46,7 @@ public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> im
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new NetworkResultDeserializer(
             JsonUtil.buildListDeserializer(ctxt, property, BranchResult.class),
             JsonUtil.buildListDeserializer(ctxt, property, BusResult.class),
@@ -56,7 +55,7 @@ public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> im
     }
 
     @Override
-    public NetworkResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public NetworkResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         List<BranchResult> branchResults = null;
         List<BusResult> busResults = null;
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = null;
@@ -78,7 +77,7 @@ public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> im
                     break;
 
                 default:
-                    throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
+                    throw DatabindException.from(parser, "Unexpected field: " + parser.currentName());
             }
         }
         return new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);

@@ -7,14 +7,14 @@
  */
 package com.powsybl.matpower.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class MatpowerReaderWriterTest {
 
-    private final ObjectWriter mapper = new ObjectMapper()
+    private final ObjectWriter mapper = new JsonMapper()
             .writerWithDefaultPrettyPrinter();
 
     private FileSystem fileSystem;

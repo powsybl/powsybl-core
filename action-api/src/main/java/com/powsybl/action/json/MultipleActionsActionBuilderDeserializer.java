@@ -7,51 +7,51 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.ActionBuilder;
 import com.powsybl.action.MultipleActionsAction;
 import com.powsybl.action.MultipleActionsActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder>
-    implements ContextualDeserializer {
+public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder> {
 
-    private final transient JsonDeserializer<Object> actionsBuilderDeserializer;
+    private final ValueDeserializer<Object> actionsBuilderDeserializer;
 
     public MultipleActionsActionBuilderDeserializer() {
         this(null);
     }
 
-    public MultipleActionsActionBuilderDeserializer(JsonDeserializer<Object> actionsBuilderDeserializer) {
+    public MultipleActionsActionBuilderDeserializer(ValueDeserializer<Object> actionsBuilderDeserializer) {
         super(MultipleActionsAction.class);
         this.actionsBuilderDeserializer = actionsBuilderDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new MultipleActionsActionBuilderDeserializer(JsonUtil.buildListDeserializer(ctxt, property, ActionBuilder.class));
     }
 
     @Override
-    public MultipleActionsActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public MultipleActionsActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         MultipleActionsActionBuilder builder = new MultipleActionsActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!MultipleActionsAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + MultipleActionsAction.NAME);
+                    if (!MultipleActionsAction.NAME.equals(jsonParser.nextStringValue())) {
+                        throw DatabindException.from(jsonParser, "Expected type " + MultipleActionsAction.NAME);
                     }
                     return true;
                 case "id":
-                    builder.withId(jsonParser.nextTextValue());
+                    builder.withId(jsonParser.nextStringValue());
                     return true;
                 case "actions":
                     jsonParser.nextToken();

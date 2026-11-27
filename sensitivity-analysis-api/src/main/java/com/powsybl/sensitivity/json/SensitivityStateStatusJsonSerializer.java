@@ -7,13 +7,10 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.sensitivity.SensitivityStateStatus;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import static com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer.*;
 
@@ -27,34 +24,30 @@ public class SensitivityStateStatusJsonSerializer extends StdSerializer<Sensitiv
     }
 
     @Override
-    public void serialize(SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+    public void serialize(SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
         writeJson(jsonGenerator, value);
     }
 
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
-        try {
-            jsonGenerator.writeStartObject();
-            if (stateStatus.getState().contingencyId() != null) {
-                jsonGenerator.writeStringField("contingencyId", stateStatus.getState().contingencyId());
-            }
-            if (stateStatus.getState().operatorStrategyId() != null) {
-                jsonGenerator.writeStringField("operatorStrategyId", stateStatus.getState().operatorStrategyId());
-            }
-            if (!stateStatus.getComponentsLoadFlowStatusList().isEmpty()) {
-                jsonGenerator.writeArrayFieldStart(COMPONENT_STATUSES);
-                for (SensitivityStateStatus.ComponentStatus componentStatus : stateStatus.getComponentsLoadFlowStatusList()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().toString());
-                    jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());
-                    jsonGenerator.writeNumberField(NUM_CC, componentStatus.connectedComponentNum());
-                    jsonGenerator.writeNumberField(NUM_SC, componentStatus.synchronousComponentNum());
-                    jsonGenerator.writeEndObject();
-                }
-                jsonGenerator.writeEndArray();
-            }
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        jsonGenerator.writeStartObject();
+        if (stateStatus.getState().contingencyId() != null) {
+            jsonGenerator.writeStringProperty("contingencyId", stateStatus.getState().contingencyId());
         }
+        if (stateStatus.getState().operatorStrategyId() != null) {
+            jsonGenerator.writeStringProperty("operatorStrategyId", stateStatus.getState().operatorStrategyId());
+        }
+        if (!stateStatus.getComponentsLoadFlowStatusList().isEmpty()) {
+            jsonGenerator.writeArrayPropertyStart(COMPONENT_STATUSES);
+            for (SensitivityStateStatus.ComponentStatus componentStatus : stateStatus.getComponentsLoadFlowStatusList()) {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringProperty(LOAD_FLOW_STATUS, componentStatus.status().toString());
+                jsonGenerator.writeStringProperty(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());
+                jsonGenerator.writeNumberProperty(NUM_CC, componentStatus.connectedComponentNum());
+                jsonGenerator.writeNumberProperty(NUM_SC, componentStatus.synchronousComponentNum());
+                jsonGenerator.writeEndObject();
+            }
+            jsonGenerator.writeEndArray();
+        }
+        jsonGenerator.writeEndObject();
     }
 }

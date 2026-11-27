@@ -7,42 +7,41 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> implements ContextualDeserializer {
+public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
 
-    private final transient JsonDeserializer<Object> limitViolationsDeserializer;
-    private final transient JsonDeserializer<Object> actionsTakenDeserializer;
+    private final ValueDeserializer<Object> limitViolationsDeserializer;
+    private final ValueDeserializer<Object> actionsTakenDeserializer;
 
     public LimitViolationResultDeserializer() {
         this(null, null);
     }
 
-    public LimitViolationResultDeserializer(JsonDeserializer<Object> limitViolationsDeserializer, JsonDeserializer<Object> actionsTakenDeserializer) {
+    public LimitViolationResultDeserializer(ValueDeserializer<Object> limitViolationsDeserializer, ValueDeserializer<Object> actionsTakenDeserializer) {
         super(LimitViolationsResult.class);
         this.limitViolationsDeserializer = limitViolationsDeserializer;
         this.actionsTakenDeserializer = actionsTakenDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new LimitViolationResultDeserializer(
             JsonUtil.buildListDeserializer(ctxt, property, LimitViolation.class),
             JsonUtil.buildListDeserializer(ctxt, property, String.class)
@@ -50,7 +49,7 @@ public class LimitViolationResultDeserializer extends StdDeserializer<LimitViola
     }
 
     @Override
-    public LimitViolationsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitViolationsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         boolean computationOk = false;
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<String> actionsTaken = Collections.emptyList();

@@ -7,46 +7,44 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.FortescueFeederResult;
 import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.MagnitudeFeederResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class FeederResultDeserializer extends StdDeserializer<FeederResult> implements ContextualDeserializer {
+class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
-    private final transient JsonDeserializer<Object> fortescueDeserializer;
+    private final ValueDeserializer<Object> fortescueDeserializer;
 
     FeederResultDeserializer() {
         this(null);
     }
 
-    FeederResultDeserializer(JsonDeserializer<Object> fortescueDeserializer) {
+    FeederResultDeserializer(ValueDeserializer<Object> fortescueDeserializer) {
         super(FeederResult.class);
         this.fortescueDeserializer = fortescueDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new FeederResultDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, FortescueValue.class));
     }
 
     @Override
-    public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String connectableId = null;
         FortescueValue current = null;
         Double currentMagnitude = Double.NaN;
@@ -66,7 +64,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> implements 
                     parser.nextToken();
                     currentMagnitude = parser.readValueAs(Double.class);
                 }
-                case "side" -> side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
+                case "side" -> side = JsonUtil.readNullableEnumValue(parser.nextStringValue(), ThreeSides.class);
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }

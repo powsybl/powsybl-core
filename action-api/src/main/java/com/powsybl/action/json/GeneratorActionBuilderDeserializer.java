@@ -7,15 +7,14 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -27,24 +26,24 @@ public class GeneratorActionBuilderDeserializer extends StdDeserializer<Generato
     }
 
     @Override
-    public GeneratorActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public GeneratorActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         GeneratorActionBuilder generatorActionBuilder = new GeneratorActionBuilder();
         JsonUtil.parsePolymorphicObject(parser, name -> parseGeneratorAction(parser, generatorActionBuilder, name));
         return generatorActionBuilder;
     }
 
-    private boolean parseGeneratorAction(JsonParser parser, GeneratorActionBuilder generatorActionBuilder, String name) throws IOException {
+    private boolean parseGeneratorAction(JsonParser parser, GeneratorActionBuilder generatorActionBuilder, String name) throws JacksonException {
         switch (name) {
             case "type":
-                if (!GeneratorAction.NAME.equals(parser.nextTextValue())) {
-                    throw JsonMappingException.from(parser, "Expected type " + GeneratorAction.NAME);
+                if (!GeneratorAction.NAME.equals(parser.nextStringValue())) {
+                    throw DatabindException.from(parser, "Expected type " + GeneratorAction.NAME);
                 }
                 return true;
             case "id":
-                generatorActionBuilder.withId(parser.nextTextValue());
+                generatorActionBuilder.withId(parser.nextStringValue());
                 return true;
             case "generatorId":
-                generatorActionBuilder.withGeneratorId(parser.nextTextValue());
+                generatorActionBuilder.withGeneratorId(parser.nextStringValue());
                 return true;
             case "activePowerRelativeValue":
                 parser.nextToken();

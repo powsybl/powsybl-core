@@ -7,10 +7,6 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -18,8 +14,12 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.NetworkMetadata;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
     }
 
     @Override
-    public NetworkMetadata deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public NetworkMetadata deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String id = null;
         String sourceFormat = null;
         ZonedDateTime caseDate = null;
@@ -49,15 +49,15 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "id":
-                    id = parser.nextTextValue();
+                    id = parser.nextStringValue();
                     break;
 
                 case "sourceFormat":
-                    sourceFormat = parser.nextTextValue();
+                    sourceFormat = parser.nextStringValue();
                     break;
 
                 case "caseDate":
-                    caseDate = ZonedDateTime.parse(parser.nextTextValue());
+                    caseDate = ZonedDateTime.parse(parser.nextStringValue());
                     break;
 
                 case "forecastDistance":

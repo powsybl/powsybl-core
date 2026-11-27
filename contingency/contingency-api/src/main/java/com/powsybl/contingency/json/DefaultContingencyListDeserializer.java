@@ -8,53 +8,52 @@
 
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.list.DefaultContingencyList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> implements ContextualDeserializer {
+public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> {
 
-    private final transient JsonDeserializer<Object> contingenciesDeserializer;
+    private final ValueDeserializer<Object> contingenciesDeserializer;
 
     public DefaultContingencyListDeserializer() {
         this(null);
     }
 
-    public DefaultContingencyListDeserializer(JsonDeserializer<Object> contingenciesDeserializer) {
+    public DefaultContingencyListDeserializer(ValueDeserializer<Object> contingenciesDeserializer) {
         super(DefaultContingencyList.class);
         this.contingenciesDeserializer = contingenciesDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new DefaultContingencyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, Contingency.class));
     }
 
-    public DefaultContingencyList deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public DefaultContingencyList deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String name = null;
         List<Contingency> contingencies = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "version" -> ctx.setAttribute("version", parser.nextTextValue());
-                case "name" -> name = parser.nextTextValue();
+                case "version" -> ctx.setAttribute("version", parser.nextStringValue());
+                case "name" -> name = parser.nextStringValue();
                 case "type" -> {
-                    if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {
+                    if (!parser.nextStringValue().equals(DefaultContingencyList.TYPE)) {
                         throw new IllegalStateException("type should be: " + DefaultContingencyList.TYPE);
                     }
                 }

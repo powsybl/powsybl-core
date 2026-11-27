@@ -7,13 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -25,8 +18,14 @@ import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.contingency.strategy.ConditionalActions;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.Condition;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,7 +33,7 @@ import java.util.function.Supplier;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> implements ContextualDeserializer {
+public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> {
 
     private static final String CONTEXT_NAME = "OperatorStrategy";
     private static final String TAG_CONDITIONAL_ACTIONS = "Tag: conditionalActions";
@@ -42,15 +41,15 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     private static final String TAG_ACTION_IDS = "Tag: actionIds";
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    private final transient JsonDeserializer<Object> conditionalActionsDeserializer;
-    private final transient JsonDeserializer<Object> conditionDeserializer;
-    private final transient JsonDeserializer<Object> actionsIdsDeserializer;
+    private final ValueDeserializer<Object> conditionalActionsDeserializer;
+    private final ValueDeserializer<Object> conditionDeserializer;
+    private final ValueDeserializer<Object> actionsIdsDeserializer;
 
     public OperatorStrategyDeserializer() {
         this(null, null, null);
     }
 
-    public OperatorStrategyDeserializer(JsonDeserializer<Object> conditionalActionsDeserializer, JsonDeserializer<Object> conditionDeserializer, JsonDeserializer<Object> actionsIdsDeserializer) {
+    public OperatorStrategyDeserializer(ValueDeserializer<Object> conditionalActionsDeserializer, ValueDeserializer<Object> conditionDeserializer, ValueDeserializer<Object> actionsIdsDeserializer) {
         super(OperatorStrategy.class);
         this.conditionalActionsDeserializer = conditionalActionsDeserializer;
         this.conditionDeserializer = conditionDeserializer;
@@ -58,7 +57,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new OperatorStrategyDeserializer(
             JsonUtil.buildListDeserializer(ctxt, property, ConditionalActions.class),
             JsonUtil.buildValueDeserializer(ctxt, property, Condition.class),
@@ -81,7 +80,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     @Override
-    public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         context.version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (context.version == null) {
@@ -105,14 +104,14 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     private boolean parseChildNode(JsonParser parser, DeserializationContext deserializationContext, String fieldName,
-                                   ParsingContext context) throws IOException {
+                                   ParsingContext context) throws JacksonException {
         switch (fieldName) {
             case "id":
                 parser.nextToken();
                 context.id = parser.getValueAsString();
                 return true;
             case "contingencyContextType":
-                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
+                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextStringValue());
                 return true;
             case "contingencyId":
                 parser.nextToken();

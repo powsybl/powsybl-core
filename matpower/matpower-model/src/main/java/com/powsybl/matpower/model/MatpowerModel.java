@@ -129,6 +129,14 @@ public class MatpowerModel {
         return dcLines;
     }
 
+    public void setDcLines(List<MDcLine> dcLines) {
+        Objects.requireNonNull(dcLines);
+        this.dcLines.clear();
+        for (MDcLine dcLine : dcLines) {
+            addDcLine(dcLine);
+        }
+    }
+
     public void addDcLine(MDcLine dcLine) {
         Objects.requireNonNull(dcLine);
         dcLines.add(dcLine);

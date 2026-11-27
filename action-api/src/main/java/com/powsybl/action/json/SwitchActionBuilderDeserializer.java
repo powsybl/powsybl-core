@@ -7,15 +7,14 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -27,24 +26,24 @@ public class SwitchActionBuilderDeserializer extends StdDeserializer<SwitchActio
     }
 
     @Override
-    public SwitchActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public SwitchActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         SwitchActionBuilder builder = new SwitchActionBuilder();
         JsonUtil.parsePolymorphicObject(parser, name -> parseSwitchAction(parser, builder, name));
         return builder;
     }
 
-    private boolean parseSwitchAction(JsonParser parser, SwitchActionBuilder builder, String name) throws IOException {
+    private boolean parseSwitchAction(JsonParser parser, SwitchActionBuilder builder, String name) throws JacksonException {
         switch (name) {
             case "type":
-                if (!SwitchAction.NAME.equals(parser.nextTextValue())) {
-                    throw JsonMappingException.from(parser, "Expected type " + SwitchAction.NAME);
+                if (!SwitchAction.NAME.equals(parser.nextStringValue())) {
+                    throw DatabindException.from(parser, "Expected type " + SwitchAction.NAME);
                 }
                 return true;
             case "id":
-                builder.withId(parser.nextTextValue());
+                builder.withId(parser.nextStringValue());
                 return true;
             case "switchId":
-                builder.withSwitchId(parser.nextTextValue());
+                builder.withSwitchId(parser.nextStringValue());
                 return true;
             case "open":
                 parser.nextToken();

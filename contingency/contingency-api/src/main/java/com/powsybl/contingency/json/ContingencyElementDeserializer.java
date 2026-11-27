@@ -7,51 +7,49 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.list.ContingencyList;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> implements ContextualDeserializer {
+public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
-    private final transient JsonDeserializer<Object> typeDeserializer;
+    private final ValueDeserializer<Object> typeDeserializer;
 
     public ContingencyElementDeserializer() {
         this(null);
     }
 
-    public ContingencyElementDeserializer(JsonDeserializer<Object> typeDeserializer) {
+    public ContingencyElementDeserializer(ValueDeserializer<Object> typeDeserializer) {
         super(ContingencyElement.class);
         this.typeDeserializer = typeDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new ContingencyElementDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, ContingencyElementType.class));
     }
 
     @Override
-    public ContingencyElement deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public ContingencyElement deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String id = null;
         String voltageLevelId = null;
         ContingencyElementType type = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "id" -> id = parser.nextTextValue();
-                case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
+                case "id" -> id = parser.nextStringValue();
+                case "voltageLevelId" -> voltageLevelId = parser.nextStringValue();
                 case "type" -> {
                     parser.nextToken();
                     type = JsonUtil.readValue(typeDeserializer, ctx, parser, ContingencyElementType.class);

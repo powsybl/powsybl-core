@@ -12,7 +12,7 @@ package com.powsybl.commons.extensions;
  */
 public class BarExt extends AbstractExtension<Foo> {
 
-    private final boolean value;
+    private boolean value;
 
     public BarExt(boolean value) {
         this.value = value;
@@ -25,5 +25,9 @@ public class BarExt extends AbstractExtension<Foo> {
 
     public boolean getValue() {
         return value;
+    }
+
+    public void setValue(boolean value) {
+        this.value = value;
     }
 }

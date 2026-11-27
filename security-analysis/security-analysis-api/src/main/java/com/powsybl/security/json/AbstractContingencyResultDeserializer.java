@@ -7,43 +7,41 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public abstract class AbstractContingencyResultDeserializer<T extends AbstractContingencyResult> extends StdDeserializer<T>
-    implements ContextualDeserializer {
+public abstract class AbstractContingencyResultDeserializer<T extends AbstractContingencyResult> extends StdDeserializer<T> {
 
-    protected final transient JsonDeserializer<Object> limitViolationsResultDeserializer;
-    protected final transient JsonDeserializer<Object> networkResultDeserializer;
-    protected final transient JsonDeserializer<Object> busResultDeserializer;
-    protected final transient JsonDeserializer<Object> branchResultDeserializer;
-    protected final transient JsonDeserializer<Object> threeWindingsTransformerResultDeserializer;
+    protected final ValueDeserializer<Object> limitViolationsResultDeserializer;
+    protected final ValueDeserializer<Object> networkResultDeserializer;
+    protected final ValueDeserializer<Object> busResultDeserializer;
+    protected final ValueDeserializer<Object> branchResultDeserializer;
+    protected final ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
 
     protected AbstractContingencyResultDeserializer(Class<T> vc) {
         this(vc, null, null, null, null, null);
     }
 
     protected AbstractContingencyResultDeserializer(Class<T> vc,
-                                                    JsonDeserializer<Object> limitViolationsResultDeserializer,
-                                                    JsonDeserializer<Object> networkResultDeserializer,
-                                                    JsonDeserializer<Object> busResultDeserializer,
-                                                    JsonDeserializer<Object> branchResultDeserializer,
-                                                    JsonDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+                                                    ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                                    ValueDeserializer<Object> networkResultDeserializer,
+                                                    ValueDeserializer<Object> busResultDeserializer,
+                                                    ValueDeserializer<Object> branchResultDeserializer,
+                                                    ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
         super(vc);
         this.limitViolationsResultDeserializer = limitViolationsResultDeserializer;
         this.networkResultDeserializer = networkResultDeserializer;
@@ -52,14 +50,14 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
         this.threeWindingsTransformerResultDeserializer = threeWindingsTransformerResultDeserializer;
     }
 
-    protected abstract JsonDeserializer<T> create(JsonDeserializer<Object> limitViolationsResultDeserializer,
-                                                  JsonDeserializer<Object> networkResultDeserializer,
-                                                  JsonDeserializer<Object> busResultDeserializer,
-                                                  JsonDeserializer<Object> branchResultDeserializer,
-                                                  JsonDeserializer<Object> threeWindingsTransformerResultDeserializer);
+    protected abstract ValueDeserializer<T> create(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                                  ValueDeserializer<Object> networkResultDeserializer,
+                                                  ValueDeserializer<Object> busResultDeserializer,
+                                                  ValueDeserializer<Object> branchResultDeserializer,
+                                                  ValueDeserializer<Object> threeWindingsTransformerResultDeserializer);
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return create(JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
             JsonUtil.buildValueDeserializer(ctxt, property, NetworkResult.class),
             JsonUtil.buildValueDeserializer(ctxt, property, BusResult.class),
@@ -78,7 +76,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
 
     protected boolean deserializeCommonAttributes(JsonParser parser, ParsingContext context, String name,
                                                   DeserializationContext deserializationContext, String version,
-                                                  String contextName) throws IOException {
+                                                  String contextName) throws JacksonException {
         switch (name) {
             case "limitViolationsResult":
                 parser.nextToken();

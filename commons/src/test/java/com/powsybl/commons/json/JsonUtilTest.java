@@ -7,44 +7,42 @@
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataFormat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
-
+import static com.powsybl.commons.json.JsonUtil.createJsonMapper;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JsonUtilTest {
 
-    JsonFactory factory;
+    JsonMapper mapper;
 
     @BeforeEach
     void setup() {
-        factory = new JsonFactory();
+        mapper = createJsonMapper();
     }
 
     @Test
-    void testSkipStartObject() throws IOException {
+    void testSkipStartObject() {
         String strJson = "{}";
-        JsonParser parser = factory.createParser(strJson);
+        JsonParser parser = mapper.createParser(strJson);
         JsonUtil.skip(parser);
         assertEquals(JsonToken.END_OBJECT, parser.currentToken(), "Should have skipped to END_OBJECT");
         assertNull(parser.nextToken(), "Should return null because the whole json is skipped on next START_OBJECT");
     }
 
     @Test
-    void testSkipEndObject() throws IOException {
+    void testSkipEndObject() {
         String strJson = "{}";
-        JsonParser parser = factory.createParser(strJson);
+        JsonParser parser = mapper.createParser(strJson);
         parser.nextToken();
         JsonUtil.skip(parser);
         assertEquals(JsonToken.END_OBJECT, parser.currentToken(), "Should have skipped to END_OBJECT");
@@ -52,18 +50,18 @@ class JsonUtilTest {
     }
 
     @Test
-    void testSkipStartArray() throws IOException {
+    void testSkipStartArray() {
         String strJson = "[]";
-        JsonParser parser = factory.createParser(strJson);
+        JsonParser parser = mapper.createParser(strJson);
         JsonUtil.skip(parser);
         assertEquals(JsonToken.END_ARRAY, parser.currentToken(), "Should have skipped to END_ARRAY");
         assertNull(parser.nextToken(), "Should return null because the whole json is skipped on next START_ARRAY");
     }
 
     @Test
-    void testSkipEndArray() throws IOException {
+    void testSkipEndArray() {
         String strJson = "[]";
-        JsonParser parser = factory.createParser(strJson);
+        JsonParser parser = mapper.createParser(strJson);
         parser.nextToken();
         JsonUtil.skip(parser);
         assertEquals(JsonToken.END_ARRAY, parser.currentToken(), "Should have skipped to END_ARRAY");
@@ -71,9 +69,9 @@ class JsonUtilTest {
     }
 
     @Test
-    void testSkipStringValue() throws IOException {
+    void testSkipStringValue() {
         String strJson = "\"foo\"";
-        JsonParser parser = factory.createParser(strJson);
+        JsonParser parser = mapper.createParser(strJson);
         JsonUtil.skip(parser);
         assertEquals(JsonToken.VALUE_STRING, parser.currentToken(), "Should have skipped to VALUE_STRING");
         assertNull(parser.nextToken(), "Should return null because the whole json is skipped when on next STRING_VALUE");
@@ -108,21 +106,18 @@ class JsonUtilTest {
     }
 
     @Test
-    void readValueWithDeserializerHandlesNull() throws IOException {
-        ObjectMapper mapper = JsonUtil.createObjectMapper();
-        DefaultDeserializationContext blueprint = (DefaultDeserializationContext) mapper.getDeserializationContext();
-
-        try (JsonParser parser = mapper.getFactory().createParser("null")) {
-            DeserializationContext ctxt = blueprint.createInstance(mapper.getDeserializationConfig(), parser, null);
-            JsonDeserializer<Object> deser = JsonUtil.buildValueDeserializer(ctxt, null, TreeDataFormat.class);
+    void readValueWithDeserializerHandlesNull() throws JacksonException {
+        try (JsonParser parser = mapper.createParser("null")) {
+            DeserializationContext ctxt = (DeserializationContext) parser.objectReadContext();
+            ValueDeserializer<Object> deser = JsonUtil.buildValueDeserializer(ctxt, null, TreeDataFormat.class);
 
             parser.nextToken(); // VALUE_NULL
             assertNull(JsonUtil.readValue(deser, ctxt, parser, TreeDataFormat.class));
         }
 
         // fallback path (null deserializer) should also return null
-        try (JsonParser parser = mapper.getFactory().createParser("null")) {
-            DeserializationContext ctxt = blueprint.createInstance(mapper.getDeserializationConfig(), parser, null);
+        try (JsonParser parser = mapper.createParser("null")) {
+            DeserializationContext ctxt = (DeserializationContext) parser.objectReadContext();
             parser.nextToken();
             assertNull(JsonUtil.readValue(null, ctxt, parser, TreeDataFormat.class));
         }

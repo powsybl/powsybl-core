@@ -7,13 +7,12 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.OperatorStrategyResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -25,13 +24,13 @@ public class ConditionalActionsResultSerializer extends StdSerializer<OperatorSt
     }
 
     @Override
-    public void serialize(OperatorStrategyResult.ConditionalActionsResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(OperatorStrategyResult.ConditionalActionsResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        serializerProvider.defaultSerializeField("conditionalActionsId", result.getConditionalActionsId(), jsonGenerator);
-        serializerProvider.defaultSerializeField("status", result.getStatus(), jsonGenerator);
-        serializerProvider.defaultSerializeField("limitViolationsResult", result.getLimitViolationsResult(), jsonGenerator);
-        serializerProvider.defaultSerializeField("networkResult", result.getNetworkResult(), jsonGenerator);
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "distributedActivePower", result.getDistributedActivePower());
+        serializationContext.defaultSerializeProperty("conditionalActionsId", result.getConditionalActionsId(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("status", result.getStatus(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("limitViolationsResult", result.getLimitViolationsResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("networkResult", result.getNetworkResult(), jsonGenerator);
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "distributedActivePower", result.getDistributedActivePower());
         jsonGenerator.writeEndObject();
     }
 }

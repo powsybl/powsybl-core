@@ -7,18 +7,17 @@
  */
 package com.powsybl.contingency.list;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,28 +26,28 @@ import static com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer.I
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> implements ContextualDeserializer {
+public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
 
     private static final String CONTEXT_NAME = "identifierContingencyList";
 
-    private final transient JsonDeserializer<Object> identifiersDeserializer;
+    private final ValueDeserializer<Object> identifiersDeserializer;
 
     public IdentifierContingencyListDeserializer() {
         this(null);
     }
 
-    protected IdentifierContingencyListDeserializer(JsonDeserializer<Object> identifiersDeserializer) {
+    protected IdentifierContingencyListDeserializer(ValueDeserializer<Object> identifiersDeserializer) {
         super(IdentifierContingencyList.class);
         this.identifiersDeserializer = identifiersDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new IdentifierContingencyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, NetworkElementIdentifier.class));
     }
 
     @Override
-    public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String name = null;
         String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
@@ -56,7 +55,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
             String test = parser.currentName();
             switch (test) {
                 case "version" -> {
-                    version = parser.nextTextValue();
+                    version = parser.nextStringValue();
                     JsonUtil.setSourceVersion(deserializationContext, version, IDENTIFIER_LIST_VERSION);
                 }
                 case "identifiableType" -> {
@@ -64,9 +63,9 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                             version, "1.0");
                     parser.nextToken();
                 }
-                case "name" -> name = parser.nextTextValue();
+                case "name" -> name = parser.nextStringValue();
                 case "type" -> {
-                    if (!parser.nextTextValue().equals(IdentifierContingencyList.TYPE)) {
+                    if (!parser.nextStringValue().equals(IdentifierContingencyList.TYPE)) {
                         throw new IllegalStateException("type should be: " + IdentifierContingencyList.TYPE);
                     }
                 }

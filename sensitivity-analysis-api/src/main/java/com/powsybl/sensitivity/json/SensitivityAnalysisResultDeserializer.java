@@ -7,21 +7,20 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityStateStatus;
 import com.powsybl.sensitivity.SensitivityValue;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -29,25 +28,25 @@ import java.util.Objects;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityAnalysisResultDeserializer extends StdDeserializer<SensitivityAnalysisResult> implements ContextualDeserializer {
+public class SensitivityAnalysisResultDeserializer extends StdDeserializer<SensitivityAnalysisResult> {
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    private final transient JsonDeserializer<Object> factorsDeserializer;
-    private final transient JsonDeserializer<Object> sensitivityValuesDeserializer;
-    private final transient JsonDeserializer<Object> stateStatusDeserializer;
-    private final transient JsonDeserializer<Object> contingencyIdsDeserializer;
-    private final transient JsonDeserializer<Object> operatorStrategyIdsDeserializer;
+    private final ValueDeserializer<Object> factorsDeserializer;
+    private final ValueDeserializer<Object> sensitivityValuesDeserializer;
+    private final ValueDeserializer<Object> stateStatusDeserializer;
+    private final ValueDeserializer<Object> contingencyIdsDeserializer;
+    private final ValueDeserializer<Object> operatorStrategyIdsDeserializer;
 
     protected SensitivityAnalysisResultDeserializer() {
         this(null, null, null, null, null);
     }
 
-    protected SensitivityAnalysisResultDeserializer(JsonDeserializer<Object> factorsDeserializer,
-                                                    JsonDeserializer<Object> sensitivityValuesDeserializer,
-                                                    JsonDeserializer<Object> stateStatusDeserializer,
-                                                    JsonDeserializer<Object> contingencyIdsDeserializer,
-                                                    JsonDeserializer<Object> operatorStrategyIdsDeserializer) {
+    protected SensitivityAnalysisResultDeserializer(ValueDeserializer<Object> factorsDeserializer,
+                                                    ValueDeserializer<Object> sensitivityValuesDeserializer,
+                                                    ValueDeserializer<Object> stateStatusDeserializer,
+                                                    ValueDeserializer<Object> contingencyIdsDeserializer,
+                                                    ValueDeserializer<Object> operatorStrategyIdsDeserializer) {
         super(SensitivityAnalysisResult.class);
         this.factorsDeserializer = factorsDeserializer;
         this.sensitivityValuesDeserializer = sensitivityValuesDeserializer;
@@ -57,7 +56,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new SensitivityAnalysisResultDeserializer(
             JsonUtil.buildListDeserializer(ctxt, property, SensitivityFactor.class),
             JsonUtil.buildListDeserializer(ctxt, property, SensitivityValue.class),
@@ -68,7 +67,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
     }
 
     @Override
-    public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String version = null;
         List<SensitivityValue> sensitivityValues = Collections.emptyList();
         List<SensitivityStateStatus> stateStatus = Collections.emptyList();

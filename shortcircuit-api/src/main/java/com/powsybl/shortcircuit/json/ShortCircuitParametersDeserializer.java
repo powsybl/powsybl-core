@@ -7,19 +7,18 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,36 +28,36 @@ import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*
 /**
  * @author Boubakeur Brahimi
  */
-public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCircuitParameters> implements ContextualDeserializer {
+public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCircuitParameters> {
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
     private static final String TAG = "Tag: ";
 
-    private final transient JsonDeserializer<Object> voltageRangeDeserializer;
+    private final ValueDeserializer<Object> voltageRangeDeserializer;
 
     public ShortCircuitParametersDeserializer() {
         this(null);
     }
 
-    public ShortCircuitParametersDeserializer(JsonDeserializer<Object> voltageRangeDeserializer) {
+    public ShortCircuitParametersDeserializer(ValueDeserializer<Object> voltageRangeDeserializer) {
         super(ShortCircuitParameters.class);
         this.voltageRangeDeserializer = voltageRangeDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
         return new ShortCircuitParametersDeserializer(
             JsonUtil.buildListDeserializer(ctxt, property, VoltageRange.class)
         );
     }
 
     @Override
-    public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         return deserialize(parser, deserializationContext, new ShortCircuitParameters());
     }
 
     @Override
-    public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, ShortCircuitParameters parameters) throws IOException {
+    public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, ShortCircuitParameters parameters) throws JacksonException {
         String version = null;
         List<Extension<ShortCircuitParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -87,7 +86,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setWithFeederResult(parser.readValueAs(Boolean.class));
                 }
-                case "studyType" -> parameters.setStudyType(JsonUtil.readNullableEnumValue(parser.nextTextValue(), StudyType.class));
+                case "studyType" -> parameters.setStudyType(JsonUtil.readNullableEnumValue(parser.nextStringValue(), StudyType.class));
                 case "minVoltageDropProportionalThreshold" -> {
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
@@ -124,7 +123,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 }
                 case "initialVoltageProfileMode" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
-                    parameters.setInitialVoltageProfileMode(JsonUtil.readNullableEnumValue(parser.nextTextValue(), InitialVoltageProfileMode.class));
+                    parameters.setInitialVoltageProfileMode(JsonUtil.readNullableEnumValue(parser.nextStringValue(), InitialVoltageProfileMode.class));
                 }
                 case "voltageRanges" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");

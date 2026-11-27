@@ -7,18 +7,17 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityState;
 import com.powsybl.sensitivity.SensitivityStateStatus;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -78,7 +77,7 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
         }
     }
 
-    private static boolean parseChildNode(JsonParser parser, ParsingContext context, String version, String fieldName) throws IOException {
+    private static boolean parseChildNode(JsonParser parser, ParsingContext context, String version, String fieldName) {
         switch (fieldName) {
             case "contingencyId":
                 parser.nextToken();
@@ -109,7 +108,7 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
         }
     }
 
-    private static List<SensitivityStateStatus.ComponentStatus> parseComponentLoadFlowStatuses(JsonParser parser) throws IOException {
+    private static List<SensitivityStateStatus.ComponentStatus> parseComponentLoadFlowStatuses(JsonParser parser) {
         if (parser.nextToken() != JsonToken.START_ARRAY) {
             throw new PowsyblException("Expected start of array for component loadflow statuses");
         }
@@ -122,7 +121,7 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
         return statuses;
     }
 
-    private static SensitivityStateStatus.ComponentStatus parseSingleComponentStatus(JsonParser parser) throws IOException {
+    private static SensitivityStateStatus.ComponentStatus parseSingleComponentStatus(JsonParser parser) {
         LoadFlowResult.ComponentResult.Status status = null;
         String descStr = "";
         Integer connectedComponentNum = null;
@@ -131,8 +130,8 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
             String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
-                case LOAD_FLOW_STATUS -> status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getText());
-                case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getText();
+                case LOAD_FLOW_STATUS -> status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getString());
+                case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getString();
                 case NUM_CC -> connectedComponentNum = parser.getIntValue();
                 case NUM_SC -> synchronousComponentNum = parser.getIntValue();
                 default -> throw new PowsyblException("Unexpected field: " + fieldName);

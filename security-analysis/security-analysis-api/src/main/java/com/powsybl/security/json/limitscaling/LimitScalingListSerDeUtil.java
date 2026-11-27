@@ -7,10 +7,10 @@
  */
 package com.powsybl.security.json.limitscaling;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.limitscaling.LimitScalingList;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,12 +46,8 @@ public final class LimitScalingListSerDeUtil {
      */
     public static LimitScalingList read(InputStream is) {
         Objects.requireNonNull(is);
-        ObjectMapper objectMapper = createObjectMapper();
-        try {
-            return objectMapper.readValue(is, LimitScalingList.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readValue(is, LimitScalingList.class);
     }
 
     /**
@@ -74,17 +70,14 @@ public final class LimitScalingListSerDeUtil {
      * @param outputStream the output stream to use for the serialization
      */
     public static void write(LimitScalingList limitScalingList, OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, limitScalingList);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, limitScalingList);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new LimitScalingModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new LimitScalingModule())
+            .build();
     }
 }
