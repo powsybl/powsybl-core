@@ -496,6 +496,66 @@ class TimeSeriesTest {
         assertThrows(UncheckedIOException.class, () -> TimeSeries.parseCsv(path));
     }
 
+    private static String createWideCsv(int columnCount) {
+        int timeSeriesCount = columnCount - 1;
+        StringBuilder csv = new StringBuilder("Time");
+        for (int i = 0; i < timeSeriesCount; i++) {
+            csv.append(";ts").append(i);
+        }
+        for (int time = 0; time < 2; time++) {
+            csv.append('\n').append(time);
+            csv.repeat(";1", Math.max(0, timeSeriesCount));
+        }
+        return csv.append('\n').toString();
+    }
+
+    @Test
+    void testParseCsvAboveFastCsvDefaultFieldLimit() {
+        TimeSeriesCsvConfig config = new TimeSeriesCsvConfig(';', false, TimeFormat.MILLIS);
+        Map<Integer, List<TimeSeries>> timeSeries = TimeSeries.parseCsv(createWideCsv(17001), config);
+
+        assertEquals(17000, timeSeries.get(TimeSeries.DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES).size());
+    }
+
+    @Test
+    void testParseCsvHeaderExceedsMaxColumns() {
+        TimeSeriesCsvConfig config = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, 100, true);
+
+        Map<Integer, List<TimeSeries>> timeSeries = TimeSeries.parseCsv(createWideCsv(100), config);
+        assertEquals(99, timeSeries.get(TimeSeries.DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES).size());
+
+        String csvWithOneExtraColumn = createWideCsv(101);
+        assertThatCode(() -> TimeSeries.parseCsv(csvWithOneExtraColumn, config))
+                .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
+                .isInstanceOf(TimeSeriesException.class);
+    }
+
+    @Test
+    void testParseCsvValuesExceedMaxColumns() {
+        TimeSeriesCsvConfig config = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, 100, true);
+        String csv = createWideCsv(100).replace("\n0;", "\n0;1;");
+
+        assertThatCode(() -> TimeSeries.parseCsv(csv, config))
+                .hasMessage("Columns of line 0 are inconsistent with header")
+                .isInstanceOf(TimeSeriesException.class);
+    }
+
+    @Test
+    void testParseCsvWithoutMaxColumns() {
+        TimeSeriesCsvConfig config = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, 0, true);
+        Map<Integer, List<TimeSeries>> timeSeries = TimeSeries.parseCsv(createWideCsv(25001), config);
+
+        assertEquals(25000, timeSeries.get(TimeSeries.DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES).size());
+    }
+
+    @Test
+    void testParseCsvWithMaximumMaxColumns() {
+        TimeSeriesCsvConfig config = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, Integer.MAX_VALUE, true);
+        Map<Integer, List<TimeSeries>> timeSeries = TimeSeries.parseCsv(createWideCsv(2), config);
+
+        assertEquals(1, timeSeries.get(TimeSeries.DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES).size());
+    }
+
     @Test
     void splitTest() {
         try {

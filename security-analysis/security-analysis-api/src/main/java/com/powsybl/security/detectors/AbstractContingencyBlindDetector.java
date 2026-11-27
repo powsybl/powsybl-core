@@ -124,6 +124,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        checkAllDetailedDcEquipment(network, consumer);
     }
 
     @Override
@@ -131,5 +132,7 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
         network.getThreeWindingsTransformerStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        // The DC power factor is not used for detailed DC equipment
+        checkAllDetailedDcEquipment(network, consumer);
     }
 }

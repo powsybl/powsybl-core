@@ -8,9 +8,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +21,10 @@ import java.util.Optional;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements BoundaryLine {
+
+    static VoltageRegulation.VoltageRegulationAttributes defaultLocalVoltageRegulationAttributes() {
+        return new VoltageRegulation.VoltageRegulationAttributes(Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true, null);
+    }
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
@@ -36,21 +40,24 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         private final ExtendedDoubleArrayList targetP;
 
-        private final ExtendedDoubleArrayList targetQ;
+        private final ExtendedDoubleArrayList localTargetV;
 
-        private final ExtendedDoubleArrayList targetV;
+        private final ExtendedDoubleArrayList localTargetQ;
 
-        private final ExtendedBooleanArrayList voltageRegulationOn;
+        private VoltageRegulationExt voltageRegulation;
 
-        GenerationImpl(VariantManagerHolder network, double minP, double maxP, double targetP, double targetQ, double targetV, boolean voltageRegulationOn) {
+        private final VoltageRegulation.VoltageRegulationAttributes initialVoltageRegulation;
+
+        GenerationImpl(VariantManagerHolder network, double minP, double maxP, double targetP,
+                       double localTargetV, double localTargetQ, VoltageRegulation.VoltageRegulationAttributes initialVoltageRegulation) {
             this.minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
             this.maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
 
             int variantArraySize = network.getVariantManager().getVariantArraySize();
             this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
-            this.targetQ = new ExtendedDoubleArrayList(variantArraySize, targetQ);
-            this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
-            this.voltageRegulationOn = new ExtendedBooleanArrayList(variantArraySize, voltageRegulationOn);
+            this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+            this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
+            this.initialVoltageRegulation = initialVoltageRegulation;
         }
 
         GenerationImpl attach(BoundaryLineImpl boundaryLine) {
@@ -60,6 +67,9 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
             this.boundaryLine = Objects.requireNonNull(boundaryLine);
             this.reactiveLimits = new ReactiveLimitsHolderImpl(this.boundaryLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+            if (initialVoltageRegulation != null) {
+                createOrUpdateVoltageRegulation(initialVoltageRegulation);
+            }
 
             return this;
         }
@@ -113,38 +123,26 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public double getTargetQ() {
-            return targetQ.getDouble(boundaryLine.getNetwork().getVariantIndex());
+            return getLocalTargetQ();
         }
 
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
-            NetworkImpl n = boundaryLine.getNetwork();
-            int variantIndex = n.getVariantIndex();
-            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn.getBoolean(variantIndex), targetV.getDouble(variantIndex), targetQ,
-                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-            double oldValue = this.targetQ.set(variantIndex, targetQ);
-            String variantId = n.getVariantManager().getVariantId(variantIndex);
-            n.invalidateValidationLevel();
-            boundaryLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
-            return this;
+            return setLocalTargetQ(targetQ);
         }
 
         @Override
         public boolean isVoltageRegulationOn() {
-            return voltageRegulationOn.getBoolean(boundaryLine.getNetwork().getVariantIndex());
+            return voltageRegulation != null && voltageRegulation.isRegulating();
         }
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-            NetworkImpl n = boundaryLine.getNetwork();
-            int variantIndex = boundaryLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn, targetV.getDouble(variantIndex), targetQ.getDouble(variantIndex),
-                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-            boolean oldValue = this.voltageRegulationOn.getBoolean(variantIndex);
-            this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
-            String variantId = boundaryLine.getNetwork().getVariantManager().getVariantId(variantIndex);
-            n.invalidateValidationLevel();
-            boundaryLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
+            if (voltageRegulation != null) {
+                voltageRegulation.setRegulating(voltageRegulationOn);
+            } else if (voltageRegulationOn) {
+                createOrUpdateVoltageRegulation(defaultLocalVoltageRegulationAttributes());
+            }
             return this;
         }
 
@@ -155,20 +153,101 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public double getTargetV() {
-            return this.targetV.getDouble(boundaryLine.getNetwork().getVariantIndex());
+            return getLocalTargetV();
         }
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
+            return setLocalTargetV(targetV);
+        }
+
+        @Override
+        public Terminal getTerminal() {
+            return boundaryLine.getTerminal();
+        }
+
+        @Override
+        public VoltageRegulationExt getVoltageRegulation() {
+            return voltageRegulation;
+        }
+
+        @Override
+        public VoltageRegulationBuilder newVoltageRegulation() {
+            return new VoltageRegulationBuilderImpl(BoundaryLine.Generation.class, boundaryLine, this, boundaryLine.getNetwork().getRef(), this::createOrUpdateVoltageRegulation);
+        }
+
+        @Override
+        public void removeVoltageRegulation() {
             NetworkImpl n = boundaryLine.getNetwork();
-            int variantIndex = boundaryLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn.getBoolean(variantIndex), targetV, targetQ.getDouble(variantIndex),
-                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-            double oldValue = this.targetV.set(variantIndex, targetV);
-            String variantId = boundaryLine.getNetwork().getVariantManager().getVariantId(variantIndex);
+            ValidationUtil.checkLocalTargetQandV(boundaryLine,
+                    BoundaryLine.Generation.class,
+                    getLocalTargetV(),
+                    getLocalTargetQ(),
+                    true,
+                    false,
+                    false,
+                    null,
+                    n.getMinValidationLevel(),
+                    n.getReportNodeContext().getReportNode());
+            if (voltageRegulation != null) {
+                voltageRegulation.onRemove();
+                voltageRegulation = null;
+            }
+        }
+
+        @Override
+        public double getLocalTargetV() {
+            return localTargetV.getDouble(boundaryLine.getNetwork().getVariantIndex());
+        }
+
+        @Override
+        public GenerationImpl setLocalTargetV(double localTargetV) {
+            NetworkImpl n = boundaryLine.getNetwork();
+            ValidationUtil.checkLocalTargetQandV(boundaryLine,
+                    BoundaryLine.Generation.class,
+                    localTargetV,
+                    getLocalTargetQ(),
+                    voltageRegulation,
+                    n.getMinValidationLevel(),
+                    n.getReportNodeContext().getReportNode());
+            int variantIndex = n.getVariantIndex();
+            double oldValue = this.localTargetV.set(variantIndex, localTargetV);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
-            boundaryLine.notifyUpdate("targetV", variantId, oldValue, targetV);
+            boundaryLine.notifyUpdate("localTargetV", variantId, oldValue, localTargetV);
             return this;
+        }
+
+        @Override
+        public double getLocalTargetQ() {
+            return localTargetQ.get(boundaryLine.getNetwork().getVariantIndex());
+        }
+
+        @Override
+        public GenerationImpl setLocalTargetQ(double localTargetQ) {
+            NetworkImpl n = boundaryLine.getNetwork();
+            ValidationUtil.checkLocalTargetQandV(boundaryLine,
+                    BoundaryLine.Generation.class,
+                    getLocalTargetV(),
+                    localTargetQ,
+                    voltageRegulation,
+                    n.getMinValidationLevel(),
+                    n.getReportNodeContext().getReportNode());
+            int variantIndex = n.getVariantIndex();
+            double oldValue = this.localTargetQ.set(variantIndex, localTargetQ);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            boundaryLine.notifyUpdate("localTargetQ", variantId, oldValue, localTargetQ);
+            return this;
+        }
+
+        private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes attributes) {
+            if (voltageRegulation == null) {
+                voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(boundaryLine, this, BoundaryLine.Generation.class, boundaryLine.getNetwork().getRef(), attributes);
+            } else {
+                voltageRegulation.setAttributesOnCurrentVariant(attributes);
+            }
+            return voltageRegulation;
         }
 
         @Override
@@ -206,26 +285,32 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
             return boundaryLine.getMessageHeader();
         }
 
-        void extendVariantArraySize(int number, int sourceIndex) {
+        void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
             targetP.growAndFill(number, targetP.getDouble(sourceIndex));
-            targetQ.growAndFill(number, targetQ.getDouble(sourceIndex));
-            targetV.growAndFill(number, targetV.getDouble(sourceIndex));
-            voltageRegulationOn.growAndFill(number, voltageRegulationOn.getBoolean(sourceIndex));
+            localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+            localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
+            if (voltageRegulation != null) {
+                voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+            }
         }
 
         void reduceVariantArraySize(int number) {
             targetP.removeElements(number);
-            targetQ.removeElements(number);
-            voltageRegulationOn.removeElements(number);
-            targetV.removeElements(number);
+            localTargetQ.removeElements(number);
+            localTargetV.removeElements(number);
+            if (voltageRegulation != null) {
+                voltageRegulation.reduceVariantArraySize(number);
+            }
         }
 
         void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            if (voltageRegulation != null) {
+                voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
+            }
             for (int index : indexes) {
                 targetP.set(index, targetP.getDouble(sourceIndex));
-                targetQ.set(index, targetQ.getDouble(sourceIndex));
-                voltageRegulationOn.set(index, voltageRegulationOn.getBoolean(sourceIndex));
-                targetV.set(index, targetV.getDouble(sourceIndex));
+                localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+                localTargetV.set(index, localTargetV.getDouble(sourceIndex));
             }
         }
     }
@@ -526,7 +611,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         p0.growAndFill(number, p0.getDouble(sourceIndex));
         q0.growAndFill(number, q0.getDouble(sourceIndex));
         if (generation != null) {
-            generation.extendVariantArraySize(number, sourceIndex);
+            generation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
     }
 

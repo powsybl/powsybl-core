@@ -14,7 +14,6 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
@@ -44,7 +43,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
 
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        setRegulatingControlProperty(g);
 
         addSpecificProperties(g, p);
     }
@@ -59,11 +58,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
-
-        int referencePriority = cgmesData.asInt("referencePriority", 0);
-        if (referencePriority > 0) {
-            ReferencePriority.set(generator, referencePriority);
-        }
+        updateReferencePriority(generator, cgmesData, context);
 
         double targetP = getDefaultValue(null, generator.getTargetP(), 0.0, 0.0, context);
         double targetQ = getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);

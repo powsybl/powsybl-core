@@ -143,6 +143,14 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void unmappedRegulatingTerminalReport(ReportNode reportNode, String svcId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.cgmes.conversion.unmappedRegulatingTerminal")
+            .withUntypedValue(EQUIPMENT_ID, svcId)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
     public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, double v, double angle) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")
