@@ -220,7 +220,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public double getLocalTargetQ() {
-            return localTargetQ.get(boundaryLine.getNetwork().getVariantIndex());
+            return localTargetQ.getDouble(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
