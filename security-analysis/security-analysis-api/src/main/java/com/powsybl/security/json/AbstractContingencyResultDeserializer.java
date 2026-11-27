@@ -12,7 +12,9 @@ import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -22,8 +24,44 @@ import java.util.List;
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractContingencyResultDeserializer<T extends AbstractContingencyResult> extends StdDeserializer<T> {
+
+    protected final transient ValueDeserializer<Object> limitViolationsResultDeserializer;
+    protected final transient ValueDeserializer<Object> networkResultDeserializer;
+    protected final transient ValueDeserializer<Object> busResultDeserializer;
+    protected final transient ValueDeserializer<Object> branchResultDeserializer;
+    protected final transient ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
+
     protected AbstractContingencyResultDeserializer(Class<T> vc) {
+        this(vc, null, null, null, null, null);
+    }
+
+    protected AbstractContingencyResultDeserializer(Class<T> vc,
+                                                    ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                                    ValueDeserializer<Object> networkResultDeserializer,
+                                                    ValueDeserializer<Object> busResultDeserializer,
+                                                    ValueDeserializer<Object> branchResultDeserializer,
+                                                    ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
         super(vc);
+        this.limitViolationsResultDeserializer = limitViolationsResultDeserializer;
+        this.networkResultDeserializer = networkResultDeserializer;
+        this.busResultDeserializer = busResultDeserializer;
+        this.branchResultDeserializer = branchResultDeserializer;
+        this.threeWindingsTransformerResultDeserializer = threeWindingsTransformerResultDeserializer;
+    }
+
+    protected abstract ValueDeserializer<T> create(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                                  ValueDeserializer<Object> networkResultDeserializer,
+                                                  ValueDeserializer<Object> busResultDeserializer,
+                                                  ValueDeserializer<Object> branchResultDeserializer,
+                                                  ValueDeserializer<Object> threeWindingsTransformerResultDeserializer);
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return create(JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, NetworkResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, BusResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, BranchResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, ThreeWindingsTransformerResult.class));
     }
 
     protected static class ParsingContext {

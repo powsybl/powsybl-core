@@ -1308,7 +1308,7 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         Terminal remoteTerminal = lineax.getTerminal1();
         double localTargetQ = 40.0;
         double remoteTargetQLoadSignConvention = 10.0;
@@ -1334,7 +1334,7 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
-    void equivalentAcDcConverter() {
+    public void equivalentAcDcConverter() {
         LineCommutatedConverter lccConverterStation = createLccAdder(vla)
                 .setId("acdcConverterA")
                 .setBus1(b1a.getId())

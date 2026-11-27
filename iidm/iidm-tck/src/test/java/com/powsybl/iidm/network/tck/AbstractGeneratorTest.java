@@ -8,6 +8,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -22,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractGeneratorTest {
 
@@ -61,10 +65,12 @@ public abstract class AbstractGeneratorTest {
         double reactivePowerSetpoint = 21.0;
         double voltageSetpoint = 31.0;
         double ratedS = 41.0;
+        boolean hasCondenserCapability = true;
         generator.setTargetP(activePowerSetpoint);
         generator.setLocalTargetQ(reactivePowerSetpoint);
         generator.setLocalTargetV(voltageSetpoint);
         generator.setRatedS(ratedS);
+        generator.setCondenserCapability(hasCondenserCapability);
         assertEquals(activePowerSetpoint, generator.getTargetP(), 0.0);
         assertEquals(reactivePowerSetpoint, generator.getLocalTargetQ(), 0.0);
         assertEquals(voltageSetpoint, generator.getLocalTargetV(), 0.0);
@@ -75,7 +81,7 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         generator.getVoltageRegulation().setRegulating(true);
         assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertFalse(generator.isCondenser());
+        assertEquals(hasCondenserCapability, generator.hasCondenserCapability());
         assertFalse(generator.isEquivalent());
         generator.setEquivalent(true);
         assertTrue(generator.isEquivalent());
@@ -149,6 +155,43 @@ public abstract class AbstractGeneratorTest {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 21., 20.0,
                 30.0, 40.0, false, 20.0));
         assertTrue(e.getMessage().contains("invalid active limits"));
+    }
+
+    @Test
+    public void targetPNotWithinRange() {
+        // test adder
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode1);
+        Generator generator = createGenerator(INVALID, EnergySource.HYDRO, 20.0, 19, 20.0,
+                30.0, 40.0, false, 20.0);
+        assertEquals("core.iidm.network.activePowerTargetNotWithinRange", reportNode1.getChildren().getFirst().getMessageKey());
+        assertEquals("'invalid': active power setpoint value 30.0 is outside authorized range [19.0; 20.0]", reportNode1.getChildren().getFirst().getMessage());
+        assertEquals(30.0, generator.getTargetP());
+
+        // test setter
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode2);
+        generator.setTargetP(32);
+        assertEquals("core.iidm.network.activePowerTargetNotWithinRange", reportNode2.getChildren().getFirst().getMessageKey());
+        assertEquals("'invalid': active power setpoint value 32.0 is outside authorized range [19.0; 20.0]", reportNode2.getChildren().getFirst().getMessage());
+        assertEquals(32.0, generator.getTargetP());
+
+        // test with targetP = 0
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode3);
+        generator.setTargetP(0);
+        assertEquals(0, reportNode3.getChildren().size());
+        assertEquals(0, generator.getTargetP());
+
     }
 
     /**
@@ -237,7 +280,7 @@ public abstract class AbstractGeneratorTest {
                 .setLocalTargetQ(20.0)
                 .setNode(1)
                 .setLocalTargetV(31.0)
-                .setCondenser(true)
+                .setCondenserCapability(true)
                 .add();
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
@@ -250,7 +293,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(20.0, generator.getLocalTargetQ(), 0.0);
         assertEquals(31.0, generator.getLocalTargetV(), 0.0);
-        assertTrue(generator.isCondenser());
+        assertTrue(generator.hasCondenserCapability());
     }
 
     @Test
@@ -399,7 +442,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMultiVariants() {
+    public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
@@ -439,7 +482,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testRemoveVoltageRegulationInMultiVariant() {
+    public void testRemoveVoltageRegulationInMultiVariant() {
         // GIVEN
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
@@ -465,7 +508,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testNewVoltageRegulationInMonoVariant() {
+    public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createGenerator("testMonoVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
             15.0, 40.0, true, 2.0);
@@ -483,7 +526,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void invalidLocalTargetVAdder() {
+    public void invalidLocalTargetVAdder() {
         // GIVEN
         double targetV = -10.0;
         GeneratorAdder generatorAdder = voltageLevel.newGenerator()
@@ -501,7 +544,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void invalidLocalTargetV() {
+    public void invalidLocalTargetV() {
         // GIVEN
         Terminal remoteTerminal = network.getGenerator("CB").getTerminal();
         double targetV = -17.6;
@@ -529,7 +572,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void equivalentGenerator() {
+    public void equivalentGenerator() {
         Generator generator = createGeneratorAdder("testGenerator", EnergySource.OTHER, 20.0, 10., 2.0,
             15.0, 40.0, true, 2.0)
             .setEquivalent(true)
@@ -538,7 +581,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void testSignOnRemoteReactiveMode() {
+    public void testSignOnRemoteReactiveMode() {
         Terminal remoteTerminal = network.getGenerator("CB").getTerminal();
         double localTargetQ = 40.0;
         double remoteTargetQGeneratorSignConvention = 10.0;

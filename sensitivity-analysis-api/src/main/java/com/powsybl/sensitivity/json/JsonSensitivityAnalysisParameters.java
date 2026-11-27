@@ -13,10 +13,12 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisProvider;
+import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,6 +72,34 @@ public final class JsonSensitivityAnalysisParameters {
     public static SensitivityAnalysisParameters update(SensitivityAnalysisParameters parameters, InputStream jsonStream) {
         JsonMapper jsonMapper = createJsonMapper();
         return jsonMapper.readerForUpdating(parameters).readValue(jsonStream);
+    }
+
+    /**
+     * Writes parameters as JSON to a file.
+     */
+    public static void write(SensitivityAnalysisParameters parameters, Path jsonFile) {
+        Objects.requireNonNull(jsonFile);
+
+        try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
+            write(parameters, outputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Writes parameters as JSON to an output stream.
+     */
+    public static void write(SensitivityAnalysisParameters parameters, OutputStream outputStream) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(outputStream);
+        JsonMapper jsonmapper = createJsonMapper();
+        ObjectWriter writer = jsonmapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, parameters);
+    }
+
+    public static SensitivityAnalysisParameters copy(SensitivityAnalysisParameters parameters) {
+        return JsonUtil.copyThroughJson(parameters, SensitivityAnalysisParameters::new, createJsonMapper());
     }
 
     public static JsonMapper createJsonMapper() {

@@ -14,10 +14,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
@@ -29,7 +31,12 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -230,9 +237,11 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
-        SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"), SensitivityAnalysisResult.Status.SUCCESS);
+        SensitivityStateStatus value = new SensitivityStateStatus(SensitivityState.postContingency("C1"),
+            List.of(new SensitivityStateStatus.ComponentStatus(
+                0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")));
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, jsonMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, jsonMapper), "/stateStatusRef.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityStateStatus.class, jsonMapper), "/stateStatusRef.json");
     }
 
     @Test
@@ -318,9 +327,113 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testCopy() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters()
+                .setFlowFlowSensitivityValueThreshold(0.1)
+                .setAngleFlowSensitivityValueThreshold(0.2)
+                .setFlowVoltageSensitivityValueThreshold(0.3)
+                .setVoltageVoltageSensitivityValueThreshold(0.4)
+                .setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES)
+                .setDebugDir("/tmp/debugDir");
+        parameters.getLoadFlowParameters().setDc(true);
+
+        SensitivityAnalysisParameters copy = parameters.copy();
+        assertNotSame(parameters, copy);
+        assertEquals(0.1, copy.getFlowFlowSensitivityValueThreshold(), EPS);
+        assertEquals(0.2, copy.getAngleFlowSensitivityValueThreshold(), EPS);
+        assertEquals(0.3, copy.getFlowVoltageSensitivityValueThreshold(), EPS);
+        assertEquals(0.4, copy.getVoltageVoltageSensitivityValueThreshold(), EPS);
+        assertEquals(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES, copy.getOperatorStrategiesCalculationMode());
+        assertEquals("/tmp/debugDir", copy.getDebugDir());
+        assertNotSame(parameters.getLoadFlowParameters(), copy.getLoadFlowParameters());
+        assertTrue(copy.getLoadFlowParameters().isDc());
+        assertTrue(copy.getExtensions().isEmpty());
+
+        copy.setFlowFlowSensitivityValueThreshold(0.5);
+        copy.getLoadFlowParameters().setDc(false);
+        assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), EPS);
+        assertTrue(parameters.getLoadFlowParameters().isDc());
+    }
+
+    @Test
+    void testCopyWithExtension() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        DummyExtension dummyExtension = new DummyExtension();
+        dummyExtension.setParameterString("test");
+        parameters.addExtension(DummyExtension.class, dummyExtension);
+        parameters.addExtension(NotSerializableExtension.class, new NotSerializableExtension());
+
+        SensitivityAnalysisParameters copy = parameters.copy();
+        assertEquals(1, copy.getExtensions().size()); // NotSerializableExtension is dropped
+        Extension<SensitivityAnalysisParameters> copiedExt = copy.getExtensionByName(DUMMY_EXTENSION_NAME);
+        assertNotSame(dummyExtension, copiedExt);
+        assertSame(parameters, dummyExtension.getExtendable());
+        assertSame(copy, copiedExt.getExtendable());
+    }
+
+    @Test
+    void roundTripWithJsonSensitivityAnalysisParameters() throws IOException {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        roundTripTest(parameters, JsonSensitivityAnalysisParameters::write, JsonSensitivityAnalysisParameters::read,
+                "/SensitivityAnalysisParameters.json");
+    }
+
+    @Test
+    void writeExtensionWithJsonSensitivityAnalysisParameters() throws IOException {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        parameters.addExtension(DummyExtension.class, new DummyExtension());
+        writeTest(parameters, JsonSensitivityAnalysisParameters::write,
+                ComparisonUtils::assertTxtEquals, "/SensitivityAnalysisParametersWithExtension.json");
+    }
+
+    @Test
+    void writeToStream() throws IOException {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        Path file = tmpDir.resolve("parameters.json");
+        try (OutputStream os = Files.newOutputStream(file)) {
+            JsonSensitivityAnalysisParameters.write(parameters, os);
+        }
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/SensitivityAnalysisParameters.json"), Files.newInputStream(file));
+    }
+
+    @Test
+    void writeToMissingDirectory() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        Path file = tmpDir.resolve("missing").resolve("parameters.json");
+        assertThrows(UncheckedIOException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, file));
+    }
+
+    @Test
+    void writeToFailingStream() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        OutputStream failingStream = new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException("write failure");
+            }
+        };
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, failingStream));
+        assertEquals("write failure", e.getCause().getMessage());
+    }
+
+    @Test
+    void writeNullPath() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (Path) null));
+        assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (OutputStream) null));
+    }
+
+    @Test
     void readJsonVersion10Invalid() {
         assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
                         .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
                 "SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
+    }
+
+    static class NotSerializableExtension extends AbstractExtension<SensitivityAnalysisParameters> {
+        @Override
+        public String getName() {
+            return "not-serializable-extension";
+        }
     }
 }

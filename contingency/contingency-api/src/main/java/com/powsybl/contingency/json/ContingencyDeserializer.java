@@ -17,7 +17,10 @@ import com.powsybl.contingency.ContingencyElement;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -34,8 +37,21 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
+    private final transient ValueDeserializer<Object> elementDeserializer;
+
     public ContingencyDeserializer() {
+        this(null);
+    }
+
+    public ContingencyDeserializer(ValueDeserializer<Object> elementDeserializer) {
         super(Contingency.class);
+        this.elementDeserializer = elementDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext deserializationContext,
+                                                BeanProperty property) throws DatabindException {
+        return new ContingencyDeserializer(JsonUtil.buildListDeserializer(deserializationContext, property, ContingencyElement.class));
     }
 
     @Override
@@ -52,7 +68,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
                 case "name" -> name = parser.nextStringValue();
                 case "elements" -> {
                     parser.nextToken();
-                    elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
+                    elements = JsonUtil.readList(elementDeserializer, deserializationContext, parser, ContingencyElement.class);
                 }
                 case "extensions" -> {
                     parser.nextToken();

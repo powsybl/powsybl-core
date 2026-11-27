@@ -7,22 +7,47 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityStateStatus;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
+import static com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer.*;
+
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityAnalysisResult.SensitivityStateStatus> {
+public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityStateStatus> {
 
     public SensitivityStateStatusJsonSerializer() {
-        super(SensitivityAnalysisResult.SensitivityStateStatus.class);
+        super(SensitivityStateStatus.class);
     }
 
     @Override
-    public void serialize(SensitivityAnalysisResult.SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
-        SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, value);
+    public void serialize(SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
+        writeJson(jsonGenerator, value);
+    }
+
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
+        jsonGenerator.writeStartObject();
+        if (stateStatus.getState().contingencyId() != null) {
+            jsonGenerator.writeStringProperty("contingencyId", stateStatus.getState().contingencyId());
+        }
+        if (stateStatus.getState().operatorStrategyId() != null) {
+            jsonGenerator.writeStringProperty("operatorStrategyId", stateStatus.getState().operatorStrategyId());
+        }
+        if (!stateStatus.getComponentsLoadFlowStatusList().isEmpty()) {
+            jsonGenerator.writeArrayPropertyStart(COMPONENT_STATUSES);
+            for (SensitivityStateStatus.ComponentStatus componentStatus : stateStatus.getComponentsLoadFlowStatusList()) {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringProperty(LOAD_FLOW_STATUS, componentStatus.status().toString());
+                jsonGenerator.writeStringProperty(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());
+                jsonGenerator.writeNumberProperty(NUM_CC, componentStatus.connectedComponentNum());
+                jsonGenerator.writeNumberProperty(NUM_SC, componentStatus.synchronousComponentNum());
+                jsonGenerator.writeEndObject();
+            }
+            jsonGenerator.writeEndArray();
+        }
+        jsonGenerator.writeEndObject();
     }
 }

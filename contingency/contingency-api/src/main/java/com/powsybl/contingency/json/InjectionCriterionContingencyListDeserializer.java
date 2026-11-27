@@ -14,6 +14,7 @@ import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -21,7 +22,16 @@ import tools.jackson.databind.DeserializationContext;
 public class InjectionCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<InjectionCriterionContingencyList> {
 
     public InjectionCriterionContingencyListDeserializer() {
-        super(InjectionCriterionContingencyList.class);
+        this(null, null);
+    }
+
+    public InjectionCriterionContingencyListDeserializer(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        super(InjectionCriterionContingencyList.class, criterionDeser, propertyDeser);
+    }
+
+    @Override
+    protected InjectionCriterionContingencyListDeserializer create(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        return new InjectionCriterionContingencyListDeserializer(criterionDeser, propertyDeser);
     }
 
     String identifiableType;

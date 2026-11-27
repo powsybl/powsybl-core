@@ -12,7 +12,10 @@ import com.powsybl.security.results.ConnectivityResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -23,8 +26,20 @@ import java.util.Set;
  */
 public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
 
+    private final transient ValueDeserializer<Object> disconnectedElementsDeserializer;
+
     public ConnectivityResultDeserializer() {
+        this(null);
+    }
+
+    public ConnectivityResultDeserializer(ValueDeserializer<Object> disconnectedElementsDeserializer) {
         super(ConnectivityResult.class);
+        this.disconnectedElementsDeserializer = disconnectedElementsDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new ConnectivityResultDeserializer(JsonUtil.buildSetDeserializer(ctxt, property, String.class));
     }
 
     @Override
@@ -56,7 +71,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                     break;
                 case "disconnectedElements":
                     parser.nextToken();
-                    disconnectedElements = JsonUtil.readSet(deserializationContext, parser, String.class);
+                    disconnectedElements = JsonUtil.readSet(disconnectedElementsDeserializer, deserializationContext, parser, String.class);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());

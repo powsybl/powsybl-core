@@ -24,7 +24,10 @@ import com.powsybl.iidm.network.Country;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -33,10 +36,30 @@ import java.util.List;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class CriterionDeserializer extends StdDeserializer<Criterion> {
+public class CriterionDeserializer extends StdDeserializer<Criterion> implements ContextualDeserializer {
+
+    private final transient ValueDeserializer<Object> voltageDeserializer;
+    private final transient ValueDeserializer<Object> countryDeserializer;
+    private final transient ValueDeserializer<Object> propertyDeserializer;
 
     public CriterionDeserializer() {
+        this(null, null, null);
+    }
+
+    public CriterionDeserializer(ValueDeserializer<Object> voltageDeserializer, ValueDeserializer<Object> countryDeserializer, ValueDeserializer<Object> propertyDeserializer) {
         super(Criterion.class);
+        this.voltageDeserializer = voltageDeserializer;
+        this.countryDeserializer = countryDeserializer;
+        this.propertyDeserializer = propertyDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new CriterionDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, VoltageInterval.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     @Override
@@ -56,47 +79,43 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "type" -> type = CriterionType.valueOf(parser.nextStringValue());
+                case "type" -> type = JsonUtil.readNullableEnumValue(parser.nextStringValue(), CriterionType.class);
                 case "voltageInterval" -> {
                     parser.nextToken();
-                    voltageInterval = JsonUtil.readValue(deserializationContext, parser,
-                            VoltageInterval.class);
+                    voltageInterval = JsonUtil.readValue(voltageDeserializer, deserializationContext, parser, VoltageInterval.class);
                 }
                 case "voltageInterval1" -> {
                     parser.nextToken();
-                    voltageInterval1 = JsonUtil.readValue(deserializationContext, parser,
-                            VoltageInterval.class);
+                    voltageInterval1 = JsonUtil.readValue(voltageDeserializer, deserializationContext, parser, VoltageInterval.class);
                 }
                 case "voltageInterval2" -> {
                     parser.nextToken();
-                    voltageInterval2 = JsonUtil.readValue(deserializationContext, parser,
-                            VoltageInterval.class);
+                    voltageInterval2 = JsonUtil.readValue(voltageDeserializer, deserializationContext, parser, VoltageInterval.class);
                 }
                 case "voltageInterval3" -> {
                     parser.nextToken();
-                    voltageInterval3 = JsonUtil.readValue(deserializationContext, parser,
-                            VoltageInterval.class);
+                    voltageInterval3 = JsonUtil.readValue(voltageDeserializer, deserializationContext, parser, VoltageInterval.class);
                 }
                 case "countries" -> {
                     parser.nextToken();
-                    countries = JsonUtil.readList(deserializationContext, parser, String.class);
+                    countries = JsonUtil.readList(countryDeserializer, deserializationContext, parser, String.class);
                 }
                 case "countries1" -> {
                     parser.nextToken();
-                    countries1 = JsonUtil.readList(deserializationContext, parser, String.class);
+                    countries1 = JsonUtil.readList(countryDeserializer, deserializationContext, parser, String.class);
                 }
                 case "countries2" -> {
                     parser.nextToken();
-                    countries2 = JsonUtil.readList(deserializationContext, parser, String.class);
+                    countries2 = JsonUtil.readList(countryDeserializer, deserializationContext, parser, String.class);
                 }
                 case "propertyKey" -> propertyKey = parser.nextStringValue();
                 case "regex" -> regex = parser.nextStringValue();
                 case "propertyValue" -> {
                     parser.nextToken();
-                    propertyValues = JsonUtil.readList(deserializationContext, parser, String.class);
+                    propertyValues = JsonUtil.readList(propertyDeserializer, deserializationContext, parser, String.class);
                 }
-                case "equipmentToCheck" -> equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextStringValue());
-                case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextStringValue());
+                case "equipmentToCheck" -> equipmentToCheck = JsonUtil.readNullableEnumValue(parser.nextStringValue(), PropertyCriterion.EquipmentToCheck.class);
+                case "sideToCheck" -> sideToCheck = JsonUtil.readNullableEnumValue(parser.nextStringValue(), PropertyCriterion.SideToCheck.class);
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }

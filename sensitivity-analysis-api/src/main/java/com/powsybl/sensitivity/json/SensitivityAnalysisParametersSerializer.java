@@ -10,10 +10,14 @@ package com.powsybl.sensitivity.json;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
+
+import java.util.Set;
 
 /**
  * Json serializer for sensitivity analysis parameters
@@ -21,6 +25,8 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class SensitivityAnalysisParametersSerializer extends StdSerializer<SensitivityAnalysisParameters> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisParametersSerializer.class);
 
     SensitivityAnalysisParametersSerializer() {
         super(SensitivityAnalysisParameters.class);
@@ -43,7 +49,10 @@ public class SensitivityAnalysisParametersSerializer extends StdSerializer<Sensi
         jsonGenerator.writeStringProperty("operator-strategies-calculation-mode", parameters.getOperatorStrategiesCalculationMode().name());
         JsonUtil.writeOptionalStringProperty(jsonGenerator, "debug-dir", parameters.getDebugDir());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
+        Set<String> notSerialized = JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
+        if (!notSerialized.isEmpty()) {
+            LOGGER.warn("No JSON serializer found for sensitivity analysis parameters extensions {}, they are not written", notSerialized);
+        }
 
         jsonGenerator.writeEndObject();
     }

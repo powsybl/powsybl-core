@@ -15,6 +15,7 @@ import com.powsybl.security.results.PreContingencyResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,33 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     public PreContingencyResultDeserializer() {
         super(PreContingencyResult.class);
+    }
+
+    public PreContingencyResultDeserializer(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                            ValueDeserializer<Object> networkResultDeserializer,
+                                            ValueDeserializer<Object> busResultDeserializer,
+                                            ValueDeserializer<Object> branchResultDeserializer,
+                                            ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+        super(PreContingencyResult.class,
+            limitViolationsResultDeserializer,
+            networkResultDeserializer,
+            busResultDeserializer,
+            branchResultDeserializer,
+            threeWindingsTransformerResultDeserializer);
+    }
+
+    @Override
+    protected PreContingencyResultDeserializer create(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                         ValueDeserializer<Object> networkResultDeserializer,
+                                         ValueDeserializer<Object> busResultDeserializer,
+                                         ValueDeserializer<Object> branchResultDeserializer,
+                                         ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+        return new PreContingencyResultDeserializer(
+            limitViolationsResultDeserializer,
+            networkResultDeserializer,
+            busResultDeserializer,
+            branchResultDeserializer,
+            threeWindingsTransformerResultDeserializer);
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -21,7 +22,16 @@ import tools.jackson.databind.DeserializationContext;
 public class LineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<LineCriterionContingencyList> {
 
     public LineCriterionContingencyListDeserializer() {
-        super(LineCriterionContingencyList.class);
+        this(null, null);
+    }
+
+    public LineCriterionContingencyListDeserializer(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        super(LineCriterionContingencyList.class, criterionDeser, propertyDeser);
+    }
+
+    @Override
+    protected LineCriterionContingencyListDeserializer create(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        return new LineCriterionContingencyListDeserializer(criterionDeser, propertyDeser);
     }
 
     @Override

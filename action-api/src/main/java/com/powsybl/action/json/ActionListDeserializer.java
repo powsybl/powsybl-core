@@ -17,8 +17,10 @@ import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.HashMap;
@@ -28,12 +30,24 @@ import java.util.Map;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class ActionListDeserializer extends StdDeserializer<ActionList> {
+public class ActionListDeserializer extends StdDeserializer<ActionList> implements ContextualDeserializer {
 
     public static final String VERSION = "version";
 
+    private final transient ValueDeserializer<Object> actionBuilderDeserializer;
+
     public ActionListDeserializer() {
+        this(null);
+    }
+
+    public ActionListDeserializer(ValueDeserializer<Object> actionBuilderDeserializer) {
         super(ActionList.class);
+        this.actionBuilderDeserializer = actionBuilderDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new ActionListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, ActionBuilder.class));
     }
 
     public static class ParsingContext {
@@ -74,7 +88,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                 return true;
             case "actions":
                 parser.nextToken();
-                List<ActionBuilder> actionBuilders = JsonUtil.readList(deserializationContext, parser, ActionBuilder.class);
+                List<ActionBuilder<?>> actionBuilders = JsonUtil.readList(actionBuilderDeserializer, deserializationContext, parser, ActionBuilder.class);
                 context.actions = actionBuilders.stream().map(ActionBuilder::build).toList();
                 return true;
             case "elementIdentifiers":

@@ -14,6 +14,7 @@ import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -21,7 +22,16 @@ import tools.jackson.databind.DeserializationContext;
 public class TwoWindingsTransformerCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<TwoWindingsTransformerCriterionContingencyList> {
 
     public TwoWindingsTransformerCriterionContingencyListDeserializer() {
-        super(TwoWindingsTransformerCriterionContingencyList.class);
+        this(null, null);
+    }
+
+    public TwoWindingsTransformerCriterionContingencyListDeserializer(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        super(TwoWindingsTransformerCriterionContingencyList.class, criterionDeser, propertyDeser);
+    }
+
+    @Override
+    protected TwoWindingsTransformerCriterionContingencyListDeserializer create(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        return new TwoWindingsTransformerCriterionContingencyListDeserializer(criterionDeser, propertyDeser);
     }
 
     @Override

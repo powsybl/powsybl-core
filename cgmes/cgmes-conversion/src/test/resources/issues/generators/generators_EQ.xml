@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:generators_EQ">
+    <md:Model.scenarioTime>2026-08-25T21:55:00Z</md:Model.scenarioTime>
+    <md:Model.created>2026-08-25T21:55:00Z</md:Model.created>
+    <md:Model.description>Generator properties EQ</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:BaseVoltage rdf:ID="_BV">
+    <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:Substation rdf:ID="_ST1">
+    <cim:IdentifiedObject.name>Substation 1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL1">
+    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN1">
+    <cim:IdentifiedObject.name>Connectivity node 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL1"/>
+</cim:ConnectivityNode>
+<cim:Substation rdf:ID="_ST2">
+    <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL2">
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN2">
+    <cim:IdentifiedObject.name>Connectivity node 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2"/>
+</cim:ConnectivityNode>
+
+<cim:BusbarSection rdf:ID="_BBS1">
+    <cim:IdentifiedObject.name>BusbarSection 1</cim:IdentifiedObject.name>
+</cim:BusbarSection>
+<cim:Terminal rdf:ID="_T_BBS1">
+    <cim:IdentifiedObject.name>Terminal BBS1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BBS1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN1"/>
+</cim:Terminal>
+
+<cim:SynchronousMachine rdf:ID="_SM1">
+    <cim:IdentifiedObject.name>Synchronous Machine 1</cim:IdentifiedObject.name>
+    <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+    <cim:SynchronousMachine.qPercent>50.0</cim:SynchronousMachine.qPercent>
+    <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
+    <cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+    <cim:RotatingMachine.ratedS>300.0</cim:RotatingMachine.ratedS>
+    <cim:SynchronousMachine.InitialReactiveCapabilityCurve rdf:resource="#_RCC"/>
+    <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU1"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC"/>
+</cim:SynchronousMachine>
+<cim:Terminal rdf:ID="_T_SM1">
+    <cim:IdentifiedObject.name>Terminal SM1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SM1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN1"/>
+</cim:Terminal>
+<cim:GeneratingUnit rdf:ID="_GU1">
+    <cim:IdentifiedObject.name>Generating Unit 1</cim:IdentifiedObject.name>
+    <cim:GeneratingUnit.initialP>90.0</cim:GeneratingUnit.initialP>
+    <!-- minOperatingP and maxOperatingP aren't correctly ordered -->
+    <cim:GeneratingUnit.maxOperatingP>50.0</cim:GeneratingUnit.maxOperatingP>
+    <cim:GeneratingUnit.minOperatingP>200.0</cim:GeneratingUnit.minOperatingP>
+</cim:GeneratingUnit>
+<cim:RegulatingControl rdf:ID="_RC">
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.reactivePower"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_ACL2"/>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+</cim:RegulatingControl>
+<cim:ReactiveCapabilityCurve rdf:ID="_RCC">
+   <cim:IdentifiedObject.name>ReactiveCapabilityCurve</cim:IdentifiedObject.name>
+   <cim:Curve.curveStyle rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.constantYValue"/>
+   <cim:Curve.xUnit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W"/>
+   <cim:Curve.y1Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
+   <cim:Curve.y2Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
+</cim:ReactiveCapabilityCurve>
+<cim:CurveData rdf:ID="_CD1">
+   <cim:CurveData.xvalue>-100.0</cim:CurveData.xvalue>
+   <cim:CurveData.y1value>-200.0</cim:CurveData.y1value>
+   <cim:CurveData.y2value>200.0</cim:CurveData.y2value>
+   <cim:CurveData.Curve rdf:resource="#_RCC"/>
+</cim:CurveData>
+<cim:CurveData rdf:ID="_CD2">
+   <cim:CurveData.xvalue>0</cim:CurveData.xvalue>
+   <cim:CurveData.y1value>-300.0</cim:CurveData.y1value>
+   <cim:CurveData.y2value>300.0</cim:CurveData.y2value>
+   <cim:CurveData.Curve rdf:resource="#_RCC"/>
+</cim:CurveData>
+<cim:CurveData rdf:ID="_CD3">
+   <cim:CurveData.xvalue>100.0</cim:CurveData.xvalue>
+   <cim:CurveData.y1value>-200.0</cim:CurveData.y1value>
+   <cim:CurveData.y2value>200.0</cim:CurveData.y2value>
+   <cim:CurveData.Curve rdf:resource="#_RCC"/>
+</cim:CurveData>
+
+<cim:SynchronousMachine rdf:ID="_SM2">
+    <cim:IdentifiedObject.name>Synchronous Machine 2</cim:IdentifiedObject.name>
+    <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+    <cim:SynchronousMachine.qPercent>50.0</cim:SynchronousMachine.qPercent>
+    <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
+    <cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+    <cim:RotatingMachine.ratedS>300.0</cim:RotatingMachine.ratedS>
+    <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU2"/>
+</cim:SynchronousMachine>
+<cim:Terminal rdf:ID="_T_SM2">
+    <cim:IdentifiedObject.name>Terminal SM2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SM2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN1"/>
+</cim:Terminal>
+<cim:GeneratingUnit rdf:ID="_GU2">
+    <cim:IdentifiedObject.name>Generating Unit 2</cim:IdentifiedObject.name>
+    <cim:GeneratingUnit.initialP>90.0</cim:GeneratingUnit.initialP>
+    <!-- invalid entsoe category (not an integer) -->
+    <cim:IdentifiedObject.description>42.5</cim:IdentifiedObject.description>
+    <cim:GeneratingUnit.maxOperatingP>200.0</cim:GeneratingUnit.maxOperatingP>
+    <cim:GeneratingUnit.minOperatingP>50.0</cim:GeneratingUnit.minOperatingP>
+</cim:GeneratingUnit>
+
+<cim:SynchronousMachine rdf:ID="_SM3">
+    <cim:IdentifiedObject.name>Synchronous Machine 3</cim:IdentifiedObject.name>
+    <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+    <cim:SynchronousMachine.qPercent>50.0</cim:SynchronousMachine.qPercent>
+    <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
+    <cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+    <cim:RotatingMachine.ratedS>300.0</cim:RotatingMachine.ratedS>
+    <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU3"/>
+</cim:SynchronousMachine>
+<cim:Terminal rdf:ID="_T_SM3">
+    <cim:IdentifiedObject.name>Terminal SM3</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SM3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN1"/>
+</cim:Terminal>
+<cim:GeneratingUnit rdf:ID="_GU3">
+    <cim:IdentifiedObject.name>Generating Unit 3</cim:IdentifiedObject.name>
+    <cim:GeneratingUnit.initialP>90.0</cim:GeneratingUnit.initialP>
+    <!-- valid entsoe category -->
+    <cim:IdentifiedObject.description>31</cim:IdentifiedObject.description>
+    <cim:GeneratingUnit.maxOperatingP>200.0</cim:GeneratingUnit.maxOperatingP>
+    <cim:GeneratingUnit.minOperatingP>50.0</cim:GeneratingUnit.minOperatingP>
+</cim:GeneratingUnit>
+
+<cim:ACLineSegment rdf:ID="_ACL">
+    <cim:IdentifiedObject.name>AC line segment</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV"/>
+</cim:ACLineSegment>
+<cim:Terminal rdf:ID="_T_ACL1">
+    <cim:IdentifiedObject.name>Terminal ACL 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_ACL2">
+    <cim:IdentifiedObject.name>Terminal ACL 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN2"/>
+</cim:Terminal>
+
+<cim:BusbarSection rdf:ID="_BBS2">
+    <cim:IdentifiedObject.name>BusbarSection 2</cim:IdentifiedObject.name>
+</cim:BusbarSection>
+<cim:Terminal rdf:ID="_T_BBS2">
+    <cim:IdentifiedObject.name>Terminal BBS2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BBS2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN2"/>
+</cim:Terminal>
+
+</rdf:RDF>

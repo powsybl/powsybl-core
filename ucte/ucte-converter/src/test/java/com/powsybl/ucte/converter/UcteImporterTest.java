@@ -19,6 +19,7 @@ import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConverterConstants;
+import com.powsybl.ucte.network.UcteValidation;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -348,6 +349,16 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
         assertEquals(0, network.getAreaTypeCount());
         assertEquals(0, network.getAreaCount());
+    }
+
+    @Test
+    void testNominalPowerAndMissingNominalPowerImport() {
+        ResourceDataSource dataSource =
+                new ResourceDataSource("nominalPower", new ResourceSet("/", "nominalPower.uct"));
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        assertEquals(5000., network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
+        assertTrue(Double.isNaN(network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS()));
+        assertEquals(UcteValidation.NOMINAL_POWER_EPS, network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 2").getRatedS());
     }
 
     @Test

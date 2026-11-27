@@ -12,7 +12,10 @@ import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -27,8 +30,20 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
 
     private static final String CONTEXT_NAME = "identifierContingencyList";
 
+    private final transient ValueDeserializer<Object> identifiersDeserializer;
+
     public IdentifierContingencyListDeserializer() {
+        this(null);
+    }
+
+    protected IdentifierContingencyListDeserializer(ValueDeserializer<Object> identifiersDeserializer) {
         super(IdentifierContingencyList.class);
+        this.identifiersDeserializer = identifiersDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new IdentifierContingencyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, NetworkElementIdentifier.class));
     }
 
     @Override
@@ -56,7 +71,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                 }
                 case "identifiers" -> {
                     parser.nextToken();
-                    networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    networkElementIdentifiers = JsonUtil.readList(identifiersDeserializer, deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

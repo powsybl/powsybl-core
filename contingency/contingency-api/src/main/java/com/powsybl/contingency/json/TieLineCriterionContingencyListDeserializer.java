@@ -14,6 +14,7 @@ import com.powsybl.iidm.criteria.TwoCountriesCriterion;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -21,7 +22,16 @@ import tools.jackson.databind.DeserializationContext;
 public class TieLineCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<TieLineCriterionContingencyList> {
 
     public TieLineCriterionContingencyListDeserializer() {
-        super(TieLineCriterionContingencyList.class);
+        this(null, null);
+    }
+
+    public TieLineCriterionContingencyListDeserializer(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        super(TieLineCriterionContingencyList.class, criterionDeser, propertyDeser);
+    }
+
+    @Override
+    protected TieLineCriterionContingencyListDeserializer create(ValueDeserializer<Object> criterionDeser, ValueDeserializer<Object> propertyDeser) {
+        return new TieLineCriterionContingencyListDeserializer(criterionDeser, propertyDeser);
     }
 
     @Override

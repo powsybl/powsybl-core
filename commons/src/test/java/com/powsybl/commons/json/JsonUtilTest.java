@@ -8,10 +8,14 @@
 package com.powsybl.commons.json;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataFormat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.json.JsonMapper;
 
 import static com.powsybl.commons.json.JsonUtil.createJsonMapper;
@@ -99,5 +103,25 @@ class JsonUtilTest {
         assertDoesNotThrow(() -> JsonUtil.assertSupportedVersion(contextName, supportedVersion, maxSupportedVersion));
         String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s %n", contextName, unsupportedVersion, maxSupportedVersion);
         assertThrows(PowsyblException.class, () -> JsonUtil.assertSupportedVersion(contextName, unsupportedVersion, maxSupportedVersion), expectedException);
+    }
+
+    @Test
+    void readValueWithDeserializerHandlesNull() throws JacksonException {
+        JsonMapper mapper = JsonUtil.createJsonMapper();
+
+        try (JsonParser parser = mapper.createParser("null")) {
+            DeserializationContext ctxt = (DeserializationContext) parser.objectReadContext();
+            ValueDeserializer<Object> deser = JsonUtil.buildValueDeserializer(ctxt, null, TreeDataFormat.class);
+
+            parser.nextToken(); // VALUE_NULL
+            assertNull(JsonUtil.readValue(deser, ctxt, parser, TreeDataFormat.class));
+        }
+
+        // fallback path (null deserializer) should also return null
+        try (JsonParser parser = mapper.createParser("null")) {
+            DeserializationContext ctxt = (DeserializationContext) parser.objectReadContext();
+            parser.nextToken();
+            assertNull(JsonUtil.readValue(null, ctxt, parser, TreeDataFormat.class));
+        }
     }
 }

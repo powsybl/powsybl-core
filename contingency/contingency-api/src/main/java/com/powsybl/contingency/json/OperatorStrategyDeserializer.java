@@ -20,7 +20,10 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.Condition;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -38,8 +41,28 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     private static final String TAG_ACTION_IDS = "Tag: actionIds";
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
+    private final transient ValueDeserializer<Object> conditionalActionsDeserializer;
+    private final transient ValueDeserializer<Object> conditionDeserializer;
+    private final transient ValueDeserializer<Object> actionsIdsDeserializer;
+
     public OperatorStrategyDeserializer() {
+        this(null, null, null);
+    }
+
+    public OperatorStrategyDeserializer(ValueDeserializer<Object> conditionalActionsDeserializer, ValueDeserializer<Object> conditionDeserializer, ValueDeserializer<Object> actionsIdsDeserializer) {
         super(OperatorStrategy.class);
+        this.conditionalActionsDeserializer = conditionalActionsDeserializer;
+        this.conditionDeserializer = conditionDeserializer;
+        this.actionsIdsDeserializer = actionsIdsDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new OperatorStrategyDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, ConditionalActions.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, Condition.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
@@ -98,19 +121,19 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG_CONDITIONAL_ACTIONS,
                     context.version, "1.1");
-                context.stages = JsonUtil.readList(deserializationContext, parser, ConditionalActions.class);
+                context.stages = JsonUtil.readList(conditionalActionsDeserializer, deserializationContext, parser, ConditionalActions.class);
                 return true;
             case "condition":
                 parser.nextToken();
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_CONDITION,
                     context.version, "1.0");
-                context.condition = JsonUtil.readValue(deserializationContext, parser, Condition.class);
+                context.condition = JsonUtil.readValue(conditionDeserializer, deserializationContext, parser, Condition.class);
                 return true;
             case "actionIds":
                 parser.nextToken();
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_ACTION_IDS,
                     context.version, "1.0");
-                context.actionIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                context.actionIds = JsonUtil.readList(actionsIdsDeserializer, deserializationContext, parser, String.class);
                 return true;
             case "extensions":
                 parser.nextToken();

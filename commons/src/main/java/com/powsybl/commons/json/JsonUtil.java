@@ -20,13 +20,7 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.DatabindContext;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -35,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -44,6 +39,8 @@ import java.util.function.Supplier;
  */
 public final class JsonUtil {
 
+    private static final Map<Class<?>, JavaType> LIST_TYPE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JavaType> SET_TYPE_CACHE = new ConcurrentHashMap<>();
     private static final String UNEXPECTED_TOKEN = "Unexpected token ";
 
     enum ContextType {
@@ -126,6 +123,21 @@ public final class JsonUtil {
         Objects.requireNonNull(jsonMapper);
         try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
             return jsonMapper.readerForUpdating(object).readValue(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Deep copies an object through a JSON round trip. Fields or extensions that the mapper cannot serialize are lost.
+     */
+    public static <T> T copyThroughJson(T object, Supplier<T> emptyObjectSupplier, ObjectMapper objectMapper) {
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(emptyObjectSupplier);
+        Objects.requireNonNull(objectMapper);
+        try {
+            byte[] bytes = objectMapper.writeValueAsBytes(object);
+            return objectMapper.readerForUpdating(emptyObjectSupplier.get()).readValue(bytes);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -729,39 +741,155 @@ public final class JsonUtil {
     }
 
     /**
+     * Convert a potentially null string value into the corresponding enum value, or null if the string is null.
+     * @param value the value to convert, or null
+     * @param enumClass the class of the enum to convert to
+     * @return the corresponding enum value, or null if the string is null
+     * @param <T> the type of the enum
+     */
+    public static <T extends Enum<T>> T readNullableEnumValue(String value, Class<T> enumClass) {
+        return value == null ? null : T.valueOf(enumClass, value);
+    }
+
+    /**
      * Reads a value using the given deserialization context (instead of only using the parser reading method that
      * recreates a context every time).
      * Also handles reading {@code null} values.
      */
     public static <T> T readValue(DeserializationContext context, JsonParser parser, Class<?> type) {
         if (parser.currentToken() != JsonToken.VALUE_NULL) {
-            JavaType jType = context.getTypeFactory()
-                .constructType(type);
-            return context.readValue(parser, jType);
+            return context.readValue(parser, context.constructType(type));
         }
         return null;
     }
 
+    /**
+     * Reads a value using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param valueDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the value of the parsed JSON
+     * @param <T> casting type for the value returned by the deserializer
+     */
+    public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
+        try {
+            if (parser.currentToken() == JsonToken.VALUE_NULL) {
+                return valueDeserializer != null ? (T) valueDeserializer.getNullValue(context) : null;
+            }
+            return valueDeserializer != null ?
+                (T) valueDeserializer.deserialize(parser, context) :
+                readValue(context, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
-        JavaType listType = context.getTypeFactory()
-                .constructCollectionType(List.class, type);
+        JavaType listType = LIST_TYPE_CACHE.computeIfAbsent(type,
+            t -> context.getTypeFactory().constructCollectionType(List.class, t));
         return context.readValue(parser, listType);
     }
 
+    /**
+     * Reads a list using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param listDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the list of the parsed JSON
+     * @param <T> casting type for the elements of the list returned by the deserializer
+     */
+    public static <T> List<T> readList(JsonDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
+        try {
+            return listDeserializer != null ?
+                (List<T>) listDeserializer.deserialize(parser, context) :
+                readList(context, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
-        JavaType setType = context.getTypeFactory()
-                .constructCollectionType(Set.class, type);
+        JavaType setType = SET_TYPE_CACHE.computeIfAbsent(type,
+            t -> context.getTypeFactory().constructCollectionType(Set.class, t));
         return context.readValue(parser, setType);
     }
 
-    public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws JacksonException {
+    /**
+     * Reads a set using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param setDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the set of the parsed JSON
+     * @param <T> casting type for the elements of the set returned by the deserializer
+     */
+    public static <T> Set<T> readSet(ValueDeserializer<Object> setDeserializer, DeserializationContext deserializationContext, JsonParser parser, Class<?> typeClass) {
+        return setDeserializer != null ?
+            (Set<T>) setDeserializer.deserialize(parser, deserializationContext) :
+            readSet(deserializationContext, parser, typeClass);
+    }
+
+    /**
+     * Resolves, eagerly, the deserializer of a nested type. The three {@code build*Deserializer} methods are meant to be
+     * called from {@link tools.jackson.databind.ValueDeserializer#createContextual}.
+     * <p>Since the resolution is transitive (nested deserializers are themselves contextual), the whole deserializer tree
+     * is built when the root deserializer is contextualized, i.e. <b>before</b> any JSON content is read. Consequently:
+     * <ul>
+     *     <li>nothing read from the {@link DeserializationContext} (attributes such as a source version) can be used in
+     *     {@code createContextual} or in constructors: it is not set yet. Version-dependent logic must stay in
+     *     {@code deserialize};</li>
+     *     <li>the deserializers must be stateless: they are shared by every {@code deserialize} call;</li>
+     *     <li>the type graph must not contain cycles, otherwise the resolution does not terminate;</li>
+     *     <li>a missing or failing nested deserializer is reported when the root type is first used, not when the field
+     *     is reached.</li>
+     * </ul>
+     */
+    public static ValueDeserializer<Object> buildValueDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws DatabindException {
+        return ctxt.findContextualValueDeserializer(ctxt.constructType(valueClass), property);
+    }
+
+    /**
+     * Resolves, eagerly, the deserializer of a nested type. The three {@code build*Deserializer} methods are meant to be
+     * called from {@link tools.jackson.databind.ValueDeserializer#createContextual}.
+     * <p>Since the resolution is transitive (nested deserializers are themselves contextual), the whole deserializer tree
+     * is built when the root deserializer is contextualized, i.e. <b>before</b> any JSON content is read. Consequently:
+     * <ul>
+     *     <li>nothing read from the {@link DeserializationContext} (attributes such as a source version) can be used in
+     *     {@code createContextual} or in constructors: it is not set yet. Version-dependent logic must stay in
+     *     {@code deserialize};</li>
+     *     <li>the deserializers must be stateless: they are shared by every {@code deserialize} call;</li>
+     *     <li>the type graph must not contain cycles, otherwise the resolution does not terminate;</li>
+     *     <li>a missing or failing nested deserializer is reported when the root type is first used, not when the field
+     *     is reached.</li>
+     * </ul>
+     */
+    public static ValueDeserializer<Object> buildListDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws DatabindException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, valueClass);
+        return ctxt.findContextualValueDeserializer(type, property);
+    }
+
+    /**
+     * Resolves, eagerly, the deserializer of a nested type. The three {@code build*Deserializer} methods are meant to be
+     * called from {@link tools.jackson.databind.ValueDeserializer#createContextual}.
+     * <p>Since the resolution is transitive (nested deserializers are themselves contextual), the whole deserializer tree
+     * is built when the root deserializer is contextualized, i.e. <b>before</b> any JSON content is read. Consequently:
+     * <ul>
+     *     <li>nothing read from the {@link DeserializationContext} (attributes such as a source version) can be used in
+     *     {@code createContextual} or in constructors: it is not set yet. Version-dependent logic must stay in
+     *     {@code deserialize};</li>
+     *     <li>the deserializers must be stateless: they are shared by every {@code deserialize} call;</li>
+     *     <li>the type graph must not contain cycles, otherwise the resolution does not terminate;</li>
+     *     <li>a missing or failing nested deserializer is reported when the root type is first used, not when the field
+     *     is reached.</li>
+     * </ul>
+     */
+    public static ValueDeserializer<Object> buildSetDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws DatabindException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(HashSet.class, valueClass);
+        return ctxt.findContextualValueDeserializer(type, property);
+    }
+
+    public static <T extends Enum<T>> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws JacksonException {
         optional.ifPresent(t -> jsonGenerator.writeStringProperty(field, t.toString()));
     }
 
     public static void writeOptionalDouble(JsonGenerator jsonGenerator, String field, OptionalDouble optional) throws JacksonException {
-        if (optional.isPresent()) {
-            jsonGenerator.writeNumberProperty(field, optional.getAsDouble());
-        }
+        optional.ifPresent(aDouble -> jsonGenerator.writeNumberProperty(field, aDouble));
     }
 
     public static void writeOptionalBoolean(JsonGenerator jsonGenerator, String field, Optional<Boolean> optional) throws JacksonException {

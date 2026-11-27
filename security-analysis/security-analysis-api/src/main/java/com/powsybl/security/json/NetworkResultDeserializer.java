@@ -15,8 +15,10 @@ import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.List;
@@ -26,8 +28,30 @@ import java.util.List;
  */
 public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
 
+    private final transient ValueDeserializer<Object> branchResultDeserializer;
+    private final transient ValueDeserializer<Object> busResultDeserializer;
+    private final transient ValueDeserializer<Object> threeWindingsTransformerResultDeserializer;
+
     public NetworkResultDeserializer() {
+        this(null, null, null);
+    }
+
+    public NetworkResultDeserializer(ValueDeserializer<Object> branchResultDeserializer,
+                                     ValueDeserializer<Object> busResultDeserializer,
+                                     ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
         super(NetworkResult.class);
+        this.branchResultDeserializer = branchResultDeserializer;
+        this.busResultDeserializer = busResultDeserializer;
+        this.threeWindingsTransformerResultDeserializer = threeWindingsTransformerResultDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new NetworkResultDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, BranchResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, BusResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, ThreeWindingsTransformerResult.class)
+        );
     }
 
     @Override
@@ -39,17 +63,17 @@ public class NetworkResultDeserializer extends StdDeserializer<NetworkResult> {
             switch (parser.currentName()) {
                 case "branchResults":
                     parser.nextToken();
-                    branchResults = JsonUtil.readList(deserializationContext, parser, BranchResult.class);
+                    branchResults = JsonUtil.readList(branchResultDeserializer, deserializationContext, parser, BranchResult.class);
                     break;
 
                 case "busResults":
                     parser.nextToken();
-                    busResults = JsonUtil.readList(deserializationContext, parser, BusResult.class);
+                    busResults = JsonUtil.readList(busResultDeserializer, deserializationContext, parser, BusResult.class);
                     break;
 
                 case "threeWindingsTransformerResults":
                     parser.nextToken();
-                    threeWindingsTransformerResults = JsonUtil.readList(deserializationContext, parser, ThreeWindingsTransformerResult.class);
+                    threeWindingsTransformerResults = JsonUtil.readList(threeWindingsTransformerResultDeserializer, deserializationContext, parser, ThreeWindingsTransformerResult.class);
                     break;
 
                 default:

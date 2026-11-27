@@ -13,7 +13,9 @@ import com.powsybl.iidm.network.identifiers.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -29,8 +31,17 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
 
     public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
+    private transient ValueDeserializer<Object> identifierListDeserializer;
+    private transient ValueDeserializer<Object> identifiableTypeSetDeserializer;
+
     public IdentifierDeserializer() {
         super(NetworkElementIdentifier.class);
+    }
+
+    @Override
+    public void resolve(DeserializationContext ctxt) throws DatabindException {
+        this.identifierListDeserializer = JsonUtil.buildListDeserializer(ctxt, null, NetworkElementIdentifier.class);
+        this.identifiableTypeSetDeserializer = JsonUtil.buildSetDeserializer(ctxt, null, IdentifiableType.class);
     }
 
     @Override
@@ -56,14 +67,14 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "identifierList" -> {
                     parser.nextToken();
-                    networkElementIdentifierList = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    networkElementIdentifierList = JsonUtil.readList(identifierListDeserializer, deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextStringValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextStringValue();
                 case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextStringValue();
                 case "voltageLevelIdentifiableTypes" -> {
                     parser.nextToken();
-                    voltageLevelIdentifiableTypes = JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
+                    voltageLevelIdentifiableTypes = JsonUtil.readSet(identifiableTypeSetDeserializer, deserializationContext, parser, IdentifiableType.class);
                 }
                 case "order" -> {
                     String orderStr = parser.nextStringValue();

@@ -7,9 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 class GeneratorConversionTest extends AbstractSerDeTest {
+
+    private static final String DIR = "/issues/generators/";
 
     @Test
     void generatingUnitTypes() {
@@ -64,13 +69,62 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void synchronousMachineImportIsCondenser() {
+    void synchronousMachineImportHasCondenserCapability() {
         Network network = readCgmesResources("/", "SynchronousMachineTypes.xml");
 
-        assertFalse(network.getGenerator("sm_generator").isCondenser());
-        assertFalse(network.getGenerator("sm_motor").isCondenser());
-        assertTrue(network.getGenerator("sm_generator_condenser").isCondenser());
-        assertTrue(network.getGenerator("sm_condenser").isCondenser());
+        assertFalse(network.getGenerator("sm_generator").hasCondenserCapability());
+        assertFalse(network.getGenerator("sm_motor").hasCondenserCapability());
+        assertTrue(network.getGenerator("sm_generator_condenser").hasCondenserCapability());
+        assertTrue(network.getGenerator("sm_condenser").hasCondenserCapability());
+    }
+
+    @Test
+    void testGeneratorIncorrectActivePowerLimitsOrder() {
+        // CGMES network:
+        //   A SynchronousMachine whose GeneratingUnit minOperatingP (200.0) is greater than maxOperatingP (50.0)
+        // IIDM network:
+        //   Active power limits have been swapped and imported in the Generator minP and maxP
+        Network network = readCgmesResources(DIR, "generators_EQ.xml");
+        Generator g = network.getGenerator("SM1");
+        assertEquals(50.0, g.getMinP());
+        assertEquals(200.0, g.getMaxP());
+        assertFalse(g.hasCondenserCapability());
+    }
+
+    @Test
+    void testGeneratorRemoteReactivePowerRegulation() {
+        // CGMES network:
+        //   A SynchronousMachine in reactive power regulation mode on a distant branch
+        // IIDM network:
+        //   Regulation is correctly imported
+        Network network = readCgmesResources(DIR, "generators_EQ.xml", "generators_SSH.xml");
+        Generator g = network.getGenerator("SM1");
+        VoltageRegulation voltageRegulation = g.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertEquals(RegulationMode.REACTIVE_POWER, voltageRegulation.getMode());
+        assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(network.getLine("ACL").getId(), voltageRegulation.getTerminal().getConnectable().getId());
+        assertTrue(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    void testGeneratorEntsoeCategory() {
+        // CGMES network:
+        //   3 SynchronousMachine with their GeneratingUnit:
+        //     SM1 GeneratingUnit has no description
+        //     SM2 GeneratingUnit has an invalid entsoe category
+        //     SM3 GeneratingUnit has a valid entsoe category
+        // IIDM network:
+        //   GeneratorEntsoeCategory extension is created only for SM3
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
+        Network network = readCgmesResources(importParameters, DIR, "generators_EQ.xml", "generators_SSH.xml");
+        Generator g1 = network.getGenerator("SM1");
+        assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
+        Generator g2 = network.getGenerator("SM2");
+        assertNull(g2.getExtension(GeneratorEntsoeCategory.class));
+        Generator g3 = network.getGenerator("SM3");
+        assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
     }
 
     @Test
@@ -149,7 +203,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMaxP(100.0)
             .setTargetP(25.0)
             .setLocalTargetQ(10.0)
-            .setCondenser(true)
+            .setCondenserCapability(true)
             .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
@@ -162,7 +216,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMaxP(100.0)
             .setTargetP(0.0)
             .setLocalTargetQ(10.0)
-            .setCondenser(true)
+            .setCondenserCapability(true)
             .add();
         generator2.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
@@ -190,7 +244,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         rcca.add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
 
-        // Will be exported as generatorOrCondenserOrMotor (isCondenser is true by default on batteries) and operating as a generator
+        // Will be exported as generatorOrCondenserOrMotor (hasCondenserCapability is considered true by default on batteries) and operating as a generator
         Battery battery = voltageLevel1.newBattery()
             .setId("BAT")
             .setNode(4)
@@ -202,7 +256,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         battery.getTerminal().disconnect();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
 
-        // Will be exported as generatorOrCondenser (isCondenser is true by default on batteries) and operating as a condenser
+        // Will be exported as generatorOrCondenser (hasCondenserCapability is considered true by default on batteries) and operating as a condenser
         voltageLevel1.newBattery()
             .setId("BAT2")
             .setNode(5)
@@ -217,7 +271,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
 
-        // Will be exported as a generator and operating as a generator because isCondenser is false
+        // Will be exported as a generator and operating as a generator because hasCondenserCapability is false
         Generator generator4 = voltageLevel1.newGenerator()
             .setId("GEN4")
             .setNode(6)
@@ -225,7 +279,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMaxP(100.0)
             .setTargetP(0.0)
             .setLocalTargetQ(10.0)
-            .setCondenser(false)
+            .setCondenserCapability(false)
             .add();
         generator4.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(6).add();

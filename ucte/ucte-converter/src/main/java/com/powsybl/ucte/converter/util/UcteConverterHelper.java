@@ -7,21 +7,42 @@
  */
 package com.powsybl.ucte.converter.util;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.network.UcteAngleRegulation;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UctePhaseRegulation;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.*;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
+
+import static java.lang.Double.isNaN;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
  */
 public final class UcteConverterHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UcteConverterHelper.class);
+
+    private static final double DEVIATION_EPSILON = 1e-6;
+
+    public static final double VOLTAGE_TARGET_EPSILON = 1e-6;
+
+    /**
+     * Maximum error on a δu(%) rounded to 4 decimals by {@link #calculatePhaseDu(TwoWindingsTransformer)} and
+     * {@link #calculateAsymmAngleDuAndAngle(TwoWindingsTransformer, boolean)}.
+     */
+    private static final double DU_ROUNDING_ERROR = 0.5e-4;
 
     private UcteConverterHelper() {
         throw new UnsupportedOperationException();
@@ -29,7 +50,7 @@ public final class UcteConverterHelper {
 
     /**
      * calculate the δu(%) for the phase regulation of the two windings transformer
-     *
+     * <p>
      * du = 100 * (1 / ρmin – 1/ ρmax) / (number of taps - 1).
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
@@ -51,7 +72,7 @@ public final class UcteConverterHelper {
     /**
      * Calculate the δu(%) for the angle regulation of the two windings transformer
      * This computation only work for an angle regulation with the type symmetrical
-     *
+     * <p>
      * dU = 100 * (2*(tan(αmax/2) – tan(αmin/2))/(number of taps -1))
      *
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
@@ -74,7 +95,7 @@ public final class UcteConverterHelper {
     /**
      * Calculate the δu(%) for the angle regulation of the two windings transformer
      * This computation only work for an angle regulation with the type asymmetrical
-     *
+     * <p>
      * dU = 100 * (distance between the 2 most distant taps) / (number of taps - 1)
      *
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
@@ -120,6 +141,415 @@ public final class UcteConverterHelper {
         }
 
         return ComplexUtils.polar2Complex(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(),
-                                          theta);
+                theta);
     }
+
+    /**
+     * Holds the UCTE {@code n}/{@code np} pair computed for a tap changer's declared range.
+     */
+    public record TapPositionRange(int n, int np) { }
+
+    /**
+     * Get the position with the lowest step distance according to the provided function.
+     * @param tapChanger a tap changer
+     * @param f a function calculating a distance on a step
+     * @return the tap position of the step that scores the lowest
+     * @param <S> type of steps
+     * @param <C> type of tap changer
+     */
+    private static <S extends TapChangerStep<S>, C extends TapChanger<C, S, ?, ?>> int findNeutralPosition(
+            TapChanger<C, S, ?, ?> tapChanger, ToDoubleFunction<S> f) {
+        if (tapChanger.getAllSteps().isEmpty()) {
+            throw new IllegalArgumentException("Can't compute the neutral position of an empty tap changer.");
+        }
+
+        // Try to get the "perfectly" neutral position first.
+        OptionalInt realNeutral = tapChanger.getNeutralPosition();
+        if (realNeutral.isPresent()) {
+            return realNeutral.getAsInt();
+        }
+
+        // We compare steps using the distance function f.
+        Comparator<Map.Entry<Integer, S>> stepsComparator =
+                Comparator.comparingDouble(posStep -> f.applyAsDouble(posStep.getValue()));
+        // In case of many equal steps on the "neutral" position, we use the distance to the middle tap position
+        int midPos = (tapChanger.getLowTapPosition() + tapChanger.getHighTapPosition()) / 2;
+        stepsComparator = stepsComparator.thenComparingInt(posStep -> Math.abs(midPos - posStep.getKey()));
+
+        return tapChanger.getAllSteps().entrySet().stream()
+                         .min(stepsComparator)
+                         .map(Map.Entry::getKey)
+                         .orElseThrow();
+    }
+
+    /**
+     * Finds the neutral tap position: the exact neutral step if any ({@code rho = 1} and {@code alpha = 0}, see
+     * {@link TapChanger#getNeutralPosition()}), otherwise the tap position whose {@code rho} is closest to {@code 1.0}.
+     * Ties break to the tap position closest to the middle of the tap range.
+     *
+     * @param tapChanger the ratio tap changer
+     * @return the neutral tap position
+     */
+    public static int findNeutralTapPosition(RatioTapChanger tapChanger) {
+        return findNeutralPosition(
+                tapChanger,
+                step -> Math.abs(step.getRho() - 1.0)
+        );
+    }
+
+    /**
+     * Finds the neutral tap position: the exact neutral step if any ({@code rho = 1} and {@code alpha = 0}, see
+     * {@link TapChanger#getNeutralPosition()}), otherwise the tap position whose {@code alpha} is closest to
+     * {@code 0.0}. Ties (including the degenerate case where every step has the same {@code alpha}, e.g. an all-zero
+     * asymmetrical regulation) break to the tap position closest to the middle of the tap range.
+     *
+     * @param tapChanger the phase tap changer
+     * @return the neutral tap position
+     */
+    public static int findNeutralTapPosition(PhaseTapChanger tapChanger) {
+        return findNeutralPosition(
+                tapChanger,
+                step -> Math.abs(step.getAlpha())
+        );
+    }
+
+    /**
+     * Computes the UCTE {@code (n, np)} pair relative to the given neutral tap position, extending the declared range
+     * to the longer side when the real range isn't centered on the neutral tap. Callers that care about this
+     * extension are responsible for warning about it.
+     *
+     * @param lowTapPosition the tap changer's low tap position
+     * @param highTapPosition the tap changer's high tap position
+     * @param currentTapPosition the tap changer's current tap position
+     * @param neutralPosition the neutral tap position, as found by {@code findNeutralTapPosition}
+     * @return the UCTE {@code (n, np)} tap position range
+     */
+    public static TapPositionRange computeTapPositionRange(int lowTapPosition, int highTapPosition,
+                                                            int currentTapPosition, int neutralPosition) {
+        int offsetLow = lowTapPosition - neutralPosition;
+        int offsetHigh = highTapPosition - neutralPosition;
+        int offsetCurrent = currentTapPosition - neutralPosition;
+        int n = Math.max(Math.abs(offsetLow), Math.abs(offsetHigh));
+        return new TapPositionRange(n, offsetCurrent);
+    }
+
+    /**
+     * Predicts the {@code rho} the UCTE linear model implies at a tap position {@code du·offset/100} away from
+     * neutral, per {@code rho(i) = 1/(1+du.i/100)} (see {@link #calculatePhaseDu(TwoWindingsTransformer)}).
+     *
+     * @param du the δu(%) of the ratio regulation
+     * @param offset the number of taps away from neutral
+     * @return the predicted {@code rho}
+     */
+    public static double predictRatioStep(double du, int offset) {
+        return 1 / (1 + du * offset / 100);
+    }
+
+    /**
+     * Predicts the {@code alpha} (degrees, IIDM sign convention) the UCTE symmetric-angle linear model implies at a
+     * tap position {@code offset} taps from neutral. The leading minus sign mirrors the same UCT/IIDM sign inversion
+     * already applied in {@link #calculateSymmAngleDu(TwoWindingsTransformer)}.
+     * <br>
+     * SYMM angle regulation assumes that {@code theta = 90°}
+     *
+     * @param du     the δu(%) of the symmetric angle regulation
+     * @param offset the number of taps away from neutral
+     * @return the predicted {@code alpha}, in degrees
+     */
+    public static double predictSymmAngleStep(double du, int offset) {
+        return -2 * Math.toDegrees(Math.atan(offset * du / 200));
+    }
+
+    /**
+     * Predicts the complex point the UCTE asymmetric-angle linear model implies {@code offset} taps away from
+     * neutral, anchored at {@code 1 + 0j} on the neutral tap as the UCTE importer rebuilds it.
+     *
+     * @param absDu the δu(%) (module) of the asymmetric angle regulation
+     * @param theta the angle (radians) of the asymmetric angle regulation
+     * @param offset the number of taps away from neutral
+     * @return the predicted complex point
+     */
+    public static Complex predictAsymmAngleStep(double absDu, double theta, int offset) {
+        Complex direction = new Complex(Math.cos(theta), Math.sin(theta));
+        return Complex.ONE.add(direction.multiply(offset * absDu / 100));
+    }
+
+    /**
+     * Logs one warning if any step of {@code tapChanger} deviates from the ratio linear model by more than
+     * {@link #DEVIATION_EPSILON}, plus the shift caused by the rounding of {@code du} (see {@link #DU_ROUNDING_ERROR}).
+     *
+     * @param tapChanger the ratio tap changer to check
+     * @param du the δu(%) of the ratio regulation
+     * @param neutralPosition the neutral tap position
+     * @param equipmentId the id of the two windings transformer, used in the warning message
+     * @param reportNode the reportNode used for functional logs
+     */
+    public static void checkRatioTapChangerDeviation(RatioTapChanger tapChanger,
+                                                     double du,
+                                                     int neutralPosition,
+                                                     String equipmentId,
+                                                     ReportNode reportNode) {
+        for (int p = tapChanger.getLowTapPosition(); p <= tapChanger.getHighTapPosition(); p++) {
+            double predicted = predictRatioStep(du, p - neutralPosition);
+            double actual = tapChanger.getStep(p).getRho();
+            // du is rounded: the predicted rho = 1 / (1 + du.offset/100) is shifted by up to rho².|offset|.error/100
+            double tolerance = DEVIATION_EPSILON + predicted * predicted * Math.abs(p - neutralPosition) * DU_ROUNDING_ERROR / 100;
+            if (Math.abs(actual - predicted) > tolerance) {
+                logDeviationWarning(equipmentId, "ratio tap changer", reportNode);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Logs one warning if any step of {@code tapChanger} deviates from the symmetric-angle linear model by more than
+     * {@link #DEVIATION_EPSILON}.
+     *
+     * @param tapChanger      the phase tap changer to check
+     * @param du              the δu(%) of the symmetric angle regulation
+     * @param neutralPosition the neutral tap position
+     * @param equipmentId     the id of the two windings transformer, used in the warning message
+     * @param reportNode      the reportNode used for functional logs
+     */
+    public static void checkSymmAngleTapChangerDeviation(PhaseTapChanger tapChanger,
+                                                         double du,
+                                                         int neutralPosition,
+                                                         String equipmentId,
+                                                         ReportNode reportNode) {
+        for (int p = tapChanger.getLowTapPosition(); p <= tapChanger.getHighTapPosition(); p++) {
+            double predicted = predictSymmAngleStep(du, p - neutralPosition);
+            double actual = tapChanger.getStep(p).getAlpha();
+            if (Math.abs(actual - predicted) > DEVIATION_EPSILON) {
+                logDeviationWarning(equipmentId, "phase tap changer (SYMM)", reportNode);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Logs one warning if any step of {@code tapChanger} deviates from the asymmetric-angle linear model by more than
+     * {@link #DEVIATION_EPSILON}, plus the shift caused by the rounding of {@code absDu} (see {@link #DU_ROUNDING_ERROR}),
+     * comparing points in the same complex representation used by
+     * {@link #calculateAsymmAngleDuAndAngle(TwoWindingsTransformer, boolean)}.
+     *
+     * @param tapChanger the phase tap changer to check
+     * @param absDu the δu(%) (module) of the asymmetric angle regulation
+     * @param theta the angle (radians) of the asymmetric angle regulation
+     * @param neutralPosition the neutral tap position
+     * @param equipmentId the id of the two windings transformer, used in the warning message
+     * @param reportNode the reportNode used for functional logs
+     */
+    public static void checkAsymmAngleTapChangerDeviation(PhaseTapChanger tapChanger,
+                                                          double absDu,
+                                                          double theta,
+                                                          int neutralPosition,
+                                                          String equipmentId,
+                                                          ReportNode reportNode) {
+        for (int p = tapChanger.getLowTapPosition(); p <= tapChanger.getHighTapPosition(); p++) {
+            Complex predicted = predictAsymmAngleStep(absDu, theta, p - neutralPosition);
+            double actualAlpha = Math.toRadians(-tapChanger.getStep(p).getAlpha());
+            double actualRho = 1 / tapChanger.getStep(p).getRho();
+            Complex actual = ComplexUtils.polar2Complex(actualRho, actualAlpha);
+            // absDu is rounded: the predicted point is shifted by up to |offset|.error/100
+            double tolerance = DEVIATION_EPSILON + Math.abs(p - neutralPosition) * DU_ROUNDING_ERROR / 100;
+            if (predicted.subtract(actual).abs() > tolerance) {
+                logDeviationWarning(equipmentId, "phase tap changer (ASYM)", reportNode);
+                return;
+            }
+        }
+    }
+
+    private static void logDeviationWarning(String equipmentId, String tapChangerType, ReportNode reportNode) {
+        LOGGER.warn("Two windings transformer {}: differences found between actual tap steps and the UCTE constant-step model",
+                equipmentId);
+        UcteExporterReports.tapChangerModelDeviation(reportNode, equipmentId, tapChangerType);
+    }
+
+    /**
+     * Get a number's value or 0 if no value
+     * @param value a double that can be NaN
+     * @return 0 if NaN, else same value as input
+     */
+    public static double getOrZero(final double value) {
+        return isNaN(value) || value == 0.0 ? 0.0 : value;
+    }
+
+    /**
+     * Test whether a node is an X-Node or not
+     * @param ucteNodeCode the node code to test
+     * @return true if it is an X-Node
+     */
+    public static boolean isAnXNode(final UcteNodeCode ucteNodeCode) {
+        return ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX;
+    }
+
+    /**
+     * A candidate voltage reference for a node: its value (in the node's voltage level) and, for remote regulation,
+     * the regulated bus and the original target.
+     */
+    public record VoltageCandidate(Generator generator, double value, Bus remoteBus, double remoteTargetV) {
+    }
+
+    /**
+     * Category of a {@link VoltageCandidate}, in decreasing priority order.
+     */
+    private enum VoltageCandidateCategory {
+        LOCAL,
+        REMOTE,
+        NON_REGULATING
+    }
+
+    /**
+     * A {@link VoltageCandidate} and its category.
+     */
+    private record CategorizedVoltageCandidate(VoltageCandidateCategory category, VoltageCandidate candidate) {
+    }
+
+    /**
+     * @param generator a Generator
+     * @return the generator's {@code targetP} if it is defined (not {@code NaN}), 0 otherwise.
+     */
+    public static double getGenTargetP(Generator generator) {
+        return Double.isNaN(generator.getTargetP()) ? 0 : generator.getTargetP();
+    }
+
+    /**
+     * Select the voltage reference of a node. A UCTE-DEF node has a single voltage reference, so when several
+     * generators are connected to the bus, the target voltage of one of them has to be selected.
+     * <p>
+     * Each generator provides at most one candidate target, in one of the following cases:
+     * <ul>
+     *     <li><i>local</i>: a voltage-regulating generator provides its local target voltage ({@code localTargetV}) if
+     *     defined; otherwise the target value of its voltage regulation, if its regulating terminal is on the exported
+     *     bus;</li>
+     *     <li><i>remote</i>: a voltage-regulating generator whose regulating terminal is on another bus provides the
+     *     target value of its voltage regulation, rescaled to the nominal voltage of the exported bus:
+     *     {@code targetValue * localNominalV / remoteNominalV};</li>
+     *     <li><i>non-regulating</i>: a generator that does not regulate voltage provides its local target voltage, if
+     *     defined. This keeps the voltage reference of a PQ node imported from a UCTE-DEF file.</li>
+     * </ul>
+     * A voltage-regulating generator without local target voltage, whose regulating terminal is disconnected, provides
+     * no candidate: its target value is ignored and reported.
+     * <p>
+     * The candidates of the first non-empty case are considered, in this order: local, remote, non-regulating. Among
+     * them, the one of the generator with the largest target active power is kept, ties being broken by the smallest
+     * generator id. If the kept candidate comes from a non-regulating generator while another generator of the bus
+     * regulates voltage, it is reported.
+     *
+     * @param bus the bus to scan for the voltage reference
+     * @param reportNode report node where warning messages are issued in case of unexpected state in the network
+     *
+     * @return the voltage reference, or NaN if there is no candidate
+     */
+    public static double selectVoltageReference(Bus bus, ReportNode reportNode) {
+        List<VoltageCandidate> candidates = getVoltageCandidatesByRelevance(bus, reportNode);
+        if (candidates.isEmpty()) {
+            if (bus.getGeneratorStream()
+                   .anyMatch(generator -> generator.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
+                UcteExporterReports.voltageTargetMissing(reportNode, bus.getId());
+            }
+            return Double.NaN;
+        }
+        VoltageCandidate kept = candidates.getFirst();
+        if (!kept.generator().isRegulatingWithMode(RegulationMode.VOLTAGE) &&
+                bus.getGeneratorStream().anyMatch(gen -> gen.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
+            UcteExporterReports.voltageTargetNotFromRegulatingGenerator(reportNode, bus.getId(), kept.generator().getId(), kept.value());
+        }
+        if (candidates.stream().anyMatch(candidate -> Math.abs(candidate.value() - kept.value()) >
+                VOLTAGE_TARGET_EPSILON)) {
+            UcteExporterReports.voltageTargetConflict(reportNode, bus.getId(), kept.generator().getId(), kept.value());
+        }
+        if (kept.remoteBus() != null &&
+                Double.compare(bus.getVoltageLevel().getNominalV(), kept.remoteBus().getVoltageLevel().getNominalV()) !=
+                        0) {
+            UcteExporterReports.remoteVoltageTargetRescaled(reportNode, bus.getId(), kept.generator().getId(),
+                    kept.remoteBus().getId(), kept.remoteTargetV(), kept.value());
+        }
+        return kept.value();
+    }
+
+    /**
+     * Classify the generators connected to the provided {@code bus} into categories of {@link VoltageCandidate},
+     * depending on the way they regulate voltage, and return the candidates of the highest priority category that is
+     * not empty:
+     * <ol>
+     *     <li>
+     *         <strong>Higher priority category (local regulation)</strong>: The generator declares a
+     *         {@link RegulationMode#VOLTAGE} regulation mode. It carries its own local target voltage (see
+     *         {@link Generator#getLocalTargetV()}) <i>OR</i> it regulates voltage on the provided {@code bus}.
+     *     </li>
+     *     <li>
+     *         <strong>Middle priority category (remote regulation)</strong>: The generator declares a
+     *         {@link RegulationMode#VOLTAGE} regulation mode and regulates voltage on a remote bus.
+     *     </li>
+     *     <li>
+     *         <strong>Lower priority category (no voltage regulation)</strong>: The generator doesn't declare a
+     *         {@link RegulationMode#VOLTAGE} regulation mode, but it carries a local target voltage
+     *         ({@link Generator#getLocalTargetV()} not {@code NaN})
+     *     </li>
+     * </ol>
+     * Within a category, candidates are sorted by their generator's {@code targetP} (higher first), then by generator id.
+     *
+     * @param bus a Bus
+     * @param reportNode report node where the generators regulating a disconnected terminal are reported
+     * @return the candidates of the highest priority non-empty category, or an empty {@code List} if there is none
+     */
+    static List<VoltageCandidate> getVoltageCandidatesByRelevance(Bus bus, ReportNode reportNode) {
+        Map<VoltageCandidateCategory, List<VoltageCandidate>> candidatesByCategory = bus.getGeneratorStream()
+                .sorted(Comparator.comparingDouble(UcteConverterHelper::getGenTargetP).reversed().thenComparing(Generator::getId))
+                .map(generator -> categorize(generator, bus, reportNode))
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(CategorizedVoltageCandidate::category,
+                        () -> new EnumMap<>(VoltageCandidateCategory.class),
+                        Collectors.mapping(CategorizedVoltageCandidate::candidate, Collectors.toList())));
+        return candidatesByCategory.values().stream().findFirst().orElse(List.of());
+    }
+
+    /**
+     * Build the categorized voltage candidate of a generator, as described in
+     * {@link #getVoltageCandidatesByRelevance(Bus, ReportNode)}. A voltage-regulating generator without local target
+     * voltage, whose regulating terminal is disconnected, provides no candidate and is reported.
+     *
+     * @param generator a generator connected to {@code bus}
+     * @param bus the bus to provide a voltage reference for
+     * @param reportNode report node where a generator regulating a disconnected terminal is reported
+     * @return the categorized candidate of the generator, or {@code null} if it provides none
+     */
+    private static CategorizedVoltageCandidate categorize(Generator generator, Bus bus, ReportNode reportNode) {
+        double localTargetV = generator.getLocalTargetV();
+        if (!generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            return Double.isNaN(localTargetV) ? null
+                    : new CategorizedVoltageCandidate(VoltageCandidateCategory.NON_REGULATING, localCandidate(generator, localTargetV));
+        }
+        if (!Double.isNaN(localTargetV)) {
+            return new CategorizedVoltageCandidate(VoltageCandidateCategory.LOCAL, localCandidate(generator, localTargetV));
+        }
+        if (generator.getVoltageRegulation() == null || Double.isNaN(generator.getVoltageRegulation().getTargetValue())) {
+            return null;
+        }
+        double targetValue = generator.getVoltageRegulation().getTargetValue();
+        Terminal regulatingTerminal = generator.getRegulatingTerminal();
+        Bus regulatedBus = regulatingTerminal.getBusBreakerView().getBus();
+        if (regulatedBus == null) {
+            UcteExporterReports.voltageTargetIgnored(reportNode, bus.getId(), generator.getId(),
+                    regulatingTerminal.getConnectable().getId(), targetValue);
+            return null;
+        }
+        if (regulatedBus.getId().equals(bus.getId())) {
+            return new CategorizedVoltageCandidate(VoltageCandidateCategory.LOCAL, localCandidate(generator, targetValue));
+        }
+        double rescaled = targetValue * bus.getVoltageLevel().getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+        return new CategorizedVoltageCandidate(VoltageCandidateCategory.REMOTE,
+                new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
+    }
+
+    /**
+     * @param generator the generator providing the candidate
+     * @param value the voltage reference, in the voltage level of the generator's bus
+     * @return a candidate without remote regulated bus
+     */
+    private static VoltageCandidate localCandidate(Generator generator, double value) {
+        return new VoltageCandidate(generator, value, null, Double.NaN);
+    }
+
 }

@@ -13,8 +13,10 @@ import com.powsybl.action.MultipleActionsActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
@@ -22,8 +24,20 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder> {
 
+    private final transient ValueDeserializer<Object> actionsBuilderDeserializer;
+
     public MultipleActionsActionBuilderDeserializer() {
+        this(null);
+    }
+
+    public MultipleActionsActionBuilderDeserializer(ValueDeserializer<Object> actionsBuilderDeserializer) {
         super(MultipleActionsAction.class);
+        this.actionsBuilderDeserializer = actionsBuilderDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new MultipleActionsActionBuilderDeserializer(JsonUtil.buildListDeserializer(ctxt, property, ActionBuilder.class));
     }
 
     @Override
@@ -41,7 +55,7 @@ public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<Mu
                     return true;
                 case "actions":
                     jsonParser.nextToken();
-                    builder.withActionBuilders(JsonUtil.readList(deserializationContext, jsonParser, ActionBuilder.class));
+                    builder.withActionBuilders(JsonUtil.readList(actionsBuilderDeserializer, deserializationContext, jsonParser, ActionBuilder.class));
                     return true;
                 default:
                     return false;

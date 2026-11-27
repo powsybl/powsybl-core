@@ -20,7 +20,10 @@ import com.powsybl.security.results.OperatorStrategyResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -48,8 +51,38 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
+    private final transient ValueDeserializer<Object> networkMetadataDeserializer;
+    private final transient ValueDeserializer<Object> limitViolationsResultDeserializer;
+    private final transient ValueDeserializer<Object> postContingencyResultsDeserializer;
+    private final transient ValueDeserializer<Object> preContingencyResultDeserializer;
+    private final transient ValueDeserializer<Object> operatorStrategyResultsDeserializer;
+
     public SecurityAnalysisResultDeserializer() {
+        this(null, null, null, null, null);
+    }
+
+    protected SecurityAnalysisResultDeserializer(ValueDeserializer<Object> networkMetadataDeserializer,
+                                               ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                               ValueDeserializer<Object> postContingencyResultsDeserializer,
+                                               ValueDeserializer<Object> preContingencyResultDeserializer,
+                                               ValueDeserializer<Object> operatorStrategyResultsDeserializer) {
         super(SecurityAnalysisResult.class);
+        this.networkMetadataDeserializer = networkMetadataDeserializer;
+        this.limitViolationsResultDeserializer = limitViolationsResultDeserializer;
+        this.postContingencyResultsDeserializer = postContingencyResultsDeserializer;
+        this.preContingencyResultDeserializer = preContingencyResultDeserializer;
+        this.operatorStrategyResultsDeserializer = operatorStrategyResultsDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new SecurityAnalysisResultDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, NetworkMetadata.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, PostContingencyResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, PreContingencyResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, OperatorStrategyResult.class)
+        );
     }
 
     @Override
@@ -73,27 +106,27 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "network":
                     parser.nextToken();
-                    networkMetadata = JsonUtil.readValue(ctx, parser, NetworkMetadata.class);
+                    networkMetadata = JsonUtil.readValue(networkMetadataDeserializer, ctx, parser, NetworkMetadata.class);
                     break;
 
                 case "preContingencyResult":
                     parser.nextToken();
                     if (JsonUtil.compareVersions(version, "1.0") == 0) {
-                        limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
+                        limitViolationsResult = JsonUtil.readValue(limitViolationsResultDeserializer, ctx, parser, LimitViolationsResult.class);
                     } else {
-                        preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
+                        preContingencyResult = JsonUtil.readValue(preContingencyResultDeserializer, ctx, parser, PreContingencyResult.class);
                     }
                     break;
 
                 case "postContingencyResults":
                     parser.nextToken();
-                    postContingencyResults = JsonUtil.readList(ctx, parser, PostContingencyResult.class);
+                    postContingencyResults = JsonUtil.readList(postContingencyResultsDeserializer, ctx, parser, PostContingencyResult.class);
                     break;
 
                 case "operatorStrategyResults":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
                     parser.nextToken();
-                    operatorStrategyResults = JsonUtil.readList(ctx, parser, OperatorStrategyResult.class);
+                    operatorStrategyResults = JsonUtil.readList(operatorStrategyResultsDeserializer, ctx, parser, OperatorStrategyResult.class);
                     break;
 
                 case "extensions":

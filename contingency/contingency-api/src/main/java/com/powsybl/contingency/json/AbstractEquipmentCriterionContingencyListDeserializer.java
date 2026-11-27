@@ -14,7 +14,9 @@ import com.powsybl.iidm.criteria.PropertyCriterion;
 import com.powsybl.iidm.criteria.RegexCriterion;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -23,10 +25,31 @@ import java.util.List;
 /**
  @author Hugo Kulesza hugo.kulesza@rte-france.com
  */
-public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T extends AbstractEquipmentCriterionContingencyList> extends StdDeserializer<T> {
+public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T extends AbstractEquipmentCriterionContingencyList>
+    extends StdDeserializer<T> {
+
+    protected final transient ValueDeserializer<Object> criterionDeserializer;
+    protected final transient ValueDeserializer<Object> propertyCriteriaDeserializer;
 
     protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c) {
+        this(c, null, null);
+    }
+
+    protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c,
+                                                                    ValueDeserializer<Object> criterionDeserializer,
+                                                                    ValueDeserializer<Object> propertyCriteriaDeserializer) {
         super(c);
+        this.criterionDeserializer = criterionDeserializer;
+        this.propertyCriteriaDeserializer = propertyCriteriaDeserializer;
+    }
+
+    protected abstract ValueDeserializer<T> create(ValueDeserializer<Object> criterionDeserializer,
+                                                ValueDeserializer<Object> propertyCriteriaDeserializer);
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return create(JsonUtil.buildValueDeserializer(ctxt, property, Criterion.class),
+            JsonUtil.buildListDeserializer(ctxt, property, Criterion.class));
     }
 
     protected static class ParsingContext {
@@ -46,22 +69,22 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
             }
             case "countryCriterion" -> {
                 parser.nextToken();
-                parsingCtx.countryCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
+                parsingCtx.countryCriterion = readCriterion(parser, ctx);
                 return true;
             }
             case "nominalVoltageCriterion" -> {
                 parser.nextToken();
-                parsingCtx.nominalVoltageCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
+                parsingCtx.nominalVoltageCriterion = readCriterion(parser, ctx);
                 return true;
             }
             case "propertyCriteria" -> {
                 parser.nextToken();
-                parsingCtx.propertyCriteria = JsonUtil.readList(ctx, parser, Criterion.class);
+                parsingCtx.propertyCriteria = JsonUtil.readList(propertyCriteriaDeserializer, ctx, parser, PropertyCriterion.class);
                 return true;
             }
             case "regexCriterion" -> {
                 parser.nextToken();
-                parsingCtx.regexCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
+                parsingCtx.regexCriterion = (RegexCriterion) readCriterion(parser, ctx);
                 return true;
             }
             case "version" -> {
@@ -80,4 +103,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
         }
     }
 
+    private Criterion readCriterion(JsonParser parser, DeserializationContext ctx) {
+        return JsonUtil.readValue(criterionDeserializer, ctx, parser, Criterion.class);
+    }
 }

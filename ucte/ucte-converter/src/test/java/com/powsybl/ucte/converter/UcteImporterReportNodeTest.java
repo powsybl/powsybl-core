@@ -72,6 +72,29 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testReportZeroNominalPower() throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nominalPower", new ResourceSet("/", "nominalPower.uct"));
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, rootReportNode);
+
+        StringWriter sw = new StringWriter();
+        rootReportNode.print(sw);
+        assertEquals("""
+                + Testing reportNode
+                   + Reading UCTE network file
+                      Fix UCTE nodes
+                      Fix UCTE lines
+                      + Fix UCTE transformers
+                         F_SU1_11 F_SU1_21 2 - Nominal power is zero
+                      Fix UCTE regulations
+                """, TestUtil.normalizeLineSeparator(sw.toString()));
+    }
+
+    @Test
     void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
         ReportNode reportRoot = ReportNode.newRootReportNode()

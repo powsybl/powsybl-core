@@ -105,6 +105,10 @@ public final class JsonLoadFlowParameters {
         writer.writeValue(outputStream, parameters);
     }
 
+    public static LoadFlowParameters copy(LoadFlowParameters parameters) {
+        return JsonUtil.copyThroughJson(parameters, LoadFlowParameters::new, createObjectMapper());
+    }
+
     private static JsonMapper createJsonMapper() {
         return JsonUtil.createJsonMapperBuilder()
             .addModule(new LoadFlowParametersJsonModule())

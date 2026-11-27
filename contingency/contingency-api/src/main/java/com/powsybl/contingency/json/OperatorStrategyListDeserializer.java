@@ -12,8 +12,10 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.OperatorStrategyList;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.List;
@@ -25,13 +27,25 @@ import static com.powsybl.contingency.json.OperatorStrategyDeserializer.SOURCE_V
  */
 public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> {
 
+    private final transient ValueDeserializer<Object> operatorStrategyDeserializer;
+
     public OperatorStrategyListDeserializer() {
+        this(null);
+    }
+
+    public OperatorStrategyListDeserializer(ValueDeserializer<Object> operatorStrategyDeserializer) {
         super(OperatorStrategyList.class);
+        this.operatorStrategyDeserializer = operatorStrategyDeserializer;
     }
 
     private static final class ParsingContext {
         String version;
         List<OperatorStrategy> operatorStrategies;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new OperatorStrategyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, OperatorStrategy.class));
     }
 
     @Override
@@ -45,7 +59,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
                     return true;
                 case "operatorStrategies":
                     parser.nextToken(); // skip
-                    context.operatorStrategies = JsonUtil.readList(deserializationContext, parser, OperatorStrategy.class);
+                    context.operatorStrategies = JsonUtil.readList(operatorStrategyDeserializer, deserializationContext, parser, OperatorStrategy.class);
                     return true;
                 default:
                     return false;

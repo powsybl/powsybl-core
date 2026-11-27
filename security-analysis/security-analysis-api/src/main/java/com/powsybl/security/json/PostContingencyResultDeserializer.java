@@ -17,6 +17,7 @@ import com.powsybl.security.results.PostContingencyResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,33 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
 
     public PostContingencyResultDeserializer() {
         super(PostContingencyResult.class);
+    }
+
+    public PostContingencyResultDeserializer(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                             ValueDeserializer<Object> networkResultDeserializer,
+                                             ValueDeserializer<Object> busResultDeserializer,
+                                             ValueDeserializer<Object> branchResultDeserializer,
+                                             ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+        super(PostContingencyResult.class,
+            limitViolationsResultDeserializer,
+            networkResultDeserializer,
+            busResultDeserializer,
+            branchResultDeserializer,
+            threeWindingsTransformerResultDeserializer);
+    }
+
+    @Override
+    protected PostContingencyResultDeserializer create(ValueDeserializer<Object> limitViolationsResultDeserializer,
+                                         ValueDeserializer<Object> networkResultDeserializer,
+                                         ValueDeserializer<Object> busResultDeserializer,
+                                         ValueDeserializer<Object> branchResultDeserializer,
+                                         ValueDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+        return new PostContingencyResultDeserializer(
+            limitViolationsResultDeserializer,
+            networkResultDeserializer,
+            busResultDeserializer,
+            branchResultDeserializer,
+            threeWindingsTransformerResultDeserializer);
     }
 
     private static final class ParsingContext {

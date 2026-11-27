@@ -14,8 +14,10 @@ import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -26,6 +28,9 @@ import java.util.Set;
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ConditionDeserializer extends StdDeserializer<Condition> {
+
+    private final transient ValueDeserializer<Object> violationIdsDeserializer;
+    private final transient ValueDeserializer<Object> conditionFiltersDeserializer;
 
     private static final class ParsingContext {
         String type;
@@ -41,7 +46,21 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     }
 
     public ConditionDeserializer() {
+        this(null, null);
+    }
+
+    public ConditionDeserializer(ValueDeserializer<Object> violationIdsDeserializer, ValueDeserializer<Object> conditionFiltersDeserializer) {
         super(Condition.class);
+        this.violationIdsDeserializer = violationIdsDeserializer;
+        this.conditionFiltersDeserializer = conditionFiltersDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new ConditionDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, String.class),
+            JsonUtil.buildSetDeserializer(ctxt, property, LimitViolationType.class)
+        );
     }
 
     @Override
@@ -78,11 +97,11 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 return true;
             case "violationIds":
                 parser.nextToken();
-                context.violationIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                context.violationIds = JsonUtil.readList(violationIdsDeserializer, deserializationContext, parser, String.class);
                 return true;
             case "filters":
                 parser.nextToken();
-                context.conditionFilters = JsonUtil.readSet(deserializationContext, parser, LimitViolationType.class);
+                context.conditionFilters = JsonUtil.readSet(conditionFiltersDeserializer, deserializationContext, parser, LimitViolationType.class);
                 return true;
             case "threshold":
                 parser.nextToken();
@@ -92,8 +111,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 context.equipmentId = parser.nextStringValue();
                 return true;
             case "side":
-                parser.nextToken();
-                context.side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
+                context.side = JsonUtil.readNullableEnumValue(parser.nextTextValue(), ThreeSides.class);
                 return true;
             case "acSide":
                 parser.nextToken();
@@ -104,12 +122,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
                 return true;
             case "comparisonType":
-                parser.nextToken();
-                context.comparisonType = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.ComparisonType.class);
+                context.comparisonType = JsonUtil.readNullableEnumValue(parser.nextTextValue(), AbstractThresholdCondition.ComparisonType.class);
                 return true;
             case "variable":
-                parser.nextToken();
-                context.variable = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.Variable.class);
+                context.variable = JsonUtil.readNullableEnumValue(parser.nextTextValue(), AbstractThresholdCondition.Variable.class);
                 return true;
             default:
                 return false;

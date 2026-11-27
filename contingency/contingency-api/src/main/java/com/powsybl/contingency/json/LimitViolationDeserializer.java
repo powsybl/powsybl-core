@@ -20,7 +20,10 @@ import com.powsybl.iidm.network.ThreeSides;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -38,8 +41,20 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     public static final String LIMIT_REDUCTION_BACKWARD_COMPAT = "limitReductionBackwardCompat";
     private static final String CONTEXT_NAME = "limit-violation";
 
+    private final transient ValueDeserializer<Object> violationLocationDeserializer;
+
     public LimitViolationDeserializer() {
+        this(null);
+    }
+
+    public LimitViolationDeserializer(ValueDeserializer<Object> violationLocationDeserializer) {
         super(LimitViolation.class);
+        this.violationLocationDeserializer = violationLocationDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new LimitViolationDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, ViolationLocation.class));
     }
 
     @Override
@@ -75,8 +90,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "limitType":
-                    parser.nextToken();
-                    limitType = JsonUtil.readValue(deserializationContext, parser, LimitViolationType.class);
+                    limitType = JsonUtil.readNullableEnumValue(parser.nextStringValue(), LimitViolationType.class);
                     break;
 
                 case "limitName":
@@ -116,8 +130,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "side":
-                    parser.nextToken();
-                    side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
+                    side = JsonUtil.readNullableEnumValue(parser.nextStringValue(), ThreeSides.class);
                     break;
 
                 case "extensions":
@@ -131,7 +144,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     }
 
                     parser.nextToken();
-                    violationLocation = JsonUtil.readValue(deserializationContext, parser, ViolationLocation.class);
+                    violationLocation = JsonUtil.readValue(violationLocationDeserializer, deserializationContext, parser, ViolationLocation.class);
                     break;
 
                 default:

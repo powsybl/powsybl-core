@@ -13,7 +13,10 @@ import com.powsybl.contingency.list.ListOfContingencyLists;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -24,8 +27,21 @@ import java.util.List;
  */
 public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfContingencyLists> {
 
+    private final transient ValueDeserializer<Object> contingenciesDeserializer;
+
     public ListOfContingencyListsDeserializer() {
+        this(null);
+    }
+
+    public ListOfContingencyListsDeserializer(ValueDeserializer<Object> contingenciesDeserializer) {
         super(ListOfContingencyLists.class);
+        this.contingenciesDeserializer = contingenciesDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext deserializationContext,
+                                                BeanProperty property) throws DatabindException {
+        return new ListOfContingencyListsDeserializer(JsonUtil.buildListDeserializer(deserializationContext, property, ContingencyList.class));
     }
 
     @Override
@@ -43,7 +59,7 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
                 }
                 case "contingencyLists" -> {
                     parser.nextToken();
-                    contingencyLists = JsonUtil.readList(deserializationContext, parser, ContingencyList.class);
+                    contingencyLists = JsonUtil.readList(contingenciesDeserializer, deserializationContext, parser, ContingencyList.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

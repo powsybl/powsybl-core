@@ -13,7 +13,10 @@ import com.powsybl.security.LimitViolationsResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -24,8 +27,25 @@ import java.util.List;
  */
 public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
 
+    private final transient ValueDeserializer<Object> limitViolationsDeserializer;
+    private final transient ValueDeserializer<Object> actionsTakenDeserializer;
+
     public LimitViolationResultDeserializer() {
+        this(null, null);
+    }
+
+    public LimitViolationResultDeserializer(ValueDeserializer<Object> limitViolationsDeserializer, ValueDeserializer<Object> actionsTakenDeserializer) {
         super(LimitViolationsResult.class);
+        this.limitViolationsDeserializer = limitViolationsDeserializer;
+        this.actionsTakenDeserializer = actionsTakenDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new LimitViolationResultDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, LimitViolation.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     @Override
@@ -42,12 +62,12 @@ public class LimitViolationResultDeserializer extends StdDeserializer<LimitViola
 
                 case "limitViolations":
                     parser.nextToken();
-                    limitViolations = JsonUtil.readList(deserializationContext, parser, LimitViolation.class);
+                    limitViolations = JsonUtil.readList(limitViolationsDeserializer, deserializationContext, parser, LimitViolation.class);
                     break;
 
                 case "actionsTaken":
                     parser.nextToken();
-                    actionsTaken = JsonUtil.readList(deserializationContext, parser, String.class);
+                    actionsTaken = JsonUtil.readList(actionsTakenDeserializer, deserializationContext, parser, String.class);
                     break;
 
                 default:

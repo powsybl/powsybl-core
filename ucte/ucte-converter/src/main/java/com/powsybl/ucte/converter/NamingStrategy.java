@@ -8,6 +8,7 @@
 
 package com.powsybl.ucte.converter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
@@ -17,7 +18,15 @@ import com.powsybl.ucte.network.UcteNodeCode;
  */
 public interface NamingStrategy {
 
-    void initializeNetwork(Network network);
+    void initializeNetwork(Network network, ReportNode reportNode);
+
+    /**
+     * The voltage levels to export, and their country. Called by the exporter after the network is initialized.
+     * Every voltage level by default.
+     */
+    default ExportedVoltageLevels getExportedVoltageLevels() {
+        return ExportedVoltageLevels.all();
+    }
 
     String getName();
 

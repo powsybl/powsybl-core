@@ -14,7 +14,10 @@ import com.powsybl.security.SecurityAnalysisParameters;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.Collections;
@@ -30,8 +33,26 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
     private static final String TAG = "Tag: ";
 
+    private final transient ValueDeserializer<Object> increasedViolationsParametersDeserializer;
+    private final transient ValueDeserializer<Object> modifiedElementsParametersDeserializer;
+
     SecurityAnalysisParametersDeserializer() {
+        this(null, null);
+    }
+
+    SecurityAnalysisParametersDeserializer(ValueDeserializer<Object> increasedViolationsParametersDeserializer,
+                                           ValueDeserializer<Object> modifiedElementsParametersDeserializer) {
         super(SecurityAnalysisParameters.class);
+        this.increasedViolationsParametersDeserializer = increasedViolationsParametersDeserializer;
+        this.modifiedElementsParametersDeserializer = modifiedElementsParametersDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new SecurityAnalysisParametersDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, SecurityAnalysisParameters.IncreasedViolationsParameters.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class)
+        );
     }
 
     @Override
@@ -52,14 +73,18 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                 case "increased-violations-parameters":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
-                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
+                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(
+                            increasedViolationsParametersDeserializer,
+                            deserializationContext,
                             parser,
                             SecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
                 case "monitored-element-modification-threshold":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: monitoredElementModificationThreshold", version, "1.3");
                     parser.nextToken();
-                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(deserializationContext,
+                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(
+                            modifiedElementsParametersDeserializer,
+                            deserializationContext,
                             parser,
                             SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class));
                     break;

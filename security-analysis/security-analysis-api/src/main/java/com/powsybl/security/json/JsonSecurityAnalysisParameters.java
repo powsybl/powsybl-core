@@ -128,6 +128,10 @@ public final class JsonSecurityAnalysisParameters {
         new SecurityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializationContext);
     }
 
+    public static SecurityAnalysisParameters copy(SecurityAnalysisParameters parameters) {
+        return JsonUtil.copyThroughJson(parameters, SecurityAnalysisParameters::new, createObjectMapper());
+    }
+
     private static JsonMapper createJsonMapper() {
         return JsonUtil.createJsonMapperBuilder()
             .addModule(new SecurityAnalysisJsonModule())

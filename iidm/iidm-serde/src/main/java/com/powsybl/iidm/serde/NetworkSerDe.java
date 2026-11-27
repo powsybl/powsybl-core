@@ -30,6 +30,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.serde.extensions.*;
@@ -119,6 +120,7 @@ public final class NetworkSerDe {
             Map.entry(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME),
             Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
             Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(ReactiveLimitsSerDe.PLANE_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.PLANE_ROOT_ELEMENT_NAME),
             Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
             Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME), //For backward compatibility with IIDM versions < 1.16
             Map.entry(AbstractShuntCompensatorSerDe.SECTION_ARRAY_ELEMENT_NAME, AbstractShuntCompensatorSerDe.SECTION_ROOT_ELEMENT_NAME),
@@ -986,12 +988,12 @@ public final class NetworkSerDe {
 
     private static void readNetworkElement(String elementName, Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context,
                                            Set<String> extensionNamesImported, Set<String> extensionNamesNotFound,
-                                           ExtensionsSupplier extensionsSupplier, ReportNode reportNode) {
+                                           ExtensionsSupplier extensionsSupplier) {
         switch (elementName) {
             case AliasesSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
             case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(networks.peek(), context);
             case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context,
-                    extensionNamesImported, extensionNamesNotFound, extensionsSupplier, reportNode);
+                    extensionNamesImported, extensionNamesNotFound, extensionsSupplier);
             case AreaSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadArea(context, networks);
             case VoltageLevelSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
             case SubstationSerDe.ROOT_ELEMENT_NAME -> SubstationSerDe.INSTANCE.read(networks.peek(), context);
@@ -1004,7 +1006,7 @@ public final class NetworkSerDe {
             case DcLineSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadDcLine(context, networks);
             case DcSwitchSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadDcSwitch(context, networks);
             case EXTENSION_ROOT_ELEMENT_NAME -> readExtensionTag(networks.getFirst(), context,
-                    extensionNamesImported, extensionNamesNotFound, extensionsSupplier, reportNode);
+                    extensionNamesImported, extensionNamesNotFound, extensionsSupplier);
             default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'network'");
         }
     }
@@ -1016,7 +1018,7 @@ public final class NetworkSerDe {
 
     private static void checkSupportedAndReadSubnetwork(Deque<Network> networks, NetworkFactory networkFactory, NetworkDeserializerContext context,
                                                         Set<String> extensionNamesImported, Set<String> extensionNamesNotFound,
-                                                        ExtensionsSupplier extensionsSupplier, ReportNode reportNode) {
+                                                        ExtensionsSupplier extensionsSupplier) {
         IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
         if (networks.size() > 1) {
@@ -1028,7 +1030,7 @@ public final class NetworkSerDe {
         // Read subnetwork content
         context.getReader().readChildNodes(
                 elementName -> readNetworkElement(elementName, networks, networkFactory, context,
-                        extensionNamesImported, extensionNamesNotFound, extensionsSupplier, reportNode));
+                        extensionNamesImported, extensionNamesNotFound, extensionsSupplier));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
     }
@@ -1071,8 +1073,8 @@ public final class NetworkSerDe {
 
     private static void readExtensionTag(Network network, NetworkDeserializerContext context,
                                          Set<String> extensionNamesImported, Set<String> extensionNamesNotFound,
-                                         ExtensionsSupplier extensionsSupplier, ReportNode reportNode) {
-        context.executeEndTasks(network, DeserializationEndTask.Step.BEFORE_EXTENSIONS, reportNode);
+                                         ExtensionsSupplier extensionsSupplier) {
+        context.executeEndTasks(DeserializationEndTask.Step.BEFORE_EXTENSIONS);
 
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
         readExtensions(network, id, context, extensionNamesImported, extensionNamesNotFound, extensionsSupplier);
@@ -1145,11 +1147,12 @@ public final class NetworkSerDe {
         networks.push(network);
 
         ReportNode validationReportNode = DeserializerReports.readWarningValidationPart(reportNode);
-        reader.readChildNodes(elementName ->
-                readNetworkElement(elementName, networks, networkFactory, context,
-                        extensionNamesImported, extensionNamesNotFound, extensionsSupplier, validationReportNode));
-
-        context.executeEndTasks(network, DeserializationEndTask.Step.AFTER_EXTENSIONS, validationReportNode);
+        Networks.executeWithReportNode(network, validationReportNode, () -> {
+            reader.readChildNodes(elementName ->
+                    readNetworkElement(elementName, networks, networkFactory, context,
+                            extensionNamesImported, extensionNamesNotFound, extensionsSupplier));
+            context.executeEndTasks(DeserializationEndTask.Step.AFTER_EXTENSIONS);
+        });
 
         if (!extensionNamesImported.isEmpty()) {
             ReportNode importedExtensionReportNode = DeserializerReports.importedExtensions(reportNode);

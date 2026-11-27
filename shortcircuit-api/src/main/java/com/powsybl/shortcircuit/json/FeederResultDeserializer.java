@@ -16,7 +16,10 @@ import com.powsybl.shortcircuit.MagnitudeFeederResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
@@ -24,8 +27,20 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
+    private final transient ValueDeserializer<Object> fortescueDeserializer;
+
     FeederResultDeserializer() {
+        this(null);
+    }
+
+    FeederResultDeserializer(ValueDeserializer<Object> fortescueDeserializer) {
         super(FeederResult.class);
+        this.fortescueDeserializer = fortescueDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new FeederResultDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, FortescueValue.class));
     }
 
     @Override
@@ -43,16 +58,13 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
                 }
                 case "current" -> {
                     parser.nextToken();
-                    current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
+                    current = JsonUtil.readValue(fortescueDeserializer, deserializationContext, parser, FortescueValue.class);
                 }
                 case "currentMagnitude" -> {
                     parser.nextToken();
                     currentMagnitude = parser.readValueAs(Double.class);
                 }
-                case "side" -> {
-                    parser.nextToken();
-                    side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
-                }
+                case "side" -> side = JsonUtil.readNullableEnumValue(parser.nextStringValue(), ThreeSides.class);
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }

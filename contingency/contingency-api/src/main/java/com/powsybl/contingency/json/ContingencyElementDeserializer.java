@@ -13,7 +13,10 @@ import com.powsybl.contingency.list.ContingencyList;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
@@ -21,8 +24,20 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
+    private final transient ValueDeserializer<Object> typeDeserializer;
+
     public ContingencyElementDeserializer() {
+        this(null);
+    }
+
+    public ContingencyElementDeserializer(ValueDeserializer<Object> typeDeserializer) {
         super(ContingencyElement.class);
+        this.typeDeserializer = typeDeserializer;
+    }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws DatabindException {
+        return new ContingencyElementDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, ContingencyElementType.class));
     }
 
     @Override
@@ -37,7 +52,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case "voltageLevelId" -> voltageLevelId = parser.nextStringValue();
                 case "type" -> {
                     parser.nextToken();
-                    type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
+                    type = JsonUtil.readValue(typeDeserializer, ctx, parser, ContingencyElementType.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
