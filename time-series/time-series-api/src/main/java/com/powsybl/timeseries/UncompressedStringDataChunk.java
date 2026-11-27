@@ -28,7 +28,7 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
 
     public UncompressedStringDataChunk(int offset, String[] values) {
         super(offset);
-        this.values = Objects.requireNonNull(values);
+        this.values = Objects.requireNonNull(values).clone();
         estimatedSize = computeEstimatedSize(values);
     }
 
@@ -42,8 +42,11 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
         return estimatedSize;
     }
 
+    /**
+     * Returns a copy of the values array.
+     */
     public String[] getValues() {
-        return values;
+        return values.clone();
     }
 
     @Override

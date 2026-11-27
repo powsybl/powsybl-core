@@ -469,6 +469,23 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
+    void testOnUncompressedDoubleDataChunkValuesChanges() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:00:00Z"),
+            Duration.ofMinutes(0));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        double[] values = {1.};
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, values);
+        StoredDoubleTimeSeries series = new StoredDoubleTimeSeries(metadata, chunk);
+
+        double[] toArray = series.toArray();
+        // Change the original values
+        values[0] = 2.0;
+
+        // The chunk backing array should not be affected by the change in the original values array
+        assertArrayEquals(toArray, series.toArray());
+    }
+
+    @Test
     void testArraysAreComputedOnlyOnce() {
         UncompressedDoubleDataChunk chunk = Mockito.spy(new UncompressedDoubleDataChunk(0, new double[] {1d, 2d}));
         StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, cacheTestIndex()), chunk);

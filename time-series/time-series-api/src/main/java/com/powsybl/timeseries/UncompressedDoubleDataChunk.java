@@ -30,11 +30,14 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
 
     public UncompressedDoubleDataChunk(int offset, double[] values) {
         super(offset);
-        this.values = Objects.requireNonNull(values);
+        this.values = Objects.requireNonNull(values).clone();
     }
 
+    /**
+     * Returns a copy of the values array.
+     */
     public double[] getValues() {
-        return values;
+        return values.clone();
     }
 
     @Override
