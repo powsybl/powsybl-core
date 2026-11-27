@@ -35,10 +35,10 @@ import java.util.function.Supplier;
  */
 public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
 
-    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
     public static final String VIOLATION_LOCATION_SUPPORT = "violationLocationSupport";
     public static final String LIMIT_REDUCTION_BACKWARD_COMPAT = "limitReductionBackwardCompat";
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
     private static final String CONTEXT_NAME = "limit-violation";
 
     private final ValueDeserializer<Object> violationLocationDeserializer;
@@ -50,6 +50,18 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     public LimitViolationDeserializer(ValueDeserializer<Object> violationLocationDeserializer) {
         super(LimitViolation.class);
         this.violationLocationDeserializer = violationLocationDeserializer;
+    }
+
+    private static void throwInvalidFieldForVersion(String fieldName) {
+        throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, fieldName));
+    }
+
+    private static double readFloatValue(JsonParser parser, Boolean limitReductionBackwardCompat, String fieldName) {
+        if (Boolean.FALSE.equals(limitReductionBackwardCompat)) {
+            throwInvalidFieldForVersion(fieldName);
+        }
+        parser.nextToken();
+        return parser.readValueAs(Float.class);
     }
 
     @Override
@@ -109,19 +121,11 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 // limitReduction for retro-compatibility before V1.10 of SecurityAnalysisResult
                 case "limitScaling":
-                    if (Boolean.TRUE.equals(limitReductionBackwardCompat)) {
-                        throwInvalidFieldForVersion("limitScaling");
-                    }
-                    parser.nextToken();
-                    limitScaling = parser.readValueAs(Float.class);
+                    limitScaling = readFloatValue(parser, limitReductionBackwardCompat, "limitScaling");
                     break;
 
                 case "limitReduction":
-                    if (Boolean.FALSE.equals(limitReductionBackwardCompat)) {
-                        throwInvalidFieldForVersion("limitReduction");
-                    }
-                    parser.nextToken();
-                    limitScaling = parser.readValueAs(Float.class);
+                    limitScaling = readFloatValue(parser, limitReductionBackwardCompat, "limitReduction");
                     break;
 
                 case "value":
@@ -139,12 +143,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "violationLocation":
-                    if (Boolean.FALSE.equals(voltageLocationSupport)) {
-                        throwInvalidFieldForVersion("violationLocation");
-                    }
-
-                    parser.nextToken();
-                    violationLocation = JsonUtil.readValue(violationLocationDeserializer, deserializationContext, parser, ViolationLocation.class);
+                    violationLocation = readViolationLocation(parser, voltageLocationSupport, deserializationContext);
                     break;
 
                 default:
@@ -158,7 +157,11 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         return violation;
     }
 
-    private static void throwInvalidFieldForVersion(String fieldName) {
-        throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, fieldName));
+    private ViolationLocation readViolationLocation(JsonParser parser, Boolean voltageLocationSupport, DeserializationContext deserializationContext) {
+        if (Boolean.FALSE.equals(voltageLocationSupport)) {
+            throwInvalidFieldForVersion("violationLocation");
+        }
+        parser.nextToken();
+        return JsonUtil.readValue(violationLocationDeserializer, deserializationContext, parser, ViolationLocation.class);
     }
 }

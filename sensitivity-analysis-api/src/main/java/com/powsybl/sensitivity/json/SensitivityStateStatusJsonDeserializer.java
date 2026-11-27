@@ -130,8 +130,8 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
             String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
-                case LOAD_FLOW_STATUS -> status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getText());
-                case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getText();
+                case LOAD_FLOW_STATUS -> status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getString());
+                case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getString();
                 case NUM_CC -> connectedComponentNum = parser.getIntValue();
                 case NUM_SC -> synchronousComponentNum = parser.getIntValue();
                 default -> throw new PowsyblException("Unexpected field: " + fieldName);

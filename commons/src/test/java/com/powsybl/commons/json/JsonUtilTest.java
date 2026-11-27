@@ -107,8 +107,6 @@ class JsonUtilTest {
 
     @Test
     void readValueWithDeserializerHandlesNull() throws JacksonException {
-        JsonMapper mapper = JsonUtil.createJsonMapper();
-
         try (JsonParser parser = mapper.createParser("null")) {
             DeserializationContext ctxt = (DeserializationContext) parser.objectReadContext();
             ValueDeserializer<Object> deser = JsonUtil.buildValueDeserializer(ctxt, null, TreeDataFormat.class);
