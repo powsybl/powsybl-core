@@ -233,6 +233,18 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
     }
 
     @Override
+    public StringDataChunk slice(int from, int to) {
+        checkSliceRange(from, to);
+        if (from == offset && to == offset + uncompressedLength) {
+            return this;
+        }
+        int firstStep = findStep(from);
+        int lastStep = findStep(to - 1);
+        return new CompressedStringDataChunk(from, to - from, Arrays.copyOfRange(stepValues, firstStep, lastStep + 1),
+                sliceStepLengths(from, to, firstStep, lastStep));
+    }
+
+    @Override
     public StringDataChunk append(final StringDataChunk otherChunk) {
         if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()

@@ -46,6 +46,31 @@ TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, Tim
 Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csvAsString, timeSeriesCsvConfig);
 ```
 
+## Splitting time series
+
+A time series can be split (as in re-arranged) into time series of at most `k` points, using `timeSeries.split(k)` (or
+`TimeSeries.split(timeSeriesList, k)` to split a list of time series sharing the same index; each of them must then have
+data in every window, otherwise a `TimeSeriesException` is thrown). A `k` lower than 1 is rejected with an
+`IllegalArgumentException`.
+- the index is cut into windows aligned on the absolute grid `[j * k, (j + 1) * k[`, where `j` is the window number (`j = 0, 1, 2...`);
+- chunks crossing a window boundary are cut, and chunks lying in the same window are merged
+- one time series, holding a single data chunk, is created for each window containing data. Windows without data are skipped;
+- inside a window, the chunk starts at the first index and ends at the last index covered by data: there is no filling
+  at the edges of the window. If the window contains several parts of chunks separated by indexes without data, they are
+  merged into one uncompressed chunk where the missing values are `NaN` (double) or `null` (String), as in `toArray()`;
+- the kind of the chunks is preserved: a compressed chunk gives compressed chunks, successive compressed chunks falling
+  in the same window are merged into a compressed chunk. Chunks of different kinds falling in the same window are merged
+  into an uncompressed chunk. A chunk lying entirely in a window is reused as is.
+
+The resulting time series are therefore not necessarily successive and do not necessarily start or end on the window
+bounds: users shall rely on the chunk offsets. The split is done in a single pass over the chunks, in linear time.
+
+For instance, with a time series of 10 points holding a chunk of offset 0 and length 3 and a chunk of offset 6 and
+length 4, `split(4)` gives three time series holding respectively the points `[0, 3[`, `[6, 8[` and `[8, 10[`.
+
+Data chunks themselves can be cut with `DataChunk.slice(from, to)`, which returns the part of the chunk lying in the
+index range `[from, to[`, with the same kind (compressed or not) as the original chunk.
+
 (calculated-timeseries)=
 ## Calculated time series
 

@@ -12,6 +12,7 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -25,6 +26,10 @@ public abstract class AbstractCompressedDataChunk {
     protected final int uncompressedLength;
 
     protected final int[] stepLengths;
+
+    // Absolute index of the first point of each step, lazily computed to slice in O(log(steps) + slice steps)
+    @SuppressWarnings("java:S3077") // stepStarts is lazily computed and immutable, so it is safe to be volatile
+    private volatile int[] stepStarts;
 
     public AbstractCompressedDataChunk(int offset, int uncompressedLength, int[] stepLengths) {
         this.offset = offset;
@@ -54,6 +59,64 @@ public abstract class AbstractCompressedDataChunk {
             throw new IllegalArgumentException("Inconsistent uncompressedLength length: "
                 + uncompressedLength + " with sum of step length");
         }
+    }
+
+    protected void checkSliceRange(int from, int to) {
+        if (from < offset || to > offset + uncompressedLength || from >= to) {
+            throw new IllegalArgumentException("Slice [" + from + ", " + to + "[ out of chunk range ["
+                    + offset + ", " + (offset + uncompressedLength) + "[");
+        }
+    }
+
+    private int[] getStepStarts() {
+        int[] starts = stepStarts;
+        if (starts == null) {
+            starts = new int[stepLengths.length];
+            int index = offset;
+            for (int step = 0; step < stepLengths.length; step++) {
+                starts[step] = index;
+                index += stepLengths[step];
+            }
+            stepStarts = starts;
+        }
+        return starts;
+    }
+
+    /**
+     * Get the step containing the point at the given absolute index, i.e. the last step starting at or before it
+     * (which skips zero-length steps).
+     */
+    protected int findStep(int index) {
+        int[] starts = getStepStarts();
+        int low = 0;
+        int high = starts.length;
+        // find the first step starting after index
+        while (low < high) {
+            int mid = (low + high) >>> 1;
+            if (starts[mid] <= index) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return low - 1;
+    }
+
+    /**
+     * Get the step lengths of the slice {@code [from, to[}, which spans the steps {@code firstStep} to {@code lastStep}.
+     *
+     * @param from      first absolute index of the slice (inclusive)
+     * @param to        last absolute index of the slice (exclusive)
+     * @param firstStep position in {@code stepLengths} of the step containing {@code from}
+     * @param lastStep  position in {@code stepLengths} of the step containing {@code to - 1}
+     */
+    protected int[] sliceStepLengths(int from, int to, int firstStep, int lastStep) {
+        int[] starts = getStepStarts();
+        int[] lengths = Arrays.copyOfRange(stepLengths, firstStep, lastStep + 1);
+        // the first and last steps may only partially lie in the slice: trim their lengths
+        lengths[0] -= from - starts[firstStep];
+        lengths[lengths.length - 1] -= starts[lastStep] + stepLengths[lastStep] - to;
+        return lengths;
     }
 
     public int getOffset() {

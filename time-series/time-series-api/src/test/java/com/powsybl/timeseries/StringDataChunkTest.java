@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -170,6 +171,69 @@ class StringDataChunkTest {
         assertEquals(2, ((CompressedStringDataChunk) split.getChunk2()).getUncompressedLength());
         assertArrayEquals(new String[] {"b"}, ((CompressedStringDataChunk) split.getChunk2()).getStepValues());
         assertArrayEquals(new int[] {2}, ((CompressedStringDataChunk) split.getChunk2()).getStepLengths());
+    }
+
+    @Test
+    void uncompressedSliceTest() {
+        UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c", "d"});
+        assertSame(chunk, chunk.slice(1, 5));
+
+        StringDataChunk slice = chunk.slice(2, 4);
+        assertInstanceOf(UncompressedStringDataChunk.class, slice);
+        assertEquals(2, slice.getOffset());
+        assertEquals(2, slice.getLength());
+        assertArrayEquals(new String[] {"b", "c"}, ((UncompressedStringDataChunk) slice).getValues());
+
+        // the original chunk is unchanged
+        assertArrayEquals(new String[] {"a", "b", "c", "d"}, chunk.getValues());
+
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(0, 3));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(2, 6));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(3, 3));
+    }
+
+    @Test
+    void compressedSliceTest() {
+        // index  0   1   2   3   4   5
+        // value  -   a   a   b   b   b
+        CompressedStringDataChunk chunk = new CompressedStringDataChunk(1, 5, new String[] {"a", "b"}, new int[] {2, 3});
+        assertSame(chunk, chunk.slice(1, 6));
+
+        // off step boundaries
+        StringDataChunk slice = chunk.slice(2, 5);
+        assertInstanceOf(CompressedStringDataChunk.class, slice);
+        assertEquals(2, slice.getOffset());
+        assertEquals(3, slice.getLength());
+        assertArrayEquals(new String[] {"a", "b"}, ((CompressedStringDataChunk) slice).getStepValues());
+        assertArrayEquals(new int[] {1, 2}, ((CompressedStringDataChunk) slice).getStepLengths());
+
+        // on step boundaries
+        slice = chunk.slice(3, 6);
+        assertEquals(3, slice.getOffset());
+        assertArrayEquals(new String[] {"b"}, ((CompressedStringDataChunk) slice).getStepValues());
+        assertArrayEquals(new int[] {3}, ((CompressedStringDataChunk) slice).getStepLengths());
+
+        // inside a single step
+        slice = chunk.slice(4, 5);
+        assertEquals(4, slice.getOffset());
+        assertEquals(1, slice.getLength());
+        assertArrayEquals(new String[] {"b"}, ((CompressedStringDataChunk) slice).getStepValues());
+        assertArrayEquals(new int[] {1}, ((CompressedStringDataChunk) slice).getStepLengths());
+
+        // values
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, 3);
+        chunk.slice(2, 5).fillBuffer(buffer, -2);
+        assertArrayEquals(new String[] {"a", "b", "b"}, buffer.toArray());
+
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(0, 3));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(2, 7));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(3, 3));
+    }
+
+    @Test
+    void zeroLengthStepSliceTest() {
+        CompressedStringDataChunk chunkWithEmptyStep = new CompressedStringDataChunk(0, 4, new String[] {"a", "z", "b"}, new int[] {2, 0, 2});
+        assertEquals(new CompressedStringDataChunk(2, 1, new String[] {"b"}, new int[] {1}), chunkWithEmptyStep.slice(2, 3));
     }
 
     @Test

@@ -34,6 +34,13 @@ public abstract class AbstractUncompressedDataChunk {
         return offset;
     }
 
+    protected void checkSliceRange(int from, int to, int length) {
+        if (from < offset || to > offset + length || from >= to) {
+            throw new IllegalArgumentException("Slice [" + from + ", " + to + "[ out of chunk range ["
+                    + offset + ", " + (offset + length) + "[");
+        }
+    }
+
     public boolean isCompressed() {
         return false;
     }

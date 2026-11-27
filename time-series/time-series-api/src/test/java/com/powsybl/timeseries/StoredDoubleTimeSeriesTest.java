@@ -14,15 +14,21 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.lang.Double.NaN;
 import static org.junit.jupiter.api.Assertions.*;
@@ -461,6 +467,269 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
+    }
+
+    private static StoredDoubleTimeSeries createTimeSeries(int pointCount, DoubleDataChunk... chunks) {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(pointCount);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        return new StoredDoubleTimeSeries(metadata, new ArrayList<>(Arrays.asList(chunks)));
+    }
+
+    private static DoubleDataChunk getSingleChunk(DoubleTimeSeries timeSeries) {
+        List<DoubleDataChunk> chunks = ((StoredDoubleTimeSeries) timeSeries).getChunks();
+        assertEquals(1, chunks.size());
+        return chunks.getFirst();
+    }
+
+    /**
+     * input chunks {offset, length}, new chunk size, expected chunks {offset, length}
+     */
+    private static Stream<Arguments> splitWithGapsArguments() {
+        int[][] chunksWithFarGap = {{0, 3}, {8, 2}};
+        int[][] chunksWithNearGap = {{0, 3}, {6, 4}};
+        return Stream.of(
+            Arguments.of(chunksWithFarGap, 2, new int[][] {{0, 2}, {2, 1}, {8, 2}}),
+            Arguments.of(chunksWithFarGap, 3, new int[][] {{0, 3}, {8, 1}, {9, 1}}),
+            Arguments.of(chunksWithFarGap, 4, new int[][] {{0, 3}, {8, 2}}),
+            Arguments.of(chunksWithNearGap, 2, new int[][] {{0, 2}, {2, 1}, {6, 2}, {8, 2}}),
+            Arguments.of(chunksWithNearGap, 3, new int[][] {{0, 3}, {6, 3}, {9, 1}}),
+            Arguments.of(chunksWithNearGap, 4, new int[][] {{0, 3}, {6, 2}, {8, 2}})
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("splitWithGapsArguments")
+    void splitWithGapsTest(int[][] inputChunks, int newChunkSize, int[][] expectedChunks) {
+        // value at index i is i
+        DoubleDataChunk[] chunks = Arrays.stream(inputChunks)
+            .map(c -> new UncompressedDoubleDataChunk(c[0], IntStream.range(c[0], c[0] + c[1]).asDoubleStream().toArray()))
+            .toArray(DoubleDataChunk[]::new);
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(10, chunks);
+
+        List<DoubleTimeSeries> split = timeSeries.split(newChunkSize);
+
+        assertEquals(expectedChunks.length, split.size());
+        for (int i = 0; i < expectedChunks.length; i++) {
+            int offset = expectedChunks[i][0];
+            int length = expectedChunks[i][1];
+            DoubleDataChunk chunk = getSingleChunk(split.get(i));
+            assertEquals(offset, chunk.getOffset());
+            assertEquals(length, chunk.getLength());
+            double[] expectedCompactArray = IntStream.range(offset, offset + length).asDoubleStream().toArray();
+            assertArrayEquals(expectedCompactArray, split.get(i).toCompactArray(), 0d);
+            double[] expectedArray = new double[10];
+            Arrays.fill(expectedArray, NaN);
+            System.arraycopy(expectedCompactArray, 0, expectedArray, offset, length);
+            assertArrayEquals(expectedArray, split.get(i).toArray(), 0d);
+        }
+    }
+
+    @Test
+    void splitWithEdgeGapTest() {
+        // issue #3941: used to throw "Chunks are not successive"
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(8,
+            new UncompressedDoubleDataChunk(0, new double[] {0d, 1d, 2d}),
+            new UncompressedDoubleDataChunk(6, new double[] {6d, 7d}));
+
+        List<DoubleTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(2, split.size());
+        DoubleDataChunk chunk1 = getSingleChunk(split.get(0));
+        assertEquals(0, chunk1.getOffset());
+        assertArrayEquals(new double[] {0d, 1d, 2d}, split.get(0).toCompactArray(), 0d);
+        DoubleDataChunk chunk2 = getSingleChunk(split.get(1));
+        assertEquals(6, chunk2.getOffset());
+        assertArrayEquals(new double[] {6d, 7d}, split.get(1).toCompactArray(), 0d);
+    }
+
+    @Test
+    void splitWithInnerGapTest() {
+        // issue #3941: used to throw "Chunks are not successive"
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(8,
+            new UncompressedDoubleDataChunk(0, new double[] {0d, 1d}),
+            new UncompressedDoubleDataChunk(3, new double[] {3d}));
+
+        List<DoubleTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(1, split.size());
+        DoubleDataChunk chunk = getSingleChunk(split.getFirst());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, chunk);
+        assertEquals(0, chunk.getOffset());
+        assertArrayEquals(new double[] {0d, 1d, NaN, 3d}, ((UncompressedDoubleDataChunk) chunk).getValues(), 0d);
+    }
+
+    @Test
+    void splitCompressedChunkTest() {
+        // index  0  1  2  3  4  5
+        // value  1  1  1  2  2  2
+        CompressedDoubleDataChunk chunk = new CompressedDoubleDataChunk(0, 6, new double[] {1d, 2d}, new int[] {3, 3});
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(6, chunk);
+
+        List<DoubleTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(2, split.size());
+        assertEquals(new CompressedDoubleDataChunk(0, 4, new double[] {1d, 2d}, new int[] {3, 1}), getSingleChunk(split.get(0)));
+        assertEquals(new CompressedDoubleDataChunk(4, 2, new double[] {2d}, new int[] {2}), getSingleChunk(split.get(1)));
+
+        // a chunk lying entirely in a window is not copied
+        assertSame(chunk, getSingleChunk(timeSeries.split(6).getFirst()));
+        assertSame(chunk, getSingleChunk(timeSeries.split(100).getFirst()));
+    }
+
+    @Test
+    void splitSuccessiveCompressedChunksTest() {
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(4,
+            new CompressedDoubleDataChunk(0, 2, new double[] {1d}, new int[] {2}),
+            new CompressedDoubleDataChunk(2, 2, new double[] {1d}, new int[] {2}));
+
+        List<DoubleTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(1, split.size());
+        assertEquals(new CompressedDoubleDataChunk(0, 4, new double[] {1d}, new int[] {4}), getSingleChunk(split.getFirst()));
+
+        // as with append, steps are merged at the chunk boundaries only when their values are equal (NaN != NaN)
+        CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(0, 3, new double[] {1d, 2d}, new int[] {1, 2});
+        CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(3, 3, new double[] {2d, NaN}, new int[] {1, 2});
+        CompressedDoubleDataChunk chunk3 = new CompressedDoubleDataChunk(6, 2, new double[] {NaN, 3d}, new int[] {1, 1});
+        split = createTimeSeries(8, chunk1, chunk2, chunk3).split(8);
+
+        assertEquals(1, split.size());
+        DoubleDataChunk merged = getSingleChunk(split.getFirst());
+        assertEquals(new CompressedDoubleDataChunk(0, 8, new double[] {1d, 2d, NaN, NaN, 3d}, new int[] {1, 3, 2, 1, 1}), merged);
+        assertEquals(chunk1.append(chunk2).append(chunk3), merged);
+    }
+
+    @Test
+    void splitCompressedChunksWithInnerGapTest() {
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(6,
+            new CompressedDoubleDataChunk(0, 2, new double[] {1d}, new int[] {2}),
+            new CompressedDoubleDataChunk(3, 2, new double[] {2d}, new int[] {2}));
+
+        List<DoubleTimeSeries> split = timeSeries.split(6);
+
+        assertEquals(1, split.size());
+        assertEquals(new UncompressedDoubleDataChunk(0, new double[] {1d, 1d, NaN, 2d, 2d}), getSingleChunk(split.getFirst()));
+    }
+
+    @Test
+    void splitMixedKindChunksTest() {
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(4,
+            new CompressedDoubleDataChunk(0, 2, new double[] {1d}, new int[] {2}),
+            new UncompressedDoubleDataChunk(2, new double[] {3d, 4d}));
+
+        List<DoubleTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(1, split.size());
+        assertEquals(new UncompressedDoubleDataChunk(0, new double[] {1d, 1d, 3d, 4d}), getSingleChunk(split.getFirst()));
+    }
+
+    @Test
+    void splitInvalidChunkSizeTest() {
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(4, new UncompressedDoubleDataChunk(0, new double[] {1d, 2d}));
+        assertThrows(IllegalArgumentException.class, () -> timeSeries.split(0));
+        assertThrows(IllegalArgumentException.class, () -> timeSeries.split(-1));
+    }
+
+    @Test
+    void splitOverlappingChunksTest() {
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(4,
+            new UncompressedDoubleDataChunk(0, new double[] {1d, 2d}),
+            new UncompressedDoubleDataChunk(1, new double[] {3d}));
+        assertThrows(TimeSeriesException.class, () -> timeSeries.split(2));
+    }
+
+    @Test
+    void splitEmptyTimeSeriesTest() {
+        assertTrue(createTimeSeries(4).split(2).isEmpty());
+    }
+
+    @Test
+    void splitFragmentedPerformanceTest() {
+        // issue #1634: split used to be quadratic with many small chunks
+        int size = 200_000;
+        int newChunkSize = 100_000;
+        DoubleDataChunk[] chunks = IntStream.range(0, size)
+            .mapToObj(i -> new UncompressedDoubleDataChunk(i, new double[] {i}))
+            .toArray(DoubleDataChunk[]::new);
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(size, chunks);
+
+        List<DoubleTimeSeries> split = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> timeSeries.split(newChunkSize));
+
+        assertEquals(2, split.size());
+        for (int i = 0; i < split.size(); i++) {
+            DoubleDataChunk chunk = getSingleChunk(split.get(i));
+            assertEquals(i * newChunkSize, chunk.getOffset());
+            assertArrayEquals(IntStream.range(i * newChunkSize, (i + 1) * newChunkSize).asDoubleStream().toArray(),
+                ((UncompressedDoubleDataChunk) chunk).getValues(), 0d);
+        }
+    }
+
+    @Test
+    void splitSingleChunkPerformanceTest() {
+        // issue #1634: split used to be quadratic with a single big chunk and a small new chunk size
+        int size = 1_000_000;
+        int newChunkSize = 10;
+        double[] values = IntStream.range(0, size).asDoubleStream().toArray();
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(size, new UncompressedDoubleDataChunk(0, values));
+
+        List<DoubleTimeSeries> split = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> timeSeries.split(newChunkSize));
+
+        assertEquals(size / newChunkSize, split.size());
+        for (int i = 0; i < split.size(); i++) {
+            DoubleDataChunk chunk = getSingleChunk(split.get(i));
+            assertEquals(i * newChunkSize, chunk.getOffset());
+            assertEquals(newChunkSize, chunk.getLength());
+            assertEquals(i * newChunkSize, ((UncompressedDoubleDataChunk) chunk).getValues()[0], 0d);
+        }
+    }
+
+    @Test
+    void splitCompressedChunkPerformanceTest() {
+        // a big poorly compressed chunk, split into many windows
+        int size = 1_000_000;
+        int newChunkSize = 10;
+        double[] stepValues = IntStream.range(0, size / 2).mapToDouble(i -> i % 2).toArray();
+        int[] stepLengths = new int[size / 2];
+        Arrays.fill(stepLengths, 2);
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(size, new CompressedDoubleDataChunk(0, size, stepValues, stepLengths));
+
+        List<DoubleTimeSeries> split = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> timeSeries.split(newChunkSize));
+
+        assertEquals(size / newChunkSize, split.size());
+        for (int i = 0; i < split.size(); i++) {
+            DoubleDataChunk chunk = getSingleChunk(split.get(i));
+            assertEquals(i * newChunkSize, chunk.getOffset());
+            assertEquals(newChunkSize, chunk.getLength());
+            assertEquals(5, ((CompressedDoubleDataChunk) chunk).getStepLengths().length);
+        }
+    }
+
+    @Test
+    void splitSuccessiveCompressedChunksPerformanceTest() {
+        // many successive compressed chunks, merged in a single window
+        int size = 200_000;
+        DoubleDataChunk[] chunks = IntStream.range(0, size)
+            .mapToObj(i -> new CompressedDoubleDataChunk(i, 1, new double[] {i / 2}, new int[] {1}))
+            .toArray(DoubleDataChunk[]::new);
+        StoredDoubleTimeSeries timeSeries = createTimeSeries(size, chunks);
+
+        List<DoubleTimeSeries> split = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> timeSeries.split(size));
+
+        assertEquals(1, split.size());
+        CompressedDoubleDataChunk chunk = (CompressedDoubleDataChunk) getSingleChunk(split.getFirst());
+        assertEquals(0, chunk.getOffset());
+        assertEquals(size, chunk.getLength());
+        assertEquals(size / 2, chunk.getStepLengths().length);
+        assertTrue(IntStream.of(chunk.getStepLengths()).allMatch(length -> length == 2));
+    }
+
+    @Test
+    void splitListWithMissingWindowTest() {
+        List<DoubleTimeSeries> timeSeriesList = List.of(createTimeSeries(4, new UncompressedDoubleDataChunk(0, new double[] {1d, 2d})));
+
+        TimeSeriesException e = assertThrows(TimeSeriesException.class, () -> TimeSeries.split(timeSeriesList, 2));
+        assertEquals("Time series 'ts1' has no data in 1 window(s) of size 2: cannot align it with the other time series", e.getMessage());
     }
 
 }

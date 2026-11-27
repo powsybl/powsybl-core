@@ -212,6 +212,18 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
     }
 
     @Override
+    public DoubleDataChunk slice(int from, int to) {
+        checkSliceRange(from, to);
+        if (from == offset && to == offset + uncompressedLength) {
+            return this;
+        }
+        int firstStep = findStep(from);
+        int lastStep = findStep(to - 1);
+        return new CompressedDoubleDataChunk(from, to - from, Arrays.copyOfRange(stepValues, firstStep, lastStep + 1),
+                sliceStepLengths(from, to, firstStep, lastStep));
+    }
+
+    @Override
     public DoubleDataChunk append(final DoubleDataChunk otherChunk) {
         if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()

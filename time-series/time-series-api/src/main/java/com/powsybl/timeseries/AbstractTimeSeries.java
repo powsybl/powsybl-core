@@ -129,102 +129,110 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     protected abstract T createTimeSeries(C chunk);
 
     /**
-     * <p>Splits a chunk into sub-chunks based on the specified first and last indices.</p>
+     * Create an uncompressed chunk covering {@code [offset, offset + length[} and filled with the values of the given
+     * chunks. Indexes not covered by any piece are filled with {@code NaN} (double) or {@code null} (string), as when
+     * converting the time series to an array.
      *
-     * @param chunkToSplit The chunk to be split. Must not be null.
-     * @param splitChunks The list to which the resulting sub-chunks will be added.
-     * @param firstIndex The starting index (inclusive) for the split.
-     * @param lastIndex The ending index (inclusive) for the split.
+     * @param offset the offset of the chunk to create
+     * @param length the length of the chunk to create
+     * @param chunks sorted and non-overlapping chunks, all included in {@code [offset, offset + length[}
+     * @return the merged uncompressed chunk
      */
-    private void splitByFirstAndLastIndex(@NonNull C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
-        traceSplitChunk(firstIndex, lastIndex);
-        C newChunk;
-        // chunkToSplit = [x0, y0] -> newChunk = [x0=firstIndex, y0]
-        if (firstIndex == chunkToSplit.getOffset()) {
-            newChunk = chunkToSplit;
-        } else {
-            // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0]
-            DataChunk.Split<P, C> split = chunkToSplit.splitAt(firstIndex);
-            newChunk = split.getChunk2();
+    protected abstract C mergeToUncompressed(int offset, int length, List<C> chunks);
+
+    /**
+     * Merge successive compressed chunks into a single compressed chunk. The default implementation appends the
+     * chunks one by one, which is quadratic in the number of chunks: implementations should override it to merge in a
+     * single pass.
+     *
+     * @param chunks at least two successive compressed chunks, sorted by offset
+     * @return the merged compressed chunk
+     */
+    protected C mergeCompressed(List<C> chunks) {
+        C merged = chunks.getFirst();
+        for (int i = 1; i < chunks.size(); i++) {
+            merged = merged.append(chunks.get(i));
         }
-        // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0=lastIndex]
-        if (lastIndex == chunkToSplit.getOffset() + chunkToSplit.getLength() - 1) {
-            splitChunks.add(newChunk);
-        } else {
-            // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, lastIndex]
-            DataChunk.Split<P, C> split = newChunk.splitAt(lastIndex + 1);
-            splitChunks.add(split.getChunk1());
-        }
+        return merged;
     }
 
-    private static void traceSplitChunk(int firstIndex, int lastIndex) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Split chunk [{}, {}]", firstIndex, lastIndex);
-        }
-    }
-
-    private void split(C chunkToSplit, List<C> splitChunks, int newChunkSize) {
-        traceSplitChunk(chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
-
-        boolean usePreviousChunk = false;
-        C previousChunk = splitChunks.isEmpty() ? null : splitChunks.get(splitChunks.size() - 1);
-        int previousChunkSize = 0;
-        //We can complete the previous chunk if 1) it is uncomplete and 2) the current offset is not a multiple of newChunkSize
-        if (previousChunk != null && previousChunk.getLength() < newChunkSize && chunkToSplit.getOffset() % newChunkSize != 0) {
-            usePreviousChunk = true;
-            previousChunkSize = previousChunk.getLength();
-        }
-        int correctedChunkSize = newChunkSize - previousChunkSize;
-
-        if (usePreviousChunk) {
-            LOGGER.trace("Previous output chunk's size is {} ; {} elements can be added.", previousChunkSize, correctedChunkSize);
-        } else {
-            LOGGER.trace("The previous chunk was complete (or there was no previous chunk). Starting a new one.");
-        }
-
-        if (chunkToSplit.getLength() > correctedChunkSize) {
-            splitChunk(chunkToSplit, previousChunk, splitChunks, newChunkSize, correctedChunkSize, usePreviousChunk);
-        } else {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("   Too small...");
-            }
-            if (usePreviousChunk) {
-                C mergedChunk = previousChunk.append(chunkToSplit);
-                splitChunks.remove(splitChunks.size() - 1);
-                splitChunks.add(mergedChunk);
-            } else {
-                splitChunks.add(chunkToSplit);
-            }
-        }
-    }
-
-    private void splitChunk(C chunkToSplit, C previousChunk, List<C> splitChunks, int newChunkSize, int correctedChunkSize, boolean usePreviousChunk) {
-        // compute lower intersection index with new chunk size
-        int newChunkLowIndex = (int) Math.round(0.5f + (double) chunkToSplit.getOffset() / correctedChunkSize) * correctedChunkSize;
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("   At index {}", newChunkLowIndex);
-        }
-        DataChunk.Split<P, C> split = chunkToSplit.splitAt(newChunkLowIndex);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
-        }
-
-        if (usePreviousChunk) {
-            C mergedChunk = previousChunk.append(split.getChunk1());
-            splitChunks.remove(splitChunks.size() - 1);
-            splitChunks.add(mergedChunk);
-        } else {
-            splitChunks.add(split.getChunk1());
-        }
-        split(split.getChunk2(), splitChunks, newChunkSize);
-    }
-
+    /**
+     * <p>Re-arrange the time series into time series of at most {@code newChunkSize} points: chunks crossing a window
+     * boundary are cut, and chunks lying in the same window are merged.</p>
+     *
+     * <p>The index range is cut into windows aligned on the absolute grid {@code [j * newChunkSize, (j + 1) * newChunkSize[}.
+     * One time series, holding a single chunk, is created for each window containing data; windows without data are
+     * skipped. Within a window:</p>
+     * <ul>
+     *     <li>the chunk starts at the first and ends at the last index covered by the data (indexes without data at the
+     *     edges of the window are not filled);</li>
+     *     <li>the kind of the input chunks (compressed or not) is preserved when they are successive and of the same kind,
+     *     otherwise an uncompressed chunk is created, with the indexes without data filled with {@code NaN} (double) or
+     *     {@code null} (string).</li>
+     * </ul>
+     * <p>As a consequence, the resulting time series are not necessarily successive: consumers must rely on the chunk
+     * offsets.</p>
+     *
+     * @param newChunkSize the maximum number of points of each resulting time series
+     * @return the list of resulting time series, sorted by offset
+     * @throws IllegalArgumentException if {@code newChunkSize < 1}
+     * @throws TimeSeriesException if a chunk is out of the index range or if two chunks overlap
+     */
     public List<T> split(int newChunkSize) {
-        List<C> splitNewChunks = new ArrayList<>();
-        for (C chunkToSplit : getCheckedChunks(false)) {
-            split(chunkToSplit, splitNewChunks, newChunkSize);
+        if (newChunkSize < 1) {
+            throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
+        List<T> splitTimeSeries = new ArrayList<>();
+        // Parts of the input chunks lying in the current window [currentWindow * newChunkSize, (currentWindow + 1) * newChunkSize[
+        List<C> partsOfTheChunksInTheWindow = new ArrayList<>();
+        int currentWindow = -1;
+        for (C chunk : getCheckedChunks(false)) {
+            int end = chunk.getOffset() + chunk.getLength();
+            int from = chunk.getOffset();
+            while (from < end) {
+                int window = from / newChunkSize;
+                int to = (int) Math.min(end, (window + 1L) * newChunkSize);
+                if (window != currentWindow && !partsOfTheChunksInTheWindow.isEmpty()) {
+                    // chunks are sorted and do not overlap: a part falling in a later window means the current window is
+                    // complete, so merge its parts into one chunk, create the time series and start collecting the next window
+                    splitTimeSeries.add(createTimeSeries(mergeWindowChunkParts(partsOfTheChunksInTheWindow)));
+                    partsOfTheChunksInTheWindow.clear();
+                }
+                currentWindow = window;
+                partsOfTheChunksInTheWindow.add(chunk.slice(from, to));
+                from = to;
+            }
+        }
+        if (!partsOfTheChunksInTheWindow.isEmpty()) {
+            splitTimeSeries.add(createTimeSeries(mergeWindowChunkParts(partsOfTheChunksInTheWindow)));
+        }
+        return splitTimeSeries;
+    }
+
+    private C mergeWindowChunkParts(List<C> chunks) {
+        if (chunks.size() == 1) {
+            return chunks.getFirst();
+        }
+        if (areCompressedAndSuccessive(chunks)) {
+            return mergeCompressed(chunks);
+        }
+        C first = chunks.getFirst();
+        C last = chunks.getLast();
+        return mergeToUncompressed(first.getOffset(), last.getOffset() + last.getLength() - first.getOffset(), chunks);
+    }
+
+    private static boolean areCompressedAndSuccessive(List<? extends DataChunk<?, ?>> chunks) {
+        DataChunk<?, ?> previous = null;
+        for (DataChunk<?, ?> chunk : chunks) {
+            if (!chunk.isCompressed()) {
+                return false;
+            }
+            if (previous != null && previous.getOffset() + previous.getLength() != chunk.getOffset()) {
+                return false;
+            }
+            previous = chunk;
+        }
+        return true;
     }
 
     /**
@@ -303,7 +311,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             LOGGER.warn("Incomplete Range [{}-{}], last index found in chunk was {}", rangeStart, rangeEnd, actualEnd);
         }
 
-        splitByFirstAndLastIndex(merged, splitNewChunks, actualStart, actualEnd);
+        splitNewChunks.add(merged.slice(actualStart, actualEnd + 1));
 
         return localChunkIndex;
     }

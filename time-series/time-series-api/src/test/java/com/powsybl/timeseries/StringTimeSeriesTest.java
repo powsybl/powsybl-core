@@ -18,11 +18,13 @@ import org.threeten.extra.Interval;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -250,6 +252,107 @@ class StringTimeSeriesTest {
         assertEquals(expectedAtIndex1, timeSeries.get(1));
         assertEquals(expectedAtIndex5, timeSeries.get(5));
         assertEquals(expectedAtIndex6, timeSeries.get(6));
+    }
+
+    private static StringTimeSeries createTimeSeries(int pointCount, StringDataChunk... chunks) {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(pointCount);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, Collections.emptyMap(), index);
+        return new StringTimeSeries(metadata, chunks);
+    }
+
+    private static StringDataChunk getSingleChunk(StringTimeSeries timeSeries) {
+        assertEquals(1, timeSeries.getChunks().size());
+        return timeSeries.getChunks().getFirst();
+    }
+
+    @Test
+    void splitWithEdgeGapTest() {
+        // issue #3941: used to throw "Chunks are not successive"
+        StringTimeSeries timeSeries = createTimeSeries(8,
+            new UncompressedStringDataChunk(0, new String[] {"a", "b", "c"}),
+            new UncompressedStringDataChunk(6, new String[] {"g", "h"}));
+
+        List<StringTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(2, split.size());
+        assertEquals(new UncompressedStringDataChunk(0, new String[] {"a", "b", "c"}), getSingleChunk(split.get(0)));
+        assertEquals(new UncompressedStringDataChunk(6, new String[] {"g", "h"}), getSingleChunk(split.get(1)));
+    }
+
+    @Test
+    void splitWithInnerGapTest() {
+        // issue #3941: used to throw "Chunks are not successive"
+        StringTimeSeries timeSeries = createTimeSeries(8,
+            new UncompressedStringDataChunk(0, new String[] {"a", "b"}),
+            new UncompressedStringDataChunk(3, new String[] {"d"}));
+
+        List<StringTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(1, split.size());
+        assertEquals(new UncompressedStringDataChunk(0, new String[] {"a", "b", null, "d"}), getSingleChunk(split.getFirst()));
+        assertArrayEquals(new String[] {"a", "b", null, "d", null, null, null, null}, split.getFirst().toArray());
+        assertEquals(5, split.getFirst().uncompressedStream().filter(p -> p.getValue() == null).count());
+
+        // null values are supported by the JSON serialization
+        String expectedJson = """
+            {
+              "offset" : 0,
+              "values" : [ "a", "b", null, "d" ]
+            }""".replace("\n", System.lineSeparator());
+        StringDataChunk chunk = getSingleChunk(split.getFirst());
+        assertEquals(expectedJson, chunk.toJson());
+        List<StringDataChunk> chunksRead = JsonUtil.parseJson(expectedJson, jsonParser -> {
+            List<StringDataChunk> stringDataChunks = new ArrayList<>();
+            List<DoubleDataChunk> doubleDataChunks = new ArrayList<>();
+            DataChunk.parseJson(jsonParser, doubleDataChunks, stringDataChunks);
+            return stringDataChunks;
+        });
+        assertThat(chunksRead).hasSize(1)
+            .containsAll(List.of(chunk));
+    }
+
+    @Test
+    void splitSuccessiveCompressedChunksTest() {
+        // index  0  1  2  3  4  5
+        // value  a  a  a  b  b  b
+        StringTimeSeries timeSeries = createTimeSeries(6,
+            new CompressedStringDataChunk(0, 4, new String[] {"a", "b"}, new int[] {3, 1}),
+            new CompressedStringDataChunk(4, 2, new String[] {"b"}, new int[] {2}));
+
+        List<StringTimeSeries> split = timeSeries.split(3);
+
+        assertEquals(2, split.size());
+        assertEquals(new CompressedStringDataChunk(0, 3, new String[] {"a"}, new int[] {3}), getSingleChunk(split.get(0)));
+        assertEquals(new CompressedStringDataChunk(3, 3, new String[] {"b"}, new int[] {3}), getSingleChunk(split.get(1)));
+    }
+
+    @Test
+    void splitSuccessiveCompressedChunksWithNullTest() {
+        // index  0  1  2  3  4  5
+        // value  a              b
+        StringTimeSeries timeSeries = createTimeSeries(6,
+            new CompressedStringDataChunk(0, 3, new String[] {"a", null}, new int[] {1, 2}),
+            new CompressedStringDataChunk(3, 3, new String[] {null, "b"}, new int[] {2, 1}));
+
+        List<StringTimeSeries> split = timeSeries.split(6);
+
+        assertEquals(1, split.size());
+        assertEquals(new CompressedStringDataChunk(0, 6, new String[] {"a", null, "b"}, new int[] {1, 4, 1}), getSingleChunk(split.getFirst()));
+    }
+
+    @Test
+    void splitMixedKindChunksTest() {
+        // index  0  1  2  3
+        // value  a  a  c  d
+        StringTimeSeries timeSeries = createTimeSeries(4,
+            new CompressedStringDataChunk(0, 2, new String[] {"a"}, new int[] {2}),
+            new UncompressedStringDataChunk(2, new String[] {"c", "d"}));
+
+        List<StringTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(1, split.size());
+        assertEquals(new UncompressedStringDataChunk(0, new String[] {"a", "a", "c", "d"}), getSingleChunk(split.getFirst()));
     }
 
 }

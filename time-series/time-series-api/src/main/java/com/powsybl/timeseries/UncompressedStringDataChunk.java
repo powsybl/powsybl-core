@@ -127,6 +127,15 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
     }
 
     @Override
+    public StringDataChunk slice(int from, int to) {
+        checkSliceRange(from, to, values.length);
+        if (from == offset && to == offset + values.length) {
+            return this;
+        }
+        return new UncompressedStringDataChunk(from, Arrays.copyOfRange(values, from - offset, to - offset));
+    }
+
+    @Override
     public StringDataChunk append(final StringDataChunk otherChunk) {
         if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
