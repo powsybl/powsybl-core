@@ -325,7 +325,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
-    void createTwoWindingsTransformerWithSolvedTapPosition() {
+    public void createTwoWindingsTransformerWithSolvedTapPosition() {
         createTwoWindingTransformer("twt", TWT_NAME, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
 
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("twt");

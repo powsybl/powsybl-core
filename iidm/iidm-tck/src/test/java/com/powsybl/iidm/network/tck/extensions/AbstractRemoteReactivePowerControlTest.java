@@ -244,7 +244,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
     }
 
     @Test
-    void replacementTest() {
+    public void replacementTest() {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");

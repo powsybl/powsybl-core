@@ -203,4 +203,24 @@ class SecurityAnalysisResultComparisonWriterTest {
         }
     }
 
+    @Test
+    void writeViolationWithoutSide() {
+        LimitViolation dcLineViolation = LimitViolation.builder()
+            .subject("dcLine")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId(null)
+            .limit(1000.0)
+            .value(-1200.0)
+            .build();
+        comparisonWriter.write(dcLineViolation, dcLineViolation, true);
+        // The expected line is, e.g. with a US locale
+        // ;;;dcLine;;CURRENT;;-1200.00;1000.00;;-1200.00;1000.00;;;equivalent
+        String expected = String.join(";", "", "", "", "dcLine", "", LimitViolationType.CURRENT.name(),
+            "", String.format(Locale.getDefault(), "%g", -1200.0), String.format(Locale.getDefault(), "%g", 1000.0),
+            "", String.format(Locale.getDefault(), "%g", -1200.0), String.format(Locale.getDefault(), "%g", 1000.0),
+            "", "", "equivalent");
+        String[] lines = writer.toString().trim().split(System.lineSeparator());
+        assertEquals(expected, lines[lines.length - 1]);
+    }
+
 }

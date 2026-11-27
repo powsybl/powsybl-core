@@ -20,6 +20,7 @@ import com.powsybl.timeseries.ast.NodeCalc;
 import de.siegmar.fastcsv.reader.CsvParseException;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecordHandler;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -59,6 +60,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
     Pattern WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN = Pattern.compile("Record (\\d+) has (\\d+) fields, but first record had (\\d+) fields");
+    Pattern MAX_FIELDS_EXCEEDED_PATTERN = Pattern.compile("Record starting at line (\\d+) has surpassed the maximum limit of (\\d+) fields");
 
     int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = -1;
 
@@ -536,7 +538,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 lineparser.accept(rec);
             }
         } catch (CsvParseException e) {
-            if (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getMessage()).find()) {
+            if (e.getMessage() != null && (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getMessage()).find()
+                    || MAX_FIELDS_EXCEEDED_PATTERN.matcher(e.getMessage()).find())) {
                 throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header", e);
             }
             throw e;
@@ -545,10 +548,18 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static CsvParsingContext readCsvHeader(Iterator<CsvRecord> iterator, TimeSeriesCsvConfig timeSeriesCsvConfig) {
-        if (!iterator.hasNext()) {
-            throw new TimeSeriesException("CSV header is missing");
+        CsvRecord headerRecord;
+        try {
+            if (!iterator.hasNext()) {
+                throw new TimeSeriesException("CSV header is missing");
+            }
+            headerRecord = iterator.next();
+        } catch (CsvParseException e) {
+            if (e.getMessage() != null && MAX_FIELDS_EXCEEDED_PATTERN.matcher(e.getMessage()).find()) {
+                throw new TimeSeriesException("Number of columns in header exceeds the maximum allowed (" + timeSeriesCsvConfig.getMaxColumns() + ")", e);
+            }
+            throw e;
         }
-        CsvRecord headerRecord = iterator.next();
 
         checkCsvHeader(timeSeriesCsvConfig, headerRecord);
 
@@ -573,10 +584,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         } else if (headerRecord.getFieldCount() < 2 || !"time".equalsIgnoreCase(headerRecord.getField(0))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
-        if (timeSeriesCsvConfig.getMaxColumns() > 0 && headerRecord.getFieldCount() > timeSeriesCsvConfig.getMaxColumns()) {
-            throw new TimeSeriesException("Number of columns in header (" + headerRecord.getFieldCount()
-                + ") exceeds the maximum allowed (" + timeSeriesCsvConfig.getMaxColumns() + ")");
-        }
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {
@@ -594,7 +601,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         try (CsvReader<CsvRecord> csvReader = CsvReader.builder()
             .fieldSeparator(timeSeriesCsvConfig.separator())
             .quoteCharacter('"')
-            .ofCsvRecord(reader)) {
+            .build(CsvRecordHandler.builder().maxFields(getCsvMaxFields(timeSeriesCsvConfig)).build(), reader)) {
 
             Iterator<CsvRecord> iterator = csvReader.iterator();
             CsvParsingContext context = readCsvHeader(iterator, timeSeriesCsvConfig);
@@ -609,6 +616,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     timing);
         TimeseriesReports.timeseriesLoadingTimeDuration(reportNode, timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(), timing);
         return timeSeriesPerVersion;
+    }
+
+    private static int getCsvMaxFields(TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        int maxColumns = timeSeriesCsvConfig.getMaxColumns();
+        return maxColumns > 0 ? maxColumns : Integer.MAX_VALUE;
     }
 
     void writeJson(JsonGenerator generator);

@@ -384,6 +384,20 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     }
 
     @Test
+    void writeBoundaryLinesWithGenerationRegulationIsUnchanged() throws IOException {
+        Network network = BoundaryLineNetworkFactory.createWithGeneration();
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, properties, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/boundary-line-branches.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/boundary-line-buses.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/boundary-line-limits.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/boundary-line-loads.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/boundary-line-substations.txt");
+    }
+
+    @Test
     void writeExtensions() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
         HvdcLine l = network.getHvdcLine("L");
@@ -427,7 +441,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
 
-        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0, 1.1, 1.2, 1.3]"));
+        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0, 1.1, 1.2, 1.3, 1.4]"));
     }
 
     @Test

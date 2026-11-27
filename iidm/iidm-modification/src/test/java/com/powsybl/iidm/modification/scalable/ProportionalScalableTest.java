@@ -816,4 +816,30 @@ class ProportionalScalableTest {
         assertEquals(50., load2.getP0());
         assertEquals(50., load3.getP0());
     }
+
+    @Test
+    void checkScalablesAndPercentagesAreAccessible() {
+        ProportionalScalable proportionalScalable = Scalable.proportional(50, g1, 50, g3);
+        assertEquals(List.of(g1, g3), proportionalScalable.getScalables());
+        assertEquals(List.of(50., 50.), proportionalScalable.getPercentages());
+
+        ScalingParameters parameters = new ScalingParameters().setPriority(RESPECT_OF_VOLUME_ASKED);
+        assertEquals(120., proportionalScalable.scale(network, 120., parameters), 1e-5);
+        assertEquals(80. + 70., network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(30. + 50., network.getGenerator("g3").getTargetP(), 1e-5);
+        assertEquals(List.of(50., 50.), proportionalScalable.getPercentages());
+        assertThrows(UnsupportedOperationException.class, () -> proportionalScalable.getPercentages().add(0.));
+    }
+
+    @Test
+    void checkPercentagesAreUnchangedWhenOnlyOneScalableSaturates() {
+        ProportionalScalable proportionalScalable = Scalable.proportional(50, g1, 50, g3);
+
+        // 55 MW each at first, g3 only absorbs 50 (max 80), the 5 MW left go to g1 which is not saturated
+        ScalingParameters parameters = new ScalingParameters().setPriority(RESPECT_OF_VOLUME_ASKED);
+        assertEquals(110., proportionalScalable.scale(network, 110., parameters), 1e-5);
+        assertEquals(80. + 55. + 5., network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(30. + 50., network.getGenerator("g3").getTargetP(), 1e-5);
+        assertEquals(List.of(50., 50.), proportionalScalable.getPercentages());
+    }
 }

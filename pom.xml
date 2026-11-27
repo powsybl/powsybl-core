@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>7.5.0-SNAPSHOT</version>
+    <version>7.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -81,6 +81,7 @@
         <module>security-analysis</module>
         <module>sensitivity-analysis-api</module>
         <module>shortcircuit-api</module>
+        <module>state-estimation-api</module>
         <module>time-series</module>
         <module>tools</module>
         <module>tools-test</module>

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -282,8 +283,11 @@ public abstract class AbstractBoundaryLineTest {
                     .setTargetP(440)
                     .setMaxP(900)
                     .setMinP(0)
-                    .setTargetV(400)
-                    .setVoltageRegulationOn(true)
+                    .setLocalTargetV(400)
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withRegulating(true)
+                        .add()
                 .add();
         BoundaryLine dl = adder.add();
 
@@ -292,8 +296,8 @@ public abstract class AbstractBoundaryLineTest {
         assertEquals(440, generation.getTargetP(), 0.0);
         assertEquals(900, generation.getMaxP(), 0.0);
         assertEquals(0, generation.getMinP(), 0.0);
-        assertEquals(400, generation.getTargetV(), 0.0);
-        assertTrue(generation.isVoltageRegulationOn());
+        assertEquals(400, generation.getLocalTargetV(), 0.0);
+        assertTrue(generation.isRegulatingWithMode(RegulationMode.VOLTAGE));
         generation.newMinMaxReactiveLimits()
                 .setMaxQ(500)
                 .setMinQ(-500)

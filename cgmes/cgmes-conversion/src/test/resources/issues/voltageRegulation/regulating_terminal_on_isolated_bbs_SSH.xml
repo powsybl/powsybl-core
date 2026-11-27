@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:test_SSH">
+        <md:Model.scenarioTime>2024-02-26T00:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2024-02-26T00:00:00Z</md:Model.created>
+        <md:Model.description>Conducting equipments regulating the voltage on an isolated (disconnected) busbar section</md:Model.description>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_bbs_t">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_bbs1_t">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_sm_t">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_shunt_t">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_svc_t">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:SynchronousMachine rdf:about="#_sm">
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-10</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>-20</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineOperatingMode.generator" />
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+        </cim:SynchronousMachine>
+    <cim:RegulatingControl rdf:about="#_sm_rc">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>115</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k" />
+    </cim:RegulatingControl>
+    <cim:LinearShuntCompensator rdf:about="#_shunt">
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:ShuntCompensator.sections>1</cim:ShuntCompensator.sections>
+    </cim:LinearShuntCompensator>
+    <cim:RegulatingControl rdf:about="#_shunt_rc">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>115</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k" />
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_svc">
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>0</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_svc_rc">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>115</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k" />
+    </cim:RegulatingControl>
+</rdf:RDF>

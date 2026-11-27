@@ -57,7 +57,7 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             addAliasesAndProperties(c);
             convertedTerminalsWithOnlyEq(c.getTerminal());
             convertReactiveLimits(c);
-            context.regulatingControlMapping().forVscConverters().add(c.getId(), p);
+            context.regulatingControlMapping().storePccTerminal(c.getId(), converter);
         } else {
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                     .setLossFactor((float) DEFAULT_LOSS_FACTOR)

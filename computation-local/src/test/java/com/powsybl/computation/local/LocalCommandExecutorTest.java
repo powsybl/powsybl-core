@@ -72,7 +72,8 @@ class LocalCommandExecutorTest {
         // Executable
         Files.delete(outPath);
         exitCode = windowsLocalCommandExecutor.execute("whoami.exe", 5, List.of(), outPath, errPath, tempDir, Collections.emptyMap());
-        assertTrue(Files.readString(outPath).length() > 3);
+        // whoami output uses the OEM code page; user/domain names may be non-ASCII
+        assertFileHasContent(outPath);
         assertTrue(Files.readString(errPath).isEmpty());
         assertEquals(0, exitCode);
 
@@ -105,8 +106,16 @@ class LocalCommandExecutorTest {
         Path nonExistentProgram = tempDir.resolve("non_existent_program.exe");
         exitCode = windowsLocalCommandExecutor.execute(nonExistentProgram.toString(), 5, List.of(), outPath, errPath, tempDir, Map.of("MY_VAR", " World"));
         assertTrue(Files.readString(outPath).isEmpty());
-        assertTrue(Files.readString(errPath).length() > 3);
+        // cmd.exe writes its error message in the OEM code page which may not be
+        // valid UTF-8: check the byte size rather than decoding the content.
+        assertFileHasContent(errPath);
         assertEquals(1, exitCode);
+    }
+
+    private static void assertFileHasContent(Path path) throws IOException {
+        // Checking the byte size handles any encoding. More than 3 bytes so that
+        // a lone line break ("\r\n") is not mistaken for actual content.
+        assertTrue(Files.size(path) > 3);
     }
 
 }

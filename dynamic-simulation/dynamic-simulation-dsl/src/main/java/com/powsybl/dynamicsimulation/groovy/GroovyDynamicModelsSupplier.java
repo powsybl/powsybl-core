@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * <p><b>Security warning:</b> the Groovy script is evaluated as-is, without any sandbox (no {@code SecureASTCustomizer},
+ * no class or method restriction), with the full privileges of the JVM. PowSyBl is a library: sandboxing untrusted
+ * scripts is the responsibility of the application embedding it. Only run scripts from trusted sources.
+ * See <a href="https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/groovy-security.html">Groovy scripts security</a>.
+ *
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class GroovyDynamicModelsSupplier extends AbstractGroovySupplier<DynamicModel, DynamicModelGroovyExtension>

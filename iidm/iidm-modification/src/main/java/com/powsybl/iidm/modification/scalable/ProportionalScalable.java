@@ -207,8 +207,22 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    protected Collection<Scalable> getScalables() {
+    @Override
+    public List<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
+    }
+
+    /**
+     * Returns the distribution percentages of this scalable, in the same order as {@link #getScalables()}.
+     * <p>
+     * These are the percentages given at construction (or computed from the {@link DistributionMode}),
+     * and their sum equals 100. They are not modified by scaling: the temporary redistribution done
+     * when some scalables saturate does not affect the returned values.
+     *
+     * @return an unmodifiable list of the percentages
+     */
+    public List<Double> getPercentages() {
+        return scalablePercentageList.stream().map(ScalablePercentage::getPercentage).toList();
     }
 
     private static void checkPercentages(List<Double> percentages, List<Scalable> scalables) {
@@ -352,4 +366,3 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
 }
-

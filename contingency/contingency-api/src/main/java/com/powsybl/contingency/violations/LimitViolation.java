@@ -59,7 +59,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit                     The value of the limit which has been violated.
      * @param limitScaling              The limit scaling factor used for violation detection.
      * @param value                     The actual value of the physical value which triggered the detection of a violation.
-     * @param side                      The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param side                      The side of the equipment where the violation occurred. Required for {@link LimitViolationType#ACTIVE_POWER}
+     *                                  and {@link LimitViolationType#APPARENT_POWER} violations. May be {@code null} for
+     *                                  {@link LimitViolationType#CURRENT} violations on equipments without sides, such as DC lines.
+     *                                  Ignored for other violation types.
      * @param voltageLocation           Detailed information about the location of the violation.
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, String operationalLimitsGroupId, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
@@ -90,7 +93,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit              The value of the limit which has been violated.
      * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
-     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param side               The side of the equipment where the violation occurred. Required for {@link LimitViolationType#ACTIVE_POWER}
+     *                           and {@link LimitViolationType#APPARENT_POWER} violations. May be {@code null} for
+     *                           {@link LimitViolationType#CURRENT} violations on equipments without sides, such as DC lines.
+     *                           Ignored for other violation types.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
@@ -113,7 +119,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit              The value of the limit which has been violated.
      * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
-     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param side               The side of the equipment where the violation occurred. Required for {@link LimitViolationType#ACTIVE_POWER}
+     *                           and {@link LimitViolationType#APPARENT_POWER} violations. May be {@code null} for
+     *                           {@link LimitViolationType#CURRENT} violations on equipments without sides, such as DC lines.
+     *                           Ignored for other violation types.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
@@ -388,31 +397,33 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * The side of the equipment with two sides (like branch) where the violation occurred.
      *
      * @return the side of the equipment with two sides (like branch) where the violation occurred.
+     * @throws IllegalStateException if the violation has no side
      */
     public TwoSides getSideAsTwoSides() {
-        return Objects.requireNonNull(side).toTwoSides();
+        if (side == null) {
+            throw new IllegalStateException("Violation on '" + subjectId + "' has no side.");
+        }
+        return side.toTwoSides();
     }
 
     /**
      * The side of the equipment where the violation occurred. Will be {@code null} for equipments
-     * other than branches and three windings transformers.
+     * other than AC branches and three windings transformers.
      *
      * @return the side of the equipment where the violation occurred. Will be {@code null} for equipments
-     * other than branches and three windings transformers.
+     * other than AC branches and three windings transformers.
      */
     @Nullable
     public ThreeSides getSide() {
         return side;
     }
 
-    private static ThreeSides checkSide(LimitViolationType limitType, ThreeSides side) {
-        if (limitType == LimitViolationType.ACTIVE_POWER
-            || limitType == LimitViolationType.APPARENT_POWER
-            || limitType == LimitViolationType.CURRENT) {
-            return Objects.requireNonNull(side);
-        } else {
-            return null;
-        }
+    private static ThreeSides checkSide(LimitViolationType limitType, @Nullable ThreeSides side) {
+        return switch (limitType) {
+            case CURRENT -> side;
+            case ACTIVE_POWER, APPARENT_POWER -> Objects.requireNonNull(side, "Violation side must be defined.");
+            default -> null;
+        };
     }
 
     public String toString() {

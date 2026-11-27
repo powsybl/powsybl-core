@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>7.5.0-SNAPSHOT</version>
+        <version>7.6.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -443,6 +443,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-shortcircuit-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-state-estimation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

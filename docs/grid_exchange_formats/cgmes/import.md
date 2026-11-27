@@ -188,6 +188,9 @@ For each `SvInjection` in the CGMES network model a new PowSyBl `Load` with attr
 - `LoadType` is always set to `FICTITIOUS`.
 - `Fictitious` is set to `true`.
 
+Fictitious loads representing SvInjections are created during the update process. Each network update involving an SV profile containing SvInjections generates a new set of fictitious loads.
+Before creating the new set, `P0` and `Q0` are set to zero in the current variant for all fictitious loads generated from SvInjections during previous updates.
+
 (cgmes-equivalent-injection-import)=
 ### EquivalentInjection
 
@@ -310,12 +313,33 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
-- `isCondenser` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
+- `hasCondenserCapability` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
 `generatorOrCondenser`, `motorOrCondenser`, `generatorOrMotorOrCondenser`), then the flag is set to `true`. Otherwise, it is set to `false`.
 
 <span style="color: red">TODO reactive limits</span>
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `SynchronousMachine` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. The regulation is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) on the generator:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the generator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch 
+    topology import if the regulating control is defined on a busbar section that is disconnected or not imported), a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
+  - In the SSH profile:
+    - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
+    - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled`.
+
+- **Reactive power regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.reactivePower`):
+  - The regulation mode is set to `REACTIVE_POWER`.
+  - The regulating terminal is mapped for flow control. If the terminal is unmapped or mapped to a switch without a valid terminal, the regulating control is ignored.
+  - In the SSH profile:
+    - The target reactive power flow is set from `RegulatingControl.targetValue`.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled`.
 
 <span style="color: red">TODO normalPF</span>
 
@@ -357,7 +381,20 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
 - `MaximumSectionCount` is copied from CGMES `maximumSections`.
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `LinearShuntCompensator` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. The regulation is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) on the shunt compensator:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the shunt compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported), a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
+  - In the SSH profile:
+    - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
+    - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled` and `ShuntCompensator.controlEnabled`.
 
 (cgmes-nonlinear-shunt-compensator-import)=
 ### NonlinearShuntCompensator
@@ -372,7 +409,9 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 - `B` is calculated as the sum of all CGMES `b` of `NonlinearShuntCompensatorPoints` with `sectionNumber` lower or equal to its `sectionNumber`
 - `G` is calculated as the sum of all CGMES `g` of `NonlinearShuntCompensatorPoints` with `sectionNumber` lower or equal to its `sectionNumber`
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+The regulation for a `NonlinearShuntCompensator` is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) following the same rules as for a [`LinearShuntCompensator`](#linearshuntcompensator).
 
 (cgmes-operational_limit-import)=
 ### OperationalLimits
@@ -449,13 +488,12 @@ and [`ConvertedT3xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgme
 
 Series compensators represent series capacitors or reactors or AC transmission lines without charging susceptance.
 
-If a `SeriesCompensator` has both its ends inside the same voltage level, it is mapped to a PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch). In this case,
-all its CGMES electrical attributes are ignored. It is considered as closed, fictitious and, if it is in a node-breaker voltage level, retained. Its `SwitchKind` is `BREAKER`.
-
-If a `SeriesCompensator` has its ends inside different voltage levels, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) with attributes as described below:
+A `SeriesCompensator` is always mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) with attributes as described below:
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G1`, `G2`, `B1` and `B2` are set to `0`
+
+Series compensators with zero impedance are supported, as the IIDM line model allows zero impedance even when both its ends are inside the same voltage level.
 
 (cgmes-static-var-compensator-import)=
 ### StaticVarCompensator
@@ -468,7 +506,20 @@ A `StaticVarCompensator` is mapped to a PowSyBl [`StaticVarCompensator`](../../g
 
 A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `StaticVarCompensator` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. Voltage regulation is mandatory for static var compensators in IIDM:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the static var compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported) a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
+  - In the SSH profile:
+    - If the regulating control was correctly mapped, the target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`, and whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled` and `StaticVarCompensator.controlEnabled`.
+- If no `RegulatingControl` is defined or if its terminal couldn't be mapped, and if the option iidm.import.cgmes.use-svc-regulation-data-as-alternative is set to true,
+  the static var compensator is configured with a default local regulation using `StaticVarCompensator.voltageSetPoint` (if defined in EQ) and default mode `VOLTAGE`.
 
 (cgmes-switch-import)=
 ### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
@@ -646,7 +697,7 @@ Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter
 - `SwitchingLoss` is copied from EQ `switchingLoss`.
 - `ResistiveLoss` is copied from EQ `resistiveLoss`.
 - `PccTerminal` is copied from EQ `PccTerminal`.
-- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), else it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC).
+- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC) and it is `DC_DROOP` if `pPccControl` is `pPccAndUdcDroop` (VSC only).
 - `TargetP` is copied from SSH `targetPpcc`.
 - `TargetVdc` is copied from SSH `targetUdc`.
 
@@ -659,6 +710,8 @@ Specific `VsConverter` attributes are mapped as follows:
 - `VoltageRegulatorOn` is set to `true` if SSH `qPccControl` is set to `voltagePcc`, else it is `false`.
 - `VoltageSetpoint` is copied from SSH `targetUpcc`.
 - `ReactivePowerSetpoint` is copied from SSH `targetQpcc`.
+- A single segment `DroopCurve` is created, with `k` derived from the SSH `droop` attribute. `droop` is converted from per-unit to kV/MW by using the `ratedUdc` and `baseS` attributes from the EQ profile.
+The voltage bound of the droop curve segment is [-`ratedUdc`, `ratedUdc`], but any voltage outside of this segment will use the same droop coefficient since the curve will be linearly extrapolated outside the segment. If any of these three attributes is missing, the `DroopCurve` is not created. 
 
 ## Extensions
 
@@ -913,6 +966,13 @@ Optional property that defines whether the CGMES importer should use previous va
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
 If set to `false`, missing SSH attributes will be filled using default values. 
 This property does not apply to SV data. SV data is handled as a complete dataset, with no support for partial updates of the SV file.
+`false` by default.
+
+**iidm.import.cgmes.use-svc-regulation-data-as-alternative**
+When this property is set to `true`, the importer will use the regulation data from the CGMES StaticVarCompensator
+in the equipment profile in case the regulation data from the CGMES RegulatingControl is not available.
+That happens for example when the RegulatingControl is missing or the Terminal in the RegulatingControl couldn't be mapped.
+If set to `false`, the regulation data from the CGMES StaticVarCompensator is always ignored.
 `false` by default.
 
 **iidm.import.cgmes.remove-properties-and-aliases-after-import**<br>
