@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -1793,6 +1794,13 @@ public interface Network extends Container<Network> {
      * Return a comparator to sort element in the creation order
      */
     default Optional<Comparator<Identifiable<?>>> getIdentifiableCreationOrderComparator() {
+        return Optional.empty();
+    }
+
+    /**
+     * Return a comparator to sort extensions in the creation order
+     */
+    default Optional<Comparator<Extension<?>>> getExtensionsCreationOrderComparator() {
         return Optional.empty();
     }
 

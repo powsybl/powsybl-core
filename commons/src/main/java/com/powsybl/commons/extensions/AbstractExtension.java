@@ -15,6 +15,7 @@ import com.powsybl.commons.PowsyblException;
 public abstract class AbstractExtension<T> implements Extension<T> {
 
     private T extendable;
+    private long creationOrder;
 
     protected AbstractExtension() {
         this.extendable = null;
@@ -33,6 +34,14 @@ public abstract class AbstractExtension<T> implements Extension<T> {
             throw new PowsyblException("Extension is already associated to the extendable " + this.extendable);
         }
         this.extendable = extendable;
+    }
+
+    public long getCreationOrder() {
+        return creationOrder;
+    }
+
+    public void setCreationOrder(long creationOrder) {
+        this.creationOrder = creationOrder;
     }
 
     @Override
