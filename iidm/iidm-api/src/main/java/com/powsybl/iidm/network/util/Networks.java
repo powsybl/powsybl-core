@@ -385,13 +385,32 @@ public final class Networks {
      * @return A terminal for the specified node or null.
      */
     public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node) {
+        return getEquivalentTerminal(voltageLevel, node, new ArrayList<>(), new ArrayList<>());
+    }
+
+    /**
+     * Return a terminal for the specified node.
+     * If a terminal is attached to the node, return this terminal. Otherwise, this method traverses the topology and return
+     * the first equivalent terminal found.
+     *
+     * @param voltageLevel The voltage level to traverse
+     * @param node The starting node
+     * @return A terminal for the specified node or null.
+     */
+    public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node, List<Switch> closedSwitchesToTerminalRef, List<Switch> openSwitchesAtEndOfPaths) {
         checkNodeBreakerVoltageLevel(voltageLevel);
+        closedSwitchesToTerminalRef.clear();
+        openSwitchesAtEndOfPaths.clear();
 
         Terminal[] equivalentTerminal = new Terminal[1];
 
         VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
+                openSwitchesAtEndOfPaths.add(sw);
                 return TraverseResult.TERMINATE_PATH;
+            }
+            if (sw != null && sw.isRetained()) {
+                closedSwitchesToTerminalRef.add(sw);
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {
