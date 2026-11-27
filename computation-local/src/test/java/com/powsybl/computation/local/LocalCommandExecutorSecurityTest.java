@@ -16,10 +16,7 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -172,33 +169,54 @@ class LocalCommandExecutorSecurityTest {
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
     }
 
-    // The following test can be executed on every OS.
-    // It asserts that no system command is run when an invalid program name is detected.
     @Test
-    void testCommandInjectionViaProgramNameOnWindows() {
-        // 8. Injection via program name containing a double quote.
-        //    The executor must reject program names with quotes rather than pass them raw.
-        String maliciousProgram = String.format("echo\" & type nul > \"%s\" & echo \"", pwndFileEnvVarName);
-        Map<String, String> env = Map.of();
-        List<String> cmdArgs = List.of();
-
+    void testCommandInjectionViaProgramNameDisallowedCharactersOnWindows() {
         WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> executor.execute(maliciousProgram, cmdArgs, outFile, errFile, tempDir, env)
-        );
-        assertEquals("Program name must not contain double quotes", exception.getMessage());
-        assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
+        IllegalArgumentException ex;
+        // Disallowed characters
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("echo & type nul > %s & echo ", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("echo\" & type nul > \"%s\" & echo \"", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("\"cmd", 5, List.of("/c whoami.exe"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("whoami.exe|more", 5, List.of(), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("more<input", 5, List.of(), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("whoami.exe>output", 5, List.of(), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd&", 5, List.of(), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd%", 5, List.of(), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd!", 5, List.of(), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path must not contain these special characters: \"&|<>%!^", ex.getMessage());
+    }
 
-        // 9. Injection via program name containing spaces.
-        //    The executor must reject program names with quotes rather than pass them raw.
-        String maliciousProgram2 = String.format("echo & type nul > %s & echo ", pwndFileEnvVarName);
-        IllegalArgumentException exception2 = assertThrows(
-            IllegalArgumentException.class,
-            () -> executor.execute(maliciousProgram2, cmdArgs, outFile, errFile, tempDir, env)
-        );
-        assertEquals("Program name must not contain spaces", exception2.getMessage());
-        assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testCommandInjectionViaProgramNameInvalidPathOnWindows() {
+        WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
+        IllegalArgumentException ex;
+        // invalid path
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("cmd /c", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path is invalid", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> executor.execute("echo:", 5, List.of("Hello world"), outFile, errFile, tempDir, Map.of()));
+        assertEquals("Program path is invalid", ex.getMessage());
+
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testCommandInjectionViaProgramNameWithSpaceOnWindows() throws IOException, InterruptedException {
+        WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
+
+        // program not found (program name is quoted)
+        int exitCode = executor.execute("echo a", 5, List.of(), outFile, errFile, tempDir, Map.of());
+        assertEquals(1, exitCode);
+        assertTrue(Files.readString(outFile).isEmpty());
+        assertFalse(Files.readString(errFile).isEmpty());
     }
 
     // Injection via environment variable name: a name sits before the '=' assignment

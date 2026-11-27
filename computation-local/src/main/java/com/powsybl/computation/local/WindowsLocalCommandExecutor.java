@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,7 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
             }
             internalCmd.append("\" & ");
         }
-        // Quote the program name to handle spaces in paths and validate it contains no quotes.
-        if (program.contains("\"")) {
-            throw new IllegalArgumentException("Program name must not contain double quotes");
-        }
-        if (program.contains(" ")) {
-            throw new IllegalArgumentException("Program name must not contain spaces");
-        }
-        internalCmd.append(program);
+        internalCmd.append(escapeProgram(program));
         for (String arg : args) {
             internalCmd.append(" \"").append(escapeCmdArg(arg)).append("\"");
         }
@@ -114,5 +108,30 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
             .replace("\n", "") // prevents newline-based injection
             .replace("\r", "") // prevents newline-based injection
             + suffix;
+    }
+
+    private String escapeProgram(String program) {
+        if (program == null || program.isBlank()) {
+            throw new IllegalArgumentException("Program path must not be empty");
+        }
+        // Do not quote simple names.
+        // It includes built-in commands (dir, echo, ...), which do not support quoting
+        if (program.matches("[A-Za-z0-9-_.]+")) {
+            return program;
+        }
+        // Quote other names
+        // Disallow special characters due to cmd.exe's error-prone escaping rules and command injection risks.
+        String specialChars = "\"&|<>%!^";
+        if (program.chars().anyMatch(c -> specialChars.indexOf(c) != -1)) {
+            throw new IllegalArgumentException("Program path must not contain these special characters: " + specialChars);
+        }
+        // Check program is a valid Windows path (but do not require that the file exists, as it can be an executable resolved with %PATH%)
+        // Among other thing, it checks that it does not contain non-printable ASCII characters and reserved characters
+        try {
+            Path ignored = Path.of(program);
+        } catch (InvalidPathException e) {
+            throw new IllegalArgumentException("Program path is invalid", e);
+        }
+        return "\"" + program + "\"";
     }
 }
