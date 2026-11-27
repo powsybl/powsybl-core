@@ -1,0 +1,47 @@
+---
+# Template of the repository configuration for PowSyBl projects.
+# Copy it as ".ort.yml" at the root of each repository and adapt it.
+# Documentation: https://oss-review-toolkit.org/ort/docs/configuration/ort-yml
+excludes:
+  scopes:
+    - pattern: "test"
+      reason: "TEST_DEPENDENCY_OF"
+      comment: "Test dependencies are not distributed."
+    - pattern: "provided"
+      reason: "PROVIDED_DEPENDENCY_OF"
+      comment: "Provided by the runtime environment, not distributed with PowSyBl."
+  paths:
+    - pattern: "docs/**"
+      reason: "DOCUMENTATION_OF"
+      comment: "Documentation sources, not part of the distributed artifacts."
+    - pattern: "ort/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "ORT policy files. They list many license ids as text but are not distributed code."
+    - pattern: ".github/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "CI configuration, not distributed."
+    - pattern: "release_benchmarks_reports/**"
+      reason: "DATA_FILE_OF"
+      comment: "Generated benchmark reports, not distributed."
+
+# Pick the acceptable license of dual-licensed dependencies, e.g.:
+# license_choices:
+#   package_license_choices:
+#     - package_id: "Maven:jakarta.annotation:jakarta.annotation-api:2.1.1"
+#       license_choices:
+#         - given: "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0"
+#           choice: "EPL-2.0"
+
+# Curations
+curations:
+  packages:
+    - id: "Maven:org.antlr:antlr4:[4.0,5.0)"
+      curations:
+        comment: "The POM declares the generic 'The BSD License'. ANTLR 4 is distributed under the BSD 3-clause license."
+        declared_license_mapping:
+          "The BSD License": "BSD-3-Clause"
+    - id: "Maven:org.antlr:ST4:[4.0,5.0)"
+      curations:
+        comment: "The POM declares the generic 'The BSD License'. StringTemplate 4 is distributed under the BSD 3-clause license."
+        declared_license_mapping:
+          "The BSD License": "BSD-3-Clause"
