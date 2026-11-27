@@ -157,9 +157,7 @@ class AmplModelExecutionHandlerTest {
             }
         };
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            CompletableFuture<AmplResults> result = runCustomOutputFile(fs, customFile);
-            CompletionException completionException = assertThrows(CompletionException.class, () -> result.join());
-            assertEquals(UncheckedIOException.class, completionException.getCause().getClass());
+            assertEquals(UncheckedIOException.class, runCustomOutputFileAndGetFailure(fs, customFile).getClass());
         }
     }
 
@@ -183,14 +181,12 @@ class AmplModelExecutionHandlerTest {
             }
         };
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            CompletableFuture<AmplResults> result = runCustomOutputFile(fs, customFile);
-            CompletionException completionException = assertThrows(CompletionException.class, () -> result.join());
-            assertEquals(PowsyblException.class, completionException.getCause().getClass());
+            assertEquals(PowsyblException.class, runCustomOutputFileAndGetFailure(fs, customFile).getClass());
         }
     }
 
-    private CompletableFuture<AmplResults> runCustomOutputFile(FileSystem fs,
-                                                               AmplOutputFile customOutput) throws IOException {
+    private Throwable runCustomOutputFileAndGetFailure(FileSystem fs,
+                                                       AmplOutputFile customOutput) throws IOException {
         Files.createDirectory(fs.getPath("/workingDir"));
         // Test data
         Network network = EurostagTutorialExample1Factory.create();
@@ -214,8 +210,10 @@ class AmplModelExecutionHandlerTest {
             };
             AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
                 parameters);
-            return manager.execute(env, handler);
-
+            CompletableFuture<AmplResults> result = manager.execute(env, handler);
+            // The result must be awaited before the manager is closed
+            CompletionException completionException = assertThrows(CompletionException.class, result::join);
+            return completionException.getCause();
         }
     }
 
