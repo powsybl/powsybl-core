@@ -48,10 +48,16 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
         if (oldPriority != newPriority) {
             NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
             String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
-            network.getListeners().notifyExtensionUpdate(this, "referencePriority", variantId, oldPriority, newPriority);
+            network.getListeners().notifyExtensionUpdate(this, getNotifyAttribute(referencePriority), variantId, oldPriority, newPriority);
         }
 
         return this;
+    }
+
+    private String getNotifyAttribute(ReferencePriority referencePriority) {
+        return getExtendable().getTerminals().size() > 1
+                ? "referencePriority" + referencePriority.getTerminal().getSide().getNum()
+                : "referencePriority";
     }
 
     @Override
@@ -75,7 +81,7 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
         NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
         String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
         for (ReferencePriority oldReferencePriority : oldReferencePriorities) {
-            network.getListeners().notifyExtensionUpdate(this, "referencePriority", variantId, oldReferencePriority.getPriority(), 0);
+            network.getListeners().notifyExtensionUpdate(this, getNotifyAttribute(oldReferencePriority), variantId, oldReferencePriority.getPriority(), 0);
         }
     }
 

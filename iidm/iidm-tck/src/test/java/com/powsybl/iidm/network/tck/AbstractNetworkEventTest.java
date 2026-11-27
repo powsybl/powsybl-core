@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkEventRecorder;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
@@ -154,6 +151,24 @@ public abstract class AbstractNetworkEventTest {
         gen.removeExtension(ReferencePriorities.class);
         assertEquals(List.of(new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", false),
                         new ExtensionRemovalNetworkEvent("GEN", "referencePriorities", true)),
+                eventRecorder.getEvents());
+
+        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("NGEN_NHV1");
+        eventRecorder.reset();
+        ReferencePriority.set(t2w, TwoSides.ONE, 1);
+        assertEquals(List.of(new ExtensionCreationNetworkEvent("NGEN_NHV1", "referencePriorities"),
+                        new ExtensionUpdateNetworkEvent("NGEN_NHV1", "referencePriorities", "referencePriority1", "InitialState", 0, 1)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ReferencePriority.set(t2w, TwoSides.TWO, 1);
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("NGEN_NHV1", "referencePriorities", "referencePriority2", "InitialState", 0, 1)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        t2w.removeExtension(ReferencePriorities.class);
+        assertEquals(List.of(new ExtensionRemovalNetworkEvent("NGEN_NHV1", "referencePriorities", false),
+                        new ExtensionRemovalNetworkEvent("NGEN_NHV1", "referencePriorities", true)),
                 eventRecorder.getEvents());
     }
 }
