@@ -1,0 +1,39 @@
+---
+# Global resolutions for issues, rule violations and vulnerabilities, applied to ALL PowSyBl repositories.
+#
+# Only add here resolutions that are valid for every PowSyBl project, with a comment explaining why
+# (and ideally a link to the TSC decision). Project-specific resolutions belong to the "resolutions"
+# section of the repository .ort.yml, so that they are reviewed with the project.
+#
+# Documentation: https://oss-review-toolkit.org/ort/docs/configuration/resolutions
+#
+# Resolved items are still listed in the reports, but no longer fail the CI.
+
+# Structure of issue resolution:
+#
+# - message: "A regular expression matching the issue message."
+#   reason: "One of: BUILD_TOOL_ISSUE|CANT_FIX_ISSUE|SCANNER_ISSUE"
+#   comment: "Why the reason above is applicable."
+issues: []
+
+# Structure of policy rule violation resolution:
+#
+# - message: "A regular expression matching the violation message."
+#   reason: "One of: CANT_FIX_EXCEPTION|DYNAMIC_LINKAGE_EXCEPTION|EXAMPLE_OF_EXCEPTION|LICENSE_ACQUIRED_EXCEPTION
+#                   |PATENT_GRANT_EXCEPTION"
+#   comment: "Why the reason above is applicable."
+#
+# Example (shape only, do not enable without a review):
+# - message: "The package Maven:org\\.example:some-lib:.* uses the license JSON, .*"
+#   reason: "LICENSE_ACQUIRED_EXCEPTION"
+#   comment: "Reviewed by the PowSyBl TSC on YYYY-MM-DD, see <link>."
+rule_violations: []
+
+# Structure of vulnerability resolution:
+#
+# - id: "A regular expression matching the vulnerability id (e.g. CVE-2024-12345 or GHSA-xxxx-xxxx-xxxx)."
+#   reason: "One of: CANT_FIX_VULNERABILITY|INEFFECTIVE_VULNERABILITY|INVALID_MATCH_VULNERABILITY
+#                   |MITIGATED_VULNERABILITY|WILL_NOT_FIX_VULNERABILITY
+#                   |WORKAROUND_FOR_VULNERABILITY"
+#   comment: "Why the reason above is applicable."
+vulnerabilities: []

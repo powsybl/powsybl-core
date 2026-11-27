@@ -1,0 +1,48 @@
+---
+# Global ORT configuration shared by the PowSyBl repositories.
+# Reference of all available options:
+# https://github.com/oss-review-toolkit/ort/blob/main/model/src/main/resources/reference.yml
+ort:
+  # The GitHub Action fails the job ("fail-on: violations") when a rule violation reaches this severity.
+  # Only ERROR violations block the CI; WARNING and HINT are reported but do not fail the job.
+  severeRuleViolationThreshold: ERROR
+  severeIssueThreshold: ERROR
+
+  # Let each repository fix wrong/missing dependency metadata (e.g. a Maven artifact without <licenses>)
+  # through "curations" and "package_configurations" in its own .ort.yml. These changes go through PR review.
+  enableRepositoryPackageCurations: true
+  enableRepositoryPackageConfigurations: true
+
+  licenseFactProviders:
+    - type: "SPDX"
+
+  analyzer:
+    # PowSyBl Java repositories are built with Maven. Restricting the analyzer avoids picking up unrelated
+    # manifests (e.g. docs/requirements.txt used for the Sphinx documentation).
+    # Repositories using other tools (e.g. pypowsybl) can override this from the workflow with:
+    #   ort-cli-args: '-P ort.analyzer.enabledPackageManagers=Maven,Pip'
+    enabledPackageManagers: [Maven]
+    # Do not resolve scopes/paths excluded in .ort.yml (e.g. Maven "test" and "provided" scopes).
+    skipExcluded: true
+
+  scanner:
+    # Do not re-scan packages whose license has been concluded through a curation.
+    skipConcluded: true
+    skipExcluded: true
+    archive:
+      # Keep archived license files locally on the CI runner.
+      # They are used when generating attribution notices.
+      enabled: true
+    config:
+      ScanCode:
+        options:
+          # GitHub-hosted ubuntu-latest runners provide 4 vCPUs.
+          commandLineNonConfig: '--processes,4'
+
+  advisor:
+    skipExcluded: true
+    # The GitHub Action selects the advisors with its "advisors" input (default: OSV).
+    config:
+      OSV:
+        options:
+          serverUrl: 'https://api.osv.dev'
