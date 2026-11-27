@@ -60,6 +60,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
     Pattern WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN = Pattern.compile("Record (\\d+) has (\\d+) fields, but first record had (\\d+) fields");
+    Pattern MAX_FIELDS_EXCEEDED_PATTERN = Pattern.compile("Record starting at line (\\d+) has surpassed the maximum limit of (\\d+) fields");
 
     int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = -1;
 
@@ -537,7 +538,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 lineparser.accept(rec);
             }
         } catch (CsvParseException e) {
-            if (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getMessage()).find()) {
+            if (e.getMessage() != null && (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getMessage()).find()
+                    || MAX_FIELDS_EXCEEDED_PATTERN.matcher(e.getMessage()).find())) {
                 throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header", e);
             }
             throw e;
@@ -546,10 +548,18 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static CsvParsingContext readCsvHeader(Iterator<CsvRecord> iterator, TimeSeriesCsvConfig timeSeriesCsvConfig) {
-        if (!iterator.hasNext()) {
-            throw new TimeSeriesException("CSV header is missing");
+        CsvRecord headerRecord;
+        try {
+            if (!iterator.hasNext()) {
+                throw new TimeSeriesException("CSV header is missing");
+            }
+            headerRecord = iterator.next();
+        } catch (CsvParseException e) {
+            if (e.getMessage() != null && MAX_FIELDS_EXCEEDED_PATTERN.matcher(e.getMessage()).find()) {
+                throw new TimeSeriesException("Number of columns in header exceeds the maximum allowed (" + timeSeriesCsvConfig.getMaxColumns() + ")", e);
+            }
+            throw e;
         }
-        CsvRecord headerRecord = iterator.next();
 
         checkCsvHeader(timeSeriesCsvConfig, headerRecord);
 
@@ -573,10 +583,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
         } else if (headerRecord.getFieldCount() < 2 || !"time".equalsIgnoreCase(headerRecord.getField(0))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
-        }
-        if (timeSeriesCsvConfig.getMaxColumns() > 0 && headerRecord.getFieldCount() > timeSeriesCsvConfig.getMaxColumns()) {
-            throw new TimeSeriesException("Number of columns in header (" + headerRecord.getFieldCount()
-                + ") exceeds the maximum allowed (" + timeSeriesCsvConfig.getMaxColumns() + ")");
         }
     }
 
@@ -613,9 +619,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     private static int getCsvMaxFields(TimeSeriesCsvConfig timeSeriesCsvConfig) {
-        // One more field than maxColumns so that a too wide header is reported by checkCsvHeader
         int maxColumns = timeSeriesCsvConfig.getMaxColumns();
-        return maxColumns > 0 && maxColumns < Integer.MAX_VALUE ? maxColumns + 1 : Integer.MAX_VALUE;
+        return maxColumns > 0 ? maxColumns : Integer.MAX_VALUE;
     }
 
     void writeJson(JsonGenerator generator);

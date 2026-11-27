@@ -526,9 +526,21 @@ class TimeSeriesTest {
         assertEquals(99, timeSeries.get(TimeSeries.DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES).size());
 
         assertThatCode(() -> TimeSeries.parseCsv(createWideCsv(100), config))
-                .hasMessageContaining("Number of columns in header (101) exceeds the maximum allowed (100)")
+                .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
                 .isInstanceOf(TimeSeriesException.class);
-        assertThrows(CsvParseException.class, () -> TimeSeries.parseCsv(createWideCsv(149), config));
+        assertThatCode(() -> TimeSeries.parseCsv(createWideCsv(149), config))
+                .hasMessage("Number of columns in header exceeds the maximum allowed (100)")
+                .isInstanceOf(TimeSeriesException.class);
+    }
+
+    @Test
+    void testParseCsvValuesExceedMaxColumns() {
+        TimeSeriesCsvConfig config = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, 100, true);
+        String csv = createWideCsv(99).replace("\n0;", "\n0;1;");
+
+        assertThatCode(() -> TimeSeries.parseCsv(csv, config))
+                .hasMessage("Columns of line 0 are inconsistent with header")
+                .isInstanceOf(TimeSeriesException.class);
     }
 
     @Test
