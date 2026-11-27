@@ -1,0 +1,537 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:TapChangers_EQ">
+        <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+        <md:Model.description>Minimal transformers and tap changer equipment</md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="GR1">
+        <cim:IdentifiedObject.name>GeographicalRegion1</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="SGR1">
+        <cim:IdentifiedObject.name>SubGeographicalRegion1</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#GR1"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="S1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#SGR1"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="BV1">
+        <cim:IdentifiedObject.name>BaseVoltage1</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>100.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="BV2">
+        <cim:IdentifiedObject.name>BaseVoltage2</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>20.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="BV3">
+        <cim:IdentifiedObject.name>BaseVoltage3</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="BV4">
+        <cim:IdentifiedObject.name>BaseVoltage4</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>110.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="VL1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#BV1"/>
+        <cim:VoltageLevel.Substation rdf:resource="#S1"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="VL2">
+        <cim:IdentifiedObject.name>VoltageLevel2</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#BV2"/>
+        <cim:VoltageLevel.Substation rdf:resource="#S1"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="CN1">
+        <cim:IdentifiedObject.name>ConnectivityNode1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VL1"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="CN2">
+        <cim:IdentifiedObject.name>ConnectivityNode2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VL2"/>
+    </cim:ConnectivityNode>
+    <cim:VoltageLevel rdf:ID="VL3">
+        <cim:IdentifiedObject.name>VoltageLevel3</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#BV3"/>
+        <cim:VoltageLevel.Substation rdf:resource="#S1"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="VL4">
+        <cim:IdentifiedObject.name>VoltageLevel4</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#BV4"/>
+        <cim:VoltageLevel.Substation rdf:resource="#S1"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="CN3">
+        <cim:IdentifiedObject.name>ConnectivityNode3</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VL3"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="CN4">
+        <cim:IdentifiedObject.name>ConnectivityNode4</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VL4"/>
+    </cim:ConnectivityNode>
+
+    <cim:PowerTransformer rdf:ID="PT1">
+        <cim:IdentifiedObject.name>PowerTransformer1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE11">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>100.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV1"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT1"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT1_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE12">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>20.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV2"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT1"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT1_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT1_1">
+        <cim:IdentifiedObject.name>T_PT1_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT1_2">
+        <cim:IdentifiedObject.name>T_PT1_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN2"/>
+    </cim:Terminal>
+    <cim:RatioTapChanger rdf:ID="RTC1">
+        <cim:IdentifiedObject.name>RatioTapChanger1</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>20.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>6</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>4</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>3</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.stepVoltageIncrement>1.25</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#PTE11"/>
+        <cim:RatioTapChanger.RatioTapChangerTable rdf:resource="#RTCT1"/>
+        <cim:TapChanger.TapChangerControl rdf:resource="#TCC1"/>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChangerTable rdf:ID="RTCT1">
+        <cim:IdentifiedObject.name>RatioTapChangerTable1</cim:IdentifiedObject.name>
+    </cim:RatioTapChangerTable>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP1">
+        <cim:TapChangerTablePoint.r>12.69256</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.ratio>0.8674545</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>1</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-35.21551</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT1"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP2">
+        <cim:TapChangerTablePoint.r>7.797</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.ratio>0.9668637</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>2</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-5.83781</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT1"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP3">
+        <cim:TapChangerTablePoint.r>5.63837</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.step>3</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-3.1783</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT1"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP4">
+        <cim:TapChangerTablePoint.r>0.0</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.ratio>1.0</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>4</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>0.0</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT1"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP5">
+        <cim:TapChangerTablePoint.ratio>1.0662727</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>5</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-11.05201</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT1"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP6">
+        <cim:TapChangerTablePoint.r>38.47649</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.ratio>1.0773182</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>6</cim:TapChangerTablePoint.step>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT1"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:PhaseTapChangerTable rdf:ID="PTCT1">
+        <cim:IdentifiedObject.name>PhaseTapChangerTable1</cim:IdentifiedObject.name>
+    </cim:PhaseTapChangerTable>
+    <cim:PhaseTapChangerTablePoint rdf:ID="PTCP1">
+        <cim:TapChangerTablePoint.step>1</cim:TapChangerTablePoint.step>
+        <cim:PhaseTapChangerTablePoint.angle>-28.12</cim:PhaseTapChangerTablePoint.angle>
+        <cim:PhaseTapChangerTablePoint.PhaseTapChangerTable rdf:resource="#PTCT1"/>
+    </cim:PhaseTapChangerTablePoint>
+    <cim:PhaseTapChangerTablePoint rdf:ID="PTCP2">
+        <cim:TapChangerTablePoint.r>0.0</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.step>2</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>0.0</cim:TapChangerTablePoint.x>
+        <cim:PhaseTapChangerTablePoint.angle>0.0</cim:PhaseTapChangerTablePoint.angle>
+        <cim:PhaseTapChangerTablePoint.PhaseTapChangerTable rdf:resource="#PTCT1"/>
+    </cim:PhaseTapChangerTablePoint>
+    <cim:PhaseTapChangerTablePoint rdf:ID="PTCP3">
+        <cim:TapChangerTablePoint.r>-18.07027</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.step>3</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-1.31601</cim:TapChangerTablePoint.x>
+        <cim:PhaseTapChangerTablePoint.angle>12.5</cim:PhaseTapChangerTablePoint.angle>
+        <cim:PhaseTapChangerTablePoint.PhaseTapChangerTable rdf:resource="#PTCT1"/>
+    </cim:PhaseTapChangerTablePoint>
+    <cim:PhaseTapChangerTablePoint rdf:ID="PTCP4">
+        <cim:TapChangerTablePoint.r>-31.47568</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.step>4</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-4.01429</cim:TapChangerTablePoint.x>
+        <cim:PhaseTapChangerTablePoint.angle>-21.87</cim:PhaseTapChangerTablePoint.angle>
+        <cim:PhaseTapChangerTablePoint.PhaseTapChangerTable rdf:resource="#PTCT1"/>
+    </cim:PhaseTapChangerTablePoint>
+    <cim:TapChangerControl rdf:ID="TCC1">
+        <cim:IdentifiedObject.name>TapChangerControl1</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#T_PT1_2"/>
+    </cim:TapChangerControl>
+    <cim:PowerTransformer rdf:ID="PT2">
+        <cim:IdentifiedObject.name>PowerTransformer2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE21">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>100.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV1"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT2"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT2_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE22">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>20.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV2"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT2"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT2_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT2_1">
+        <cim:IdentifiedObject.name>T_PT2_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT2_2">
+        <cim:IdentifiedObject.name>T_PT2_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN2"/>
+    </cim:Terminal>
+    <cim:RatioTapChanger rdf:ID="RTC2">
+        <cim:IdentifiedObject.name>RatioTapChanger2</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>20.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>6</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>4</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>3</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.stepVoltageIncrement>1.25</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#PTE21"/>
+        <cim:RatioTapChanger.RatioTapChangerTable rdf:resource="#RTCT2"/>
+        <cim:TapChanger.TapChangerControl rdf:resource="#TCC3"/>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChangerTable rdf:ID="RTCT2">
+        <cim:IdentifiedObject.name>RatioTapChangerTable2</cim:IdentifiedObject.name>
+    </cim:RatioTapChangerTable>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP21">
+        <cim:TapChangerTablePoint.r>12.69256</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.ratio>0.8674545</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>1</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-35.21551</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT2"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP22">
+        <cim:TapChangerTablePoint.r>7.797</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.ratio>0.9668637</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>2</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-5.83781</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT2"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP23">
+        <cim:TapChangerTablePoint.r>5.63837</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.step>3</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-3.1783</cim:TapChangerTablePoint.x>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT2"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:RatioTapChangerTablePoint rdf:ID="RTCP28">
+        <cim:TapChangerTablePoint.ratio>1.0773182</cim:TapChangerTablePoint.ratio>
+        <cim:TapChangerTablePoint.step>8</cim:TapChangerTablePoint.step>
+        <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#RTCT2"/>
+    </cim:RatioTapChangerTablePoint>
+    <cim:PhaseTapChangerTable rdf:ID="PTCT2">
+        <cim:IdentifiedObject.name>PhaseTapChangerTable2</cim:IdentifiedObject.name>
+    </cim:PhaseTapChangerTable>
+    <cim:PhaseTapChangerTablePoint rdf:ID="PTCP31">
+        <cim:TapChangerTablePoint.step>1</cim:TapChangerTablePoint.step>
+        <cim:PhaseTapChangerTablePoint.angle>-28.12</cim:PhaseTapChangerTablePoint.angle>
+        <cim:PhaseTapChangerTablePoint.PhaseTapChangerTable rdf:resource="#PTCT2"/>
+    </cim:PhaseTapChangerTablePoint>
+    <cim:PhaseTapChangerTablePoint rdf:ID="PTCP34">
+        <cim:TapChangerTablePoint.r>-31.47568</cim:TapChangerTablePoint.r>
+        <cim:TapChangerTablePoint.step>4</cim:TapChangerTablePoint.step>
+        <cim:TapChangerTablePoint.x>-4.01429</cim:TapChangerTablePoint.x>
+        <cim:PhaseTapChangerTablePoint.angle>-21.87</cim:PhaseTapChangerTablePoint.angle>
+        <cim:PhaseTapChangerTablePoint.PhaseTapChangerTable rdf:resource="#PTCT2"/>
+    </cim:PhaseTapChangerTablePoint>
+    <cim:PowerTransformer rdf:ID="PT3">
+        <cim:IdentifiedObject.name>PowerTransformer3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE31">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>100.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV1"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT3"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT3_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE32">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>20.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV2"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT3"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT3_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT3_1">
+        <cim:IdentifiedObject.name>T_PT3_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT3_2">
+        <cim:IdentifiedObject.name>T_PT3_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN2"/>
+    </cim:Terminal>
+    <cim:PhaseTapChangerTabular rdf:ID="PTC3">
+        <cim:IdentifiedObject.name>PhaseTapChanger3</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>20.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>5</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>3</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>3</cim:TapChanger.normalStep>
+        <cim:PhaseTapChangerTabular.PhaseTapChangerTable rdf:resource="#PTCT2"/>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#PTE32"/>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    </cim:PhaseTapChangerTabular>
+    <cim:PowerTransformer rdf:ID="PT4">
+        <cim:IdentifiedObject.name>PowerTransformer4</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE41">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>100.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV1"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT4"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT4_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE42">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>20.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV2"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT4"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT4_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT4_1">
+        <cim:IdentifiedObject.name>T_PT4_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT4"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT4_2">
+        <cim:IdentifiedObject.name>T_PT4_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT4"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN2"/>
+    </cim:Terminal>
+    <cim:PhaseTapChangerTabular rdf:ID="PTC4">
+        <cim:IdentifiedObject.name>PhaseTapChanger4</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>20.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>4</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>2</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>2</cim:TapChanger.normalStep>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#PTE42"/>
+        <cim:PhaseTapChangerTabular.PhaseTapChangerTable rdf:resource="#PTCT1"/>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.TapChangerControl rdf:resource="#TCC2"/>
+    </cim:PhaseTapChangerTabular>
+    <cim:TapChangerControl rdf:ID="TCC2">
+        <cim:IdentifiedObject.name>TapChangerControl2</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.currentFlow"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#T_PT4_2"/>
+    </cim:TapChangerControl>
+
+    <cim:PowerTransformer rdf:ID="PT5">
+        <cim:IdentifiedObject.name>PowerTransformer5</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE51">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>100.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV1"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT5"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT5_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE52">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>20.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV2"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT5"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT5_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT5_1">
+        <cim:IdentifiedObject.name>T_PT5_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT5"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT5_2">
+        <cim:IdentifiedObject.name>T_PT5_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT5"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN2"/>
+    </cim:Terminal>
+    <cim:RatioTapChanger rdf:ID="RTC5">
+        <cim:IdentifiedObject.name>RatioTapChanger5</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>20.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>6</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>4</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>3</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.stepVoltageIncrement>1.25</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#PTE51"/>
+        <cim:TapChanger.TapChangerControl rdf:resource="#TCC3"/>
+    </cim:RatioTapChanger>
+    <cim:TapChangerControl rdf:ID="TCC3">
+        <cim:IdentifiedObject.name>TapChangerControl3</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#T_PT5_2"/>
+    </cim:TapChangerControl>
+
+    <cim:PowerTransformer rdf:ID="PT6">
+        <cim:IdentifiedObject.name>PowerTransformer6</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE61">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>100.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV1"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT6"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT6_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE62">
+        <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>1.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedU>20.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV2"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT6"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT6_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT6_1">
+        <cim:IdentifiedObject.name>T_PT6_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT6"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT6_2">
+        <cim:IdentifiedObject.name>T_PT6_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT6"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN2"/>
+    </cim:Terminal>
+    <cim:PhaseTapChangerTabular rdf:ID="PTC6">
+        <cim:IdentifiedObject.name>PhaseTapChanger6</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>20.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>4</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>2</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>2</cim:TapChanger.normalStep>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#PTE62"/>
+        <cim:PhaseTapChangerTabular.PhaseTapChangerTable rdf:resource="#PTCT1"/>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.TapChangerControl rdf:resource="#TCC4"/>
+    </cim:PhaseTapChangerTabular>
+    <cim:TapChangerControl rdf:ID="TCC4">
+        <cim:IdentifiedObject.name>TapChangerControl4</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#T_PT6_2"/>
+    </cim:TapChangerControl>
+    <cim:PowerTransformer rdf:ID="PT7">
+        <cim:IdentifiedObject.name>PowerTransformer7</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="PTE71">
+        <cim:PowerTransformerEnd.r>2.707692</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>14.518904</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedS>650.0</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>400.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV3"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT7"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT7_1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="PTE72">
+        <cim:PowerTransformerEnd.r>0.0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>0.0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedS>650.0</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>110.0</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#BV4"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#PT7"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#T_PT7_2"/>
+    </cim:PowerTransformerEnd>
+    <cim:Terminal rdf:ID="T_PT7_1">
+        <cim:IdentifiedObject.name>T_PT7_1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT7"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN3"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="T_PT7_2">
+        <cim:IdentifiedObject.name>T_PT7_2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#PT7"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN4"/>
+    </cim:Terminal>
+    <cim:PhaseTapChangerLinear rdf:ID="PTC7">
+        <cim:IdentifiedObject.name>PhaseTapChangerLinear7</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralU>400.0</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>10</cim:TapChanger.normalStep>
+        <cim:PhaseTapChangerLinear.stepPhaseShiftIncrement>1.2</cim:PhaseTapChangerLinear.stepPhaseShiftIncrement>
+        <cim:PhaseTapChangerLinear.xMin>1.81236</cim:PhaseTapChangerLinear.xMin>
+        <cim:PhaseTapChangerLinear.xMax>1.81236</cim:PhaseTapChangerLinear.xMax>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#PTE71"/>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    </cim:PhaseTapChangerLinear>
+</rdf:RDF>
