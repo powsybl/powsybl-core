@@ -203,9 +203,9 @@ an [`EquivalentBranch`](#equivalentbranch) or a [`PowerTransformer`](#powertrans
 
 Attributes of the PowSyBl generator or of the PowSyBl boundary line generation are created as such:
 - `MinP`/`MaxP` are copied from CGMES `minP`/`maxP` if defined, otherwise they are set to `-Double.MAX_VALUE`/`Double.MAX_VALUE`.
-- `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`.
-- `TargetV` The `regulationTarget` property is copied if it is not equal to zero. Otherwise, the nominal voltage associated to the connected terminal of the `equivalentInjection` is assigned. For CGMES Equivalent Injections, the voltage regulation is allowed only at the point of connection.
-- `VoltageRegulatorOn` It is assigned to `true` if both properties, `regulationCapability` and `regulationStatus` are `true` and the terminal is connected.
+- `TargetP`/`LocalTargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`LocalTargetQ`.
+- `LocalTargetV` The `regulationTarget` property is copied if it is not equal to zero. Otherwise, the nominal voltage associated to the connected terminal of the `equivalentInjection` is assigned. For CGMES Equivalent Injections, the voltage regulation is allowed only at the point of connection.
+- [`VoltageRegulation`](../../grid_model/additional.md#voltage-regulation) `regulating` is set to `true` if both `regulationCapability` and `regulationStatus` are `true` and the terminal is connected (mode `VOLTAGE`).
 - `EnergySource` is set to `OTHER`.
 
 (cgmes-ac-line-segment-import)=

@@ -362,9 +362,9 @@ Optional:
 | $MaxP$               | MW   | Maximum generation part active power output                                            |
 | $ReactiveLimits$     | MVar | Operational limits of the generation part (P/Q/V diagram)                              |
 | $TargetP$            | MW   | The active power target                                                                |
-| $TargetQ$            | MVar | The reactive power target                                                              |
-| $TargetV$            | kV   | The voltage target                                                                     |
-| $VoltageRegulatorOn$ |      | True if the generation part regulates voltage                                          |
+| $LocalTargetQ$       | MVar | The reactive power target                                                              |
+| $LocalTargetV$       | kV   | The voltage target                                                                     |
+| $VoltageRegulation$  |      | See [Voltage Regulation](./additional.md#voltage-regulation)                           |
 | $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance | 
 
 **Specifications**
